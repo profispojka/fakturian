@@ -189,6 +189,21 @@ describe('akce nad fakturou', () => {
 		expect(c.find('[data-testid="invoice-due-20260002"]').text()).toBe('31. 8. 2026');
 	});
 
+	it('zapsat platbu otevře platby faktury a zapsání ji uhradí', async () => {
+		const c = await mount();
+
+		await openActions(c);
+		await layer().find('[data-testid="invoice-action-payments-20260001"]').trigger('click');
+		await flushPromises();
+		expect(layer().find('[data-testid="payments-heading"]').text()).toBe('Platby faktury 20260001');
+
+		await layer().find('[data-testid="payment-record"]').trigger('click');
+		await flushPromises();
+
+		expect(savedPayments()['20260001']).toHaveLength(1);
+		expect(c.find('[data-testid="invoice-payments-20260001"]').attributes('data-state')).toBe('paid');
+	});
+
 	it('e-mailem připraví zprávu s přílohou', async () => {
 		const c = await mount();
 

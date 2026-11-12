@@ -381,6 +381,14 @@ function invoiceActions(i: InvoiceSummary): DropdownMenuItem[] {
 			onSelect: () => void emailInvoice(i),
 			'data-testid': `invoice-action-email-${i.number}`,
 		},
+		{
+			label: 'Zapsat platbu',
+			icon: 'i-lucide-banknote',
+			onSelect: () => {
+				paymentsTarget.value = i;
+			},
+			'data-testid': `invoice-action-payments-${i.number}`,
+		},
 		...(stateOf(i) === 'overdue'
 			? [
 					{

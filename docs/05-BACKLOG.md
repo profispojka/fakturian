@@ -142,11 +142,6 @@ v `pricelist/index.vue` se počítají jednou při otevření stránky. Stránka
 otevřená přes půlnoc ukazuje stav „Po splatnosti", `dueSoon` i výchozí rok ke
 včerejšku, dokud uživatel nepřejde jinam.
 
-### UI-32 · V nabídce faktury chybí „Zapsat platbu" — NÍZKÁ
-
-`invoiceActions` v `invoice/index.vue` položku nemá; `InvoicePaymentsDialog`
-otevře jen klik na štítek stavu. Kdo nepáruje přes Fio, musí na to přijít sám.
-
 ---
 
 ## Nástroje, build a release — `NAST`

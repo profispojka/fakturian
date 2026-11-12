@@ -104,6 +104,7 @@ a editovatelné v Nastavení. Novou fakturu jimi appka předvyplní.
   a nastaví dnešní datum vystavení
 - Vyhledávání / filtr (podle odběratele, čísla, roku)
 - Stav faktury: _vystaveno_ / _zčásti uhrazeno_ / _zaplaceno_ — klik na stav
+  nebo **Zapsat platbu** v nabídce dokladu
   otevře platby dokladu: datum a částka každé úhrady, zbytek k úhradě
   a přeplatek. Zapsat jde i částečnou platbu a platbu s jiným datem než dnes.
 - **Zvýraznění po splatnosti**
