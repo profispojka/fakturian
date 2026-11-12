@@ -45,18 +45,18 @@ které patří.
 `bun run check` je jeden řetěz kroků; přesné pořadí je skript `check`
 v `package.json`. Každý krok musí projít, jinak řetěz skončí.
 
-| Krok             | Co ověřuje                                                                                                                                                      |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `lint:check`     | oxlint (vlastní pravidla v `tools/lint/oxlint-fakturian.ts`) a ESLint nad `<script>` a šablonou `.vue` (type-aware pravidla, `data-testid`, nescoped `<style>`) |
-| `lint:scales`    | Tailwind používá projektové stupnice, tokeny a zlomy `split:`/`wide:`; žádné no-op utility na obyčejném elementu                                                |
-| `lint:dead-css`  | tvar v `main.css` nosí víc souborů, mrtvý tvar nenosí nikdo, `<style>` blok začíná `@reference`                                                                 |
-| `format:check`   | formát přes oxfmt                                                                                                                                               |
-| `typecheck`      | typy frontendu, hlavního procesu (`desktop/tsconfig.json`), nástrojů a skriptů showcase; Vitest testy se netypují                                               |
-| `typecheck:e2e`  | typy E2E scénářů a jejich podpory (`e2e/tsconfig.json`)                                                                                                         |
-| `test:coverage`  | Vitest projekty `unit`, `nuxt` a `desktop` a 100% prahy pro každý zahrnutý soubor                                                                               |
-| `generate`       | statický Nuxt build                                                                                                                                             |
-| `desktop:build`  | esbuild hlavního procesu, validátoru ISDOC a preloadu do `.output/desktop/`                                                                                     |
-| `audit:js`       | advisories JS závislostí                                                                                                                                        |
+| Krok            | Co ověřuje                                                                                                                                                      |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lint:check`    | oxlint (vlastní pravidla v `tools/lint/oxlint-fakturian.ts`) a ESLint nad `<script>` a šablonou `.vue` (type-aware pravidla, `data-testid`, nescoped `<style>`) |
+| `lint:scales`   | Tailwind používá projektové stupnice, tokeny a zlomy `split:`/`wide:`; žádné no-op utility na obyčejném elementu                                                |
+| `lint:dead-css` | tvar v `main.css` nosí víc souborů, mrtvý tvar nenosí nikdo, `<style>` blok začíná `@reference`                                                                 |
+| `format:check`  | formát přes oxfmt                                                                                                                                               |
+| `typecheck`     | typy frontendu, hlavního procesu (`desktop/tsconfig.json`), nástrojů a skriptů showcase; Vitest testy se netypují                                               |
+| `typecheck:e2e` | typy E2E scénářů a jejich podpory (`e2e/tsconfig.json`)                                                                                                         |
+| `test:coverage` | Vitest projekty `unit`, `nuxt` a `desktop` a 100% prahy pro každý zahrnutý soubor                                                                               |
+| `generate`      | statický Nuxt build                                                                                                                                             |
+| `desktop:build` | esbuild hlavního procesu, validátoru ISDOC a preloadu do `.output/desktop/`                                                                                     |
+| `audit:js`      | advisories JS závislostí                                                                                                                                        |
 
 Vitest používá `tools/testing/required-tests-reporter.ts`. Prázdná nebo
 přeskočená sada, skip/todo, neúspěšný hook, neošetřená chyba i úspěch až po

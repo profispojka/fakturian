@@ -504,7 +504,7 @@ const emptyImport = () =>
 		},
 	};
 
-		let hasLogo = false;
+	let hasLogo = false;
 
 	const handlers: Record<string, CommandHandler> = {
 		load_vault_path: () => VAULT,
@@ -599,15 +599,21 @@ const emptyImport = () =>
 		mail_compose_with_attachment: () => null,
 	};
 
-	globalThis.fakturian = {
-		invoke: async (cmd: string, args: unknown = {}) => {
-			const fn = handlers[cmd];
-			// Tiché `null` by appka vzala jako platnou odpověď a snímek by vznikl nad chybějícími daty.
-			if (!fn) throw new Error(`Demo harness neobsluhuje příkaz ${cmd}.`);
-			const commandArgs = typeof args === 'object' && args !== null ? (args as CommandArgs) : {};
-			return await fn(commandArgs);
-		},
-		on: () => () => {},
-		pathForFile: (file: File) => `/Users/demo/Downloads/${file.name}`,
+	const invoke = async (cmd: string, args: unknown = {}): Promise<unknown> => {
+		const fn = handlers[cmd];
+		// Tiché `null` by appka vzala jako platnou odpověď a snímek by vznikl nad chybějícími daty.
+		if (!fn) throw new Error(`Demo harness neobsluhuje příkaz ${cmd}.`);
+		const commandArgs = typeof args === 'object' && args !== null ? (args as CommandArgs) : {};
+		return await fn(commandArgs);
 	};
+
+	// Přes `Object.assign`: odpověď harnessu typ příkazu nenese, její tvar ověří až schémata ve frontendu.
+	Object.assign(globalThis, {
+		fakturian: {
+			invoke,
+			// Harness žádné události neposílá, takže odhlášení posluchače nemá co uklízet.
+			on: () => () => undefined,
+			pathForFile: (file: File) => `/Users/demo/Downloads/${file.name}`,
+		},
+	});
 })();

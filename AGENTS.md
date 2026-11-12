@@ -237,17 +237,17 @@ běh testů nebo změnu v indexu gitu, kterou jsi neudělal, neruš a zmiň ji.
 
 V sandboxu Claude Code tohle potřebuje `dangerouslyDisableSandbox: true` (není to chyba testu):
 
-| co                                                        | proč                                                                                                     |
-| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `bun run test` (projekt `nuxt`)                           | v sandboxu se překlad zasekne na desítky minut a testy padnou na `Hook timed out`; mimo něj běží sekundy |
-| `desktop/test/pdfa.test.ts`                               | veraPDF (Java) si zakládá temp mimo povolené cesty                                                       |
-| `desktop/test/fio.test.ts`, `ares.test.ts`                | mock HTTP server binduje port                                                                            |
-| `desktop/test/mcp/*.test.ts`                              | unixový socket                                                                                           |
-| `desktop/test/keyring.test.ts`                            | skutečná klíčenka macOS                                                                                  |
-| `bun run test:desktop`, `bun run test:coverage`           | pouští všechno výše                                                                                      |
-| `bun run mutants:ts`                                      | Stryker otvírá lokální server (`listen EPERM`) a pouští i testy `desktop`                                |
-| `bun run dev`, `bun start`                                | spouští okno Electronu                                                                                   |
-| `bun install`, `bun add …`                                | zápis do globální cache Bunu (`~/.bun/install/cache`)                                                    |
+| co                                              | proč                                                                                                     |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `bun run test` (projekt `nuxt`)                 | v sandboxu se překlad zasekne na desítky minut a testy padnou na `Hook timed out`; mimo něj běží sekundy |
+| `desktop/test/pdfa.test.ts`                     | veraPDF (Java) si zakládá temp mimo povolené cesty                                                       |
+| `desktop/test/fio.test.ts`, `ares.test.ts`      | mock HTTP server binduje port                                                                            |
+| `desktop/test/mcp/*.test.ts`                    | unixový socket                                                                                           |
+| `desktop/test/keyring.test.ts`                  | skutečná klíčenka macOS                                                                                  |
+| `bun run test:desktop`, `bun run test:coverage` | pouští všechno výše                                                                                      |
+| `bun run mutants:ts`                            | Stryker otvírá lokální server (`listen EPERM`) a pouští i testy `desktop`                                |
+| `bun run dev`, `bun start`                      | spouští okno Electronu                                                                                   |
+| `bun install`, `bun add …`                      | zápis do globální cache Bunu (`~/.bun/install/cache`)                                                    |
 
 ## Git a spolupráce s Codexem
 
