@@ -504,37 +504,23 @@ const emptyImport = () =>
 		},
 	};
 
-	const store: Record<string, unknown> = { vaultPath: VAULT };
-	let hasLogo = false;
+		let hasLogo = false;
 
 	const handlers: Record<string, CommandHandler> = {
-		// plugin-store: cesta k vaultu (jinak by appka spustila průvodce)
-		'plugin:store|load': () => 1,
-		'plugin:store|get_store': () => 1,
-		'plugin:store|get': ({ key }) => (key ? [store[key], key in store] : [undefined, false]),
-		'plugin:store|set': ({ key, value }) => {
-			if (!key) throw new Error('Chybí klíč úložiště.');
-			store[key] = value;
-			return null;
-		},
-		'plugin:store|has': ({ key }) => Boolean(key && key in store),
-		'plugin:store|keys': () => Object.keys(store),
-		'plugin:store|save': () => null,
-		'plugin:store|reload': () => null,
-
-		'plugin:path|resolve_directory': () => '/Users/demo/Documents',
-		'plugin:path|join': ({ paths }) => paths?.join('/'),
-		'plugin:path|basename': ({ path }) => path?.split('/').pop(),
-		'plugin:path|dirname': ({ path }) => path?.split('/').slice(0, -1).join('/'),
-		'plugin:path|normalize': ({ path }) => path,
-		'plugin:path|resolve': ({ paths }) => paths?.join('/'),
-
-		'plugin:window|set_theme': () => null,
-		'plugin:window|theme': () => 'light',
-		'plugin:event|listen': () => 1,
-		'plugin:event|unlisten': () => null,
-		'plugin:notification|is_permission_granted': () => false,
-		'plugin:os|platform': () => 'macos',
+		load_vault_path: () => VAULT,
+		save_vault_path: () => null,
+		default_vault_path: () => VAULT,
+		home_dir: () => '/Users/demo',
+		set_window_theme: () => null,
+		close_window: () => null,
+		notify: () => null,
+		open_url: () => null,
+		reveal_path: () => null,
+		pick_folder: () => null,
+		pick_files: () => [],
+		pick_save_path: () => null,
+		snapshots_path: () => null,
+		ares_subject: () => null,
 
 		ensure_vault: () => null,
 		vault_has_logo: () => hasLogo,
@@ -584,7 +570,7 @@ const emptyImport = () =>
 		mcp_attach: () => null,
 		mcp_send: () => null,
 		mcp_socket_path: () => '/Users/demo/Library/Application Support/com.fakturian.desktop/mcp.sock',
-		mcp_connector_path: () => '/Applications/Fakturian.app/Contents/MacOS/app',
+		mcp_connector: () => ({ command: '/Applications/Fakturian.app/Contents/MacOS/Fakturian', args: ['--mcp'] }),
 
 		scan_vault: () =>
 			({
@@ -613,8 +599,7 @@ const emptyImport = () =>
 		mail_compose_with_attachment: () => null,
 	};
 
-	window.isTauri = true;
-	window.__TAURI_INTERNALS__ = {
+	globalThis.fakturian = {
 		invoke: async (cmd: string, args: unknown = {}) => {
 			const fn = handlers[cmd];
 			// Tiché `null` by appka vzala jako platnou odpověď a snímek by vznikl nad chybějícími daty.
@@ -622,15 +607,7 @@ const emptyImport = () =>
 			const commandArgs = typeof args === 'object' && args !== null ? (args as CommandArgs) : {};
 			return await fn(commandArgs);
 		},
-		transformCallback: (fn: (...args: unknown[]) => unknown) => fn,
-		metadata: {
-			currentWindow: {
-				label: 'main',
-			},
-			currentWebview: {
-				label: 'main',
-			},
-		},
-		plugins: {},
+		on: () => () => {},
+		pathForFile: (file: File) => `/Users/demo/Downloads/${file.name}`,
 	};
 })();

@@ -1,5 +1,12 @@
 # Fakturian
 
+**Fakturace pro živnostníky na Macu — bez cloudu, bez účtu, data ve tvé složce.**
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="showcase/public/media/shots/hero-prehled.dark.png">
+  <img src="showcase/public/media/shots/hero-prehled.png" alt="Přehled: fakturace po měsících, bilance, dlužníci a limit plátce DPH">
+</picture>
+
 Desktopová aplikace pro **kompletní provoz živnostníka**: faktury, náklady
 a vykázané dny na jednom místě. Všechno běží **lokálně a offline** —
 data jsou obyčejné soubory ve složce, kterou si zvolíš („vault"), takže zálohu
@@ -19,6 +26,43 @@ každá verze na MIT. Třetí strany přibalené
 do appky (Electron, npm balíčky, fonty pro PDF) viz [`NOTICE`](NOTICE) a
 [`THIRD-PARTY-NOTICES.txt`](THIRD-PARTY-NOTICES.txt); přehled změn je v
 [`CHANGELOG.md`](CHANGELOG.md), ochrana osobních údajů v [`PRIVACY.md`](PRIVACY.md).
+
+## Jak to vypadá
+
+<table>
+  <tr>
+    <td width="50%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="showcase/public/media/shots/usecase-fakturoid.dark.png">
+        <img src="showcase/public/media/shots/usecase-fakturoid.png" alt="Výpis faktur se stavem úhrady">
+      </picture>
+      <p align="center"><b>Faktury</b> — stav úhrady na první pohled, platby z Fio se spárují samy</p>
+    </td>
+    <td width="50%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="showcase/public/media/shots/usecase-programatory.dark.png">
+        <img src="showcase/public/media/shots/usecase-programatory.png" alt="Formulář faktury s položkami z ceníku">
+      </picture>
+      <p align="center"><b>Faktura</b> — položky z ceníku, PDF/A s ISDOC uvnitř</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="showcase/public/media/shots/usecase-konzultanti.dark.png">
+        <img src="showcase/public/media/shots/usecase-konzultanti.png" alt="Ceník s ročním limitem vykázaných hodin">
+      </picture>
+      <p align="center"><b>Ceník</b> — roční limit položky hlídá, kolik ještě zbývá vykázat</p>
+    </td>
+    <td width="50%">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="showcase/public/media/shots/usecase-ai-agent.dark.png">
+        <img src="showcase/public/media/shots/usecase-ai-agent.png" alt="Připojení AI agenta přes MCP">
+      </picture>
+      <p align="center"><b>AI agent</b> — Claude se přes MCP zeptá na faktury nebo jednu vystaví</p>
+    </td>
+  </tr>
+</table>
 
 ## Co je potřeba mít
 
