@@ -12,6 +12,8 @@ import { parseJson } from '../store.ts';
 
 import type { Writable } from 'node:stream';
 import type { McpConnector } from '~/bindings';
+import type { windowMessageSchema } from '~/schemas/mcp';
+import type { Zod } from '~/utils/zod';
 
 // Strop délky jednoho řádku protokolu i s jeho koncem: řádek se celý drží v paměti, takže bez něj by
 // jeden connector poslal nekonečný řádek a appce došla paměť.
@@ -63,10 +65,7 @@ const NEWLINE = 0x0a;
 const UTF8 = new TextDecoder('utf-8', { fatal: true });
 
 // Řádek JSON-RPC od connectoru pro okno; bez `line` hlásí, že connector spojení zavřel.
-export interface WindowMessage {
-	session: number;
-	line?: string;
-}
+export type WindowMessage = Zod.infer<typeof windowMessageSchema>;
 
 export interface McpServer {
 	close(): Promise<void>;

@@ -47,6 +47,12 @@ vyrobí stejně — ISDOC napsaný ručně, ne přes `buildIsdoc` (ten by doklad
 vložený přes `replaceIsdoc` do PDF vysázeného appkou. Test „vzorky jsou cizí a smyšlené“ hlídá
 `IssuingSystem` a IČO dodavatele proti kontraktu.
 
+## `fio-transactions.json` — výpis z Fio API
+
+Smyšlený výpis v tvaru `transactions.json` podle dokumentace API Fio banky, ne zachycený z reálného
+účtu: hlavička `info` a pohyby jako objekty `columnN` s `value`, `name` a `id`, chybějící sloupec
+jako `null`. Účet je vzorový účet ČNB, protiúčty a jména jsou vymyšlené.
+
 ## Skutečný doklad sem nepatří
 
 Žádný soubor v této složce nesmí obsahovat data existující osoby nebo firmy, ani vlastní. Testovací

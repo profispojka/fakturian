@@ -100,7 +100,6 @@ bun install
 | `bun run test`            | vitest nad změněnými soubory; `test:all` celá sada (`unit`, `nuxt`, `desktop`)                      |
 | `bun run test:coverage`   | celá sada + pokrytí s prahy 100 % na soubor                                                         |
 | `bun run test:desktop`    | jen testy hlavního procesu (`desktop/test/`)                                                        |
-| `bun run test:contracts`  | kontrakty frontendu proti skutečným modulům hlavního procesu                                        |
 | `bun run mutants:ts`      | mutační testování ze seznamu `mutate` ve `stryker.config.ts`; `--mutate <soubor>` na jeden soubor   |
 | `bun run lint` / `format` | oxlint / oxfmt **se zápisem**; `lint:check` a `format:check` jen kontrolují                         |
 | `bun run typecheck`       | typy appky, hlavního procesu, nástrojů a skriptů showcase                                           |

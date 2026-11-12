@@ -196,9 +196,6 @@ class Backend {
 	/** Příkazy rozbité, dokud je test neopraví (`repairs`) — plný disk nebo zamčený soubor. */
 	broken = new Map<string, string>();
 
-	/** Kontrakty jimi posílají příkaz skutečnému backendu, s argumenty přesně tak, jak je appka poslala. */
-	forwarded = new Map<string, (args: Record<string, unknown>) => unknown>();
-
 	calls: { command: string; args: Record<string, unknown> }[] = [];
 
 	forgetCalls(): void {
@@ -234,10 +231,6 @@ class Backend {
 
 	repairs(command: string): void {
 		this.broken.delete(command);
-	}
-
-	forwards(command: string, handler: (args: Record<string, unknown>) => unknown): void {
-		this.forwarded.set(command, handler);
 	}
 
 	window = new Window();
@@ -303,7 +296,6 @@ class Backend {
 		this.answers.clear();
 		this.steady.clear();
 		this.broken.clear();
-		this.forwarded.clear();
 		this.calls.length = 0;
 		this.window = new Window();
 		this.postponed.clear();
@@ -774,7 +766,7 @@ export async function invoke(command: string, raw: Partial<Args> = {}): Promise<
 	// stav z chvíle provedení.
 	const scheduler = ASYNC_COMMANDS.has(command) ? backend.scheduler : null;
 	await scheduler?.schedule(Promise.resolve(), `${command} se provádí`);
-	const outcome = await execute(command, args);
+	const outcome = execute(command, args);
 	await scheduler?.schedule(Promise.resolve(), `${command} odpovídá`);
 	// Most posílá chybu jako řetězec, ne jako `Error` — appka na to spoléhá, takže odmítnutý příslib
 	// nese přímo tentýž řetězec.
@@ -782,24 +774,21 @@ export async function invoke(command: string, raw: Partial<Args> = {}): Promise<
 	return outcome.value;
 }
 
-async function execute(command: string, args: Partial<Args>): Promise<{ value: unknown } | { error: unknown }> {
+function execute(command: string, args: Partial<Args>): { value: unknown } | { error: unknown } {
 	const error = backend.fault?.(command) ?? backend.broken.get(command);
 	if (error) return { error };
 	const dictated = backend.answers.get(command)?.shift();
 	if (dictated) return dictated;
-	const forward = backend.forwarded.get(command);
-	if (!forward && backend.steady.has(command)) return { value: backend.steady.get(command) };
+	if (backend.steady.has(command)) return { value: backend.steady.get(command) };
 	const fn = commands[command];
-	if (!forward && !fn) {
+	if (!fn) {
 		throw new Error(`Test nenastavil odpověď na příkaz ${command} — viz backend.returns('${command}', …).`);
 	}
 	try {
-		const value = forward
-			? await forward(args)
-			: fn?.({
-					...emptyArgs(),
-					...args,
-				});
+		const value = fn({
+			...emptyArgs(),
+			...args,
+		});
 		return { value };
 	} catch (e) {
 		return { error: e instanceof Error ? e.message : e };

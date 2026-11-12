@@ -202,8 +202,8 @@ jednodušší" a „není to konzistentní" novým scénářem není.
 
 ### Testy a nástroje
 
-- **TEST-21 · Výpis z Fia v kontraktu má tvar podle dokumentace.**
-  `test/contracts/fixtures/fio-transactions.json`: kdyby se skutečná odpověď
+- **TEST-21 · Výpis z Fia v testech má tvar podle dokumentace.**
+  `desktop/test/fixtures/fio-transactions.json`: kdyby se skutečná odpověď
   lišila, synchronizace nic nespáruje a platba se zapíše ručně; špatnou platbu
   nezapíše.
 - **NAST-21 · Poruchové vzorky pro vadný typ, pokles pokrytí a chybějící

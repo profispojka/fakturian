@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { TRADE_REGISTER_ENTRY } from '~/constants/registration';
 import { aresServices, parseAres } from '~/services/ares';
+
+import aresSro from './fixtures/ares-sro.json' with { type: 'json' };
+import aresTradesman from './fixtures/ares-zivnostnik.json' with { type: 'json' };
 
 const invoke = vi.fn();
 vi.stubGlobal('fakturian', {
@@ -277,5 +281,34 @@ describe('aresServices', () => {
 	it('odpověď v neznámém tvaru odmítne', async () => {
 		invoke.mockResolvedValue('<html>');
 		await expect(aresServices.query('25596641')).rejects.toThrow(/^Odpověď z ARES má neočekávaný tvar \(/);
+	});
+});
+
+describe('celá odpověď ARES ve skutečném tvaru se smyšlenými hodnotami', () => {
+	it('obchodní společnost předvyplní odběratele bez věty o zápisu', () => {
+		expect(parseAres(aresSro)).toEqual({
+			name: 'Testovací studio s.r.o.',
+			ico: '12345679',
+			dic: 'CZ12345679',
+			address: {
+				street: 'Krátká 2/4',
+				city: 'Brno',
+				zip: '60200',
+			},
+			registration: '',
+		});
+	});
+
+	it('živnostník dostane větu o živnostenském rejstříku a DIČ nemá', () => {
+		expect(parseAres(aresTradesman)).toEqual({
+			name: 'Jan Zkušební',
+			ico: '25596641',
+			address: {
+				street: 'Dlouhá 1/7',
+				city: 'Praha',
+				zip: '11000',
+			},
+			registration: TRADE_REGISTER_ENTRY,
+		});
 	});
 });

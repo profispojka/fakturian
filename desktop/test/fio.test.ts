@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { inspect } from 'node:util';
 
 import { AsyncEntry } from '@napi-rs/keyring';
@@ -381,6 +382,27 @@ describe('rozbor výpisu z Fio', () => {
 			{
 				id: '',
 				amountCents: 250_000,
+				vs: '20260002',
+				date: '2026-05-22',
+				message: '',
+			},
+		]);
+	});
+
+	it('výpis v plném tvaru Fio API dá jen příchozí platby', async () => {
+		const body = await readFile(new URL('fixtures/fio-transactions.json', import.meta.url), 'utf8');
+
+		expect(parseFio(JSON.parse(body))).toEqual([
+			{
+				id: '26001',
+				amountCents: 1_210_000,
+				vs: '20260001',
+				date: '2026-05-20',
+				message: 'Faktura 20260001',
+			},
+			{
+				id: '26003',
+				amountCents: 1_000_000,
 				vs: '20260002',
 				date: '2026-05-22',
 				message: '',

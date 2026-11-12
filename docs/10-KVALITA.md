@@ -54,7 +54,6 @@ v `package.json`. Každý krok musí projít, jinak řetěz skončí.
 | `typecheck`      | typy frontendu, hlavního procesu (`desktop/tsconfig.json`), nástrojů a skriptů showcase; Vitest testy se netypují                                               |
 | `typecheck:e2e`  | typy E2E scénářů a jejich podpory (`e2e/tsconfig.json`)                                                                                                         |
 | `test:coverage`  | Vitest projekty `unit`, `nuxt` a `desktop` a 100% prahy pro každý zahrnutý soubor                                                                               |
-| `test:contracts` | kontrakty mezi hlavním procesem a frontendem nad skutečnými moduly `desktop/` (`test/contracts/README.md`)                                                      |
 | `generate`       | statický Nuxt build                                                                                                                                             |
 | `desktop:build`  | esbuild hlavního procesu, validátoru ISDOC a preloadu do `.output/desktop/`                                                                                     |
 | `audit:js`       | advisories JS závislostí                                                                                                                                        |

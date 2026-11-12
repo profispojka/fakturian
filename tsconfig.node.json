@@ -23,7 +23,6 @@
 		"vitest.config.ts",
 		"vitest.unit.config.ts",
 		"vitest.nuxt.config.ts",
-		"vitest.contracts.config.ts",
 		"vitest.desktop.config.ts",
 		"vitest.mutation.config.ts",
 		"eslint.config.ts",

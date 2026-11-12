@@ -10,7 +10,7 @@ se jménem pravidla a důvodem. Postupy pro konkrétní práci jsou ve skillech 
 | `test-ids`     | hledání prvků v testu a `data-testid` v šabloně                    |
 | `styly`        | `class`, `<style>` blok, `main.css`, `app.config.ts`               |
 
-Model kvality (pokrytí, mutace, kontrakty, E2E) popisuje `docs/10-KVALITA.md`, úkoly vede
+Model kvality (pokrytí, mutace, E2E) popisuje `docs/10-KVALITA.md`, úkoly vede
 `docs/05-BACKLOG.md`. Nálezy, o kterých je rozhodnuto, že se neřeší, vede sekce „Rozhodnuto
 neřešit" v `docs/13-ZNAME-OMEZENI.md` — při revizi kódu ji přečti dřív, než něco nahlásíš, a co
 v ní stojí, znovu nezakládej bez nového scénáře, který uživatele poškodí.
@@ -239,7 +239,7 @@ V sandboxu Claude Code tohle potřebuje `dangerouslyDisableSandbox: true` (není
 
 | co                                                        | proč                                                                                                     |
 | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `bun run test`, `bun run test:contracts` (projekt `nuxt`) | v sandboxu se překlad zasekne na desítky minut a testy padnou na `Hook timed out`; mimo něj běží sekundy |
+| `bun run test` (projekt `nuxt`)                           | v sandboxu se překlad zasekne na desítky minut a testy padnou na `Hook timed out`; mimo něj běží sekundy |
 | `desktop/test/pdfa.test.ts`                               | veraPDF (Java) si zakládá temp mimo povolené cesty                                                       |
 | `desktop/test/fio.test.ts`, `ares.test.ts`                | mock HTTP server binduje port                                                                            |
 | `desktop/test/mcp/*.test.ts`                              | unixový socket                                                                                           |

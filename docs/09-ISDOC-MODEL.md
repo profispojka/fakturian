@@ -70,7 +70,7 @@ Při rozšíření podporovaného dokladu platí:
    ve jmenném prostoru Fakturianu.
 3. Interní vazba aplikace, která není vlastností dokladu, patří do příslušného
    JSON souboru ve vaultu.
-4. Nové pole musí projít čtením, editací, zápisem, XSD kontrolou a kontraktním
-   testem přes hlavní proces i frontend.
+4. Nové pole musí projít čtením, editací, zápisem a XSD kontrolou v testech
+   hlavního procesu i frontendu.
 5. Cizí doklady se needitují (kontrola `IssuingSystem` v `saveInvoice`), viz „Mimo
    rozsah" v [01-FUNKCE](01-FUNKCE.md).
