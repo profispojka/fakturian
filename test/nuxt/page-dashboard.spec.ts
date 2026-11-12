@@ -437,6 +437,18 @@ describe('splatnost v nezaplacených', () => {
 			undefined,
 		]);
 	});
+
+	it('Přehled otevřený přes půlnoc zvýrazní fakturu, která mezitím propadla', async () => {
+		await vaultS({ invoices: [summary('20260001', THIS_YEARS)] });
+		const c = await mount();
+		expect(c.find('[data-testid="overview-unpaid-due"]').attributes('data-overdue')).toBeUndefined();
+
+		vi.setSystemTime('2026-09-01T00:05');
+		await vi.advanceTimersByTimeAsync(60_000);
+		await flushPromises();
+
+		expect(c.find('[data-testid="overview-unpaid-due"]').attributes('data-overdue')).toBe('true');
+	});
 });
 
 describe('loňské plátcovství', () => {

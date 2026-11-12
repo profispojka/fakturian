@@ -293,6 +293,66 @@ describe('odběratel', () => {
 		);
 	});
 
+	it('během dotazu do ARES je pole IČO v dialogu zamčené', async () => {
+		backend.ares.write({
+			name: 'Alza.cz a.s.',
+			ico: '27082440',
+			dic: 'CZ27082440',
+			address: {
+				street: 'Jankovcova 1522/53',
+				city: 'Praha',
+				zip: '17000',
+			},
+		});
+		const query = backend.postpone('ares_subject');
+		const c = await mountInvoice();
+		await c.find('[data-testid="enter-customer"]').trigger('click');
+		await flushPromises();
+		await layer().find('[data-testid="customer-field-ico"]').setValue('27082440');
+		await layer().find('[data-testid="customer-ares"]').trigger('click');
+		await nextTick();
+
+		expect(layer().find<HTMLInputElement>('[data-testid="customer-field-ico"]').element.disabled).toBe(true);
+
+		query.finish();
+		await flushPromises();
+
+		expect(layer().find<HTMLInputElement>('[data-testid="customer-field-ico"]').element.disabled).toBe(false);
+		expect(layer().find<HTMLInputElement>('[data-testid="customer-field-name"]').element.value).toBe(
+			'Alza.cz a.s.',
+		);
+	});
+
+	it('pozdní odpověď ARESu nepřepíše dialog, který uživatel mezitím zavřel a otevřel znovu', async () => {
+		backend.ares.write({
+			name: 'Alza.cz a.s.',
+			ico: '27082440',
+			dic: 'CZ27082440',
+			address: {
+				street: 'Jankovcova 1522/53',
+				city: 'Praha',
+				zip: '17000',
+			},
+		});
+		const query = backend.postpone('ares_subject');
+		const c = await mountInvoice();
+		await c.find('[data-testid="enter-customer"]').trigger('click');
+		await flushPromises();
+		await layer().find('[data-testid="customer-field-ico"]').setValue('27082440');
+		await layer().find('[data-testid="customer-ares"]').trigger('click');
+		await nextTick();
+
+		await layer().find('[data-testid="customer-dialog-cancel"]').trigger('click');
+		await flushPromises();
+		await c.find('[data-testid="enter-customer"]').trigger('click');
+		await flushPromises();
+		query.finish();
+		await flushPromises();
+
+		expect(layer().find<HTMLInputElement>('[data-testid="customer-field-name"]').element.value).toBe('');
+		expect(layer().find<HTMLInputElement>('[data-testid="customer-field-ico"]').element.value).toBe('');
+	});
+
 	it('ARES bez IČO řekne proč a nic nevyplní; znovuotevřený dialog hlášku nedrží', async () => {
 		const c = await mountInvoice();
 		await c.find('[data-testid="enter-customer"]').trigger('click');

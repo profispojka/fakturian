@@ -136,14 +136,14 @@ async function syncFio() {
 	}
 }
 
-const todayDate = today();
+const todayDate = useToday();
 const selectedNumber = ref('');
 const paletteOpen = useState<boolean>('paletteOpen', () => false);
 
 // Výchozí je letošní rok, ne celý archiv: fakturuje se do letoška a starší ročníky se otevírají výjimečně.
 const defaultFilters: { state: InvoiceStateFilter; period: InvoiceDateFilter; newestFirst: boolean } = {
 	state: 'all',
-	period: yearFilter(yearOf(todayDate)),
+	period: yearFilter(yearOf(todayDate.value)),
 	newestFirst: true,
 };
 
@@ -203,7 +203,7 @@ function selectInvoice(event: Event, row: TableRow<InvoiceSummary>) {
 // kam zapsat.
 const dateFilterYears = computed(() => {
 	const years = new Set(items.value.map((i) => yearOf(i.issueDate)));
-	years.add(yearOf(todayDate));
+	years.add(yearOf(todayDate.value));
 	return [...years].toSorted((a, b) => b - a);
 });
 
@@ -215,7 +215,7 @@ function settlementFor(i: InvoiceSummary): Settlement {
 }
 
 function stateOf(i: InvoiceSummary): InvoiceState {
-	return invoiceState(i, settlementFor(i), todayDate);
+	return invoiceState(i, settlementFor(i), todayDate.value);
 }
 
 function paymentsTitle(i: InvoiceSummary): string {

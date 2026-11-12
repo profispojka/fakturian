@@ -1,5 +1,5 @@
 import { dashboardStats } from '~/utils/dashboard';
-import { periodOf, today } from '~/utils/date';
+import { periodOf } from '~/utils/date';
 import { errorText } from '~/utils/errors';
 import { expensesTotalCents } from '~/utils/expenses';
 import { czkWholeFromCents } from '~/utils/money';
@@ -51,10 +51,10 @@ export function useMenuStats() {
 		error.value = '';
 	}
 
+	const todayDate = useToday();
 	const stats = computed<MenuStats>(() => {
-		const todayDate = today();
-		const d = dashboardStats(items.value, payments.value, todayDate);
-		const month = periodOf(todayDate);
+		const d = dashboardStats(items.value, payments.value, todayDate.value);
+		const month = periodOf(todayDate.value);
 		const expensesCents = expensesTotalCents(expenses.value, (date) => periodOf(date) === month);
 		return {
 			unpaid: d.unpaid.length ? String(d.unpaid.length) : '',

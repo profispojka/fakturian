@@ -96,6 +96,7 @@ async function save() {
 										<UInput
 											v-model="contact.ico"
 											data-testid="field-ico"
+											:disabled="aresLoading"
 											:ui="id ? {} : { trailing: 'pe-0', base: 'pe-16' }">
 											<!-- Jen při zakládání: u uloženého odběratele by dotaz přepsal údaje, které si uživatel upravil. -->
 											<template v-if="!id" #trailing>

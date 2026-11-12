@@ -32,6 +32,18 @@ describe('platby faktury', () => {
 		expect(c.find('[data-testid="invoice-payments-20260001"]').attributes('data-state')).toBe('overdue');
 	});
 
+	it('výpis otevřený přes půlnoc označí fakturu, která mezitím propadla', async () => {
+		await vaultS({ invoices: [summary('20260001')] });
+		const c = await mount();
+		expect(c.find('[data-testid="invoice-payments-20260001"]').attributes('data-state')).toBe('issued');
+
+		vi.setSystemTime('2026-09-01T00:05');
+		await vi.advanceTimersByTimeAsync(60_000);
+		await flushPromises();
+
+		expect(c.find('[data-testid="invoice-payments-20260001"]').attributes('data-state')).toBe('overdue');
+	});
+
 	it('zaplacená se pozná podle stavu a nese datum poslední platby', async () => {
 		await vaultS({
 			invoices: [summary('20260001')],

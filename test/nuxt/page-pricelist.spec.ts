@@ -335,6 +335,43 @@ describe('vykázání vybrané položky', () => {
 		expect(c.find('[data-testid="price-usage"]').text()).toContain(String(yearOf(today()) - 1));
 	});
 
+	it('ceník otevřený přes Nový rok ukáže čerpání nového roku', async () => {
+		// `shouldAdvanceTime`: časovače Nuxt UI musí běžet dál — zmrazit se má jen datum.
+		vi.useFakeTimers({ shouldAdvanceTime: true });
+		vi.setSystemTime('2026-12-31T23:55');
+		await vaultWithUsage(VACATION, [
+			{
+				invoiceNumber: '20260001',
+				quantity: 45,
+			},
+		]);
+		const c = await mountPricelist();
+		await pick(c);
+		expect(c.find('[data-testid="price-fund"]').text()).toContain('45 hod');
+
+		vi.setSystemTime('2027-01-01T00:05');
+		await vi.advanceTimersByTimeAsync(60_000);
+		await flushPromises();
+
+		expect(c.find('[data-testid="price-usage"]').text()).toContain('2027');
+		expect(c.find('[data-testid="price-fund"]').text()).not.toContain('45 hod');
+	});
+
+	it('rok vybraný ručně přes Nový rok zůstane', async () => {
+		vi.useFakeTimers({ shouldAdvanceTime: true });
+		vi.setSystemTime('2026-12-31T23:55');
+		await vaultWithUsage(VACATION, []);
+		const c = await mountPricelist();
+		await pick(c);
+		await pickFromListbox(c.find('[data-testid="price-usage-year"]'), '2025');
+
+		vi.setSystemTime('2027-01-01T00:05');
+		await vi.advanceTimersByTimeAsync(60_000);
+		await flushPromises();
+
+		expect(c.find('[data-testid="price-usage"]').text()).toContain('2025');
+	});
+
 	it('přepínač roku nabídne letošek a dva roky zpátky, příští rok ne', async () => {
 		await vaultWithUsage(VACATION, []);
 		const c = await mountPricelist();

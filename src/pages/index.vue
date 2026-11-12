@@ -12,7 +12,7 @@ import {
 	vatLimit,
 	vatLevelOf,
 } from '~/utils/dashboard';
-import { yearOf, formatDate, today } from '~/utils/date';
+import { yearOf, formatDate } from '~/utils/date';
 import { daysOverdue } from '~/utils/invoice';
 import { czechPercent, formatCount } from '~/utils/locales';
 import { czkFromCents } from '~/utils/money';
@@ -39,9 +39,8 @@ const {
 	filters: {},
 	onLoaded: refreshUsage,
 });
-const todayDate = today();
-const thisYear = yearOf(todayDate);
-const lastYear = thisYear - 1;
+const todayDate = useToday();
+const thisYear = computed(() => yearOf(todayDate.value));
 
 // Doklad, který appka nepřečte, v evidenci chybí úplně — proto musí být vidět hned na Přehledu.
 const brokenDocuments = computed(() => [
@@ -63,7 +62,7 @@ useAsyncState(checkReceived, undefined, {
 	},
 });
 
-const s = computed(() => dashboardStats(items.value, payments.value, todayDate));
+const s = computed(() => dashboardStats(items.value, payments.value, todayDate.value));
 
 const range = ref<PeriodRange>('month');
 const rangeOptions: SelectOption<PeriodRange>[] = [
@@ -81,40 +80,40 @@ const rangeOptions: SelectOption<PeriodRange>[] = [
 	},
 ];
 const series = computed(() =>
-	periodSeries(items.value, range.value, todayDate).map((b) => ({
+	periodSeries(items.value, range.value, todayDate.value).map((b) => ({
 		label: b.label,
 		value: b.salesCents,
 	})),
 );
 
-const balanceYear = ref<number | null>(thisYear);
-const balanceOptions: SelectOption<number | null>[] = [
+const balanceYear = ref<number | null>(thisYear.value);
+const balanceOptions = computed<SelectOption<number | null>[]>(() => [
 	{
-		value: thisYear,
+		value: thisYear.value,
 		label: 'Letos',
 	},
 	{
-		value: lastYear,
+		value: thisYear.value - 1,
 		label: 'Loni',
 	},
 	{
 		value: null,
 		label: 'Vše',
 	},
-];
+]);
 const bal = computed(() => balance(items.value, payments.value, balanceYear.value, expenses.value));
 
 const debtors = computed(() => topDebtors(items.value, payments.value));
 
-const soonDue = computed(() => dueSoon(items.value, payments.value, todayDate));
+const soonDue = computed(() => dueSoon(items.value, payments.value, todayDate.value));
 
 const customers = computed(() => topCustomers(items.value));
 
-const vat = computed(() => vatLimit(items.value, todayDate));
+const vat = computed(() => vatLimit(items.value, todayDate.value));
 
 // Dobropis po splatnosti není: peníze posíláme my.
 function overdue(i: InvoiceSummary): boolean {
-	return i.documentType === DocumentKind.Invoice && daysOverdue(i.dueDate, todayDate) > 0;
+	return i.documentType === DocumentKind.Invoice && daysOverdue(i.dueDate, todayDate.value) > 0;
 }
 const vatPercent = computed(() => Math.min(100, Math.round(vat.value.ratio * 100)));
 
@@ -140,7 +139,7 @@ const vatNotice = computed(() => {
 	return `Obrat za rok ${previous.year} překročil ${czkFromCents(crossed)} — plátcem DPH od ${formatDate(previous.payerFrom)}.`;
 });
 
-const nearLimit = computed(() => itemsNearLimit(pricelist.value, records.value, thisYear));
+const nearLimit = computed(() => itemsNearLimit(pricelist.value, records.value, thisYear.value));
 
 const invoiceColumns: TableColumn<InvoiceSummary>[] = [
 	{

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAsyncState } from '@vueuse/core';
 
-import { yearOf, today } from '~/utils/date';
+import { yearOf } from '~/utils/date';
 import { errorText } from '~/utils/errors';
 import { formatCount, formatCountOutOf } from '~/utils/locales';
 import { formatAmount, formatQuantity, hasLimit, itemLabel, pricelistLevelOf } from '~/utils/pricelist';
@@ -84,14 +84,22 @@ async function askDelete(p: PriceItem) {
 const selectedId = ref<string | null>(null);
 const selected = computed(() => pricelist.value.find((p) => p.id === selectedId.value));
 
-const year = ref(yearOf(today()));
-const years = computed(() => {
-	const thisYear = yearOf(today());
-	return [thisYear, thisYear - 1, thisYear - 2].map((r) => ({
+const todayDate = useToday();
+const thisYear = computed(() => yearOf(todayDate.value));
+// Dokud si uživatel rok nevybere, drží se letoška i přes Nový rok.
+const pickedYear = ref<number>();
+const year = computed({
+	get: () => pickedYear.value ?? thisYear.value,
+	set: (picked) => {
+		pickedYear.value = picked;
+	},
+});
+const years = computed(() =>
+	[thisYear.value, thisYear.value - 1, thisYear.value - 2].map((r) => ({
 		label: String(r),
 		value: r,
-	}));
-});
+	})),
+);
 
 const state = computed(() => {
 	const item = selected.value;

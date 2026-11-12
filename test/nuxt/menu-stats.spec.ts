@@ -222,4 +222,25 @@ describe('odznaky v panelu', () => {
 		const NBSP = String.fromCharCode(0x00a0);
 		expect(useNuxtApp().vueApp.runWithContext(useMenuStats).stats.value.expensesMonth).toBe(`500${NBSP}Kč`);
 	});
+
+	it('po přelomu měsíce počítá výdaje nového měsíce', async () => {
+		await vaultWithContent({
+			expenses: [
+				{
+					id: 'v1',
+					supplier: 'S',
+					description: '',
+					amountCents: 500_00,
+					date: date('2026-08-05'),
+				},
+			],
+		});
+		const m = useNuxtApp().vueApp.runWithContext(useMenuStats);
+		expect(m.stats.value.expensesMonth).not.toBe('');
+
+		vi.setSystemTime('2026-09-01T00:05');
+		vi.advanceTimersByTime(60_000);
+
+		expect(m.stats.value.expensesMonth).toBe('');
+	});
 });

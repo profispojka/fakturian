@@ -102,13 +102,6 @@ to i logu, které iCloud na tenhle Mac nestáhl. Vadné logo ve vaultu ohlásit.
 
 ## Chyby v aplikační logice — `LOG`
 
-### LOG-36 · Odpověď ARES přepíše formulář i po změně IČO — STŘEDNÍ
-
-`fillFromAres` v `src/pages/customers/[id].vue` i
-`components/invoice/CustomerDialog.vue` přepíše formulář, i když se mezitím
-změnilo IČO (`vault/Wizard.vue` to hlídá přes `lastLookupIco`). Tlačítko
-i funkce jsou zkopírované. Sjednotit a přidat kontrolu IČO.
-
 ### LOG-28 · Integrace hlásí běžící most bez ověření — NÍZKÁ
 
 `integrations.vue` hlásí „Most běží" podle `mcpSocketPath` (`desktop/mcp/mod.ts`),
@@ -130,17 +123,6 @@ nesáhlo.
 chyby všech souborů) ukáže „Datová složka není na svém místě" a nabídne „Začít
 načisto" (`start-error-fresh`), i když jde o jeden vadný JSON. Chybějící složku
 odlišit od vadného souboru.
-
----
-
-## Ovládání, rozsah funkcí a výkon — `UI`
-
-### UI-28 · Dnešek zamrzá v setupu — NÍZKÁ
-
-`todayDate` v `invoice/index.vue` a `pages/index.vue`, `year` a `years`
-v `pricelist/index.vue` se počítají jednou při otevření stránky. Stránka
-otevřená přes půlnoc ukazuje stav „Po splatnosti", `dueSoon` i výchozí rok ke
-včerejšku, dokud uživatel nepřejde jinam.
 
 ---
 

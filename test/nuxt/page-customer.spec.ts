@@ -97,6 +97,60 @@ describe('zakládání a úprava', () => {
 		expect(c.find<HTMLInputElement>('[data-testid="field-address-city"]').element.value).toBe('Praha');
 	});
 
+	it('během dotazu do ARES je pole IČO zamčené a po odpovědi se odemkne', async () => {
+		backend.ares.write({
+			name: 'Alza.cz a.s.',
+			ico: '27082440',
+			dic: 'CZ27082440',
+			address: {
+				street: 'Jankovcova 1522/53',
+				city: 'Praha',
+				zip: '17000',
+			},
+		});
+		const query = backend.postpone('ares_subject');
+		const c = await mountPage('/customers/new');
+		await c.find('[data-testid="field-ico"]').setValue('27082440');
+		await c.find('[data-testid="ares"]').trigger('click');
+		await nextTick();
+
+		expect(c.find<HTMLInputElement>('[data-testid="field-ico"]').element.disabled).toBe(true);
+
+		query.finish();
+		await flushPromises();
+
+		expect(c.find<HTMLInputElement>('[data-testid="field-ico"]').element.disabled).toBe(false);
+		expect(c.find<HTMLInputElement>('[data-testid="field-name"]').element.value).toBe('Alza.cz a.s.');
+	});
+
+	it('pozdní odpověď ARESu nepřepíše odběratele, na kterého uživatel mezitím přešel', async () => {
+		backend.ares.write({
+			name: 'Alza.cz a.s.',
+			ico: '27082440',
+			dic: 'CZ27082440',
+			address: {
+				street: 'Jankovcova 1522/53',
+				city: 'Praha',
+				zip: '17000',
+			},
+		});
+		await vaultWithCustomers(contact('k1', { name: 'Studio Mráz' }));
+		const query = backend.postpone('ares_subject');
+		const c = await mountPage('/customers/new');
+		await c.find('[data-testid="field-ico"]').setValue('27082440');
+		await c.find('[data-testid="ares"]').trigger('click');
+		await nextTick();
+
+		const leaving = goto('/customers/k1');
+		await flushPromises();
+		await answerDialog(true);
+		await leaving;
+		query.finish();
+		await flushPromises();
+
+		expect(c.find<HTMLInputElement>('[data-testid="field-name"]').element.value).toBe('Studio Mráz');
+	});
+
 	it('uloženému odběrateli ARES nenabízí', async () => {
 		await vaultWithCustomers(contact('k1'));
 		const c = await mountPage('/customers/k1');

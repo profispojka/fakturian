@@ -24,8 +24,10 @@ whenever(open, () => {
 });
 
 async function fillFromAres() {
-	const company = await aresLookup(form.value.ico);
-	if (!company) return;
+	const ico = form.value.ico;
+	const company = await aresLookup(ico);
+	// Pole IČO je během dotazu zamčené, ale dialog jde zavřít a otevřít znovu; odpověď pak patří jinému formuláři.
+	if (!company || form.value.ico !== ico) return;
 	form.value = {
 		...form.value,
 		name: company.name,
@@ -63,6 +65,7 @@ function confirm() {
 							<UInput
 								v-model="form.ico"
 								data-testid="customer-field-ico"
+								:disabled="aresLoading"
 								:ui="{ trailing: 'pe-0', base: 'pe-16' }">
 								<template #trailing>
 									<UButton
