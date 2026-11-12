@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Oprávnění, se kterými electron-builder appku podepisuje (hardened runtime). Bez `allow-jit` V8
+  v hardened runtime nespustí JavaScript. Bez `apple-events` AppleScript k Mail.app tiše selže
+  a appka spadne na `mailto:`, aniž by kdo věděl proč.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>com.apple.security.cs.allow-jit</key>
+  <true/>
+  <key>com.apple.security.automation.apple-events</key>
+  <true/>
+</dict>
+</plist>

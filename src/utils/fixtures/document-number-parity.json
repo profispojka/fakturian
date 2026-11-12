@@ -1,0 +1,97 @@
+{
+	"_comment": "Tabulka pro kontrolu čísla dokladu, čte ji vitest (test/numbering.spec.ts). `validateNumber` ze src/utils/numbering.ts sdílí formulář s backendem: validateTemplate s ní nastavení řekne hned, že šablona nepůjde uložit, a v backendu (desktop/) je bezpečnostní zábranou na zápisové cestě — číslo chodí i z cizího ISDOC a přes MCP most, tedy mimo formulář, a `join` z čísla ../smlouva udělá cestu ven z faktury/. Formát: [číslo, očekávaná chyba nebo null].",
+	"cases": [
+		["20260001", null],
+		["7", null],
+		["F2026-007", null],
+		["2026 007", null],
+		["FV.2026.007", null],
+		["2026_007", null],
+		["2026..0001", null],
+		["CON", null],
+		["com9.note", null],
+		["", "Číslo dokladu je povinné."],
+		["   ", "Číslo dokladu je povinné."],
+		[
+			" 20260001",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"20260001 ",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"\t20260001",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"2026/001",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"2026\\001",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"C:20260001",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"../smlouva",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"/Users/jiri/Documents/dulezite",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"2026*001",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"2026#001",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"..",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			".skryty",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"20260001.",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"-2026",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"2026_",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"2026\u00000001",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"2026\n0001",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"2026\u007f0001",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		[
+			"Č-2026-ř07",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		],
+		["6666666666666666666666666666666666666666666666666666666666666666", null],
+		[
+			"66666666666666666666666666666666666666666666666666666666666666666",
+			"Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí."
+		]
+	]
+}

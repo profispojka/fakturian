@@ -1,0 +1,116 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  required:
+    name: Required quality
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.3
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.18.1
+      # Testy PDF/A v projektu `desktop` ověřují doklady skutečným veraPDF.
+      - name: veraPDF
+        run: |
+          brew install verapdf
+          verapdf --version
+      - run: bun install --frozen-lockfile
+      # Showcase je samostatný projekt; `bun run typecheck` kontroluje jeho skripty proti typům z `playwright`.
+      - run: bun install --cwd showcase --frozen-lockfile
+      - run: bun run test:gates
+      - run: bun run lint:check
+      - run: bun run lint:scales
+      - run: bun run lint:dead-css
+      - run: bun run format:check
+      # Obsahuje i `tsc -p desktop/tsconfig.json` nad hlavním procesem.
+      - run: bun run typecheck
+      # Projekty `unit`, `nuxt` a `desktop` se 100% pokrytím na soubor.
+      - run: bun run test:coverage
+      - run: bun run test:contracts
+      - run: bun run generate
+      - run: bun run desktop:build
+      - run: bun run audit:js
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: quality-reports
+          path: coverage
+          if-no-files-found: warn
+
+  package:
+    name: Electron package smoke (macOS)
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.3
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.18.1
+      - run: bun install --frozen-lockfile
+      - name: Build unsigned app
+        env:
+          # Runner nemá certifikát; balí se bez podpisu a bez notarizace.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: |
+          bun run generate
+          bun run desktop:build
+          bunx electron-builder --config electron-builder.yml --publish never
+      - name: Bundle contents
+        run: |
+          app=.output/release/mac-arm64/Fakturian.app
+          test -f "$app/Contents/Resources/app.asar"
+          test -f "$app/Contents/Resources/app.asar.unpacked/.output/desktop/validator.mjs"
+          test -d "$app/Contents/Resources/app.asar.unpacked/node_modules/xmllint-wasm"
+          ls .output/release/*.dmg .output/release/*.zip
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: package-macos-15
+          path: |
+            .output/release/*.dmg
+            .output/release/*.zip
+          if-no-files-found: error
+
+  e2e:
+    name: E2E (Electron, macOS)
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.3
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.18.1
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck:e2e
+      # Snímky vznikly na vývojovém Macu; systémové písmo runneru se vykreslí jinak.
+      - run: bun run test:e2e -- --ignore-snapshots
+      - if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: e2e-results
+          path: |
+            .output-e2e/results
+            .output-e2e/report

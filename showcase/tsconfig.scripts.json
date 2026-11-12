@@ -1,0 +1,12 @@
+{
+	"extends": "../tsconfig.node.json",
+	"compilerOptions": {
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"rootDir": "..",
+		"strict": true,
+		"noImplicitAny": true,
+		"noUncheckedIndexedAccess": false
+	},
+	"include": ["../.nuxt/nuxt.node.d.ts", "*.ts", "capture/**/*.ts", "harness/**/*.ts", "scenes/**/*.ts"],
+	"exclude": ["nuxt.config.ts"]
+}

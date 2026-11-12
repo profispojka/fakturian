@@ -1,0 +1,45 @@
+{
+	"name": "fakturian-showcase",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "nuxt dev --port 3900",
+		"build": "nuxt generate",
+		"generate": "nuxt generate",
+		"preview": "node capture/serve.ts --dir .output/public --port 3901",
+		"postinstall": "nuxt prepare",
+		"serve:app": "node capture/serve.ts --dir ../.output/public --port 3902",
+		"shots": "node capture/shoot.ts --config shots.config.ts",
+		"baselines:pages": "bun capture/page-baselines.ts",
+		"audit:web": "node capture/audit.ts --dist .output/public",
+		"format": "oxfmt --write .",
+		"lint": "oxlint --vue-plugin --import-plugin --fix .",
+		"typecheck:scripts": "tsc --noEmit -p tsconfig.scripts.json"
+	},
+	"dependencies": {
+		"@nuxt/content": "^3.16.0",
+		"@nuxtjs/color-mode": "^4.0.1",
+		"@nuxtjs/seo": "^5.3.14",
+		"nuxt": "^4.5.2",
+		"vue": "^3.5.42",
+		"vue-router": "^5.3.0"
+	},
+	"devDependencies": {
+		"@resvg/resvg-js": "^2.6.2",
+		"@tailwindcss/vite": "^4.3.3",
+		"better-sqlite3": "^13.0.3",
+		"oxfmt": "^0.63.0",
+		"oxlint": "^1.78.0",
+		"playwright": "^1.62.1",
+		"satori": "^0.33.4",
+		"sirv": "^3.0.2",
+		"tailwindcss": "^4.3.3"
+	},
+	"packageManager": "bun@1.4.3",
+	"trustedDependencies": [
+		"@parcel/watcher",
+		"better-sqlite3",
+		"esbuild",
+		"sharp"
+	]
+}

@@ -1,0 +1,517 @@
+@import 'tailwindcss';
+@import '@nuxt/ui';
+
+/*
+ * Pravidla tady stojí mimo `@layer`, takže přebíjejí každou utilitu z markupu — jinak by třídy Nuxt
+ * UI přerazily metriku ovládacích prvků.
+ */
+
+@theme {
+	--radius-micro: 4px; /* odznáček, klávesa, číslo v pořadí */
+	--radius-ctl: 8px; /* tlačítka, pole, pilulky, stavové štítky */
+	--radius-row: 10px; /* řádky nabídek, zapuštěné bloky, plovoucí plochy */
+	--radius-avatar: 9px;
+	--radius-card: 20px; /* modaly a průvodce přes celý obsah */
+
+	--text-micro: 10px; /* klávesy v dolní liště, popisek sloupečku grafu */
+	--text-note: 11px; /* popisky sekcí, patka, odznáčky */
+	--text-meta: 12px; /* druhý plán řádku — datum, stav, poznámka pod číslem */
+	--text-ui: 13px; /* běžný text: buňky tabulek, formuláře, nabídky */
+	--text-title: 14px; /* nadpisy modalů a sekcí uvnitř nich */
+
+	--text-stat: 18px;
+	--text-stat--line-height: 1;
+	--text-stat--letter-spacing: -0.2px;
+	--text-stat-lg: 26px;
+	--text-stat-lg--line-height: 1;
+	--text-stat-lg--letter-spacing: -0.4px;
+	--text-display: 84px; /* příští číslo faktury na konci průvodce */
+	--text-display--line-height: 1;
+	--text-display--letter-spacing: -3px;
+
+	--leading-prose: 1.45;
+
+	--breakpoint-split: 820px;
+	--breakpoint-wide: 960px;
+
+	--font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+
+	--animate-sheet-in: sheet-in 0.22s cubic-bezier(0.2, 0, 0, 1);
+	--animate-number-fresh: number-fresh 0.9s ease-out;
+	--animate-digit-roll: digit-roll 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.25s both;
+	--animate-number-rise: number-rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+	@keyframes sheet-in {
+		from {
+			opacity: 0;
+			transform: translateY(7px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	/* Jen `from`: cíl je vlastní `transform` prvku, číslice se dotočí tam, kde má stát. */
+	@keyframes digit-roll {
+		from {
+			transform: translateY(0);
+		}
+	}
+
+	/* Jen `from`: ztlumené duchy čísla si krytí drží samy. */
+	@keyframes number-rise {
+		from {
+			opacity: 0;
+			filter: blur(8px);
+			transform: translateY(24px) scale(0.96);
+		}
+	}
+
+	@keyframes number-fresh {
+		from {
+			background: var(--accent-soft);
+			color: var(--accent);
+		}
+		to {
+			background: transparent;
+			color: inherit;
+		}
+	}
+}
+
+/* Popisek, který se má přeskočit okem — čtou se data pod ním. Utilita, ne třída ve
+   slovníku: bere si ji i `@apply` uvnitř tohohle souboru. */
+@utility eyebrow {
+	@apply text-note font-medium tracking-[0.06em] text-ink-3 uppercase;
+}
+
+:root {
+	--sidebar: 238px;
+	--topbar: 40px;
+	--row: 30px;
+	--row-tbl: 36px;
+	--ctl: 30px;
+}
+
+/*
+ * Tichá neutrální plocha, prostory oddělené vlásečnicí a ničím jiným. Průsvit má jediné místo —
+ * levý panel s matným sklem systému (`--chrome`).
+ */
+:root {
+	--bg: #f4f4f4;
+	--bg-solid: #f4f4f4;
+	--pane: #fbfbfb;
+	--card: #ffffff;
+	--inset: #eeeeee;
+	--chrome: rgb(244 244 244 / 0.62);
+
+	--ink: #252525;
+	--ink-2: #5c5c5c;
+	--ink-3: #707070;
+
+	/* Jediný oddělovač ploch, takže musí být vidět — ale ne tak, aby z panelů udělal rámečky. */
+	--line: rgb(0 0 0 / 0.13);
+	--line-soft: rgb(0 0 0 / 0.07);
+
+	/* `--brand` je konstanta v obou režimech, `--accent` jeho varianta přizpůsobená
+	   režimu — v tmavém se musí zesvětlit, jinak na ní není text čitelný. */
+	--brand: #2e8b57;
+	--on-brand: #ffffff;
+	--accent: #2b7f4f;
+	--on-accent: #ffffff;
+	--accent-soft: rgb(43 127 79 / 0.13);
+
+	--row-on: rgb(0 0 0 / 0.075);
+	--row-hover: rgb(0 0 0 / 0.045);
+
+	--field: rgb(0 0 0 / 0.05);
+	--field-hover: rgb(0 0 0 / 0.09);
+
+	--danger: #c4483f;
+	--danger-soft: rgb(196 72 63 / 0.12);
+	--warn: #b1740c;
+	--warn-soft: rgb(177 116 12 / 0.12);
+
+	--chart-bar: #2e8b57;
+	--chart-bar-hl: #4aa876;
+
+	--shadow-pop: 0 12px 32px rgb(0 0 0 / 0.28);
+
+	--bevel-side: rgb(0 0 0 / 0.085);
+	--bevel-top: rgb(0 0 0 / 0.05);
+	--bevel-bottom: rgb(0 0 0 / 0.115);
+	--bevel-inset: inset 0 1px 0 rgb(255 255 255 / 0.9), inset 0 -1px 0 rgb(0 0 0 / 0.02);
+	--bevel-drop: 0 1px 1.5px rgb(0 0 0 / 0.028);
+}
+
+.dark {
+	--palette: #181818;
+	--bg: #191919;
+	--bg-solid: #191919;
+	--pane: #1c1c1c;
+	--card: #232323;
+	/* Plocha pole musí být vidět nad panelem i nad kartou v modalu, takže je světlejší než obě. */
+	--inset: #2c2c2c;
+	--chrome: rgb(25 25 25 / 0.62);
+
+	--ink: #ececec;
+	--ink-2: #a0a0a0;
+	--ink-3: #8e8e8e;
+
+	--line: rgb(255 255 255 / 0.11);
+	--line-soft: rgb(255 255 255 / 0.055);
+
+	--accent: #63c98d;
+	--on-accent: #10281b;
+	--accent-soft: rgb(99 201 141 / 0.14);
+
+	--row-on: rgb(255 255 255 / 0.075);
+	--row-hover: rgb(255 255 255 / 0.045);
+
+	--field: rgb(255 255 255 / 0.055);
+	--field-hover: rgb(255 255 255 / 0.1);
+
+	--danger: #e5695c;
+	--danger-soft: rgb(229 105 92 / 0.16);
+	--warn: #e0a53c;
+	--warn-soft: rgb(224 165 60 / 0.16);
+
+	--chart-bar: #3f9c6b;
+	--chart-bar-hl: #63c98d;
+
+	--shadow-pop: 0 12px 32px rgb(0 0 0 / 0.5);
+
+	--bevel-side: rgb(255 255 255 / 0.06);
+	--bevel-top: rgb(255 255 255 / 0.105);
+	--bevel-bottom: rgb(0 0 0 / 0.26);
+	--bevel-inset: inset 0 1px 0 rgb(255 255 255 / 0.03), inset 0 -1px 0 rgb(0 0 0 / 0.08);
+	--bevel-drop: 0 1px 2px rgb(0 0 0 / 0.13);
+}
+
+:root.window-inactive {
+	--row-on: rgb(0 0 0 / 0.05);
+}
+.dark.window-inactive {
+	--row-on: rgb(255 255 255 / 0.05);
+}
+
+/*
+ * Z tokenů výše dělá tenhle blok utility (`text-ink-2`, `bg-card`). `inline` je podstatné: bez něj
+ * by utilita ukazovala na `--color-ink-2`, kdežto režim přepíná `--ink-2`, takže by v tmavém
+ * zůstala světlá barva.
+ */
+@theme inline {
+	--color-palette: var(--palette, #f6f6f6);
+	--color-ink: var(--ink);
+	--color-ink-2: var(--ink-2);
+	--color-ink-3: var(--ink-3);
+
+	--color-line: var(--line);
+	--color-line-soft: var(--line-soft);
+
+	--color-pane: var(--pane);
+	--color-card: var(--card);
+	--color-inset: var(--inset);
+	--color-chrome: var(--chrome);
+
+	--color-field: var(--field);
+	--color-field-hover: var(--field-hover);
+	--color-row-on: var(--row-on);
+	--color-row-hover: var(--row-hover);
+
+	--color-brand: var(--brand);
+	--color-accent: var(--accent);
+	--color-accent-soft: var(--accent-soft);
+	--color-on-accent: var(--on-accent);
+
+	--color-danger: var(--danger);
+	--color-danger-soft: var(--danger-soft);
+	--color-warn: var(--warn);
+	--color-warn-soft: var(--warn-soft);
+
+	--color-bevel-side: var(--bevel-side);
+	--color-bevel-top: var(--bevel-top);
+	--color-bevel-bottom: var(--bevel-bottom);
+}
+
+html,
+body,
+#__nuxt {
+	@apply h-full overflow-hidden;
+}
+
+html {
+	@apply bg-(--bg-solid);
+}
+
+html.native,
+html.native body {
+	@apply bg-transparent;
+}
+
+body {
+	@apply cursor-default overscroll-none bg-(--bg) font-sans text-ui text-ink antialiased select-none;
+}
+
+/*
+ * Za lišty a hlavičky se táhne okno. Plocha s `app-region: drag` nedostane od Electronu žádnou
+ * událost myši, takže ovládací prvky v ní se musí vrátit na `no-drag` a lišta nesmí nést obsah.
+ */
+[data-drag-region] {
+	-webkit-app-region: drag;
+}
+
+[data-drag-region] :is(a, button, input, select, textarea, label, summary, [contenteditable], [tabindex], [role]) {
+	-webkit-app-region: no-drag;
+}
+
+input,
+textarea,
+[contenteditable],
+.selectable {
+	@apply select-text;
+}
+
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']) {
+	@apply cursor-pointer;
+}
+
+/* Ve vrstvě `base`, aby si je utility v markupu mohly kdykoli přebít. */
+@layer base {
+	:focus-visible {
+		@apply outline-1 outline-offset-1 outline-accent;
+	}
+
+	button:not(:disabled):active {
+		@apply opacity-70;
+	}
+
+	button,
+	[role='button'] {
+		@apply motion-safe:transition-[background-color,border-color,color,opacity] motion-safe:duration-90 motion-safe:ease-[ease];
+	}
+}
+
+.page {
+	@apply flex h-full min-h-0 flex-col bg-pane;
+}
+
+.page-header {
+	@apply flex h-(--topbar) shrink-0 items-center justify-between gap-3 border-b border-line bg-(--bg) pr-3 pl-4;
+}
+
+.page-body {
+	@apply flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto;
+	/*
+	 * Nahoře ani dole se neodsazuje paddingem. `padding-top` scroll kontejneru se odrolovává spolu s
+	 * obsahem, takže by přilepená hlavička výpisu stála až pod ním; `padding-bottom` zase patří do
+	 * oblasti přetečení, takže by se obsah do odsazení „vešel" a nešlo by dorolovat.
+	 */
+	@apply px-5;
+}
+.page-body > :first-child {
+	@apply mt-5;
+}
+.page-body > :last-child {
+	@apply mb-6;
+}
+
+.detail-page {
+	@apply grid grid-cols-1 grid-rows-[auto_minmax(0,1fr)_auto];
+}
+.detail-header {
+	@apply pointer-events-none relative z-10 col-start-1 row-start-1 flex min-h-18 items-center gap-3 bg-linear-to-b from-pane via-pane/95 to-transparent px-5 pt-4 pb-8;
+}
+.detail-body {
+	@apply col-start-1 row-start-1 row-end-4;
+}
+.detail-body > :first-child {
+	@apply mt-28;
+}
+.detail-body > :last-child {
+	@apply mb-36;
+}
+.detail-footer {
+	@apply pointer-events-none relative z-10 col-start-1 row-start-3 flex min-h-18 flex-wrap items-center gap-2 bg-linear-to-t from-pane via-pane/95 to-transparent px-5 pt-8 pb-3;
+}
+.detail-header > *,
+.detail-footer > * {
+	@apply pointer-events-auto;
+}
+
+.record-list tbody td:first-child {
+	@apply rounded-l-row;
+}
+.record-list tbody td:last-child {
+	@apply rounded-r-row;
+}
+.record-list tbody tr:hover td {
+	@apply bg-row-hover;
+}
+.record-list tbody tr:has([data-selected]) td {
+	@apply bg-row-on text-ink;
+}
+.record-list tbody tr:focus-visible td {
+	@apply bg-row-on;
+}
+
+.card {
+	@apply relative;
+}
+
+/* Descendant, ne přímý potomek: na faktuře jsou sekce zabalené v `<form>`, takže by `>` na ně nedosáhl. */
+.page-body :is(section, .card) + :is(section, .card) {
+	@apply border-t border-line-soft pt-5;
+}
+
+.page-body > form {
+	@apply flex min-w-0 flex-col gap-6;
+}
+
+.section-title,
+.section-label {
+	@apply mb-3 eyebrow;
+}
+.section-label {
+	@apply m-0;
+}
+
+.row {
+	@apply flex items-center gap-2;
+}
+.hint {
+	@apply text-meta leading-prose text-ink-2;
+}
+
+.form-grid {
+	@apply grid grid-cols-2 gap-x-4 gap-y-3;
+}
+.form-grid > * {
+	@apply min-w-0;
+}
+.form-grid--wide-first {
+	@apply min-w-0 grid-cols-[1.6fr_1fr];
+}
+.field {
+	@apply flex min-w-0 flex-col gap-2;
+}
+
+/*
+ * USelect se musí chytit zvlášť: jeho kořen je `button[role="combobox"]`, takže `:has(> input)` na
+ * něj nedosáhne; USelectMenu je `button[aria-haspopup="listbox"]` bez role.
+ */
+.form-grid :where(:has(> input), :has(> textarea)),
+.ftable :where(:has(> input), :has(> textarea)),
+.field > :not(.row):not(.hint) {
+	@apply w-full;
+}
+.form-grid :where(button[role='combobox'], button[aria-haspopup='listbox'], select),
+.ftable :where(button[role='combobox'], button[aria-haspopup='listbox'], select),
+.field :where(button[role='combobox'], button[aria-haspopup='listbox'], select) {
+	@apply w-full;
+}
+.form-grid :where(input, textarea),
+.ftable :where(input, textarea),
+.field > :not(.row):not(.hint) input,
+.field > :not(.row):not(.hint) textarea {
+	@apply box-border w-full;
+}
+
+.ftable tbody tr:last-child td {
+	@apply border-b-0;
+}
+.ftable tbody tr:hover td {
+	@apply bg-row-hover;
+}
+
+.row-link {
+	@apply min-h-0 bg-transparent p-0 text-left text-ink [font:inherit];
+}
+
+/* Účtenka, ne tabulka: popisek vlevo, částka vpravo. Hranice mezi řádky patří sem —
+   v markupu by `last:border-b-0` muselo stát u každého řádku. */
+.figures--compact > * {
+	@apply flex h-(--row) min-w-0 items-baseline justify-between gap-3 border-b border-line-soft tabular-nums;
+}
+.figures--compact > :last-child {
+	@apply border-b-0;
+}
+.figures--compact > * > :last-child {
+	@apply whitespace-nowrap tabular-nums;
+}
+
+.state {
+	@apply rounded-ctl bg-field px-2 py-1 text-note font-medium text-ink-2;
+}
+.state--paid,
+.state--refunded,
+.state--settled {
+	@apply bg-accent-soft text-accent;
+}
+.state--partial,
+.state--refunding {
+	@apply bg-warn-soft text-warn;
+}
+.state--overdue {
+	@apply bg-danger-soft text-danger;
+}
+
+/*
+ * Karta leží na ploše, ne v ní. Místo obrysu stejného dokola nese nasvícenou hranu — odsazení a tón
+ * by nestačily, karta je světlejší jen o dva stupně.
+ */
+@utility bevel {
+	@apply border border-bevel-side border-t-bevel-top border-b-bevel-bottom;
+	@apply shadow-[var(--bevel-inset),var(--bevel-drop)];
+}
+
+.modal-card {
+	@apply rounded-card bevel bg-card;
+	@apply shadow-[var(--bevel-inset),var(--shadow-pop)];
+}
+
+::-webkit-scrollbar {
+	@apply h-2.75 w-2.75;
+}
+::-webkit-scrollbar-thumb {
+	@apply rounded-ctl border-[3px] border-transparent bg-[rgb(128_128_128/0.28)] bg-clip-content;
+}
+::-webkit-scrollbar-thumb:hover {
+	@apply border-[3px] border-transparent bg-[rgb(128_128_128/0.5)] bg-clip-content;
+}
+
+:root,
+.dark {
+	--ui-primary: var(--accent);
+	--ui-secondary: var(--accent);
+	--ui-success: var(--accent);
+	--ui-warning: var(--warn);
+	--ui-error: var(--danger);
+	--ui-info: var(--ink-2);
+
+	--ui-bg: var(--pane);
+	--ui-bg-muted: var(--inset);
+	--ui-bg-elevated: var(--field);
+	--ui-bg-accented: var(--field-hover);
+	--ui-bg-inverted: var(--ink);
+
+	--ui-border: var(--line);
+	--ui-border-muted: var(--line-soft);
+	--ui-border-accented: var(--line);
+	--ui-border-inverted: var(--ink);
+
+	--ui-text: var(--ink);
+	--ui-text-highlighted: var(--ink);
+	--ui-text-toned: var(--ink-2);
+	--ui-text-muted: var(--ink-2);
+	--ui-text-dimmed: var(--ink-3);
+	--ui-text-inverted: var(--on-accent);
+
+	--ui-radius: 4px;
+}
+
+.page-body label {
+	@apply text-meta font-medium text-ink-2;
+}

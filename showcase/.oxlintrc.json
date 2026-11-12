@@ -1,0 +1,131 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": ["eslint", "import", "promise", "typescript", "oxc", "unicorn", "vue"],
+	"categories": {
+		"correctness": "error",
+		"suspicious": "warn"
+	},
+	"ignorePatterns": ["node_modules", ".nuxt", ".output", ".next", "dist", "build", "coverage", "src-tauri/target"],
+	"rules": {
+		"no-new": "error",
+		"no-unused-vars": "error",
+		"no-warning-comments": [
+			"error",
+			{
+				"terms": [
+					"oxlint-disable",
+					"eslint-disable",
+					"@ts-ignore",
+					"@ts-nocheck",
+					"@ts-expect-error",
+					"tslint:disable"
+				],
+				"location": "anywhere"
+			}
+		],
+		"max-lines": [
+			"error",
+			{
+				"max": 1200,
+				"skipBlankLines": true
+			}
+		],
+		"no-var": "error",
+		"no-underscore-dangle": [
+			"error",
+			{ "allow": ["__DEMO_MODE__", "__TAURI_INTERNALS__", "__stage", "__stageCameraTarget"] }
+		],
+		"prefer-const": "warn",
+		"no-void": "error",
+		"no-empty": "error",
+		"no-debugger": "error",
+		"no-redeclare": "error",
+		"no-loop-func": "error",
+		"no-lonely-if": "error",
+		"no-nested-ternary": "error",
+		"logical-assignment-operators": ["error", "never"],
+		"getter-return": "error",
+		"no-unreachable": "error",
+		"prefer-template": "error",
+		"no-self-compare": "error",
+		"no-throw-literal": "error",
+		"no-return-assign": "error",
+		"no-useless-return": "error",
+		"no-empty-function": "error",
+		"no-param-reassign": "error",
+		"default-param-last": "error",
+		"no-array-constructor": "error",
+		"array-callback-return": "error",
+		"no-template-curly-in-string": "error",
+		// Nuxt pojmenovává auto-importované komponenty a composables podle PascalCase/camelCase souborů.
+		"unicorn/filename-case": "off",
+		"unicorn/prefer-add-event-listener": "error",
+		"unicorn/prefer-default-parameters": "error",
+		"unicorn/no-await-expression-member": "error",
+		"unicorn/no-negation-in-equality-check": "error",
+		"unicorn/no-abusive-eslint-disable": "error",
+		"unicorn/no-array-sort": "error",
+		"unicorn/consistent-function-scoping": "error",
+		"promise/always-return": "error",
+		"promise/prefer-await-to-then": "error",
+		"promise/prefer-await-to-callbacks": "error",
+		"promise/no-return-in-finally": "error",
+		"oxc/branches-sharing-code": "error",
+		"import/export": "error",
+		"import/no-cycle": "error",
+		"no-unassigned-import": "error",
+		"first": "error",
+		"no-named-default": "warn",
+		"no-named-as-default-member": "warn",
+		"default": "error",
+		"no-commonjs": "error",
+		"no-namespace": "error",
+		"no-duplicates": "error",
+		"no-dynamic-require": "error",
+		"no-redundant-type-constituents": "error",
+		"ban-ts-comment": "error",
+		"ban-tslint-comment": "error",
+		"typescript/no-deprecated": "error",
+		"no-explicit-any": "error",
+		"require-await": "error",
+		"no-mixed-enums": "error",
+		"prefer-includes": "error",
+		"only-throw-error": "error",
+		"no-dynamic-delete": "error",
+		"no-require-imports": "error",
+		"no-misused-promises": "error",
+		"no-empty-object-type": "error",
+		"no-implicit-coercion": "error",
+		"no-non-null-assertion": "error",
+		"restrict-plus-operands": "error",
+		"no-unsafe-function-type": "error",
+		"typescript/prefer-for-of": "error",
+		"prefer-literal-enum-member": "error",
+		"use-unknown-in-catch-callback-variable": "error",
+		"typescript/unbound-method": "error",
+		"typescript/array-type": "error",
+		"typescript/prefer-nullish-coalescing": ["error", { "ignorePrimitives": { "string": true } }],
+		"typescript/no-unsafe-type-assertion": "error",
+		"typescript/restrict-template-expressions": "error",
+		"typescript/consistent-type-imports": "error",
+		"typescript/no-floating-promises": "error",
+		"typescript/switch-exhaustiveness-check": "warn",
+		"vue/define-emits-declaration": "error",
+		"vue/define-props-declaration": "error"
+	},
+	"overrides": [
+		{
+			// Dynamický ESM import nemůže svůj export odvodit z runtime cesty; typ určuje volající konfigurace.
+			"files": ["capture/lib/util.ts"],
+			"rules": { "typescript/no-unsafe-type-assertion": "off" }
+		},
+		{
+			// HTTP callback je synchronní; asynchronní obsluha si chyby řeší sama.
+			"files": ["capture/serve.ts"],
+			"rules": { "no-void": "off" }
+		}
+	],
+	"env": {
+		"builtin": true
+	}
+}

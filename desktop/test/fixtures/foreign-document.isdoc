@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="http://isdoc.cz/namespace/2013" version="6.0.2">
+  <DocumentType>1</DocumentType>
+  <ID>2026-0042</ID>
+  <UUID>3f2504e0-4f89-11d3-9a0c-0305e82c3301</UUID>
+  <IssueDate>2026-03-10</IssueDate>
+  <VATApplicable>false</VATApplicable>
+  <ElectronicPossibilityAgreementReference></ElectronicPossibilityAgreementReference>
+  <LocalCurrencyCode>CZK</LocalCurrencyCode>
+  <CurrRate>1</CurrRate>
+  <RefCurrRate>1</RefCurrRate>
+  <AccountingSupplierParty>
+    <Party>
+      <PartyIdentification><ID>12345678</ID></PartyIdentification>
+      <PartyName><Name>Cizí Dodavatel s.r.o.</Name></PartyName>
+      <PostalAddress>
+        <StreetName>Nádražní</StreetName>
+        <BuildingNumber>1422</BuildingNumber>
+        <CityName>Ostrava</CityName>
+        <PostalZone>70200</PostalZone>
+        <Country><IdentificationCode>CZ</IdentificationCode><Name>Česká republika</Name></Country>
+      </PostalAddress>
+      <Contact><ElectronicMail>fakturace@cizi.cz</ElectronicMail></Contact>
+    </Party>
+  </AccountingSupplierParty>
+  <AccountingCustomerParty>
+    <Party>
+      <PartyIdentification><ID>87654321</ID></PartyIdentification>
+      <PartyName><Name>Odběratel s.r.o.</Name></PartyName>
+      <PostalAddress>
+        <StreetName>Odběratelská</StreetName>
+        <BuildingNumber>2</BuildingNumber>
+        <CityName>Brno</CityName>
+        <PostalZone>60200</PostalZone>
+        <Country><IdentificationCode>CZ</IdentificationCode><Name>Česká republika</Name></Country>
+      </PostalAddress>
+    </Party>
+  </AccountingCustomerParty>
+  <InvoiceLines>
+    <InvoiceLine>
+      <ID>1</ID>
+      <InvoicedQuantity unitCode="hod">1.5</InvoicedQuantity>
+      <LineExtensionAmount>1875.00</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>1875.00</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>0.00</LineExtensionTaxAmount>
+      <UnitPrice>1250.00</UnitPrice>
+      <UnitPriceTaxInclusive>1250.00</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory><Percent>0</Percent><VATCalculationMethod>0</VATCalculationMethod><VATApplicable>false</VATApplicable></ClassifiedTaxCategory>
+      <Item><Description>Vývojové práce</Description></Item>
+    </InvoiceLine>
+  </InvoiceLines>
+  <TaxTotal>
+    <TaxSubTotal>
+      <TaxableAmount>1875.00</TaxableAmount>
+      <TaxAmount>0.00</TaxAmount>
+      <TaxInclusiveAmount>1875.00</TaxInclusiveAmount>
+      <AlreadyClaimedTaxableAmount>0.00</AlreadyClaimedTaxableAmount>
+      <AlreadyClaimedTaxAmount>0.00</AlreadyClaimedTaxAmount>
+      <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+      <DifferenceTaxableAmount>1875.00</DifferenceTaxableAmount>
+      <DifferenceTaxAmount>0.00</DifferenceTaxAmount>
+      <DifferenceTaxInclusiveAmount>1875.00</DifferenceTaxInclusiveAmount>
+      <TaxCategory><Percent>0</Percent><VATApplicable>false</VATApplicable></TaxCategory>
+    </TaxSubTotal>
+    <TaxAmount>0.00</TaxAmount>
+  </TaxTotal>
+  <LegalMonetaryTotal>
+    <TaxExclusiveAmount>1875.00</TaxExclusiveAmount>
+    <TaxInclusiveAmount>1875.00</TaxInclusiveAmount>
+    <AlreadyClaimedTaxExclusiveAmount>0.00</AlreadyClaimedTaxExclusiveAmount>
+    <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+    <DifferenceTaxExclusiveAmount>1875.00</DifferenceTaxExclusiveAmount>
+    <DifferenceTaxInclusiveAmount>1875.00</DifferenceTaxInclusiveAmount>
+    <PaidDepositsAmount>0.00</PaidDepositsAmount>
+    <PayableAmount>1875.00</PayableAmount>
+  </LegalMonetaryTotal>
+  <PaymentMeans>
+    <Payment>
+      <PaidAmount>1875.00</PaidAmount>
+      <PaymentMeansCode>42</PaymentMeansCode>
+      <Details>
+        <PaymentDueDate>2026-03-24</PaymentDueDate>
+        <ID>2000145399</ID>
+        <BankCode>0800</BankCode>
+        <Name>Česká spořitelna</Name>
+        <IBAN>CZ6508000000192000145399</IBAN>
+        <BIC></BIC>
+        <VariableSymbol>202600042</VariableSymbol>
+      </Details>
+    </Payment>
+  </PaymentMeans>
+</Invoice>

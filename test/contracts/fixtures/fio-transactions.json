@@ -1,0 +1,69 @@
+{
+	"accountStatement": {
+		"info": {
+			"accountId": "2000145399",
+			"bankId": "0800",
+			"currency": "CZK",
+			"iban": "CZ6508000000192000145399",
+			"bic": "GIBACZPX",
+			"openingBalance": 10000.0,
+			"closingBalance": 31600.0,
+			"dateStart": "2026-05-01+0200",
+			"dateEnd": "2026-05-31+0200",
+			"yearList": null,
+			"idList": null,
+			"idFrom": 26001,
+			"idTo": 26003,
+			"idLastDownload": null
+		},
+		"transactionList": {
+			"transaction": [
+				{
+					"column22": { "value": 26001, "name": "ID pohybu", "id": 22 },
+					"column0": { "value": "2026-05-20+0200", "name": "Datum", "id": 0 },
+					"column1": { "value": 12100.0, "name": "Objem", "id": 1 },
+					"column14": { "value": "CZK", "name": "Měna", "id": 14 },
+					"column2": { "value": "123456789", "name": "Protiúčet", "id": 2 },
+					"column10": { "value": "ACME S.R.O.", "name": "Název protiúčtu", "id": 10 },
+					"column3": { "value": "0100", "name": "Kód banky", "id": 3 },
+					"column12": { "value": "Komerční banka, a.s.", "name": "Název banky", "id": 12 },
+					"column4": null,
+					"column5": { "value": "20260001", "name": "VS", "id": 5 },
+					"column6": null,
+					"column7": null,
+					"column16": { "value": "Faktura 20260001", "name": "Zpráva pro příjemce", "id": 16 },
+					"column8": { "value": "Bezhotovostní příjem", "name": "Typ", "id": 8 },
+					"column9": null,
+					"column18": null,
+					"column25": { "value": "Faktura 20260001", "name": "Komentář", "id": 25 },
+					"column26": null,
+					"column17": { "value": 31000001, "name": "ID pokynu", "id": 17 }
+				},
+				{
+					"column22": { "value": 26002, "name": "ID pohybu", "id": 22 },
+					"column0": { "value": "2026-05-21+0200", "name": "Datum", "id": 0 },
+					"column1": { "value": -500.0, "name": "Objem", "id": 1 },
+					"column14": { "value": "CZK", "name": "Měna", "id": 14 },
+					"column2": { "value": "987654321", "name": "Protiúčet", "id": 2 },
+					"column3": { "value": "0300", "name": "Kód banky", "id": 3 },
+					"column5": null,
+					"column16": null,
+					"column8": { "value": "Platba kartou", "name": "Typ", "id": 8 },
+					"column17": { "value": 31000002, "name": "ID pokynu", "id": 17 }
+				},
+				{
+					"column22": { "value": 26003, "name": "ID pohybu", "id": 22 },
+					"column0": { "value": "2026-05-22+0200", "name": "Datum", "id": 0 },
+					"column1": { "value": 10000.0, "name": "Objem", "id": 1 },
+					"column14": { "value": "CZK", "name": "Měna", "id": 14 },
+					"column2": { "value": "2345678901", "name": "Protiúčet", "id": 2 },
+					"column3": { "value": "2010", "name": "Kód banky", "id": 3 },
+					"column5": { "value": 20260002, "name": "VS", "id": 5 },
+					"column16": null,
+					"column8": { "value": "Bezhotovostní příjem", "name": "Typ", "id": 8 },
+					"column17": { "value": 31000003, "name": "ID pokynu", "id": 17 }
+				}
+			]
+		}
+	}
+}

@@ -1,0 +1,28 @@
+{
+	// Hlavní proces a preload Electronu. Sdílený kód z `src/` (schémata, `utils/`) importuje bez přípony
+	// přes `~/`, jak ho zabalí esbuild.
+	"compilerOptions": {
+		"target": "ES2024",
+		"lib": ["ES2024"],
+		"module": "preserve",
+		"moduleResolution": "bundler",
+		"types": ["node"],
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true,
+		"noUncheckedSideEffectImports": true,
+		"allowImportingTsExtensions": true,
+		"resolveJsonModule": true,
+		"verbatimModuleSyntax": true,
+		"skipLibCheck": true,
+		"noEmit": true,
+		"paths": {
+			"~/*": ["../src/*"]
+		}
+	},
+	"include": ["**/*.ts", "../vitest.desktop.config.ts"],
+	"exclude": ["test/**"]
+}

@@ -1,0 +1,24 @@
+{
+	"$schema": "./node_modules/oxfmt/configuration_schema.json",
+	"trailingComma": "all",
+	"tabWidth": 4,
+	"singleQuote": true,
+	"htmlWhitespaceSensitivity": "ignore",
+	"bracketSameLine": true,
+	"endOfLine": "lf",
+	"printWidth": 120,
+	"useTabs": true,
+	// Jediný seznam výjimek. Výstupy buildu (`node_modules`, `.nuxt`, `.output`,
+	// `dist`, `coverage`) drží `.gitignore`, ze kterého oxfmt čte sám; sem patří
+	// jen to, co v gitu je, ale formátovat se nemá.
+	"ignorePatterns": ["*.yaml", "*.yml"],
+	"experimentalSortImports": {
+		"newlines-between": "always",
+		"pathGroupsExcludedImportTypes": ["builtin"],
+		"groups": ["builtin", "external", "internal", "unknown", "sibling", "parent", "index", "type"]
+	},
+	"sortTailwindcss": {
+		"stylesheet": "./src/assets/css/main.css",
+		"attributes": [":class"]
+	}
+}

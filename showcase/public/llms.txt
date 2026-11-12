@@ -1,0 +1,47 @@
+# Fakturian
+
+> Desktopová fakturace pro české živnostníky-neplátce DPH (macOS). Drží faktury,
+> náklady a vykázané dny pohromadě. Data jsou obyčejné soubory ve
+> složce, kterou si uživatel zvolí — bez cloudu, bez účtu, offline.
+
+Fakturian nesoutěží jednoduchostí (v tom vyhraje Fakturoid), ale tím, že jako
+jediný ukáže faktury, náklady a odpracované dny na jednom místě.
+
+## Stav produktu
+
+Funkce jsou hotové, ale build zatím není podepsaný ani notarizovaný, takže se
+appka nedistribuuje. Web proto nenabízí stažení, nesbírá e-maily a neuvádí
+konkrétní cenu. Model je jistý: jednorázová platba, žádné předplatné.
+
+## Klíčové vlastnosti
+
+- **Vault** — data jsou PDF (s vloženým ISDOC) a JSON soubory ve složce
+  uživatele. Zálohu a synchronizaci řeší umístění složky (iCloud, Dropbox,
+  Time Machine, Git, USB).
+- **Fond dovolené** — roční limit položky ceníku v její jednotce (třeba
+  160 hodin); faktura přes limit se neuloží.
+- **Párování plateb z Fio banky** podle variabilního symbolu a částky.
+- **Claude connector (MCP)** — agent čte doklady, výdaje i fond
+  dovolené a umí vystavit fakturu; běží proti otevřené appce přes lokální socket.
+- Dále: QR platba (SPAYD, CZK a EUR), dobropisy, import
+  historie z PDF s ISDOC, převzetí složky plné PDF, ARES a sledování limitu
+  plátcovství DPH.
+
+## Co produkt vědomě neumí
+
+DPH a plátcovství, vlastní cloud a synchronizaci, odesílání e-mailů přes SMTP,
+měření času, Windows a mobilní verzi, souběžnou práci dvou počítačů nad jedním
+vaultem.
+
+## Stránky
+
+- /: přehled produktu, hlavní funkce, videa
+- /funkce: úplný seznam funkcí i toho, co appka nedělá
+- /pouziti: rozcestník devíti use-case stránek
+- /cena: model ceny a dostupnost
+- /napoveda: nápověda (první spuštění, fakturace, data, integrace, potíže)
+
+## Poznámka k obsahu
+
+Obrázky a videa na webu jsou pořízené ze skutečné aplikace s ukázkovými daty.
+Firmy, jména, IČO a částky v nich jsou vymyšlené.

@@ -1,0 +1,19 @@
+{
+	"$schema": "./node_modules/oxfmt/configuration_schema.json",
+	"trailingComma": "all",
+	"tabWidth": 4,
+	"singleQuote": true,
+	"htmlWhitespaceSensitivity": "ignore",
+	"bracketSameLine": true,
+	"endOfLine": "lf",
+	"printWidth": 120,
+	"useTabs": true,
+	// Showcase je vlastní balíček bez svého `.gitignore`, takže oxfmt výstupy
+	// buildu nepozná odjinud — patří sem.
+	"ignorePatterns": ["node_modules", ".nuxt", ".output", "dist", ".data", "media", "*.yaml", "*.yml", "*.md"],
+	"experimentalSortImports": {
+		"newlines-between": "always",
+		"pathGroupsExcludedImportTypes": ["builtin"],
+		"groups": ["builtin", "external", "internal", "unknown", "sibling", "parent", "index", "type"]
+	}
+}

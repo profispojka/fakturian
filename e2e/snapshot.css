@@ -1,0 +1,14 @@
+/* Cesty ke složkám a binárce se liší stroj od stroje; nezakryté by snímek nesedl nikde jinde. */
+[data-testid='vault-path'],
+[data-testid='statusbar-vault'],
+[data-testid='mcp-command'],
+[data-testid='mcp-socket'],
+[data-testid='wizard-path'],
+[data-testid='saved'] {
+	visibility: hidden !important;
+}
+
+*:focus-visible {
+	outline: none !important;
+	--tw-ring-shadow: 0 0 #0000 !important;
+}

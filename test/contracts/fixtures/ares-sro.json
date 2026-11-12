@@ -1,0 +1,103 @@
+{
+	"ico": "12345679",
+	"obchodniJmeno": "Testovací studio s.r.o.",
+	"sidlo": {
+		"kodStatu": "CZ",
+		"nazevStatu": "Česká republika",
+		"kodKraje": 116,
+		"nazevKraje": "Jihomoravský kraj",
+		"kodObce": 554782,
+		"nazevObce": "Brno",
+		"kodSpravnihoObvodu": 19,
+		"nazevSpravnihoObvodu": "Brno-sever",
+		"kodMestskehoObvodu": 19,
+		"nazevMestskehoObvodu": "Brno-sever",
+		"kodMestskeCastiObvodu": 500054,
+		"kodUlice": 100001,
+		"nazevMestskeCastiObvodu": "Brno-sever",
+		"nazevUlice": "Krátká",
+		"cisloDomovni": 2,
+		"kodCastiObce": 400001,
+		"cisloOrientacni": 4,
+		"nazevCastiObce": "Zábrdovice",
+		"kodAdresnihoMista": 10000001,
+		"psc": 60200,
+		"textovaAdresa": "Krátká 2/4, Zábrdovice, 60200 Brno",
+		"standardizaceAdresy": true,
+		"typCisloDomovni": 1
+	},
+	"pravniForma": "112",
+	"pravniFormaRos": "112",
+	"financniUrad": "451",
+	"datumAktualizace": "2026-03-23",
+	"icoId": "12345679",
+	"adresaDorucovaci": {
+		"radekAdresy1": "Krátká 2/4",
+		"radekAdresy2": "Zábrdovice",
+		"radekAdresy3": "60200 Brno"
+	},
+	"czNace2008": ["62010"],
+	"seznamRegistraci": {
+		"stavZdrojeRos": "AKTIVNI",
+		"stavZdrojeVr": "AKTIVNI",
+		"stavZdrojeRes": "AKTIVNI",
+		"stavZdrojeRzp": "AKTIVNI",
+		"stavZdrojeNrpzs": "HISTORICKY",
+		"stavZdrojeRpsh": "NEEXISTUJICI",
+		"stavZdrojeRcns": "NEEXISTUJICI",
+		"stavZdrojeSzr": "NEEXISTUJICI",
+		"stavZdrojeDph": "NEEXISTUJICI",
+		"stavZdrojeSkDph": "NEEXISTUJICI",
+		"stavZdrojeSd": "NEEXISTUJICI",
+		"stavZdrojeIr": "NEEXISTUJICI",
+		"stavZdrojeCeu": "NEEXISTUJICI",
+		"stavZdrojeRs": "NEEXISTUJICI",
+		"stavZdrojeRed": "NEEXISTUJICI",
+		"stavZdrojeMonitor": "AKTIVNI"
+	},
+	"primarniZdroj": "ros",
+	"dalsiUdaje": [
+		{
+			"obchodniJmeno": [
+				{
+					"obchodniJmeno": "Testovací studio s.r.o.",
+					"primarniZaznam": true
+				}
+			],
+			"sidlo": [
+				{
+					"sidlo": {
+						"kodStatu": "CZ",
+						"nazevStatu": "Česká republika",
+						"kodKraje": 116,
+						"nazevKraje": "Jihomoravský kraj",
+						"kodObce": 554782,
+						"nazevObce": "Brno",
+						"kodSpravnihoObvodu": 19,
+						"nazevSpravnihoObvodu": "Brno-sever",
+						"kodMestskehoObvodu": 19,
+						"nazevMestskehoObvodu": "Brno-sever",
+						"kodMestskeCastiObvodu": 500054,
+						"kodUlice": 100001,
+						"nazevMestskeCastiObvodu": "Brno-sever",
+						"nazevUlice": "Krátká",
+						"cisloDomovni": 2,
+						"kodCastiObce": 400001,
+						"cisloOrientacni": 4,
+						"nazevCastiObce": "Zábrdovice",
+						"kodAdresnihoMista": 10000001,
+						"psc": 60200,
+						"textovaAdresa": "Krátká 2/4, Zábrdovice, 60200 Brno",
+						"standardizaceAdresy": true,
+						"typCisloDomovni": 1
+					},
+					"primarniZaznam": true
+				}
+			],
+			"pravniForma": "112",
+			"pravniFormaRos": "112",
+			"datovyZdroj": "res"
+		}
+	],
+	"dic": "CZ12345679"
+}

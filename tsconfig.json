@@ -1,0 +1,10 @@
+{
+	// Typy generuje Nuxt do .nuxt/ (`bun run postinstall`, `bun run dev` nebo `bunx nuxt prepare`).
+	"files": [],
+	"references": [
+		{ "path": "./.nuxt/tsconfig.app.json" },
+		{ "path": "./.nuxt/tsconfig.server.json" },
+		{ "path": "./.nuxt/tsconfig.shared.json" },
+		{ "path": "./.nuxt/tsconfig.node.json" }
+	]
+}

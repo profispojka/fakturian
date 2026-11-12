@@ -1,0 +1,36 @@
+# Nuxt / Node
+node_modules
+.pnpm-store
+.nuxt
+# Frontend (`public/`), hlavní proces Electronu (`desktop/`), ukázky (`examples/`) i balíček
+# z electron-builderu (`release/`).
+.output
+.output-e2e
+.output-release-smoke
+.data
+dist
+*.log
+.DS_Store
+
+# Claude Code — sdílí se skilly, hooky a projektové nastavení, zbytek je lokální stav harnessu.
+.claude/*
+!.claude/skills/
+!.claude/hooks/
+!.claude/settings.json
+!.claude/launch.json
+
+# Showcase (prezentační web)
+showcase/media/raw
+showcase/media/check
+showcase/.data
+
+# Coverage
+coverage
+
+# Mutační testování
+# Stryker si rozbaluje pracovní kopii projektu; `reports/` je jeho HTML výstup.
+.stryker-tmp*
+reports
+
+# TypeScript incremental cache (vue-tsc / tsc --incremental)
+*.tsbuildinfo

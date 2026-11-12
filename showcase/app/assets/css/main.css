@@ -1,0 +1,377 @@
+@import 'tailwindcss';
+
+/*
+ * Vizuální jazyk webu.
+ *
+ * Odvozený z appky: tichá neutrální plocha, prostory oddělené vlásečnicí,
+ * barva jen tam, kde nese informaci. Akcent je zelená z produktu (#2b7f4f).
+ *
+ * Jedna odvaha, kterou si web bere: **je stavěný jako doklad**. Řádky, linky,
+ * tabulkový rytmus a číslice v proporcionálně stejné šířce. Žádné stíny přes
+ * půl obrazovky, žádné gradienty, žádné plovoucí karty — přesně jako appka,
+ * kterou prodává.
+ *
+ * Tenhle soubor je jediné místo webu, kde se píše CSS; komponenty ani stránky
+ * `<style>` blok nemají. Zůstávají v něm tři věci:
+ *
+ *   1. **Tokeny** (`@theme`, `:root`) — z nich Tailwind vyrábí utility.
+ *   2. **Základ dokumentu** (`html`, `body`, nadpisy, odkazy, `code`) — sem
+ *      patří i proto, že text stránek nápovědy kreslí `@nuxt/content`
+ *      z markdownu, kterému se `class` do HTML dopsat nedá.
+ *   3. **Slovník** (`.page`, `.section`, `.btn`, `.shot`, `.prose` …) — tvary,
+ *      které se opakují na desítkách míst. Píšou se výhradně přes `@apply`.
+ *
+ * ⚠️ Pravidla mimo `@layer` přebíjejí utility z markupu bez ohledu na
+ *    specifičnost. Když se tvar ze slovníku má na jednom místě přebít,
+ *    potřebuje utilita vykřičník (`border-t-0!`).
+ */
+
+@theme {
+	/* Písmo. Přepisuje výchozí rodiny Tailwindu, takže `font-sans` a `font-mono`
+     mluví písmem webu. */
+	--font-sans: ui-sans-serif, -apple-system, 'SF Pro Text', 'Segoe UI', Roboto, system-ui, sans-serif;
+	--font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, monospace;
+
+	/*
+	 * Stupně písma. Pojmenované podle role, ne podle velikosti — „vedení odstavce"
+	 * přežije i to, že se jednou pohne o dva pixely, „step-1" ne. Každý je
+	 * `clamp()`, takže se škáluje s šířkou okna a nepotřebuje zlom.
+	 */
+	--text-note: clamp(0.8125rem, 0.79rem + 0.12vw, 0.875rem); /* popisky, patka, odznáčky */
+	--text-body: clamp(1rem, 0.97rem + 0.16vw, 1.0625rem); /* běžný text */
+	--text-lede: clamp(1.125rem, 1.07rem + 0.3vw, 1.3125rem); /* vedení odstavce, h4 */
+	--text-h3: clamp(1.375rem, 1.25rem + 0.6vw, 1.75rem);
+	--text-h2: clamp(1.75rem, 1.45rem + 1.4vw, 2.5rem);
+	--text-h1: clamp(2.25rem, 1.6rem + 3vw, 3.75rem);
+
+	/* Poloměry — dvě role, nic mezi tím. */
+	--radius-ctl: 6px; /* tlačítka, odznáčky */
+	--radius-card: 10px; /* karty, rámy obrázků */
+}
+
+/*
+ * Plochy a text. Nejsou v `@theme`, protože se v tmavém režimu přepínají naráz —
+ * v markupu se na ně sahá přes `bg-(--surface)`, `text-(--ink-2)` a spol.
+ *
+ * Odstupy tokeny nemají: rytmus webu sedí na Tailwindí škále (0,25 rem), takže
+ * `py-22` je `5,5 rem` a nic se nepřekládá.
+ */
+:root {
+	color-scheme: light dark;
+
+	--bg: #fbfbfb;
+	--surface: #ffffff;
+	--inset: #f4f4f4;
+	--ink: #1d1d1d;
+	--ink-2: #5f5f5f;
+	--ink-3: #8f8f8f;
+	--line: #e4e4e4;
+	--line-strong: #d2d2d2;
+	--accent: #2b7f4f;
+	--accent-ink: #206040;
+	--accent-soft: rgb(43 127 79 / 0.1);
+	--danger: #c4483f;
+	--danger-soft: rgb(196 72 63 / 0.1);
+
+	/* Šířky sazby. `--measure` drží odstavec čitelný, `--page` je pás obsahu. */
+	--measure: 66ch;
+	--page: 1180px;
+}
+
+:root:not([data-theme='light']) {
+	@media (prefers-color-scheme: dark) {
+		--bg: #0f0f0f;
+		--surface: #171717;
+		--inset: #1c1c1c;
+		--ink: #ececec;
+		--ink-2: #a0a0a0;
+		--ink-3: #767676;
+		--line: #272727;
+		--line-strong: #363636;
+		--accent: #63c98d;
+		--accent-ink: #8fdcae;
+		--accent-soft: rgb(99 201 141 / 0.12);
+		--danger: #e5695c;
+		--danger-soft: rgb(229 105 92 / 0.14);
+	}
+}
+
+[data-theme='dark'] {
+	--bg: #0f0f0f;
+	--surface: #171717;
+	--inset: #1c1c1c;
+	--ink: #ececec;
+	--ink-2: #a0a0a0;
+	--ink-3: #767676;
+	--line: #272727;
+	--line-strong: #363636;
+	--accent: #63c98d;
+	--accent-ink: #8fdcae;
+	--accent-soft: rgb(99 201 141 / 0.12);
+	--danger: #e5695c;
+	--danger-soft: rgb(229 105 92 / 0.14);
+}
+
+/* ── Základ dokumentu ────────────────────────────────────────────────────── */
+/*
+ * Elementové selektory, ne třídy: nadpisy, odstavce a odkazy uvnitř nápovědy
+ * kreslí `@nuxt/content` z markdownu, kam se `class` nedostane.
+ *
+ * Celý blok stojí ve vrstvě `base`, aby ho utilita z markupu přebila — `h1` má
+ * z výroby `text-h1`, ale nadpis návodu je o stupeň menší (`text-h2`), a odkaz
+ * v liště nebo v patce nesmí být podtržený (`no-underline`). Nevrstvené
+ * pravidlo by obojí přerazilo bez ohledu na specifičnost.
+ */
+@layer base {
+	html {
+		@apply scroll-smooth motion-reduce:scroll-auto;
+		-webkit-text-size-adjust: 100%;
+	}
+
+	body {
+		@apply m-0 bg-(--bg) text-(--ink) font-sans text-body leading-[1.6] antialiased;
+		text-rendering: optimizeLegibility;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4 {
+		@apply m-0 leading-[1.14] tracking-[-0.022em] font-[640] text-balance;
+	}
+
+	h1 {
+		@apply text-h1;
+	}
+	h2 {
+		@apply text-h2;
+	}
+	h3 {
+		@apply text-h3;
+	}
+	h4 {
+		@apply text-lede;
+	}
+
+	p,
+	ul,
+	ol {
+		@apply mt-0 mx-0 mb-4 max-w-(--measure) text-pretty;
+	}
+
+	/*
+	 * Odrážky a podtržení odkazů vrací zpátky to, co bere `@tailwindcss/preflight`.
+	 * V šabloně by se to dalo dopsat do `class`, jenže tyhle seznamy a odkazy
+	 * kreslí `@nuxt/content` z markdownu — a tam žádná `class` není.
+	 */
+	ul {
+		@apply list-disc pl-6;
+	}
+
+	ol {
+		@apply list-decimal pl-6;
+	}
+
+	a {
+		@apply text-inherit underline underline-offset-[3px] decoration-(--line-strong) hover:decoration-current;
+	}
+
+	:focus-visible {
+		@apply outline-2 outline-offset-2 outline-(--accent) rounded-[3px];
+	}
+
+	img,
+	video {
+		@apply block max-w-full h-auto;
+	}
+
+	code,
+	kbd {
+		@apply font-mono text-[0.92em];
+	}
+
+	kbd {
+		@apply py-px px-2 border border-(--line-strong) border-b-2 rounded-sm bg-(--surface) text-[0.82em];
+	}
+}
+
+/* ── Stavební kameny ─────────────────────────────────────────────────────── */
+
+/* Pás obsahu. Šířku bere z okna, ale nikdy víc než `--page`. */
+.page {
+	@apply w-[min(100%-2.5rem,var(--page))] mx-auto;
+}
+
+/* Oddíl stránky. Odděluje ho odstup a jedna vlásečnice, ne karta se stínem. */
+.section {
+	@apply py-22 border-t border-(--line);
+}
+
+/* Popisek oddílu: verzálky v nejmenším stupni, aby se daly přeskočit okem. */
+.eyebrow {
+	@apply text-note font-[620] tracking-[0.09em] uppercase text-(--ink-3) mb-3;
+}
+
+.lede {
+	@apply text-lede text-(--ink-2) max-w-[58ch];
+}
+
+.muted {
+	@apply text-(--ink-2);
+}
+
+/* Číslice v proporcionálně stejné šířce — tabulkový rytmus je motiv webu. */
+.num {
+	@apply font-mono tabular-nums tracking-[-0.02em];
+}
+
+/* Tlačítka: plné = hlavní akce, ploché = vedlejší. Nic mezi tím. */
+.btn {
+	@apply inline-flex items-center gap-2 py-3 px-5 border border-(--accent) rounded-ctl;
+	@apply bg-(--accent) text-white [font:inherit] font-semibold text-note no-underline cursor-pointer;
+	@apply hover:bg-(--accent-ink) hover:border-(--accent-ink);
+	@apply transition-[background-color,border-color] duration-120 ease-[ease];
+}
+
+/* V tmavém režimu je akcent světlý, takže na něm musí být tmavý text. */
+[data-theme='dark'] .btn,
+:root:not([data-theme='light']) .btn {
+	@apply text-[#0f0f0f];
+}
+
+/* Obrázek produktu: rám v CSS, aby byl ostrý a uměl oba motivy. */
+.shot {
+	@apply m-0 border border-(--line) rounded-card bg-(--surface) overflow-hidden;
+}
+
+/*
+ * Lišta okna macOS: kreslená, ne vyfocená — v obou motivech ostrá. Tři kolečka
+ * jsou tři vrstvy `radial-gradient` nad tónem plochy; vrstvené pozadí Tailwind
+ * utilitou nepokrývá, takže deklarace zůstává syrová.
+ */
+.shot--window::before {
+	@apply block h-8 border-b border-(--line) content-[''];
+	background:
+		radial-gradient(circle 5px at 18px 15px, #ff5f57 98%, transparent),
+		radial-gradient(circle 5px at 36px 15px, #febc2e 98%, transparent),
+		radial-gradient(circle 5px at 54px 15px, #28c840 98%, transparent), var(--inset);
+}
+
+.shot img {
+	@apply w-full;
+}
+
+.shot figcaption {
+	@apply py-3 px-4 border-t border-(--line) text-note text-(--ink-2) bg-(--inset);
+}
+
+/* ── Text z markdownu ────────────────────────────────────────────────────── */
+/*
+ * Stránky nápovědy a situací kreslí `@nuxt/content` z markdownu — do toho HTML
+ * se `class` dopsat nedá, takže jeho vzhled musí nést potomkovské selektory
+ * tady. `.prose` je společný základ, modifikátory dolaďují to, čím se ta dvě
+ * použití liší.
+ */
+.prose :is(p, li) {
+	@apply text-(--ink-2);
+}
+
+.prose strong {
+	@apply text-(--ink);
+}
+
+.prose li {
+	@apply mb-[0.4rem];
+}
+
+/* Nadpisy si od `@nuxt/content` nesou kotvu jako odkaz — bez podtržení. */
+.prose :is(h2, h3) a {
+	@apply no-underline text-inherit;
+}
+
+/*
+ * Tabulka nese srovnání, takže musí mít mřížku a dýchat. `block` s vodorovným
+ * rolováním je pojistka: na telefonu se čtyřsloupcová tabulka jinak nevejde
+ * a roztáhla by celou stránku.
+ */
+.prose table {
+	@apply block w-full overflow-x-auto border-collapse text-note;
+}
+
+.prose :is(th, td) {
+	@apply text-left pt-3 pr-4 pb-3 pl-0 border-b border-(--line) align-top;
+}
+
+.prose th {
+	@apply text-(--ink-3) font-[620] uppercase tracking-[0.06em] whitespace-nowrap;
+}
+
+/* Stránka situace: delší text, větší nadpisy, citace nese akcent. */
+.prose--case :is(ul, ol) {
+	@apply pl-5;
+}
+
+.prose--case h2 {
+	@apply mt-14 mb-4 text-h3;
+}
+
+.prose--case h3 {
+	@apply mt-9 mb-3 text-lede;
+}
+
+.prose--case blockquote {
+	@apply my-6 mx-0 py-4 px-6 border-l-[3px] border-l-(--accent) bg-(--surface) rounded-ctl;
+}
+
+.prose--case blockquote p:last-child {
+	@apply mb-0;
+}
+
+.prose--case table {
+	@apply mb-6;
+}
+
+/*
+ * Návod nápovědy: kratší kroky, menší nadpisy a `scroll-margin` pod přilepenou
+ * lištu — bez něj by odkaz z obsahu stránky zaparkoval nadpis pod ní.
+ */
+.prose--help :is(ul, ol) {
+	@apply pl-[1.3rem];
+}
+
+.prose--help li {
+	@apply mb-[0.45rem];
+}
+
+.prose--help h2 {
+	@apply mt-9 mb-3 text-lede scroll-mt-19.5;
+}
+
+.prose--help h3 {
+	@apply mt-6 mb-3 text-body scroll-mt-19.5;
+}
+
+.prose--help code {
+	@apply bg-(--inset) py-px px-1.25 rounded-sm;
+}
+
+.prose--help pre {
+	@apply bg-(--inset) border border-(--line) rounded-ctl p-4 overflow-x-auto text-note;
+}
+
+.prose--help blockquote {
+	@apply my-6 mx-0 py-3 px-4 border-l-[3px] border-l-(--line-strong) text-(--ink-2);
+}
+
+.prose--help table {
+	@apply mt-4 mb-6;
+}
+
+/* Přeskočení na obsah. Mimo obraz, dokud na něj nedojde tabulátor. */
+.skip {
+	@apply absolute left-[-9999px];
+}
+
+.skip:focus {
+	@apply left-4 top-4 z-50 py-3 px-4 bg-(--surface) border border-(--line-strong) rounded-ctl;
+}

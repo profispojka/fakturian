@@ -1,0 +1,45 @@
+WEBVTT
+
+1
+00:00:02.000 --> 00:00:04.600
+Přehled: co je vyfakturované, co zaplacené a co po splatnosti.
+
+2
+00:00:04.600 --> 00:00:07.200
+Limit plátcovství DPH se hlídá z obratu, ne z marže.
+
+3
+00:00:07.200 --> 00:00:09.600
+Seznam dokladů.
+
+4
+00:00:09.600 --> 00:00:12.600
+Stav vidíš u každé faktury — zaplaceno, po splatnosti, vystaveno.
+
+5
+00:00:12.600 --> 00:00:14.400
+Nový doklad.
+
+6
+00:00:14.400 --> 00:00:16.400
+Faktura.
+
+7
+00:00:16.400 --> 00:00:19.200
+Odběratele vybereš ze seznamu — nebo ho dotáhneš z ARESu podle IČO.
+
+8
+00:00:19.200 --> 00:00:21.600
+Vybereš ze svých odběratelů.
+
+9
+00:00:21.600 --> 00:00:24.200
+Položky se berou z ceníku, takže na dokladu vypadají vždycky stejně.
+
+10
+00:00:24.200 --> 00:00:26.800
+Sazbu i popis má položka uložené — doplníš jen množství.
+
+11
+00:00:26.800 --> 00:00:29.800
+Doklad se uloží jako PDF s vloženým ISDOC a QR platbou.

@@ -1,0 +1,427 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": ["eslint", "import", "promise", "typescript", "oxc", "vue", "vitest", "unicorn"],
+	// `typeAware` jde nastavit jen pro celý config, takže typová pravidla zapíná `--type-aware`
+	// v `lint` skriptech, v běhu bez `test/` — testy se netypují.
+	"options": {
+		"denyWarnings": true,
+		"reportUnusedDisableDirectives": "deny"
+	},
+	"categories": {
+		"correctness": "error",
+		"suspicious": "error"
+	},
+	"ignorePatterns": ["node_modules", ".nuxt", ".output", "dist", "build", "coverage"],
+	// Vlastní pravidla z `tools/lint/oxlint-fakturian.ts` se zapínají po složkách v `overrides` (kromě
+	// `object-multiline`, které platí všude);
+	// na rozdíl od type-aware pravidel dopadají i na `<script>` ve `.vue`.
+	"jsPlugins": ["./tools/lint/oxlint-fakturian.ts"],
+	"rules": {
+		"unicorn/no-array-sort": "error",
+		"no-new": "error",
+		"vitest/valid-expect": ["error", { "maxArgs": 2 }],
+		"no-unused-vars": "error",
+		"no-warning-comments": [
+			"error",
+			{
+				"terms": [
+					"oxlint-disable",
+					"eslint-disable",
+					"@ts-ignore",
+					"@ts-nocheck",
+					"@ts-expect-error",
+					"tslint:disable"
+				],
+				"location": "anywhere"
+			}
+		],
+		"max-lines": ["error", { "max": 1200, "skipBlankLines": true }],
+		"fakturian/object-multiline": "error",
+		"no-var": "error",
+		"prefer-const": "error",
+		// `void` označuje záměrně nečekaný příslib a čtení layoutové vlastnosti bez použití hodnoty.
+		"no-void": "off",
+		"no-empty": "error",
+		"no-debugger": "error",
+		"no-redeclare": "error",
+		"no-loop-func": "error",
+		"no-lonely-if": "error",
+		"no-nested-ternary": "error",
+		"logical-assignment-operators": ["error", "never"],
+		"getter-return": "error",
+		"no-unreachable": "error",
+		"prefer-template": "error",
+		"no-self-compare": "error",
+		"no-throw-literal": "error",
+		"no-return-assign": "error",
+		"no-useless-return": "error",
+		"no-empty-function": "error",
+		"no-param-reassign": "error",
+		"default-param-last": "error",
+		"no-array-constructor": "error",
+		"array-callback-return": "error",
+		"no-eval": "error",
+		"no-new-func": "error",
+		"no-template-curly-in-string": "error",
+		// `Object.assign(cil, zdroj)` mění objekt pod cizí referencí a klíč navíc nesmaže, takže ve
+		// formuláři zůstane viset pole z předchozího dokladu. Spread vyrobí nový objekt.
+		"no-restricted-properties": [
+			"error",
+			{
+				"object": "Object",
+				"property": "assign",
+				"message": "Použij spread — `{ ...a, ...b }`, u refu `ref.value = { ...ref.value, … }`."
+			}
+		],
+
+		// unicorn
+		// Nuxt pojmenovává auto-importované komponenty a composables podle PascalCase/camelCase souborů.
+		"unicorn/filename-case": "off",
+		"unicorn/prefer-add-event-listener": "error",
+		"unicorn/prefer-default-parameters": "error",
+		"unicorn/no-await-expression-member": "error",
+		"unicorn/no-negation-in-equality-check": "error",
+		"unicorn/no-abusive-eslint-disable": "error",
+		// Vnitřní funkce composable a lokální testovací továrny patří významově k okolnímu scénáři.
+		"unicorn/consistent-function-scoping": "off",
+
+		// promise
+		"promise/always-return": "error",
+		"promise/prefer-await-to-then": "error",
+		"promise/prefer-await-to-callbacks": "error",
+		"promise/no-return-in-finally": "error",
+
+		// vue
+		"vue/define-emits-declaration": "error",
+		"vue/define-props-declaration": "error",
+
+		// oxc
+		"oxc/branches-sharing-code": "error",
+
+		// typescript
+		// Type-aware pravidla tsgolint na `.vue` nedopadají; pro komponenty je zapíná `eslint.config.ts`.
+		"no-redundant-type-constituents": "error",
+		"ban-ts-comment": "error",
+		"ban-tslint-comment": "error",
+		"typescript/no-deprecated": "error",
+		"no-explicit-any": "error",
+		"require-await": "error",
+		"no-mixed-enums": "error",
+		"prefer-includes": "error",
+		"only-throw-error": "error",
+		"no-dynamic-delete": "error",
+		"no-require-imports": "error",
+		"no-misused-promises": "error",
+		"no-empty-object-type": "error",
+		"no-implicit-coercion": "error",
+		"no-non-null-assertion": "error",
+		"restrict-plus-operands": "error",
+		"no-unsafe-function-type": "error",
+		"typescript/prefer-for-of": "error",
+		"prefer-literal-enum-member": "error",
+		"use-unknown-in-catch-callback-variable": "error",
+		"typescript/unbound-method": "error",
+		"typescript/array-type": "error",
+		"typescript/prefer-nullish-coalescing": ["error", { "ignorePrimitives": { "string": true } }],
+		// Aserce nic neověří, jen umlčí překladač: tvar se buď ověří zodem, nebo napíše do podpisu.
+		// `as const` dotčené není, jen zužuje literál.
+		"typescript/consistent-type-assertions": ["error", { "assertionStyle": "never" }],
+		"typescript/restrict-template-expressions": "error",
+		"typescript/consistent-type-imports": "error",
+		"typescript/no-floating-promises": "error",
+		"typescript/switch-exhaustiveness-check": "error",
+
+		// import
+		"import/export": "error",
+		"import/no-cycle": "error",
+		"no-unassigned-import": "error",
+		"first": "error",
+		"no-named-default": "error",
+		"no-named-as-default-member": "error",
+		"default": "error",
+		"no-commonjs": "error",
+		"no-namespace": "error",
+		"no-duplicates": "error",
+		"no-dynamic-require": "error"
+	},
+	"overrides": [
+		{
+			"files": ["src/**/*.{js,jsx,ts,tsx,vue}"],
+			"rules": {
+				"fakturian/await-standalone": "error",
+				"fakturian/error-text": "error",
+				"fakturian/shortcut-guard": "error",
+				"fakturian/no-alias-function": "error",
+				"fakturian/comment-style": "error",
+				"typescript/no-unsafe-argument": "error",
+				"typescript/no-unsafe-assignment": "error",
+				"typescript/no-unsafe-call": "error",
+				"typescript/no-unsafe-member-access": "error",
+				"typescript/no-unsafe-return": "error",
+				"no-restricted-imports": [
+					"error",
+					{
+						"paths": [
+							{
+								"name": "@internationalized/date",
+								"message": "Kalendářní výpočty patří do utils/date.ts; model drží DateString / YearMonthString."
+							},
+							{
+								"name": "zod",
+								"message": "`z` se bere z `~/utils/zod` — nastavuje českou lokalizaci a přidává vlastní validace (IČO, datum …)."
+							},
+							{
+								"name": "~/bindings",
+								"importNames": ["commands"],
+								"message": "IPC volá služba nebo composable domény; stránka a komponenta sahají jen na ně."
+							}
+						]
+					}
+				],
+				// Dnešek je `today()` z `~/utils/date` v místní zóně appky. Kalendářní výpočty jdou přes
+				// `utils/date.ts` nad `@internationalized/date`, takže `Date` v appce nemá co dělat.
+				"no-restricted-globals": [
+					"error",
+					{ "name": "Date", "message": "Dnešek je `today()`, výpočty jdou přes `~/utils/date`." }
+				],
+				// `schema.parse()` pošle do UI `ZodError` s víceřádkovým JSONem.
+				"no-restricted-properties": [
+					"error",
+					{
+						"object": "Object",
+						"property": "assign",
+						"message": "Použij spread — `{ ...a, ...b }`, u refu `ref.value = { ...ref.value, … }`."
+					},
+					{
+						"property": "parse",
+						"allowObjects": ["JSON", "Date", "URL"],
+						"message": "Použij `safeParse()` a hned za ním `if (!x.success) throw …` s `issuesText(x.error)` v hlášce."
+					},
+					{
+						"property": "parseAsync",
+						"message": "Použij `safeParseAsync()` a hned za ním `if (!x.success) throw …` s `issuesText(x.error)` v hlášce."
+					},
+					{
+						"object": "window",
+						"property": "fakturian",
+						"message": "Most hlavního procesu drží `bindings.ts` a `services/system.ts` (přítomnost `utils/desktop.ts`); zbytek appky jde přes ně."
+					},
+					{
+						"object": "globalThis",
+						"property": "fakturian",
+						"message": "Most hlavního procesu drží `bindings.ts` a `services/system.ts` (přítomnost `utils/desktop.ts`); zbytek appky jde přes ně."
+					}
+				],
+				"no-default-export": "error",
+				// Konzoli uživatel desktopové appky nikdy neuvidí, co stojí za řeč, se hlásí toastem. Node skripty
+				// (tools/, showcase/) mají konzoli jako výstup.
+				"no-console": "error"
+			}
+		},
+		{
+			"files": ["desktop/*.ts", "desktop/{examples,invoice,isdoc,mcp}/**/*.ts"],
+			"rules": {
+				"fakturian/await-standalone": "error",
+				"fakturian/error-text": "error",
+				"fakturian/no-alias-function": "error",
+				"fakturian/comment-style": "error",
+				"no-restricted-imports": [
+					"error",
+					{
+						"paths": [
+							{
+								"name": "zod",
+								"message": "`z` se bere z `~/utils/zod` — nastavuje českou lokalizaci a přidává vlastní validace (IČO, datum …)."
+							}
+						]
+					}
+				],
+				"no-restricted-properties": [
+					"error",
+					{
+						"property": "parse",
+						"allowObjects": ["JSON", "Date", "URL"],
+						"message": "Použij `safeParse()` a hned za ním `if (!x.success) throw …` s `issuesText(x.error)` v hlášce."
+					}
+				]
+			}
+		},
+		{
+			"files": ["src/utils/date.ts"],
+			"rules": {
+				"no-restricted-imports": [
+					"error",
+					{
+						"paths": [
+							{
+								"name": "zod",
+								"message": "`z` se bere z `~/utils/zod` — nastavuje českou lokalizaci a přidává vlastní validace (IČO, datum …)."
+							},
+							{
+								"name": "~/bindings",
+								"importNames": ["commands"],
+								"message": "IPC volá služba nebo composable domény; stránka a komponenta sahají jen na ně."
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"files": ["src/utils/zod.ts", "src/utils/zod/**"],
+			"rules": {
+				"no-restricted-imports": [
+					"error",
+					{
+						"paths": [
+							{
+								"name": "@internationalized/date",
+								"message": "Kalendářní výpočty patří do utils/date.ts; model drží DateString / YearMonthString."
+							},
+							{
+								"name": "~/bindings",
+								"importNames": ["commands"],
+								"message": "IPC volá služba nebo composable domény; stránka a komponenta sahají jen na ně."
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"files": ["src/services/**", "src/composables/**"],
+			"rules": {
+				"no-restricted-imports": [
+					"error",
+					{
+						"paths": [
+							{
+								"name": "@internationalized/date",
+								"message": "Kalendářní výpočty patří do utils/date.ts; model drží DateString / YearMonthString."
+							},
+							{
+								"name": "zod",
+								"message": "`z` se bere z `~/utils/zod` — nastavuje českou lokalizaci a přidává vlastní validace (IČO, datum …)."
+							}
+						]
+					}
+				]
+			}
+		},
+		{
+			"files": ["src/bindings.ts", "src/services/system.ts", "src/utils/desktop.ts"],
+			"rules": {
+				"no-restricted-properties": [
+					"error",
+					{
+						"object": "Object",
+						"property": "assign",
+						"message": "Použij spread — `{ ...a, ...b }`, u refu `ref.value = { ...ref.value, … }`."
+					},
+					{
+						"property": "parse",
+						"allowObjects": ["JSON", "Date", "URL"],
+						"message": "Použij `safeParse()` a hned za ním `if (!x.success) throw …` s `issuesText(x.error)` v hlášce."
+					},
+					{
+						"property": "parseAsync",
+						"message": "Použij `safeParseAsync()` a hned za ním `if (!x.success) throw …` s `issuesText(x.error)` v hlášce."
+					}
+				]
+			}
+		},
+		{
+			"files": ["src/constants/**"],
+			"rules": { "fakturian/constants-data-only": "error" }
+		},
+		{
+			"files": ["src/components/**/*.vue"],
+			"rules": { "fakturian/component-path": "error" }
+		},
+		{
+			"files": ["src/middleware/**/*.{js,jsx,ts,tsx}", "src/plugins/**/*.{js,jsx,ts,tsx}", "src/app.config.ts"],
+			"rules": {
+				"no-default-export": "off"
+			}
+		},
+		{
+			"files": ["tools/**/*.ts"],
+			"rules": {
+				"fakturian/no-alias-function": "error",
+				"fakturian/comment-style": "error"
+			}
+		},
+		{
+			// Playwright čte závislosti fixture z destrukturalizace prvního parametru; fixture bez
+			// závislostí ji má prázdnou (`async ({}, use) => …`).
+			"files": ["e2e/**/*.ts"],
+			"rules": { "fakturian/exact-text": "error", "no-empty-pattern": "off" }
+		},
+		{
+			// Testy se netypují (AGENTS.md, „Testy“), takže ani pravidla o typových zápisech na ně nedopadají.
+			"files": ["test/**/*.{js,jsx,ts,tsx,vue}", "desktop/test/**/*.ts"],
+			"rules": {
+				// Aserci PDF/A nese pomocník, test ji nemá napsanou sám.
+				"vitest/expect-expect": [
+					"error",
+					{ "assertFunctionNames": ["expect", "expectTypeOf", "assert", "expectPdfA3a"] }
+				],
+				"no-explicit-any": "off",
+				"no-non-null-assertion": "off",
+				"vitest/require-mock-type-parameters": "off",
+				"typescript/consistent-type-assertions": "off",
+				"fakturian/submit-by-button": "error",
+				"no-restricted-globals": [
+					"error",
+					{
+						"name": "Date",
+						"message": "Čas nastav `vi.setSystemTime('RRRR-MM-DDTHH:MM')`, datum vezmi z fixture."
+					}
+				],
+				"fakturian/no-contract-mock": "error",
+				"fakturian/no-alias-function": "error",
+				"fakturian/comment-style": "error"
+			}
+		},
+		{
+			"files": ["test/nuxt/**"],
+			"rules": { "fakturian/test-id-selector": "error" }
+		},
+		{
+			"files": ["**/*.{test,spec}.{js,jsx,ts,tsx,vue}"],
+			"rules": {
+				"no-restricted-properties": [
+					"error",
+					{
+						"object": "Object",
+						"property": "assign",
+						"message": "Použij spread — `{ ...a, ...b }`, u refu `ref.value = { ...ref.value, … }`."
+					},
+					{
+						"property": "vm",
+						"message": "Na `wrapper.vm` test nesahá — ptej se na DOM, emitované události, props nebo to, co vidí uživatel."
+					},
+					{
+						"property": "vnode",
+						"message": "Na vnode test nesahá — je to vnitřek Vue."
+					},
+					{
+						"property": "$",
+						"message": "Na vnitřní instanci Vue přes `vm.$` test nesahá."
+					},
+					{
+						"property": "subTree",
+						"message": "Na `subTree` test nesahá — je to vnitřek Vue."
+					},
+					{
+						"property": "component",
+						"message": "Na `vnode.component` test nesahá — je to vnitřek Vue."
+					}
+				]
+			}
+		}
+	],
+	"env": {
+		"builtin": true
+	}
+}

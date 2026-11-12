@@ -1,0 +1,48 @@
+# Balíček macOS appky. Verze a jméno jdou z `package.json`; `bun run build` předtím postaví frontend
+# (`.output/public`) i hlavní proces s preloadem (`.output/desktop`).
+appId: com.fakturian.desktop
+productName: Fakturian
+copyright: © 2026 binaro.cz
+directories:
+  output: .output/release
+  buildResources: desktop
+files:
+  - .output/desktop/**
+  - .output/public/**
+  - package.json
+# Electron z `node_modules`, ne druhé stažení z GitHubu.
+electronDist: node_modules/electron/dist
+asar: true
+# Nativní addony (Typst, obrázky, klíčenka) se z archivu nenačtou; worker ISDOC (`validator.mjs`)
+# a `xmllint-wasm`, které spouští, Node v `Worker` z archivu nenačte.
+asarUnpack:
+  - '**/*.node'
+  - '**/*.wasm'
+  - .output/desktop/validator.mjs
+  - node_modules/xmllint-wasm/**
+# Addony jsou N-API s hotovými binárkami, přestavba proti hlavičkám Electronu je zbytečná.
+npmRebuild: false
+mac:
+  category: public.app-category.business
+  icon: desktop/icons/icon.icns
+  # Nativní závislosti jsou nainstalované jen pro architekturu stroje, který balí.
+  target:
+    - target: dmg
+      arch: [arm64]
+    - target: zip
+      arch: [arm64]
+  minimumSystemVersion: '15.0'
+  hardenedRuntime: true
+  entitlements: desktop/entitlements.plist
+  entitlementsInherit: desktop/entitlements.plist
+  notarize: false
+  extendInfo:
+    NSAppleEventsUsageDescription: Fakturian potřebuje povolení k ovládání mailového klienta, aby mohl připravit zprávu s fakturou v příloze. Odeslání zůstává na tobě.
+    NSDocumentsFolderUsageDescription: Fakturian ukládá faktury, výdaje a nastavení do datové složky, kterou sis vybral. Když leží v Dokumentech, potřebuje k nim přístup.
+    NSDesktopFolderUsageDescription: Fakturian ukládá faktury, výdaje a nastavení do datové složky, kterou sis vybral. Když leží na Ploše, potřebuje k ní přístup.
+    NSDownloadsFolderUsageDescription: Fakturian potřebuje přístup ke Stažené, aby odtud mohl převzít doklady nebo datovou složku, kterou sis tam uložil.
+    NSRemovableVolumesUsageDescription: Fakturian potřebuje přístup k externímu disku, když na něm leží tvoje datová složka.
+    NSNetworkVolumesUsageDescription: Fakturian potřebuje přístup k síťovému disku, když na něm leží tvoje datová složka.
+    NSFileProviderDomainUsageDescription: Fakturian potřebuje přístup ke cloudovému úložišti (iCloud Drive, Dropbox…), když v něm leží tvoje datová složka.
+dmg:
+  title: Fakturian ${version}

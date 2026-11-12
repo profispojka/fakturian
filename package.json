@@ -1,0 +1,144 @@
+{
+	"name": "fakturian",
+	"version": "1.0.0",
+	"private": true,
+	"description": "Fakturace pro OSVČ neplátce DPH",
+	"license": "FSL-1.1-MIT",
+	"type": "module",
+	"main": ".output/desktop/main.mjs",
+	"scripts": {
+		"dev": "node tools/desktop/dev.ts",
+		"dev:web": "nuxt dev",
+		"generate": "nuxt generate",
+		"preview": "nuxt preview",
+		"postinstall": "nuxt prepare && node node_modules/electron/install.js",
+		"build": "bun run generate && bun run desktop:build && electron-builder --config electron-builder.yml",
+		"start": "electron .",
+		"test": "vitest run --changed --passWithNoTests --reporter=default",
+		"test:all": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"test:e2e": "playwright test",
+		"test:release-smoke": "node tools/e2e/release-smoke.ts",
+		"test:fuzz": "FUZZ_CASES=2000 vitest run --config vitest.desktop.config.ts desktop/test/input-robustness.test.ts",
+		"test:e2e:visual": "playwright test visual-",
+		"test:e2e:visual:update": "playwright test visual- --update-snapshots=all",
+		"typecheck:e2e": "tsc --noEmit -p e2e/tsconfig.json",
+		"mutants:ts": "node tools/mutation/mutants-ts.ts",
+		"test:contracts": "node tools/testing/test-contracts.ts",
+		"test:gates": "node --test test/tooling/quality-gate.test.ts",
+		"lint": "oxlint --fix --type-aware --ignore-pattern 'test/**' --ignore-pattern 'desktop/test/**' . && oxlint --fix test desktop/test && eslint \"src/**/*.vue\" --fix",
+		"lint:check": "oxlint --type-aware --ignore-pattern 'test/**' --ignore-pattern 'desktop/test/**' . && oxlint test desktop/test && eslint \"src/**/*.vue\"",
+		"lint:scales": "node tools/lint/check-tailwind-scales.ts",
+		"lint:dead-css": "node tools/lint/check-dead-css.ts",
+		"format": "oxfmt --write .",
+		"format:check": "oxfmt --check .",
+		"typecheck": "vue-tsc --noEmit -p .nuxt/tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p desktop/tsconfig.json && tsc --noEmit -p showcase/tsconfig.scripts.json",
+		"desktop:build": "node tools/desktop/build.ts",
+		"test:desktop": "vitest run --config vitest.desktop.config.ts",
+		"audit:js": "bun audit --audit-level=low",
+		"check": "bun run lint:check && bun run lint:scales && bun run lint:dead-css && bun run format:check && bun run typecheck && bun run typecheck:e2e && bun run test:coverage && bun run test:contracts && bun run generate && bun run desktop:build && bun run audit:js"
+	},
+	"dependencies": {
+		"@myriaddreamin/typst-ts-node-compiler": "0.8.0-rc3",
+		"@napi-rs/keyring": "2.1.0",
+		"xmllint-wasm": "5.3.0"
+	},
+	"devDependencies": {
+		"@iconify-json/lucide": "^1.2.145",
+		"@internationalized/date": "^3.12.4",
+		"@nuxt/test-utils": "4.3.2",
+		"@nuxt/ui": "4.11.2",
+		"@playwright/test": "^1.64.1",
+		"@stryker-mutator/api": "^10.0.0",
+		"@stryker-mutator/core": "^10.0.0",
+		"@stryker-mutator/vitest-runner": "^10.0.0",
+		"@types/big.js": "^7.0.0",
+		"@types/node": "^24.19.2",
+		"@types/qrcode": "1.5.6",
+		"@vitest/coverage-v8": "4.1.12",
+		"@vue/test-utils": "^2.5.1",
+		"@vueuse/core": "^14.4.0",
+		"@vueuse/router": "^14.4.0",
+		"@xmldom/xmldom": "0.9.12",
+		"big.js": "^7.0.1",
+		"echarts": "^6.1.0",
+		"electron": "44.9.1",
+		"electron-builder": "26.15.3",
+		"esbuild": "0.28.2",
+		"eslint": "^10.13.0",
+		"eslint-plugin-vue": "^10.11.1",
+		"fast-check": "^4.10.2",
+		"fast-png": "8.0.0",
+		"happy-dom": "^21.0.4",
+		"jsqr": "1.4.0",
+		"nuxt": "^4.6.2",
+		"oxfmt": "^0.70.0",
+		"oxlint": "^1.88.0",
+		"oxlint-tsgolint": "^7.0.2004",
+		"p-limit": "7.3.3",
+		"pdf-lib": "1.17.1",
+		"postcss": "^8.5.30",
+		"qrcode": "1.5.4",
+		"tailwindcss": "^4.3.3",
+		"typescript": "^5.9.3",
+		"typescript-eslint": "^8.71.2",
+		"vitest": "4.1.12",
+		"vue": "^3.5.44",
+		"vue-echarts": "^8.3.2",
+		"vue-eslint-parser": "^10.4.1",
+		"vue-tsc": "^3.3.13",
+		"zod": "^4.6.7"
+	},
+	"overrides": {
+		"@electron/universal": {
+			"minimatch": "11.0.1"
+		},
+		"@eslint/config-array": {
+			"minimatch": "11.0.1"
+		},
+		"@rollup/plugin-node-resolve": {
+			"deepmerge": "4.1.2"
+		},
+		"@stryker-mutator/core": {
+			"minimatch": "11.0.1"
+		},
+		"@typescript-eslint/typescript-estree": {
+			"minimatch": "11.0.1"
+		},
+		"@vercel/nft": {
+			"glob": "14.0.2"
+		},
+		"app-builder-lib": {
+			"minimatch": "11.0.1"
+		},
+		"diff": "8.0.4",
+		"editorconfig": {
+			"minimatch": "11.0.1"
+		},
+		"esbuild": "0.28.2",
+		"eslint": {
+			"minimatch": "11.0.1"
+		},
+		"js-beautify": {
+			"glob": "14.0.2"
+		},
+		"qs": "6.16.1",
+		"readdir-glob": {
+			"minimatch": "11.0.1"
+		},
+		"serialize-javascript": "7.1.3",
+		"vite": "8.3.7"
+	},
+	"engines": {
+		"node": "^24.11.0"
+	},
+	"packageManager": "bun@1.4.3",
+	"productName": "Fakturian",
+	"trustedDependencies": [
+		"@parcel/watcher",
+		"electron",
+		"esbuild",
+		"vue-demi"
+	]
+}

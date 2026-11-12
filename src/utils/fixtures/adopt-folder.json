@@ -1,0 +1,71 @@
+{
+	"_comment": "Kontrakt pro převzetí složky (Fáze D). Popisuje, co má vypadnout z otevření složky se třemi SMYŠLENÝMI fakturami z cizího fakturačního systému (desktop/test/fixtures/adopt/, původ popisuje desktop/test/fixtures/README.md). Čtou ho obě strany: test backendu (desktop/test/adopt-folder.test.ts) ověřuje, že tohle přesně z dokladů vyleze, a vitest frontendu (test/adopt.spec.ts) na tom staví dál — dodavatele, odběratele a čísla na dashboardu. Backend a frontend se tím nemůžou tiše rozejít: kdyby sken začal vracet jiná data, spadne test backendu; kdyby na nich přestal fungovat přehled, spadne vitest frontendu. Pole `path` u faktur v kontraktu není schválně — je absolutní, tedy jiné na každém stroji.",
+	"today": "2026-08-22",
+	"issuingSystem": "Testovací fakturační systém 1.0",
+	"supplier": {
+		"name": "Testovací dodavatel s.r.o.",
+		"ico": "12345679",
+		"address": { "street": "Zkušební 1", "city": "Praha 10", "zip": "10000" },
+		"email": "fakturace@testovaci-dodavatel.example",
+		"registration": "Zapsáno u Zkušebního soudu, oddíl C, vložka 0000",
+		"bankAccount": "19-2000145399",
+		"bankCode": "0800",
+		"iban": "CZ6508000000192000145399",
+		"invoiceNumberFormat": "{RRRR}{NNN}",
+		"defaultDueDays": 14
+	},
+	"customers": [
+		{
+			"name": "Zkušební odběratel s.r.o.",
+			"ico": "20000006",
+			"dic": "CZ20000006",
+			"address": { "street": "Vzorová 12", "city": "Brno", "zip": "60200" },
+			"email": "fakturace@zkusebni-odberatel.example"
+		},
+		{
+			"name": "Ukázková firma a.s.",
+			"ico": "31415920",
+			"dic": "CZ31415920",
+			"address": { "street": "Modelová 7", "city": "Ostrava", "zip": "70200" },
+			"email": "ucetni@ukazkova-firma.example"
+		}
+	],
+	"invoices": [
+		{
+			"number": "2026022",
+			"customer": "Zkušební odběratel s.r.o.",
+			"issueDate": "2026-08-17",
+			"dueDate": "2026-08-31",
+			"totalCents": 1776000,
+			"variableSymbol": "2026022",
+			"documentType": 1,
+			"originalInvoice": "",
+			"sentAt": null,
+			"usageLines": []
+		},
+		{
+			"number": "2026018",
+			"customer": "Zkušební odběratel s.r.o.",
+			"issueDate": "2026-08-07",
+			"dueDate": "2026-08-21",
+			"totalCents": 5000000,
+			"variableSymbol": "2026018",
+			"documentType": 1,
+			"originalInvoice": "",
+			"sentAt": null,
+			"usageLines": []
+		},
+		{
+			"number": "2026017",
+			"customer": "Ukázková firma a.s.",
+			"issueDate": "2026-07-31",
+			"dueDate": "2026-08-14",
+			"totalCents": 12318000,
+			"variableSymbol": "2026017",
+			"documentType": 1,
+			"originalInvoice": "",
+			"sentAt": null,
+			"usageLines": []
+		}
+	]
+}

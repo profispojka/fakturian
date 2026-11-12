@@ -1,0 +1,5 @@
+{
+	// Jen pro editor a aliasy `~/`; `bun run typecheck` testy nekontroluje (AGENTS.md, „Testy“).
+	"extends": "../.nuxt/tsconfig.app.json",
+	"include": ["./**/*", "../.nuxt/nuxt.d.ts"]
+}

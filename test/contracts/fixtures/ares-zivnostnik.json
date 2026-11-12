@@ -1,0 +1,102 @@
+{
+	"ico": "25596641",
+	"obchodniJmeno": "Jan Zkušební",
+	"sidlo": {
+		"kodStatu": "CZ",
+		"nazevStatu": "Česká republika",
+		"kodKraje": 19,
+		"nazevKraje": "Hlavní město Praha",
+		"kodObce": 554782,
+		"nazevObce": "Praha",
+		"kodSpravnihoObvodu": 19,
+		"nazevSpravnihoObvodu": "Praha 1",
+		"kodMestskehoObvodu": 19,
+		"nazevMestskehoObvodu": "Praha 1",
+		"kodMestskeCastiObvodu": 500054,
+		"kodUlice": 100001,
+		"nazevMestskeCastiObvodu": "Praha 1",
+		"nazevUlice": "Dlouhá",
+		"cisloDomovni": 1,
+		"kodCastiObce": 400001,
+		"cisloOrientacni": 7,
+		"nazevCastiObce": "Staré Město",
+		"kodAdresnihoMista": 10000001,
+		"psc": 11000,
+		"textovaAdresa": "Dlouhá 1/7, Staré Město, 11000 Praha 1",
+		"standardizaceAdresy": true,
+		"typCisloDomovni": 1
+	},
+	"pravniForma": "101",
+	"pravniFormaRos": "101",
+	"financniUrad": "451",
+	"datumAktualizace": "2026-03-23",
+	"icoId": "25596641",
+	"adresaDorucovaci": {
+		"radekAdresy1": "Dlouhá 1/7",
+		"radekAdresy2": "Staré Město",
+		"radekAdresy3": "11000 Praha"
+	},
+	"czNace2008": ["62010"],
+	"seznamRegistraci": {
+		"stavZdrojeRos": "AKTIVNI",
+		"stavZdrojeVr": "NEEXISTUJICI",
+		"stavZdrojeRes": "AKTIVNI",
+		"stavZdrojeRzp": "AKTIVNI",
+		"stavZdrojeNrpzs": "HISTORICKY",
+		"stavZdrojeRpsh": "NEEXISTUJICI",
+		"stavZdrojeRcns": "NEEXISTUJICI",
+		"stavZdrojeSzr": "NEEXISTUJICI",
+		"stavZdrojeDph": "NEEXISTUJICI",
+		"stavZdrojeSkDph": "NEEXISTUJICI",
+		"stavZdrojeSd": "NEEXISTUJICI",
+		"stavZdrojeIr": "NEEXISTUJICI",
+		"stavZdrojeCeu": "NEEXISTUJICI",
+		"stavZdrojeRs": "NEEXISTUJICI",
+		"stavZdrojeRed": "NEEXISTUJICI",
+		"stavZdrojeMonitor": "AKTIVNI"
+	},
+	"primarniZdroj": "ros",
+	"dalsiUdaje": [
+		{
+			"obchodniJmeno": [
+				{
+					"obchodniJmeno": "Jan Zkušební",
+					"primarniZaznam": true
+				}
+			],
+			"sidlo": [
+				{
+					"sidlo": {
+						"kodStatu": "CZ",
+						"nazevStatu": "Česká republika",
+						"kodKraje": 19,
+						"nazevKraje": "Hlavní město Praha",
+						"kodObce": 554782,
+						"nazevObce": "Praha",
+						"kodSpravnihoObvodu": 19,
+						"nazevSpravnihoObvodu": "Praha 1",
+						"kodMestskehoObvodu": 19,
+						"nazevMestskehoObvodu": "Praha 1",
+						"kodMestskeCastiObvodu": 500054,
+						"kodUlice": 100001,
+						"nazevMestskeCastiObvodu": "Praha 1",
+						"nazevUlice": "Dlouhá",
+						"cisloDomovni": 1,
+						"kodCastiObce": 400001,
+						"cisloOrientacni": 7,
+						"nazevCastiObce": "Staré Město",
+						"kodAdresnihoMista": 10000001,
+						"psc": 11000,
+						"textovaAdresa": "Dlouhá 1/7, Staré Město, 11000 Praha 1",
+						"standardizaceAdresy": true,
+						"typCisloDomovni": 1
+					},
+					"primarniZaznam": true
+				}
+			],
+			"pravniForma": "101",
+			"pravniFormaRos": "101",
+			"datovyZdroj": "res"
+		}
+	]
+}

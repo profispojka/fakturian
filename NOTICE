@@ -1,0 +1,18 @@
+Fakturian
+Copyright (C) 2026 binaro.cz
+
+Fakturian is licensed under the Functional Source License, Version 1.1,
+MIT Future License (FSL-1.1-MIT, see LICENSE). Each version becomes
+available under the MIT license two years after its release.
+
+This distribution is built on Electron (MIT License), which contains
+Chromium, Node.js and V8 under their own licenses. It also embeds
+third-party fonts and data files from `typst-assets` (Apache License,
+Version 2.0), which the Typst compiler used by the PDF renderer
+(desktop/pdf.ts, via @myriaddreamin/typst-ts-node-compiler) carries in
+its native addon to typeset invoices without relying on fonts installed
+on the user's system — most notably Libertinus Serif (SIL Open Font
+License), which is what lets invoices render Czech diacritics correctly.
+The full text of that Apache License, the attribution notices for every
+bundled font and data file, and the list of npm packages shipped in the
+application are reproduced, as required, in THIRD-PARTY-NOTICES.txt.

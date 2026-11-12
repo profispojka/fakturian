@@ -1,0 +1,33 @@
+{
+	// Konfigurace a build skripty běží v Node, ne v appce —
+	// `.nuxt/tsconfig.app.json` je nepokrývá. Dědí
+	// z `.nuxt/tsconfig.node.json` (generuje `nuxt prepare`), který zná
+	// `defineNuxtConfig` a JSON importy uvnitř `nuxt.config.ts`.
+	"extends": "./.nuxt/tsconfig.node.json",
+	"compilerOptions": {
+		"types": ["node"],
+		"strict": true,
+		"allowUnreachableCode": false,
+		"allowUnusedLabels": false,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true,
+		"noUncheckedSideEffectImports": true,
+		"allowJs": false,
+		"skipLibCheck": true,
+		"noEmit": true,
+		"incremental": true
+	},
+	"include": [
+		".nuxt/nuxt.node.d.ts",
+		"nuxt.config.ts",
+		"vitest.config.ts",
+		"vitest.unit.config.ts",
+		"vitest.nuxt.config.ts",
+		"vitest.contracts.config.ts",
+		"vitest.desktop.config.ts",
+		"vitest.mutation.config.ts",
+		"eslint.config.ts",
+		"stryker.config.ts",
+		"tools/**/*.ts"
+	]
+}
