@@ -12,6 +12,8 @@ import { expenseFromReceived, checkRecipient, sameReceivedDocument } from '~/uti
 
 export interface ImportResult {
 	expense: Expense;
+	/** Jméno kopie, která už v `prijate/` leží. */
+	file: string;
 	warning?: string;
 }
 
@@ -80,11 +82,22 @@ export function useExpenses() {
 		}
 
 		const expense = expenseFromReceived(doc);
-		if (check.warning === undefined) return { expense };
+		if (check.warning === undefined)
+			return {
+				expense,
+				file: doc.file,
+			};
 		return {
 			expense,
+			file: doc.file,
 			warning: check.warning,
 		};
+	}
+
+	// Kopie bez záznamu ve `vydaje.json` by příští import odmítl jako týž soubor podruhé.
+	async function discardImported(files: string[]): Promise<void> {
+		const vault = requireVault();
+		await Promise.all(files.map((file) => discardReceived(vault, file)));
 	}
 
 	async function documentPath(file: string): Promise<string> {
@@ -107,6 +120,7 @@ export function useExpenses() {
 		upsertMany,
 		remove,
 		importDocument,
+		discardImported,
 		documentPath,
 		brokenReceived,
 		checkReceived,

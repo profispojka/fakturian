@@ -259,6 +259,27 @@ describe('uložení', () => {
 		expect(c.find('[data-testid="statusbar"]').text()).not.toContain('Uloženo');
 	});
 
+	it('převzatý cizí doklad přepsat nejde a hláška řekne, co s ním', async () => {
+		invoiceInVault('F2025-900');
+		backend.folder('/vault').issuedElsewhere.add('F2025-900');
+		const c = await mountInvoice('F2025-900');
+		await c.find('[data-testid="field-note"]').setValue('Dopsaná poznámka');
+		await flushPromises();
+
+		await save(c);
+
+		expect(useNuxtApp().vueApp.runWithContext(useToast).toasts.value).toContainEqual(
+			expect.objectContaining({
+				title: 'Fakturu se nepodařilo uložit',
+				description:
+					'Fakturu F2025-900 vystavil jiný software, ne Fakturian — přepsat archivovaný doklad nejde. Ulož ji jako nový doklad s vlastním číslem.',
+				color: 'error',
+			}),
+		);
+		expect(savedDocuments().get('F2025-900')?.note).toBe('');
+		expect(c.find('[data-testid="saved"]').exists()).toBe(false);
+	});
+
 	it('chybu při ukládání ukáže', async () => {
 		backend.breaks('save_invoice', 'číslo už existuje');
 		const c = await mountInvoice();

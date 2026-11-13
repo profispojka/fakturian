@@ -31,6 +31,8 @@ interface Folder {
 	snapshotsPath: string | null;
 	/** Soubory v `prijate/`, které backend nepřečte. */
 	brokenReceived: BrokenReceived[];
+	/** Čísla dokladů převzatých z cizího softwaru; archivovaný záznam backend přepsat nedovolí. */
+	issuedElsewhere: Set<string>;
 }
 
 function emptyFolder(): Folder {
@@ -41,6 +43,7 @@ function emptyFolder(): Folder {
 		sent: new Map(),
 		snapshotsPath: null,
 		brokenReceived: [],
+		issuedElsewhere: new Set(),
 	};
 }
 
@@ -515,6 +518,16 @@ const commands: Record<string, (a: Args) => unknown> = {
 		if (isNew && s.invoices.has(invoice.number)) {
 			throw new Error(`Faktura ${invoice.number} už existuje.`);
 		}
+		if (!isNew && !s.invoices.has(invoice.number)) {
+			throw new Error(
+				`Doklad ${invoice.number} ve složce faktury/ není — smazal ho někdo mimo appku, nebo je odpojený disk? Ulož ho jako nový doklad.`,
+			);
+		}
+		if (!isNew && s.issuedElsewhere.has(invoice.number)) {
+			throw new Error(
+				`Fakturu ${invoice.number} vystavil jiný software, ne Fakturian — přepsat archivovaný doklad nejde. Ulož ji jako nový doklad s vlastním číslem.`,
+			);
+		}
 		// `usageYear: null` znamená rok bez čerpání a do dokladu se nezapíše.
 		const lines = invoice.lines.map(({ usageYear, ...line }) => ({
 			...line,
@@ -691,6 +704,7 @@ function takeOver(vaultPath: string, paths: string[], move: boolean) {
 			continue;
 		}
 		folder.invoices.set(inv.number, inv);
+		folder.issuedElsewhere.add(inv.number);
 		if (move) backend.foreign.delete(path);
 		const { number, customer, issueDate, totalCents } = summary(vaultPath, inv);
 		report.imported.push({

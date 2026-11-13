@@ -1,5 +1,5 @@
 import { mkdir, readdir, readFile, stat } from 'node:fs/promises';
-import { basename, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 
 import { DocumentKind } from '~/constants/invoice';
 import { parseIsdocDate } from '~/utils/date';
@@ -171,28 +171,49 @@ async function summarizePdf(path: string): Promise<InvoiceSummary> {
 	};
 }
 
-// Konfliktní jméno zabere původní i doslovný kmen: `F2026 2` může být skutečné číslo dokladu a z řady
-// se nesmí ztratit. Čitelná kopie místo původního kmene zabere číslo, které nese.
-async function numberHints(candidate: Candidate): Promise<string[]> {
-	const hints = [candidate.stem];
-	const original = conflictStem(candidate.available);
-	if (original === undefined) return hints;
+// Čitelný doklad zabere jméno souboru i číslo, které nese: přejmenovaný soubor by jinak číslo uvolnil
+// a další faktura by ho dostala podruhé. Nečitelná konfliktní kopie zabere obě jména, která mohla nést.
+async function numberHints(
+	candidate: Candidate,
+	index: Map<string, IndexEntry>,
+	read: Map<string, IndexEntry>,
+): Promise<string[]> {
+	const { stem, info } = candidate;
+	const hints = [stem];
 	if (!candidate.placeholder) {
+		const cached = index.get(candidate.name);
 		try {
-			const { number } = await summarizePdf(candidate.path);
-			if (number !== candidate.stem) hints.push(number);
+			let summary: InvoiceSummary;
+			if (cached && cached.mtime_ms === info.mtimeMs && cached.size === info.size) {
+				summary = cached.summary;
+			} else {
+				summary = await summarizePdf(candidate.path);
+				read.set(candidate.name, {
+					mtime_ms: info.mtimeMs,
+					size: info.size,
+					summary,
+				});
+			}
+			if (asciiLower(summary.number) !== asciiLower(stem)) hints.push(summary.number);
 			return hints;
 		} catch {
-			// Nečitelná kopie zabere obě jména, která mohla nést.
+			// Nečitelný soubor zabere jen jména.
 		}
 	}
-	hints.push(original);
+	const original = conflictStem(candidate.available);
+	if (original !== undefined) hints.push(original);
 	return hints;
 }
 
+// Cache leží ve vaultu vedle `faktury/`; bez ní by se kvůli každému dotazu četlo každé PDF.
 async function documentStems(dir: string): Promise<string[]> {
+	const vault = dirname(dir);
 	const candidates = await documentCandidates(dir);
-	const hints = await Promise.all(candidates.map(numberHints));
+	const index = await loadIndex(vault);
+	const read = new Map<string, IndexEntry>();
+	const hints = await Promise.all(candidates.map((candidate) => numberHints(candidate, index, read)));
+	// Bez zápisu by řada uložení za sebou četla při každém znovu všechna předchozí PDF.
+	if (read.size > 0) await saveIndex(vault, new Map([...index, ...read]));
 	return hints.flat();
 }
 
@@ -249,17 +270,27 @@ export async function removeIndexEntry(vault: string, path: string): Promise<voi
 	if (entries.delete(basename(path))) await saveIndex(vault, entries);
 }
 
-export async function listInvoices({ vaultPath }: { vaultPath: string }): Promise<InvoiceList> {
+export interface InvoiceScan extends InvoiceList {
+	// Souhrny všech dokladů, které jdou přečíst, i těch mezi vadnými.
+	readable: InvoiceSummary[];
+	// Jména souborů, které přečíst nejdou.
+	unreadable: string[];
+}
+
+export async function scanInvoices({ vaultPath }: { vaultPath: string }): Promise<InvoiceScan> {
 	const vault = await overVault(vaultPath);
 	const old = await loadIndex(vault);
 	const fresh = new Map<string, IndexEntry>();
 	const parsed: { fileName: string; summary: InvoiceSummary; namedConflict: boolean }[] = [];
 	const broken: BrokenInvoice[] = [];
+	const misnamed: InvoiceSummary[] = [];
+	const unreadable: string[] = [];
 	let changed = false;
 
 	const candidates = await documentCandidates(join(vault, 'faktury'));
 	for (const { name, path, stem, placeholder, info } of candidates) {
 		if (placeholder) {
+			unreadable.push(name);
 			broken.push({
 				fileName: name,
 				path,
@@ -281,6 +312,7 @@ export async function listInvoices({ vaultPath }: { vaultPath: string }): Promis
 			try {
 				summary = await summarizePdf(path);
 			} catch (error) {
+				unreadable.push(name);
 				broken.push({
 					fileName: name,
 					path,
@@ -294,6 +326,7 @@ export async function listInvoices({ vaultPath }: { vaultPath: string }): Promis
 		// Soubor by obsadil číslo podle jména, ale přehled by ukazoval jiné — otevřít, odeslat ani smazat
 		// by ho nešlo.
 		if (!namedConflict && asciiLower(stem) !== asciiLower(number)) {
+			misnamed.push(summary);
 			broken.push({
 				fileName: name,
 				path,
@@ -339,5 +372,18 @@ export async function listInvoices({ vaultPath }: { vaultPath: string }): Promis
 	return {
 		items: items.toSorted((a, b) => compareNumbers(b.number, a.number)),
 		broken: broken.toSorted((a, b) => compareText(a.fileName, b.fileName)),
+		readable: [...misnamed, ...parsed.map(({ summary }) => summary)].toSorted((a, b) =>
+			compareNumbers(b.number, a.number),
+		),
+		unreadable,
+	};
+}
+
+// Okno dostane jen to, co zná jeho schéma odpovědi.
+export async function listInvoices(args: { vaultPath: string }): Promise<InvoiceList> {
+	const { items, broken } = await scanInvoices(args);
+	return {
+		items,
+		broken,
 	};
 }

@@ -121,8 +121,11 @@ async function initNew() {
 	forgetPending();
 	try {
 		const assigned = await nextNumber();
+		// Pozdní odpověď by přepsala doklad, na který adresa mezitím přešla.
+		if (number.value) return;
 		reset(newInvoice(supplier.value, assigned));
 	} catch (e) {
+		if (number.value) return;
 		// Nejčastěji vadná šablona číselné řady — bez hlášky by stránka tiše nic neudělala.
 		reset(newInvoice(supplier.value, ''));
 		status.error('Nepodařilo se přidělit číslo faktury', e);
@@ -161,6 +164,8 @@ async function openFromRoute() {
 			}
 			sentAt.value = summary.sentAt;
 			const stored = await load(summary.number);
+			// Pozdní odpověď by přepsala doklad, na který adresa mezitím přešla.
+			if (number.value !== summary.number) return;
 			savedPath.value = '';
 			status.clear();
 			reset(stored);

@@ -300,3 +300,46 @@ describe('předvyplněný doklad ze seznamu', () => {
 		expect(savedAsNew(0)).toBe(true);
 	});
 });
+
+describe('přepnutí dokladu dřív, než se načte', () => {
+	it('pozdní odpověď dřív otevřeného dokladu nepřepíše ten, na který adresa přešla', async () => {
+		invoiceInVault('20260001');
+		invoiceInVault('20260002');
+		const first = backend.postpone('load_invoice');
+		const c = await mountInvoice('20260001');
+
+		await goto('/invoice/20260002');
+		first.finish();
+		await flushPromises();
+
+		expect(currentPath()).toBe('/invoice/20260002');
+		expect(c.find<HTMLInputElement>('[data-testid="field-number"]').element.value).toBe('20260002');
+	});
+
+	it('pozdě přidělené číslo nového dokladu nepřepíše doklad, na který adresa přešla', async () => {
+		invoiceInVault('20260001');
+		const numbering = backend.postpone('list_used_numbers');
+		const c = await mountInvoice();
+
+		await goto('/invoice/20260001');
+		numbering.finish();
+		await flushPromises();
+
+		expect(currentPath()).toBe('/invoice/20260001');
+		expect(c.find<HTMLInputElement>('[data-testid="field-number"]').element.value).toBe('20260001');
+	});
+
+	it('pozdní selhání číselné řady doklad, na který adresa přešla, nevyprázdní ani nehlásí', async () => {
+		invoiceInVault('20260001');
+		const numbering = backend.postpone('list_used_numbers');
+		backend.fails('list_used_numbers', 'Složku faktury/ nejde přečíst');
+		const c = await mountInvoice();
+
+		await goto('/invoice/20260001');
+		numbering.finish();
+		await flushPromises();
+
+		expect(c.find<HTMLInputElement>('[data-testid="field-number"]').element.value).toBe('20260001');
+		expect(useNuxtApp().vueApp.runWithContext(useToast).toasts.value).toEqual([]);
+	});
+});

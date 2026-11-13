@@ -261,7 +261,30 @@ describe('vadné doklady ve výpisu', () => {
 				},
 			],
 		});
-		expect(await listUsedNumbers({ vaultPath: base })).toEqual(['faktura']);
+	});
+
+	it('přejmenovaný doklad drží dál číslo, které nese, a další faktura ho nedostane', async () => {
+		const path = await saveNew(numbered('20260001', 'Alfa', 10_000));
+		await rename(path, invoices('faktura.pdf'));
+
+		expect(await listUsedNumbers({ vaultPath: base })).toEqual(['20260001', 'faktura']);
+		await expect(saveNew(numbered('20260001', 'Beta', 10_000))).rejects.toThrow(
+			new Error('Faktura 20260001 už existuje. Zvol jiné číslo.'),
+		);
+	});
+
+	it('jméno lišící se od čísla jen velikostí písmen číslo nezdvojí', async () => {
+		const path = await saveNew(numbered('F2026-1', 'Alfa', 10_000));
+		await rename(path, invoices('f2026-1.pdf'));
+
+		expect(await listUsedNumbers({ vaultPath: base })).toEqual(['f2026-1']);
+		await expect(
+			saveInvoice({
+				vaultPath: base,
+				invoice: numbered('F2026-1', 'Beta', 10_000),
+				isNew: false,
+			}),
+		).resolves.toBe(invoices('f2026-1.pdf'));
 	});
 
 	it('iCloud zástupce se ohlásí a své číslo drží', async () => {
@@ -473,6 +496,54 @@ describe('cache výpisu', () => {
 		const bySize = await listInvoices({ vaultPath: base });
 
 		expect([byTime.items[0]?.customer, bySize.items[0]?.customer]).toEqual(['Alfa', 'Alfa']);
+	});
+
+	it('obsazená čísla věří cache jen u souboru, který se nezměnil', async () => {
+		const path = await saveNew(numbered('20260001', 'Alfa', 10_000));
+		await listInvoices({ vaultPath: base });
+		const poisoned = await cache();
+		poisoned.entries['20260001.pdf'].summary.number = '20269999';
+		await writeFile(cacheFile(), JSON.stringify(poisoned));
+
+		const trusted = await listUsedNumbers({ vaultPath: base });
+		const resized = structuredClone(poisoned);
+		resized.entries['20260001.pdf'].size = 1;
+		await writeFile(cacheFile(), JSON.stringify(resized));
+		const bySize = await listUsedNumbers({ vaultPath: base });
+		await writeFile(cacheFile(), JSON.stringify(poisoned));
+		await utimes(path, 1_000_000, 1_000_000);
+		const byTime = await listUsedNumbers({ vaultPath: base });
+
+		expect([trusted, bySize, byTime]).toEqual([['20260001', '20269999'], ['20260001'], ['20260001']]);
+	});
+
+	it('kontrola čísla si přečtený souhrn zapíše stejně jako výpis a starší záznamy nechá', async () => {
+		await saveNew(numbered('20260001', 'Alfa', 10_000));
+		await saveNew(numbered('20260002', 'Beta', 25_000));
+		expect(await cachedNames()).toEqual(['20260001.pdf']);
+		await saveNew(numbered('20260003', 'Gama', 5_000));
+		const written = await cache();
+		expect(await cachedNames()).toEqual(['20260001.pdf', '20260002.pdf']);
+
+		await rm(cacheFile());
+		await listInvoices({ vaultPath: base });
+		const listed = await cache();
+
+		expect([written.entries['20260001.pdf'], written.entries['20260002.pdf']]).toEqual([
+			listed.entries['20260001.pdf'],
+			listed.entries['20260002.pdf'],
+		]);
+	});
+
+	it('obsazená čísla nad nezměněnou složkou cache nepřepisují', async () => {
+		await saveNew(numbered('20260001', 'Alfa', 10_000));
+		await listInvoices({ vaultPath: base });
+		const before = await stat(cacheFile());
+
+		await listUsedNumbers({ vaultPath: base });
+		const after = await stat(cacheFile());
+
+		expect(after.ino).toBe(before.ino);
 	});
 
 	it('nezměněný vault cache nepřepisuje', async () => {

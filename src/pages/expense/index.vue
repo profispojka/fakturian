@@ -7,7 +7,15 @@ import { czechList, formatCount, formatCountOutOf } from '~/utils/locales';
 import type { DropdownMenuItem, TableColumn, TableRow } from '@nuxt/ui';
 import type { Expense } from '~/schemas/expenses';
 
-const { expenses, upsertMany, remove, importDocument, documentPath, loadError: fileError } = useExpenses();
+const {
+	expenses,
+	upsertMany,
+	remove,
+	importDocument,
+	discardImported,
+	documentPath,
+	loadError: fileError,
+} = useExpenses();
 
 const paletteOpen = useState<boolean>('paletteOpen', () => false);
 const selectedId = ref('');
@@ -86,10 +94,12 @@ async function importFiles(paths: string[]) {
 	const errors: string[] = [];
 
 	const newItems: Expense[] = [];
+	const copies: string[] = [];
 	for (const path of paths) {
 		try {
-			const { expense, warning } = await importDocument(path, newItems);
+			const { expense, file, warning } = await importDocument(path, newItems);
 			newItems.push(expense);
+			copies.push(file);
 			done.push(expense.supplier || 'doklad');
 			if (warning && !warnings.includes(warning)) warnings.push(warning);
 		} catch (e) {
@@ -101,6 +111,7 @@ async function importFiles(paths: string[]) {
 	try {
 		await upsertMany(newItems);
 	} catch (e) {
+		await discardImported(copies);
 		status.error('Výdaje se nepodařilo uložit', e);
 		return;
 	} finally {

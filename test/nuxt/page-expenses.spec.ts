@@ -627,6 +627,7 @@ describe('hlášky importu', () => {
 	it('selhání uložení výdajů se ohlásí', async () => {
 		backend.dialog.push(['/a.pdf']);
 		documentReturns();
+		backend.keepsReturning('remove_received', null);
 		backend.breaks('write_data_file', 'vydaje.json není načtený');
 		const c = await mount();
 
@@ -640,6 +641,40 @@ describe('hlášky importu', () => {
 				color: 'error',
 			}),
 		);
+	});
+
+	it('po selhání uložení uklidí kopie, které už v prijate/ leží', async () => {
+		backend.dialog.push(['/a.pdf', '/b.pdf']);
+		backend.returns(
+			'import_received',
+			receivedDocument({
+				number: 'F2026-7',
+				supplierIco: '25596641',
+			}),
+			receivedDocument({
+				number: 'F2026-8',
+				supplierIco: '25596641',
+				file: 'prijate/x-2.pdf',
+			}),
+		);
+		backend.keepsReturning('remove_received', null);
+		backend.breaks('write_data_file', 'Disk je plný');
+		const c = await mount();
+
+		await c.find('[data-testid="expense-import"]').trigger('click');
+		await flushPromises();
+
+		// Kopie bez záznamu ve výdajích by příští import odmítl jako „tentýž soubor podruhé".
+		expect(backend.args('remove_received')).toEqual([
+			{
+				vaultPath: '/vault',
+				file: 'prijate/x.pdf',
+			},
+			{
+				vaultPath: '/vault',
+				file: 'prijate/x-2.pdf',
+			},
+		]);
 	});
 });
 

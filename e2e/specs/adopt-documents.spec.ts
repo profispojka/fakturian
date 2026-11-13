@@ -51,5 +51,18 @@ test.describe('převzetí dokladů z cizího systému', () => {
 		await expect(page.getByTestId('item-label').nth(0)).toHaveValue('Front-end vývoj');
 		await expect(page.getByTestId('item-label').nth(1)).toHaveValue('Testování front-endu');
 		await expect(page.getByTestId('total')).toHaveText('123 180,00 Kč');
+
+		// Cizí doklad se otevře, ale archivovaný záznam hlavní proces přepsat nedovolí. Vzorky nenesou
+		// jednotku, bez které formulář doklad k uložení nepustí.
+		await page.getByTestId('item-unit').nth(0).fill('hod');
+		await page.getByTestId('item-unit').nth(1).fill('ks');
+		await page.getByTestId('field-note').fill('Dopsaná poznámka');
+		await page.getByTestId('action-save').click();
+		// Chyba uložení jde do toastu Nuxt UI, kam se značka nedostane; hledá se přes jeho slot.
+		await expect(page.locator('li[data-slot="base"] [data-slot="description"]')).toHaveText(
+			'Fakturu 2026017 vystavil Testovací fakturační systém 1.0, ne Fakturian — přepsat archivovaný doklad nejde. Ulož ji jako nový doklad s vlastním číslem.',
+		);
+		await expect(page.getByTestId('saved')).toHaveCount(0);
+		expect(readFileSync(target).equals(sourceBytes)).toBe(true);
 	});
 });
