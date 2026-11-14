@@ -21,7 +21,6 @@ function supplierFromDocument(over: Record<string, unknown> = {}) {
 		registration: 'Fyzická osoba zapsaná v živnostenském rejstříku, Živnostenský úřad Brno',
 		bankAccount: '2000145399',
 		bankCode: '0800',
-		iban: 'CZ7908000000002000145399',
 		invoiceNumberFormat: '{RRRR}{NNNN}',
 		defaultDueDays: 14,
 		...over,
@@ -318,7 +317,6 @@ describe('doplnění fakturačních údajů z dokladů', () => {
 			registration: 'Fyzická osoba zapsaná v živnostenském rejstříku, Živnostenský úřad Brno',
 			bankAccount: '2000145399',
 			bankCode: '0800',
-			iban: 'CZ7908000000002000145399',
 			email: 'jan@novak.cz',
 			defaultDueDays: 14,
 			invoiceNumberFormat: '{RRRR}{NNNN}',
@@ -405,7 +403,6 @@ describe('doplnění fakturačních údajů z dokladů', () => {
 				scan({
 					supplier: supplierFromDocument({
 						bankAccount: '',
-						iban: '',
 					}),
 				}),
 			);

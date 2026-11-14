@@ -128,7 +128,6 @@ export function deriveSupplier(documents: Invoice[]): AdoptedSupplier | null {
 		registration,
 		bankAccount: newest.bankAccount,
 		bankCode: newest.bankCode,
-		iban: newest.iban,
 		invoiceNumberFormat: deriveTemplate(newest.number, newest.issueDate) ?? '',
 		defaultDueDays: deriveDueDays(newest.issueDate, newest.dueDate),
 	};

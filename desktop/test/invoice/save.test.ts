@@ -167,7 +167,6 @@ describe('doklad z webview', () => {
 			vatNote: '',
 			bankAccount: '',
 			bankCode: '',
-			iban: '',
 			variableSymbol: '',
 			note: '',
 			lines: [
@@ -942,10 +941,9 @@ describe('vykreslení a logo', () => {
 		]);
 	});
 
-	it('holý doklad bez IBAN, poznámky, DIČ a e-mailu se načte s prázdnými poli', async () => {
+	it('holý doklad bez poznámky, DIČ a e-mailu se načte s prázdnými poli', async () => {
 		await saveNew({
 			...invoice(),
-			iban: '',
 			note: '',
 			supplier: {
 				...supplier(),
@@ -959,13 +957,7 @@ describe('vykreslení a logo', () => {
 		});
 
 		const back = await load('20260001');
-		expect([back.iban, back.note, back.supplier.dic, back.customer.dic, back.supplier.email]).toEqual([
-			'',
-			'',
-			'',
-			'',
-			'',
-		]);
+		expect([back.note, back.supplier.dic, back.customer.dic, back.supplier.email]).toEqual(['', '', '', '']);
 	});
 
 	it('logo z vaultu přidá do dokladu právě jeden obrázek', async () => {

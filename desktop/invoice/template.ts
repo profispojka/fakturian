@@ -40,7 +40,6 @@ export interface InvoiceData {
 	due_date: string;
 	variable_symbol: string;
 	bank_account: string;
-	iban: string;
 	currency: 'Kč';
 	total: string;
 	// Dobropis nic nevybírá: šablona podle toho vynechá splatnost i platební údaje.
@@ -106,7 +105,6 @@ export function invoiceData(invoice: Invoice, hasQr: boolean, hasLogo: boolean):
 		due_date: czDate(invoice.dueDate),
 		variable_symbol: paymentSymbol(invoice),
 		bank_account: bankAccountLabel(invoice),
-		iban: invoice.iban,
 		currency: 'Kč',
 		total: czkCents(total),
 		due_total: czkCents(Math.abs(total)),

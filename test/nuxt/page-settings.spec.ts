@@ -92,6 +92,7 @@ describe('fakturační údaje', () => {
 		const c = await mount();
 
 		expect(c.find<HTMLInputElement>('[name="name"]').element.value).toBe('Jan Novák');
+		expect(c.find('[data-testid="field-iban"]').exists()).toBe(false);
 	});
 
 	it('pozdější změna dodavatele se do formuláře propíše', async () => {
@@ -158,7 +159,6 @@ describe('fakturační údaje', () => {
 		await c.find('[data-testid="field-address-zip"]').setValue('11000');
 		await c.find('[data-testid="field-bankAccount"]').setValue('2000145399');
 		await c.find('[data-testid="field-bankCode"]').setValue('0800');
-		await c.find('[data-testid="field-iban"]').setValue('CZ7908000000002000145399');
 		await c.find('[data-testid="field-email"]').setValue('jan@novak.cz');
 		await c.find('[data-testid="field-defaultDueDays"]').setValue('30');
 		await c.find('[data-testid="field-defaultDueDays"]').trigger('blur');
@@ -171,19 +171,18 @@ describe('fakturační údaje', () => {
 		expect(savedSupplier()).toEqual(
 			expect.objectContaining({
 				registration: 'Zapsáno v obchodním rejstříku vedeném Městským soudem v Praze',
-				iban: 'CZ7908000000002000145399',
 				email: 'jan@novak.cz',
 				defaultDueDays: 30,
 				invoiceNumberStart: '20260137',
 			}),
 		);
+		expect(savedSupplier()).not.toHaveProperty('iban');
 	});
 
-	it('IČO s mezerami a IBAN vložený z banky uloží v tvaru pro doklad', async () => {
+	it('IČO s mezerami uloží v tvaru pro doklad', async () => {
 		await vaultS();
 		const c = await mount();
 		await c.find('[data-testid="field-ico"]').setValue('123 456 79');
-		await c.find('[data-testid="field-iban"]').setValue('cz79 0800 0000 0020 0014 5399');
 		await flushPromises();
 
 		await c.find('[data-testid="settings-save"]').trigger('click');
@@ -192,10 +191,8 @@ describe('fakturační údaje', () => {
 		expect(savedSupplier()).toEqual(
 			expect.objectContaining({
 				ico: '12345679',
-				iban: 'CZ7908000000002000145399',
 			}),
 		);
-		expect(c.find<HTMLInputElement>('[name="iban"]').element.value).toBe('CZ7908000000002000145399');
 	});
 
 	it('e-mail s mezerou na konci projde a uloží se oříznutý', async () => {

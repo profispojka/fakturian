@@ -44,24 +44,6 @@ describe('převzetí složky → fakturační údaje', () => {
 		expect(supplierReadyForInvoicing(supplier)).toBe(true);
 	});
 
-	it('IBAN z dokladů převezme, jen když patří k jejich účtu', () => {
-		const d = adoptedSupplierSchema.parse(contract.supplier);
-
-		expect(supplierFromAdopted(d).iban).toBe('CZ6508000000192000145399');
-		expect(
-			supplierFromAdopted({
-				...d,
-				iban: 'CZ7908000000002000145399',
-			}).iban,
-		).toBe(undefined);
-		expect(
-			supplierFromAdopted({
-				...d,
-				iban: '',
-			}).iban,
-		).toBe(undefined);
-	});
-
 	it('řada i splatnost pokračují tak, jak je uživatel měl jinde', () => {
 		const supplier = supplierFromAdopted(adoptedSupplierSchema.parse(contract.supplier));
 		// Sedmimístné `2026022` z cizí řady → `{RRRR}{NNN}`, ne výchozí `{RRRR}{NNNN}`.
@@ -254,7 +236,6 @@ describe('dodavatel z převzatých dokladů', () => {
 			registration: '',
 			bankAccount: '123456789',
 			bankCode: '0800',
-			iban: 'CZ6508000000192000145399',
 			invoiceNumberFormat: '{RRRR}{NNNN}',
 			defaultDueDays: 30,
 			...over,
@@ -265,13 +246,11 @@ describe('dodavatel z převzatých dokladů', () => {
 		const s = supplierFromAdopted(
 			adoptedSupplierSchema.parse(
 				supplier({
-					iban: '',
 					email: '',
 				}),
 			),
 		);
 
-		expect(s.iban).toBeUndefined();
 		expect(s.email).toBeUndefined();
 	});
 

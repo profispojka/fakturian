@@ -59,7 +59,6 @@ const invoice: Invoice = {
 	vatNote: NON_VAT_PAYER_NOTE,
 	bankAccount: '2000145399',
 	bankCode: '0800',
-	iban: '',
 	variableSymbol: number,
 	note: '',
 	lines: [

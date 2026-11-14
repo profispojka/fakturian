@@ -209,7 +209,6 @@ describe('sken složky', () => {
 			registration,
 			bankAccount: '2000145399',
 			bankCode: '0800',
-			iban: 'CZ6508000000192000145399',
 			invoiceNumberFormat: '{RRRR}{NNNN}',
 			defaultDueDays: 14,
 		});
@@ -728,7 +727,6 @@ describe('odvození z dokladů', () => {
 			registration: read.supplier.registration,
 			bankAccount: '123456',
 			bankCode: read.bankCode,
-			iban: read.iban,
 			invoiceNumberFormat: '{RRRR}{NNNN}',
 			defaultDueDays: 30,
 		});

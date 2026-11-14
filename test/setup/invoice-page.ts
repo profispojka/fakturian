@@ -166,7 +166,6 @@ export function invoiceInVault(number: string, over: Partial<WireInvoice> = {}):
 		vatNote: '',
 		bankAccount: '123',
 		bankCode: '0800',
-		iban: '',
 		variableSymbol: variableSymbolFor(number),
 		note: '',
 		lines: [

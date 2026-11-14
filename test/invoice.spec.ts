@@ -88,7 +88,6 @@ describe('newInvoice', () => {
 		registration: 'Fyzická osoba zapsaná v živnostenském rejstříku, Živnostenský úřad Praha 1',
 		bankAccount: '2000145399',
 		bankCode: '0800',
-		iban: 'CZ65',
 		email: 'jan@x.cz',
 		defaultDueDays: 30,
 		invoiceNumberFormat: '{RRRR}{NNNN}',

@@ -736,7 +736,6 @@ function documentFromVault(inv: Invoice): Invoice {
 		vatNote: rest.vatNote ?? '',
 		bankAccount: rest.bankAccount ?? '',
 		bankCode: rest.bankCode ?? '',
-		iban: rest.iban ?? '',
 		variableSymbol: rest.variableSymbol ?? '',
 		note: rest.note ?? '',
 		supplier: side(inv.supplier),

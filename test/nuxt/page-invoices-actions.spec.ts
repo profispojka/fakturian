@@ -422,7 +422,6 @@ describe('akce nad fakturou', () => {
 				name: 'Nová firma s.r.o.',
 				bankAccount: '2000145399',
 				bankCode: '2010',
-				iban: 'CZ6520100000002000145399',
 				defaultDueDays: 14,
 			},
 		});
@@ -453,7 +452,6 @@ describe('akce nad fakturou', () => {
 				supplier: expect.objectContaining({ name: 'Nová firma s.r.o.' }),
 				bankAccount: '2000145399',
 				bankCode: '2010',
-				iban: 'CZ6520100000002000145399',
 			}),
 		);
 	});

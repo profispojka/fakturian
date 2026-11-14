@@ -190,7 +190,6 @@ export function intoInvoice(document: Document): Invoice {
 		).trim(),
 		bankAccount: text(payment, 'ID').trim(),
 		bankCode: text(payment, 'BankCode').trim(),
-		iban: text(payment, 'IBAN').trim(),
 		variableSymbol: text(payment, 'VariableSymbol').trim(),
 		note: text(root, 'Note').trim(),
 		lines,

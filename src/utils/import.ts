@@ -2,7 +2,6 @@ import { contactSchema, type Contact } from '~/schemas/customers';
 import { emptySupplier, type Supplier } from '~/schemas/suppliers';
 import { normalizeSearchText } from '~/utils/crud';
 import { issuesText } from '~/utils/errors';
-import { ibanMatchesAccount } from '~/utils/validators';
 
 import type { AdoptedSupplier, ImportedCustomer } from '~/schemas/import';
 
@@ -32,8 +31,6 @@ export function supplierFromAdopted(d: AdoptedSupplier): Supplier {
 		registration: d.registration,
 		bankAccount: d.bankAccount,
 		bankCode: d.bankCode,
-		// IBAN z převzatých dokladů jen tehdy, když patří k jejich účtu; jinak si ho QR platba dopočítá.
-		iban: ibanMatchesAccount(d.iban, d.bankAccount, d.bankCode) ? d.iban : undefined,
 		email: d.email || undefined,
 		defaultDueDays: d.defaultDueDays ?? defaultValue.defaultDueDays,
 		// Bez toho by řada uprostřed roku změnila tvar: po `2026022` z iDokladu by výchozí šablona

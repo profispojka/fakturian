@@ -9,7 +9,7 @@
  * Tři pravidla, ať z toho nevznikne problém:
  *   1. **Data si vymysli, ale ať sedí.** Částky, jména a data musí dávat smysl
  *      dohromady — návštěvník pozná „lorem ipsum" i v číslech.
- *   2. **Nikdy skutečná data.** Žádní opravdoví zákazníci, e-maily, IBANy.
+ *   2. **Nikdy skutečná data.** Žádní opravdoví zákazníci, e-maily ani čísla účtů.
  *      Používej neutrální jména a jasně smyšlené identifikátory.
  *   3. **Harness nesmí do produkce.** Žije v `showcase/`, ne v appce.
  */

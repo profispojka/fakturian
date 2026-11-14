@@ -79,7 +79,6 @@ describe('výchozí faktura', () => {
 			vatNote: NON_VAT_PAYER_NOTE,
 			bankAccount: '',
 			bankCode: '',
-			iban: '',
 			variableSymbol: '20260001',
 			note: '',
 			lines: [blankLine],
@@ -105,7 +104,6 @@ describe('výchozí faktura', () => {
 			registration: 'Zapsáno v obchodním rejstříku',
 			bankAccount: '123',
 			bankCode: '0800',
-			iban: 'CZ123',
 			defaultDueDays: 0,
 		};
 		const invoice = newInvoice(supplier, 'FA-2026-01');
@@ -144,7 +142,6 @@ describe('výchozí faktura', () => {
 			vatNote: NON_VAT_PAYER_NOTE,
 			bankAccount: '123',
 			bankCode: '0800',
-			iban: 'CZ123',
 			variableSymbol: '202601',
 			note: '',
 			lines: [

@@ -394,9 +394,7 @@ describe('přesun do Koše', () => {
 		vi.mocked(shell.trashItem).mockRejectedValueOnce(cause);
 
 		const failure = moveToTrash(path);
-		await expect(failure).rejects.toThrow(
-			new Error(`Doklad ${path} se nepodařilo přesunout do Koše.`, { cause }),
-		);
+		await expect(failure).rejects.toThrow(new Error(`Doklad ${path} se nepodařilo přesunout do Koše.`, { cause }));
 
 		expect(await loggedLines(base)).toEqual([
 			`Doklad ${path} se nepodařilo přesunout do Koše. Unable to move item to trash`,

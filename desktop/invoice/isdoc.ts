@@ -179,7 +179,6 @@ export function buildIsdoc(invoice: Invoice): string {
 	add(details, 'ID', invoice.bankAccount);
 	add(details, 'BankCode', invoice.bankCode);
 	add(details, 'Name', '');
-	add(details, 'IBAN', invoice.iban);
 	add(details, 'BIC', '');
 	add(details, 'VariableSymbol', paymentSymbol(invoice));
 	return toXml(document);

@@ -53,7 +53,6 @@ interface Client {
 const REGISTRATION = 'Zapsáno v obchodním rejstříku vedeném Městským soudem v Praze, oddíl C, vložka 123456';
 const BANK = '2901234567';
 const BANK_CODE = '2010';
-const IBAN = 'CZ5520100000002901234567';
 
 const SUPPLIER: InvoiceParty = {
 	name: 'Ukázková dílna s.r.o.',
@@ -601,7 +600,6 @@ async function saveDocument(header: Header, planned: InvoiceLine[]): Promise<Iss
 		vatNote: '',
 		bankAccount: BANK,
 		bankCode: BANK_CODE,
-		iban: IBAN,
 		variableSymbol: header.number,
 		note: header.note,
 		lines,
@@ -879,7 +877,6 @@ const settings = {
 		registration: REGISTRATION,
 		bankAccount: BANK,
 		bankCode: BANK_CODE,
-		iban: IBAN,
 		email: SUPPLIER.email,
 		defaultDueDays: 14,
 		invoiceNumberFormat: '{RRRR}{NNNN}',

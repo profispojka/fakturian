@@ -606,7 +606,6 @@ describe('otevření existující faktury', () => {
 			},
 			bankAccount: '987654321',
 			bankCode: '0100',
-			iban: 'CZ1201000000000987654321',
 			vatNote: 'Text z cizího dokladu',
 		});
 		const c = await mountInvoice('FOREIGN-1');

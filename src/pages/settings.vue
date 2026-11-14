@@ -78,11 +78,10 @@ async function onDesignPreview() {
 
 async function onSubmit(event: FormSubmitEvent<ValidSupplier>) {
 	if (templateError.value) return;
-	// IČO a IBAN se ukládají v tvaru ze schématu, ne tak, jak je uživatel napsal nebo vložil z banky.
+	// IČO se ukládá v tvaru ze schématu, ne tak, jak ho uživatel napsal.
 	const typed = {
 		...structuredClone(toRaw(form.value)),
 		ico: event.data.ico,
-		iban: event.data.iban,
 	};
 	let next: Supplier;
 	try {
@@ -265,12 +264,6 @@ useAsyncState(refreshLogo, undefined, {
 											data-testid="field-bankCode" />
 									</UFormField>
 								</div>
-								<UFormField name="iban" label="IBAN (nepovinné)">
-									<UInput
-										v-model.optional="form.iban"
-										placeholder="CZ6508000000192000145399"
-										data-testid="field-iban" />
-								</UFormField>
 							</div>
 						</div>
 

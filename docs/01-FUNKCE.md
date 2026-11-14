@@ -42,7 +42,7 @@ a editovatelné v Nastavení. Novou fakturu jimi appka předvyplní.
 - DIČ appka nevede: neplátce ho na faktuře uvádět nemusí (§ 29 ZDPH platí jen pro
   daňový doklad) a u fyzické osoby v něm je rodné číslo.
 - Text **„Nejsem plátce DPH"** (povinná informace na faktuře neplátce)
-- Číslo účtu / IBAN (pro platbu a QR kód)
+- Číslo účtu (pro platbu a QR kód)
 - Kontaktní e-mail (volitelné)
 - **Číslování faktur: vlastní šablona** — výchozí `{RRRR}{NNNN}` → `20260001`.
   Další číslo = nejvyšší v aktuálním roce + 1 (počítají se doklady ležící ve
@@ -293,9 +293,8 @@ Doklad, kterým vracíš celou už vystavenou fakturu.
 - QR kód ve formátu **SPAYD** přímo v PDF
 - Generuje se z čísla účtu, částky, variabilního symbolu a zprávy
 - QR má každá faktura, dobropis žádný
-- Účet musí projít kontrolou (mod-11 u českého čísla, kontrolní součet u IBANu).
-  Když neprojde, QR se nevysází; u importovaného dokladu to řekne výsledek
-  importu.
+- České číslo účtu musí projít kontrolou mod-11. Pro SPAYD se z něj interně
+  vytvoří potřebný formát účtu; když kontrolou neprojde, QR se nevysází.
 
 ---
 

@@ -304,8 +304,7 @@ async function onSupplierSubmit(event: FormSubmitEvent<ValidSupplier>) {
 						<template v-else-if="step === 'supplier'">
 							<h2 class="welcome-title" data-testid="wizard-heading">Tvoje fakturační údaje</h2>
 							<p class="welcome-lead">
-								Jméno, adresa a účet stojí na každé faktuře. IBAN, e-mail a splatnost doplníš potom v
-								Nastavení.
+								Jméno, adresa a účet stojí na každé faktuře. E-mail a splatnost doplníš potom v Nastavení.
 							</p>
 						</template>
 						<template v-else>
@@ -542,7 +541,7 @@ async function onSupplierSubmit(event: FormSubmitEvent<ValidSupplier>) {
 
 										<div class="welcome-actions">
 											<UTooltip
-												text="IBAN, e-mail, splatnost i číslování faktur doladíš potom v Nastavení.">
+												text="E-mail, splatnost i číslování faktur doladíš potom v Nastavení.">
 												<UButton
 													variant="create"
 													type="submit"

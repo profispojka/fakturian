@@ -59,7 +59,6 @@ describe('duplikace faktury', () => {
 		ico: '27082440',
 		bankAccount: '2000145399',
 		bankCode: '2010',
-		iban: 'CZ6520100000002000145399',
 		defaultDueDays: 30,
 	};
 
@@ -82,7 +81,6 @@ describe('duplikace faktury', () => {
 		vatNote: 'Starý text o DPH.',
 		bankAccount: '19',
 		bankCode: '0100',
-		iban: 'CZ0001000000000000000019',
 		note: 'Objednávka 42',
 		lines: [
 			{
@@ -114,7 +112,6 @@ describe('duplikace faktury', () => {
 		expect(d.vatNote).toBe('Nejsem plátce DPH.');
 		expect(d.bankAccount).toBe('2000145399');
 		expect(d.bankCode).toBe('2010');
-		expect(d.iban).toBe('CZ6520100000002000145399');
 		expect(d.dueDate).toBe('2026-06-28');
 	});
 

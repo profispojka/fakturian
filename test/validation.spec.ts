@@ -7,12 +7,12 @@ import {
 	defaultDueDaysSchema,
 	supplierReadyForInvoicing,
 	supplierSchema,
+	supplierStoredSchema,
 	supplierSettingsSchema,
 } from '~/schemas/suppliers';
 import { emptyVaultData, vaultDataSchema } from '~/schemas/vault-data';
 import { czkFromCents } from '~/utils/money';
 import {
-	ibanMatchesAccount,
 	isValidBankAccount,
 	isValidBankCode,
 	isValidDic,
@@ -172,17 +172,6 @@ describe('isValidZip / isValidBankCode / isValidBankAccount', () => {
 	it.each(['0000000000', '00', '19-0000000000', '000000-00'])('účet z nul %s neprojde', (account) => {
 		expect(isValidBankAccount(account)).toBe(false);
 	});
-	it('IBAN patří k účtu jen se stejným kódem banky, předčíslím i číslem', () => {
-		expect(ibanMatchesAccount('CZ6508000000192000145399', '19-2000145399', '0800')).toBe(true);
-		expect(ibanMatchesAccount('cz65 0800 0000 1920 0014 5399', ' 19-2000145399 ', '08 00')).toBe(true);
-		expect(ibanMatchesAccount('CZ7908000000002000145399', '2000145399', '0800')).toBe(true);
-		expect(ibanMatchesAccount('CZ7908000000002000145399', '19-2000145399', '0800')).toBe(false);
-		expect(ibanMatchesAccount('CZ6508000000192000145399', '19-2000145398', '0800')).toBe(false);
-		expect(ibanMatchesAccount('CZ6508000000192000145399', '19-2000145399', '0100')).toBe(false);
-		expect(ibanMatchesAccount('SK6508000000192000145399', '19-2000145399', '0800')).toBe(false);
-		expect(ibanMatchesAccount('CZ6508000000192000145399', 'abc', '0800')).toBe(false);
-		expect(ibanMatchesAccount('', '19-2000145399', '0800')).toBe(false);
-	});
 });
 
 describe('datum na hranici', () => {
@@ -288,7 +277,6 @@ const goodSupplier = (): Supplier => ({
 	registration: 'Fyzická osoba zapsaná v živnostenském rejstříku, Živnostenský úřad Praha 1',
 	bankAccount: '2000145399',
 	bankCode: '0800',
-	iban: 'CZ7908000000002000145399',
 	email: 'jan@x.cz',
 	defaultDueDays: 14,
 	invoiceNumberFormat: '{RRRR}{NNNN}',
@@ -325,24 +313,6 @@ describe('supplierSchema', () => {
 		s.registration = '  ';
 		expect(supplierReadyForInvoicing(s)).toBe(true);
 		expect(invalidFields(supplierSettingsSchema, s)).toEqual(['registration']);
-	});
-
-	it('IBAN jiného účtu Nastavení odmítne, prázdný i shodný pustí a k fakturaci nebrání', () => {
-		const mismatched = {
-			...goodSupplier(),
-			iban: 'CZ6508000000192000145399',
-		};
-		const { iban: _iban, ...withoutIban } = goodSupplier();
-
-		expect(issuesOf(supplierSettingsSchema, mismatched)).toEqual([
-			{
-				path: ['iban'],
-				message: 'IBAN nepatří k zadanému číslu účtu. Oprav ho, nebo pole nech prázdné.',
-			},
-		]);
-		expect(issuesOf(supplierSettingsSchema, goodSupplier())).toEqual([]);
-		expect(issuesOf(supplierSettingsSchema, withoutIban)).toEqual([]);
-		expect(supplierReadyForInvoicing(mismatched)).toBe(true);
 	});
 
 	describe('navázání na řadu', () => {
@@ -408,56 +378,24 @@ describe('supplierSchema', () => {
 		});
 	});
 
-	it('hlásí neplatný IBAN / e-mail', () => {
+	it('hlásí neplatný e-mail', () => {
 		const s = goodSupplier();
-		s.iban = 'CZ00';
 		s.email = 'nope';
-		expect(invalidFields(supplierSchema, s)).toEqual(expect.arrayContaining(['iban', 'email']));
+		expect(invalidFields(supplierSchema, s)).toEqual(['email']);
 	});
-	it('přijme IBAN v elektronickém formátu i dodavatele bez IBANu', () => {
-		const electronic = goodSupplier();
-		const { iban: _iban, ...without } = goodSupplier();
-
-		expect(invalidFields(supplierSchema, electronic)).not.toContain('iban');
-		expect(invalidFields(supplierSchema, without)).not.toContain('iban');
-	});
-	it('prázdný text místo IBANu odmítne', () => {
-		const blank = goodSupplier();
-		blank.iban = '';
-
-		expect(invalidFields(supplierSchema, blank)).toEqual(['iban']);
-	});
-	it.each(['CZ65 0800 0000 1920 0014 5399', 'cz65 0800 0000 1920 0014 5399', ' CZ6508000000192000145399 '])(
-		'IBAN %s vložený z banky vydá v elektronickém tvaru',
-		(iban) => {
-			const s = goodSupplier();
-			s.iban = iban;
-
-			expect(supplierSchema.parse(s).iban).toBe('CZ6508000000192000145399');
-		},
-	);
 	it('IČO s mezerami vydá bez nich', () => {
 		const s = goodSupplier();
 		s.ico = '270 82 440';
 
 		expect(supplierSchema.parse(s).ico).toBe('27082440');
 	});
-	it.each([
-		'CZ6508000000192000145398',
-		'CZ6508000',
-		`CZ65${'0'.repeat(31)}`,
-		'DE00000000000000000066',
-		'CZ65 0800 0000 1920 0014 5398',
-	])('odmítne neplatný IBAN %s', (iban) => {
-		const s = goodSupplier();
-		s.iban = iban;
-
-		expect(issuesOf(supplierSchema, s)).toEqual([
-			{
-				path: ['iban'],
-				message: 'Neplatný IBAN.',
-			},
-		]);
+	it('odmítne uloženého dodavatele s již nepodporovaným polem', () => {
+		expect(
+			supplierStoredSchema.safeParse({
+				...goodSupplier(),
+				iban: 'CZ7908000000002000145399',
+			}).success,
+		).toBe(false);
 	});
 	it('hlásí záporné defaultDueDays', () => {
 		const s = goodSupplier();
@@ -1037,7 +975,7 @@ describe('nepovinná pole, která na vstupu vůbec nejsou', () => {
 	});
 
 	it('dodavatel bez nepovinných klíčů projde', () => {
-		const { iban: _iban, email: _email, ...s } = goodSupplier();
+		const { email: _email, ...s } = goodSupplier();
 
 		expect(invalidFields(supplierSchema, s)).toEqual([]);
 	});

@@ -38,7 +38,6 @@ export const SAMPLE_INVOICE: Invoice = {
 	vatNote: 'Nejsem plátce DPH.',
 	bankAccount: '2000145399',
 	bankCode: '0800',
-	iban: 'CZ6508000000192000145399',
 	variableSymbol: '20260142',
 	note: 'Takhle bude vypadat poznámka pod položkami.',
 	lines: [

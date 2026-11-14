@@ -341,7 +341,6 @@ export type AdoptedSupplier = {
 	registration: string;
 	bankAccount: string;
 	bankCode: string;
-	iban: string;
 	invoiceNumberFormat: string;
 	defaultDueDays: number | null;
 };
@@ -514,7 +513,6 @@ export type Invoice_Deserialize = {
 	vatNote?: string;
 	bankAccount?: string;
 	bankCode?: string;
-	iban?: string;
 	variableSymbol?: string;
 	note?: string;
 	lines: InvoiceLine_Deserialize[];
@@ -539,7 +537,6 @@ export type Invoice_Serialize = {
 	vatNote: string;
 	bankAccount: string;
 	bankCode: string;
-	iban: string;
 	variableSymbol: string;
 	note: string;
 	lines: InvoiceLine_Serialize[];

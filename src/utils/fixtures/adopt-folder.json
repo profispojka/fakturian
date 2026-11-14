@@ -10,7 +10,6 @@
 		"registration": "Zapsáno u Zkušebního soudu, oddíl C, vložka 0000",
 		"bankAccount": "19-2000145399",
 		"bankCode": "0800",
-		"iban": "CZ6508000000192000145399",
 		"invoiceNumberFormat": "{RRRR}{NNN}",
 		"defaultDueDays": 14
 	},

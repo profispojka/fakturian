@@ -106,7 +106,6 @@ export function newInvoice(supplier: Supplier | null, number: string): Invoice {
 		vatNote: NON_VAT_PAYER_NOTE,
 		bankAccount: supplier?.bankAccount ?? '',
 		bankCode: supplier?.bankCode ?? '',
-		iban: supplier?.iban ?? '',
 		variableSymbol: variableSymbolFor(number),
 		note: '',
 		lines: [emptyLine()],
@@ -143,7 +142,6 @@ export const invoiceFromVaultSchema = z.strictObject({
 	vatNote: z.string(),
 	bankAccount: z.string(),
 	bankCode: z.string(),
-	iban: z.string(),
 	variableSymbol: z.string(),
 	note: z.string(),
 	lines: z.array(
@@ -315,7 +313,6 @@ const invoiceHeaderSchema = z.object({
 		}),
 	bankAccount: z.string(),
 	bankCode: z.string(),
-	iban: z.string(),
 	// Jiný než číselný VS banka odmítne.
 	variableSymbol: z.string().trim().max(10, 'Nejvýš 10 znaků.').regex(/^\d*$/, 'Jen číslice.'),
 });

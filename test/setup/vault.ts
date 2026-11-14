@@ -68,7 +68,6 @@ function document(sh: InvoiceSummary): WireInvoice {
 		vatNote: '',
 		bankAccount: '123',
 		bankCode: '0800',
-		iban: '',
 		variableSymbol: sh.variableSymbol,
 		note: '',
 		lines: [

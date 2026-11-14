@@ -238,7 +238,8 @@ obětovat.
   (libxml2) ve workeru `desktop/isdoc/validator.ts`. Deterministické UUIDv5.
 - **Datumy bez pásmových chyb.** `today()` čte datum v místní zóně, `addDays`
   počítá nad datem bez času.
-- **IBAN mod-97** s testem přes nezávislou implementaci.
+- **QR platba:** české číslo účtu se ověřuje a převádí do formátu SPAYD; převod
+  má testy pro účty s předčíslím i bez něj.
 - **Escapování** do Typstu a do XML (včetně řídicích znaků nepovolených v XML
   1.0). Text zprávy jde do AppleScriptu přes `argv`, ne jako zdroják
   (`desktop/mail.ts`).

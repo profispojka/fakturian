@@ -90,7 +90,6 @@ describe('klíč navíc v odpovědi backendu', () => {
 			registration: '',
 			bankAccount: '123456789',
 			bankCode: '0800',
-			iban: 'CZ6508000000192000145399',
 			invoiceNumberFormat: '{RRRR}{NNNN}',
 			defaultDueDays: 30,
 		};

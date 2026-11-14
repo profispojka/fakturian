@@ -47,9 +47,9 @@
 - **Zod** — jediný popis toho, jak má co vypadat. Formuláře ho dostávají přímo
   (`<UForm :schema>`, Nuxt UI umí Standard Schema) a stejná schémata hlídají
   i to, co do appky přiteče zvenčí (viz „Hranice s vnějškem" níž). Doménové
-  predikáty, které zod neumí — mod-11 u IČO, mod-97 u IBANu, kalendářní platnost
-  data — jsou čistými funkcemi v `utils/validators.ts` a `utils/date.ts` a zod je
-  jen volá. Pravidla psaní schémat jsou ve skillu `.claude/skills/zod-validace/`,
+  predikáty, které zod neumí — mod-11 u IČO a kalendářní platnost data — jsou
+  čistými funkcemi v `utils/validators.ts` a `utils/date.ts` a zod je jen volá.
+  Pravidla psaní schémat jsou ve skillu `.claude/skills/zod-validace/`,
   práce s datem v [AGENTS.md](../AGENTS.md).
 - **`useState`** (vestavěné v Nuxtu) pro sdílený stav — **bez Pinia**. Stav
   obalují composables (`useInvoices()`, `useContacts()`, `usePricelist()` …).
@@ -395,7 +395,7 @@ přegenerovat PDF. **Každé pole formuláře má své místo v ISDOC.**
 | Řádkový / celkový součet          | `LineExtensionAmount` / `LegalMonetaryTotal`                                                                                 |
 | Měna                              | `LocalCurrencyCode` — vždy `CZK`                                                                                             |
 | Datum uskutečnění plnění          | `TaxPointDate` — **nezapisuje se** (`UCT-37`)                                                                                |
-| Číslo účtu / IBAN                 | `PaymentMeans/Payment/Details` (`ID`/`IBAN`/`BankCode`)                                                                      |
+| Číslo účtu                        | `PaymentMeans/Payment/Details` (`ID`/`BankCode`); `IBAN` se nečte ani nevydává |
 | Variabilní symbol (= číslo)       | `PaymentMeans/.../VariableSymbol`                                                                                            |
 | Poznámka                          | `Note`                                                                                                                       |
 | Vazba řádku na položku ceníku     | `InvoiceLine/Item/SellersItemIdentification/ID`                                                                              |
@@ -429,6 +429,7 @@ nemá standardní pole.
 
 - Řetězec **SPAYD**, např.
   `SPD*1.0*ACC:CZ6508000000192000145399*AM:12100.00*CC:CZK*X-VS:20260001*MSG:Faktura 20260001`.
+- `ACC` se interně odvodí z českého čísla účtu; IBAN se nezadává ani neukládá.
 - Vykreslí ho hlavní proces (`qrcode` → PNG přes `fast-png`, `qrPng`
   v `desktop/invoice/payment.ts`) a typst šablona ho vloží jako
   `#image("qr.png")`.

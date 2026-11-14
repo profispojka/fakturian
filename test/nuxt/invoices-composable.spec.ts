@@ -33,7 +33,6 @@ function invoiceFromVault() {
 		vatNote: '',
 		bankAccount: '123',
 		bankCode: '0800',
-		iban: '',
 		variableSymbol: '20260001',
 		note: '',
 		lines: [

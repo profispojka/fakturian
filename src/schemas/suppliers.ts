@@ -2,7 +2,6 @@ import { DEFAULT_DUE_DAYS } from '~/constants/invoice';
 import { DEFAULT_TEMPLATE } from '~/constants/numbering';
 import { today, yearOf } from '~/utils/date';
 import { fitsTemplate, formatNumber, validateTemplate } from '~/utils/numbering';
-import { ibanMatchesAccount } from '~/utils/validators';
 import { z, type Zod } from '~/utils/zod';
 
 // Musí sedět s `deriveDueDays` v `desktop/adopt.ts`.
@@ -15,7 +14,7 @@ export const defaultDueDaysSchema = z
 
 // Uložený dodavatel smí být neúplný (převzetí vyplní, co najde), `supplierSchema` ho pak nepustí
 // k fakturaci. Klíče ale v souboru být musí.
-export const supplierStoredSchema = z.looseObject({
+export const supplierStoredSchema = z.strictObject({
 	name: z.string(),
 	ico: z.string(),
 	address: z.looseObject({
@@ -26,7 +25,6 @@ export const supplierStoredSchema = z.looseObject({
 	registration: z.string(),
 	bankAccount: z.string(),
 	bankCode: z.string(),
-	iban: z.string().optional(),
 	email: z.string().optional(),
 	defaultDueDays: defaultDueDaysSchema,
 	invoiceNumberFormat: z.string(),
@@ -63,12 +61,6 @@ export const supplierSchema = z.object({
 	}),
 	bankAccount: z.bankAccount(),
 	bankCode: z.bankCode(),
-	// Banka IBAN ukazuje po čtveřicích; ISDOC a QR platba chtějí elektronický tvar bez mezer.
-	iban: z
-		.string()
-		.transform((iban) => iban.replace(/\s+/g, '').toUpperCase())
-		.pipe(z.iban('Neplatný IBAN.'))
-		.optional(),
 	email: z.email('Neplatný e-mail.').optional(),
 	defaultDueDays: defaultDueDaysSchema,
 });
@@ -88,13 +80,6 @@ export const supplierSettingsSchema = supplierSchema
 	// Číslo mimo šablonu `nextNumber` nepřečte a řada by tiše začala od jedničky — tedy čísly, která
 	// klient už má. Rok se nehlídá: navázání platí jen pro svůj rok a loňské se v lednu nerozbije.
 	.superRefine((supplier, checks) => {
-		if (supplier.iban && !ibanMatchesAccount(supplier.iban, supplier.bankAccount, supplier.bankCode)) {
-			checks.addIssue({
-				code: 'custom',
-				path: ['iban'],
-				message: 'IBAN nepatří k zadanému číslu účtu. Oprav ho, nebo pole nech prázdné.',
-			});
-		}
 		const start = supplier.invoiceNumberStart?.trim();
 		const template = supplier.invoiceNumberFormat.trim() || DEFAULT_TEMPLATE;
 		if (!start || validateTemplate(template) || fitsTemplate(template, start)) return;

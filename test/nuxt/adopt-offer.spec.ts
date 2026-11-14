@@ -37,7 +37,6 @@ const SUPPLIER_FROM_DOCUMENT = {
 	registration: 'Fyzická osoba zapsaná v živnostenském rejstříku, Živnostenský úřad Brno',
 	bankAccount: '2000145399',
 	bankCode: '0800',
-	iban: 'CZ6508000000192000145399',
 	invoiceNumberFormat: '{RRRR}{NNNN}',
 	defaultDueDays: 14,
 };

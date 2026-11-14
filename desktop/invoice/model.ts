@@ -66,7 +66,6 @@ const invoiceSchema = z.strictObject({
 	vatNote: z.string().default(''),
 	bankAccount: z.string().default(''),
 	bankCode: z.string().default(''),
-	iban: z.string().default(''),
 	variableSymbol: z.string().default(''),
 	note: z.string().default(''),
 	lines: z.array(

@@ -404,8 +404,7 @@ describe('platba a odběratel', () => {
 	it('doklad bez platebních údajů má bankovní pole prázdná', async () => {
 		const invoice = await project(MINIMAL_ISDOC.replace(/ {2}<PaymentMeans>[\s\S]*<\/PaymentMeans>\n/, ''));
 
-		expect([invoice.dueDate, invoice.bankAccount, invoice.bankCode, invoice.iban, invoice.variableSymbol]).toEqual([
-			'',
+		expect([invoice.dueDate, invoice.bankAccount, invoice.bankCode, invoice.variableSymbol]).toEqual([
 			'',
 			'',
 			'',
@@ -457,10 +456,10 @@ describe('platba a odběratel', () => {
 			expect([
 				invoice.bankAccount,
 				invoice.bankCode,
-				invoice.iban,
 				invoice.variableSymbol,
 				invoice.dueDate,
-			]).toEqual(['2000145399', '0800', 'CZ6508000000192000145399', '202600047', '2026-03-24']);
+			]).toEqual(['2000145399', '0800', '202600047', '2026-03-24']);
+			expect(invoice).not.toHaveProperty('iban');
 		}
 	});
 
@@ -469,11 +468,11 @@ describe('platba a odběratel', () => {
 			MINIMAL_ISDOC.replace('<PaymentMeansCode>42</PaymentMeansCode>', '<PaymentMeansCode>31</PaymentMeansCode>'),
 		);
 
-		expect([invoice.bankAccount, invoice.iban, invoice.variableSymbol]).toEqual([
-			'2000145399',
-			'CZ6508000000192000145399',
-			'20260001',
-		]);
+		expect([invoice.bankAccount, invoice.variableSymbol]).toEqual(['2000145399', '20260001']);
+	});
+
+	it('vydaný ISDOC neobsahuje IBAN', () => {
+		expect(buildIsdoc(sampleInvoice())).not.toContain('<IBAN>');
 	});
 
 	it('anonymní odběratel má pole odběratele prázdná', async () => {

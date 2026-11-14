@@ -193,7 +193,6 @@ whenever(supplier, (s) => {
 	const fingerprint = newInvoice(s, inv.value.number);
 	inv.value.bankAccount = fingerprint.bankAccount;
 	inv.value.bankCode = fingerprint.bankCode;
-	inv.value.iban = fingerprint.iban;
 	inv.value.supplier = {
 		...inv.value.supplier,
 		...fingerprint.supplier,

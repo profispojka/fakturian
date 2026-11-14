@@ -16,8 +16,7 @@
 #let bar = luma(247)
 #let accent = rgb("#2f5d50")
 
-/// Nepovinná hodnota: prázdnou vynechá i s popiskem, ať v dokladu nezůstane
-/// „IBAN:" bez IBANu.
+/// Nepovinná hodnota: prázdnou vynechá i s popiskem.
 #let opt(value, body) = if value != "" { body }
 
 /// Výzva k úhradě a platební údaje. Dobropis peníze nevybírá, takže je vynechá — jinak by
@@ -69,10 +68,6 @@
       #text(size: 9pt)[
         #opt(inv.bank_account)[
           #text(fill: luma(115))[Účet] \ #inv.bank_account \
-          #v(0.3em)
-        ]
-        #opt(inv.iban)[
-          #text(fill: luma(115))[IBAN] \ #inv.iban \
           #v(0.3em)
         ]
         #text(fill: luma(115))[Variabilní symbol] \ #inv.variable_symbol

@@ -37,7 +37,6 @@ export const adoptedSupplierSchema = z.strictObject({
 	registration: z.string(),
 	bankAccount: z.string(),
 	bankCode: z.string(),
-	iban: z.string(),
 	invoiceNumberFormat: z.string(),
 	defaultDueDays: defaultDueDaysSchema.nullable(),
 }) satisfies Zod.ZodType<WireAdoptedSupplier>;

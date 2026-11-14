@@ -73,7 +73,6 @@ const INVOICE: Invoice = {
 	vatNote: 'Nejsem plátce DPH.',
 	bankAccount: '2000145399',
 	bankCode: '0800',
-	iban: 'CZ6508000000192000145399',
 	variableSymbol: '20260005',
 	note: '',
 	lines: [ROW],
@@ -158,7 +157,6 @@ const SUPPLIER_FROM_DOCUMENT: AdoptedSupplier = {
 	registration: '',
 	bankAccount: '2000145399',
 	bankCode: '0800',
-	iban: '',
 	invoiceNumberFormat: '{RRRR}{NNNN}',
 	defaultDueDays: 14,
 };

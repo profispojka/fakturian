@@ -71,7 +71,6 @@ describe('data pro šablonu', () => {
 			due_date: '12. 6. 2026',
 			variable_symbol: '20260001',
 			bank_account: '2000145399/0800',
-			iban: 'CZ6508000000192000145399',
 			currency: 'Kč',
 			total: '51 750,00',
 			due_total: '51 750,00',
@@ -112,7 +111,6 @@ describe('data pro šablonu', () => {
 			due_date: '12. 6. 2026',
 			variable_symbol: '20260002',
 			bank_account: '2000145399/0800',
-			iban: 'CZ6508000000192000145399',
 			currency: 'Kč',
 			total: '-6 000,00',
 			due_total: '6 000,00',
@@ -157,11 +155,14 @@ describe('data pro šablonu', () => {
 		]);
 	});
 
-	it('množství bez exponentu se tak vytiskne i v PDF', () => {
+	it('množství bez exponentu a zápornou nulu vytiskne i v PDF', () => {
 		const document = invoice();
-		document.lines[0]!.quantity = 1e-7;
+		document.lines[0].quantity = -0;
+		document.lines[1].quantity = 1e-7;
+		const text = printedOn(document).join(' ');
 
-		expect(printedOn(document)).toContain('0,0000001');
+		expect(text).toContain('0 hod');
+		expect(text).toContain('0,0000001');
 	});
 
 	it('zápis v rejstříku nese obě strany bez okrajových mezer', () => {
@@ -258,10 +259,9 @@ describe('co je na papíře', () => {
 		).toEqual(expected);
 	});
 
-	it('holý doklad bez IBAN, poznámky, DIČ a e-mailu nese aspoň číslo účtu', () => {
+	it('holý doklad bez poznámky, DIČ a e-mailu nese aspoň číslo účtu', () => {
 		const runs = printedOn({
 			...invoice(),
-			iban: '',
 			note: '',
 			supplier: {
 				...supplier(),

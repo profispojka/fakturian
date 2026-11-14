@@ -99,8 +99,7 @@ const emptyImport = () =>
 (() => {
 	const VAULT = '/Users/demo/Documents/Fakturian';
 
-	// Účet i IBAN musí projít kontrolou mod 11 a mod 97: jinak `supplierReadyForInvoicing` neprojde
-	// a appka místo dat otevře průvodce.
+	// Účet musí projít kontrolou mod 11, jinak `supplierReadyForInvoicing` neprojde a appka místo dat otevře průvodce.
 	const supplier = {
 		name: 'Tomáš Havelka',
 		ico: '63014726',
@@ -112,7 +111,6 @@ const emptyImport = () =>
 		registration: 'Zapsáno v živnostenském rejstříku',
 		bankAccount: '2801937468',
 		bankCode: '2010',
-		iban: 'CZ2520100000002801937468',
 		email: 'faktury@havelka.priklad.cz',
 		defaultDueDays: 14,
 		invoiceNumberFormat: '{RRRR}{NNNN}',
@@ -382,7 +380,6 @@ const emptyImport = () =>
 			vatNote: 'Nejsem plátce DPH.',
 			bankAccount: supplier.bankAccount,
 			bankCode: supplier.bankCode,
-			iban: supplier.iban,
 			variableSymbol: i.number,
 			note: '',
 			lines: i.lines.map((l) => ({

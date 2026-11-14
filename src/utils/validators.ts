@@ -43,13 +43,3 @@ export function isValidBankAccount(acc: string | undefined): boolean {
 	return weightedMod11(main, [6, 3, 7, 9, 10, 5, 8, 4, 2, 1]);
 }
 
-// Český IBAN je `CZ`, dvě kontrolní číslice, kód banky, předčíslí na šest míst a číslo účtu na deset.
-// QR platba dává IBAN přednost před číslem účtu, takže cizí IBAN by platbu poslal jinam.
-export function ibanMatchesAccount(iban: string, account: string, bankCode: string): boolean {
-	const match = /^(?:(\d{1,6})-)?(\d{2,10})$/.exec(clean(account));
-	if (!match) return false;
-	const [, prefix = '', main = ''] = match;
-	const expected = `${clean(bankCode)}${zeroPadded(Number(prefix), 6)}${zeroPadded(Number(main), 10)}`;
-	const written = clean(iban).toUpperCase();
-	return written.startsWith('CZ') && written.slice(4) === expected;
-}

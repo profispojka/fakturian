@@ -48,7 +48,6 @@ export function invoice(): Invoice {
 		vatNote: '',
 		bankAccount: '2000145399',
 		bankCode: '0800',
-		iban: 'CZ6508000000192000145399',
 		variableSymbol: '20260001',
 		note: 'Děkujeme za spolupráci.',
 		lines: [
@@ -129,7 +128,6 @@ export function minimal(): Invoice {
 		},
 		bankAccount: '',
 		bankCode: '',
-		iban: '',
 		note: '',
 	};
 }
@@ -152,7 +150,6 @@ export function numbered(number: string, customerName: string, unitPriceCents: n
 			name: customerName,
 		},
 		bankAccount: '123',
-		iban: '',
 		variableSymbol: '',
 		note: '',
 		lines: [
@@ -182,7 +179,7 @@ function party(name: string, ico: string): InvoiceParty {
 	};
 }
 
-// 3 h × 1 200 Kč + 3 ks × 19,99 Kč = 3 659,97 Kč, bez IBAN.
+// 3 h × 1 200 Kč + 3 ks × 19,99 Kč = 3 659,97 Kč.
 export function sampleInvoice(): Invoice {
 	return {
 		number: '20260007',
@@ -198,7 +195,6 @@ export function sampleInvoice(): Invoice {
 		vatNote: '',
 		bankAccount: '2000145399',
 		bankCode: '0800',
-		iban: '',
 		variableSymbol: '20260007',
 		note: 'Děkuji za spolupráci.',
 		lines: [
@@ -305,7 +301,6 @@ export const MINIMAL_ISDOC = `<?xml version="1.0" encoding="UTF-8"?>
         <ID>2000145399</ID>
         <BankCode>0800</BankCode>
         <Name>Česká spořitelna</Name>
-        <IBAN>CZ6508000000192000145399</IBAN>
         <BIC></BIC>
         <VariableSymbol>20260001</VariableSymbol>
       </Details>
