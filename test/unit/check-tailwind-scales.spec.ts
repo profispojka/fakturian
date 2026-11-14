@@ -2,11 +2,11 @@ import { readFileSync } from 'node:fs';
 
 import { describe, expect, it } from 'vitest';
 
-import { MIN_WINDOW_SIZE } from '../desktop/window-size.ts';
-import { noops, offenders, scaleIndex } from '../tools/lint/check-tailwind-scales.ts';
+import { MIN_WINDOW_SIZE } from '../../desktop/window-size.ts';
+import { noops, offenders, scaleIndex } from '../../tools/lint/check-tailwind-scales.ts';
 
 const floor = MIN_WINDOW_SIZE.width;
-const index = scaleIndex(readFileSync(new URL('../src/assets/css/main.css', import.meta.url), 'utf8'), floor);
+const index = scaleIndex(readFileSync(new URL('../../src/assets/css/main.css', import.meta.url), 'utf8'), floor);
 
 const found = (source: string) => offenders(source, index).map((hit) => `${hit.found} → ${hit.want}`);
 

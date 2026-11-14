@@ -4,7 +4,7 @@ import { paymentFormSchema, paymentsFileSchema } from '~/schemas/payments';
 import { addDays, today } from '~/utils/date';
 import { lastPaymentOn, ledgerOf, settlementOf } from '~/utils/payments';
 
-import { date } from './setup/dates';
+import { date } from '../setup/dates';
 
 import type { InvoiceSummary } from '~/schemas/invoices';
 import type { ReceivedPayment } from '~/schemas/payments';

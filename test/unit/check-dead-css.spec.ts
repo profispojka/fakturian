@@ -2,9 +2,17 @@ import { readFileSync } from 'node:fs';
 
 import { describe, expect, it } from 'vitest';
 
-import { dead, markupOf, misplaced, rules, unreferenced, vocabulary, wearers } from '../tools/lint/check-dead-css.ts';
+import {
+	dead,
+	markupOf,
+	misplaced,
+	rules,
+	unreferenced,
+	vocabulary,
+	wearers,
+} from '../../tools/lint/check-dead-css.ts';
 
-const css = readFileSync(new URL('../src/assets/css/main.css', import.meta.url), 'utf8');
+const css = readFileSync(new URL('../../src/assets/css/main.css', import.meta.url), 'utf8');
 const names = vocabulary(css);
 const index = rules(css);
 

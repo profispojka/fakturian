@@ -11,7 +11,7 @@ Hledání prvků a `data-testid` popisuje skill `test-ids`. Celý model kvality 
 ## Jak je to poskládané
 
 `vitest.config.ts` skládá projekty `unit`, `nuxt` a `desktop`; jejich definice jsou
-v `vitest.projects.ts`. Projekt `unit` (`test/*.spec.ts`, prostředí `node`) testuje
+v `vitest.projects.ts`. Projekt `unit` (`test/unit/**/*.spec.ts`, prostředí `node`) testuje
 čistou logiku, `nuxt` (`test/nuxt/**/*.spec.ts`) používá skutečný Nuxt runtime přes
 `@nuxt/test-utils`, `desktop` spouští testy hlavního procesu. Samostatné běhy bez Nuxtu
 (`desktop`, fuzz a mutace) používají `vitest.mutation.config.ts`. Nuxt runtime žije

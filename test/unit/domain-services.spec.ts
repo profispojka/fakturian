@@ -4,7 +4,7 @@ import { expenseServices } from '~/services/expenses';
 import { fioServices } from '~/services/fio';
 import { importServices } from '~/services/import';
 
-import { date } from './setup/dates';
+import { date } from '../setup/dates';
 
 const invoke = vi.fn();
 vi.stubGlobal('fakturian', {

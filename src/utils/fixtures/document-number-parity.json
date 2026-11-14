@@ -1,5 +1,5 @@
 {
-	"_comment": "Tabulka pro kontrolu čísla dokladu, čte ji vitest (test/numbering.spec.ts). `validateNumber` ze src/utils/numbering.ts sdílí formulář s backendem: validateTemplate s ní nastavení řekne hned, že šablona nepůjde uložit, a v backendu (desktop/) je bezpečnostní zábranou na zápisové cestě — číslo chodí i z cizího ISDOC a přes MCP most, tedy mimo formulář, a `join` z čísla ../smlouva udělá cestu ven z faktury/. Formát: [číslo, očekávaná chyba nebo null].",
+	"_comment": "Tabulka pro kontrolu čísla dokladu, čte ji vitest (test/unit/numbering.spec.ts). `validateNumber` ze src/utils/numbering.ts sdílí formulář s backendem: validateTemplate s ní nastavení řekne hned, že šablona nepůjde uložit, a v backendu (desktop/) je bezpečnostní zábranou na zápisové cestě — číslo chodí i z cizího ISDOC a přes MCP most, tedy mimo formulář, a `join` z čísla ../smlouva udělá cestu ven z faktury/. Formát: [číslo, očekávaná chyba nebo null].",
 	"cases": [
 		["20260001", null],
 		["7", null],

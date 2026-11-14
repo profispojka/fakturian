@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TRADE_REGISTER_ENTRY } from '~/constants/registration';
 import { aresServices, parseAres } from '~/services/ares';
 
-import aresSro from './fixtures/ares-sro.json' with { type: 'json' };
-import aresTradesman from './fixtures/ares-zivnostnik.json' with { type: 'json' };
+import aresSro from '../fixtures/ares-sro.json' with { type: 'json' };
+import aresTradesman from '../fixtures/ares-zivnostnik.json' with { type: 'json' };
 
 const invoke = vi.fn();
 vi.stubGlobal('fakturian', {

@@ -4,7 +4,7 @@ import { emptyExpense, expensesFileSchema } from '~/schemas/expenses';
 import { periodOf, today, yearOf } from '~/utils/date';
 import { checkRecipient, expenseFromReceived, expensesTotalCents, sameReceivedDocument } from '~/utils/expenses';
 
-import { date, period } from './setup/dates';
+import { date, period } from '../setup/dates';
 
 import type { Expense } from '~/schemas/expenses';
 

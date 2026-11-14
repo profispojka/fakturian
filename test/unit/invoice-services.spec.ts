@@ -5,8 +5,8 @@ import { emptyLine, emptyParty, newInvoice } from '~/schemas/invoices';
 import { emptySupplier } from '~/schemas/suppliers';
 import { invoiceServices } from '~/services/invoices';
 
-import { date } from './setup/dates';
-import { summary } from './setup/fixtures';
+import { date } from '../setup/dates';
+import { summary } from '../setup/fixtures';
 
 const invoke = vi.fn();
 vi.stubGlobal('fakturian', {

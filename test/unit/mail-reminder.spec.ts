@@ -6,7 +6,7 @@ import { today } from '~/utils/date';
 import { daysOverdue, duplicateFrom } from '~/utils/invoice';
 import { reminderMail } from '~/utils/mail';
 
-import { date } from './setup/dates';
+import { date } from '../setup/dates';
 
 import type { Supplier } from '~/schemas/suppliers';
 

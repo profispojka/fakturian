@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { useDateModel } from '~/composables/useDateModel';
 import { MIN_DATE, toCalendarDate } from '~/utils/date';
 
-import { date } from './setup/dates';
+import { date } from '../setup/dates';
 
 import type { DateString } from '~/utils/date';
 

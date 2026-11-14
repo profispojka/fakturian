@@ -62,8 +62,9 @@ Vitest používá `tools/testing/required-tests-reporter.ts`. Prázdná nebo
 přeskočená sada, skip/todo, neúspěšný hook, neošetřená chyba i úspěch až po
 retry znamenají selhání. `allowOnly: false` zakazuje `.only`.
 Vlastní pravidla Oxlintu mají `RuleTester` testy v `test/tooling/`; Vitest
-spouští je v projektu `unit`. Testy bran kvality tamtéž ověřují selhání Vitestu
-při úmyslných poruchách v oddělených procesech.
+spouští je v projektu `unit`. Čisté unit testy jsou v `test/unit/` a jejich
+soubory jsou pojmenované podle testovaného tématu. Testy bran kvality tamtéž
+ověřují selhání Vitestu při úmyslných poruchách v oddělených procesech.
 
 ### Mimo `check`
 
@@ -145,7 +146,7 @@ Volby `Intl` stojí na modulu jako data (`satisfies Intl.DateTimeFormatOptions`)
 a formátovač se staví až v těle funkce: mutant v řetězci volby pak shodí volání
 v testu, ne import modulu. `as const` by tu byl chyba — pod ním Stryker
 objektový literál nemutuje. Výjimkou je `czechPercent` v `utils/locales.ts`,
-který zůstává na úrovni modulu; jeho hodnotu hlídá aserce v `test/plural.spec.ts`.
+který zůstává na úrovni modulu; jeho hodnotu hlídá aserce v `test/unit/plural.spec.ts`.
 
 V CI mutace neběží, celý rozsah trvá desítky minut. Pouští se lokálně
 (`bun run mutants:ts`), u dotčeného souboru před merge a celé před vydáním.
@@ -181,10 +182,10 @@ kód ani na jeho knihovnu:
 
 | oblast    | model                                                    | kde                                                           |
 | --------- | -------------------------------------------------------- | ------------------------------------------------------------- |
-| peníze    | přesná aritmetika v `BigInt`, půlka od nuly, strop       | `test/money.spec.ts`, `desktop/test/invoice/template.test.ts` |
-| kalendář  | pořadové číslo dne (`days_from_civil`), měsíc jako index | `test/date.spec.ts`                                           |
-| číslování | množina použitých pořadí, další = max + 1 nebo start     | `test/numbering.spec.ts`, `desktop/test/numbering.test.ts`    |
-| limity    | součet množství po položce a roce, dobropis se znaménkem | `test/pricelist.spec.ts`                                      |
+| peníze    | přesná aritmetika v `BigInt`, půlka od nuly, strop       | `test/unit/money.spec.ts`, `desktop/test/invoice/template.test.ts` |
+| kalendář  | pořadové číslo dne (`days_from_civil`), měsíc jako index | `test/unit/date.spec.ts`                                           |
+| číslování | množina použitých pořadí, další = max + 1 nebo start     | `test/unit/numbering.spec.ts`, `desktop/test/numbering.test.ts`    |
+| limity    | součet množství po položce a roce, dobropis se znaménkem | `test/unit/pricelist.spec.ts`                                      |
 
 Generuje se přes `fast-check` s pevným seedem (`test/setup/properties.ts`),
 takže Stryker i opakovaný běh vidí stejné vstupy; hlubší běh pustí

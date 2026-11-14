@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { matchPayments } from '~/utils/fio';
 
-import { date } from './setup/dates';
+import { date } from '../setup/dates';
 
 import type { FioPayment } from '~/schemas/fio';
 import type { InvoiceSummary } from '~/schemas/invoices';

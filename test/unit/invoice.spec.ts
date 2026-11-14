@@ -20,8 +20,8 @@ import {
 	yearFilter,
 } from '~/utils/invoice';
 
-import { date } from './setup/dates';
-import { summary } from './setup/fixtures';
+import { date } from '../setup/dates';
+import { summary } from '../setup/fixtures';
 
 import type { InvoiceSummary } from '~/schemas/invoices';
 import type { Supplier } from '~/schemas/suppliers';

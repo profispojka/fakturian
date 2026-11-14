@@ -71,4 +71,4 @@ kvůli schování `:ui`.
 Tailwind IntelliSense hlásí `suggestCanonicalClasses`; v repu na to lint není a `lint:scales` je
 v jednom přísnější — chce roli jménem (`stroke-line`) tam, kde kanonizace skončí u
 `stroke-(--line)`. Fixtures v `tools/lint/check-tailwind-scales.ts` a
-`test/check-tailwind-scales.spec.ts` jsou nekanonické schválně.
+`test/unit/check-tailwind-scales.spec.ts` jsou nekanonické schválně.

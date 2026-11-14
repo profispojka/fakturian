@@ -15,7 +15,7 @@ import { czkFromCents } from '~/utils/money';
 import { isValidBankAccount, isValidBankCode, isValidDic, isValidIco, isValidZip } from '~/utils/validators';
 import { z, type Zod } from '~/utils/zod';
 
-import { date } from './setup/dates';
+import { date } from '../setup/dates';
 
 import type { Contact } from '~/schemas/customers';
 import type { Invoice, InvoiceContext } from '~/schemas/invoices';

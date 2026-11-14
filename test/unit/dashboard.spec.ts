@@ -13,7 +13,7 @@ import {
 	turnoverAndMargin,
 } from '~/utils/dashboard';
 
-import { date } from './setup/dates';
+import { date } from '../setup/dates';
 
 import type { Expense } from '~/schemas/expenses';
 import type { InvoiceSummary } from '~/schemas/invoices';

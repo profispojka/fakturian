@@ -8,7 +8,7 @@ import { contactFromImported, newContactsFromImport, supplierFromAdopted } from 
 import { nextNumber } from '~/utils/numbering';
 import { z } from '~/utils/zod';
 
-import { date } from './setup/dates';
+import { date } from '../setup/dates';
 
 import type { ImportedCustomer } from '~/schemas/import';
 import type { InvoiceSummary } from '~/schemas/invoices';

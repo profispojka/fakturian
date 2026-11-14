@@ -29,7 +29,7 @@ import {
 	today,
 } from '~/utils/date';
 
-import { date, period } from './setup/dates';
+import { date, period } from '../setup/dates';
 
 import type { DateString } from '~/utils/date';
 

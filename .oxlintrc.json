@@ -360,7 +360,7 @@
 		{
 			// Testy se netypují (AGENTS.md, „Testy“), takže ani pravidla o typových zápisech na ně nedopadají.
 			"files": [
-				"test/*.spec.ts",
+				"test/unit/**/*.spec.ts",
 				"test/nuxt/**/*.ts",
 				"test/setup/**/*.ts",
 				"test/fixtures/**/*.ts",
