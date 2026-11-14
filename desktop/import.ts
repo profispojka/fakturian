@@ -42,8 +42,7 @@ export async function sourceFromPdf(pdf: PDFDocument): Promise<Source> {
 	return {
 		invoice,
 		payableCents,
-		// Stryker disable next-line Regex: ekvivalentní mutant, XSD pustí jen kód měny o třech znacích, takže kotvy nic nezmění.
-		foreignCurrency: currency === '' || /^czk$/i.test(currency) ? undefined : currency,
+		foreignCurrency: currency === '' || currency.toLowerCase() === 'czk' ? undefined : currency,
 		vatPayer: text(root, 'VATApplicable').trim() === 'true',
 		sentAt: sentAt(document),
 	};
@@ -78,13 +77,9 @@ export function alreadyThere(number: string): string {
 	return `faktura ${number} už ve vaultu existuje`;
 }
 
-export function normIco(ico: string): string {
-	return ico.replace(/\D/g, '').replace(/^0+/, '');
-}
-
 // Smí se doklad zařadit mezi vydané faktury? Rozhoduje se jen tady, aby přehled ukázal právě to, co by
-// vzal import. `ourIco` je IČO jen z číslic bez úvodních nul; prázdné dodavatele nekontroluje.
-export function checkSource(source: Source, ourIco: string): void {
+// vzal import. Bez `ourIco` se dodavatel nekontroluje.
+export function checkSource(source: Source, ourIco: string | null): void {
 	const { invoice } = source;
 	const numberProblem = validateNumber(invoice.number);
 	if (numberProblem) throw new Error(numberProblem);
@@ -99,9 +94,9 @@ export function checkSource(source: Source, ourIco: string): void {
 		throw new Error(`doklad má neplatné datum ${label} „${date}“ (čekám RRRR-MM-DD)`);
 	}
 
-	if (ourIco !== '' && normIco(invoice.supplier.ico) !== ourIco) {
+	if (ourIco !== null && invoice.supplier.ico !== ourIco) {
 		const who = invoice.supplier.name.trim() || 'neznámý dodavatel';
-		const ico = invoice.supplier.ico.trim();
+		const { ico } = invoice.supplier;
 		if (ico === '') {
 			throw new Error(
 				`doklad neuvádí IČO dodavatele (${who}), takže nejde poznat, že je tvůj — přijaté doklady patří do Výdajů`,

@@ -8,8 +8,7 @@ const TIMEOUT = 15_000;
 
 // Syrová odpověď rejstříku; tvar ověřuje `parseAres` ve frontendu.
 export async function aresSubject({ ico }: { ico: string }): Promise<unknown> {
-	// IČO jde do cesty URL a `isValidIco` mezery mezi číslicemi toleruje.
-	if (/\s/.test(ico) || !isValidIco(ico)) throw new Error('Neplatné IČO (8 číslic).');
+	if (!isValidIco(ico)) throw new Error('Neplatné IČO (8 číslic).');
 	let response: Response;
 	try {
 		// Přesměrování by dotaz poslalo na adresu, kterou appka nezná.

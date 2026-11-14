@@ -1,12 +1,13 @@
 import { readdir } from 'node:fs/promises';
-import { basename, join, relative } from 'node:path';
+import { basename, extname, join, relative } from 'node:path';
 
 import { DOCUMENT_EXTENSION } from '~/bindings';
 import { daysBetween, parseDate } from '~/utils/date';
 import { errorText } from '~/utils/errors';
 import { invoiceTotalCents } from '~/utils/invoice';
+import { isAsciiDigits } from '~/utils/strings';
 
-import { alreadyThere, checkSource, isCreditNote, normIco, readSource, type Source } from './import.ts';
+import { alreadyThere, checkSource, isCreditNote, readSource, type Source } from './import.ts';
 import { addCredit, batch, checkCredit, creditTargets } from './invoice/import.ts';
 import { takenNumberKeys } from './invoice/index.ts';
 import { asciiLower, compareNumbers } from './numbering.ts';
@@ -26,10 +27,10 @@ const FILE_LIMIT = 1000;
 
 const DEPTH_LIMIT = 6;
 
-const DOCUMENT = new RegExp(`\\.${DOCUMENT_EXTENSION}$`, 'i');
-
 // Nejvýš 9 míst pořadí; musí sedět s `validateTemplate` v `src/utils/numbering.ts`.
-const SEQUENCE = /^\d{1,9}$/;
+function isSequence(value: string): boolean {
+	return value.length >= 1 && value.length <= 9 && isAsciiDigits(value);
+}
 
 export interface FoundFiles {
 	files: string[];
@@ -73,7 +74,7 @@ export async function findFiles(root: string, limit: number): Promise<FoundFiles
 				continue;
 			}
 			// Smlouvy, fotky a videa se neotevírají vůbec: v přeskočených by byly jen šum.
-			if (!DOCUMENT.test(name)) continue;
+			if (extname(name).toLowerCase() !== `.${DOCUMENT_EXTENSION.toLowerCase()}`) continue;
 			if (found.files.length >= limit) {
 				found.truncated = true;
 				return;
@@ -87,12 +88,12 @@ export async function findFiles(root: string, limit: number): Promise<FoundFiles
 
 // Které IČO je v téhle složce „naše“. Zadané z nastavení má přednost; bez něj rozhoduje většina — ve
 // složce s vlastní fakturací je dodavatelem na každém dokladu uživatel.
-export function deriveOurIco(documents: Invoice[], given: string): string {
-	if (given !== '') return given;
-	const icos = documents.map((invoice) => normIco(invoice.supplier.ico)).filter((ico) => ico !== '');
+export function deriveOurIco(documents: Invoice[], given: string | null): string | null {
+	if (given !== null) return given;
+	const icos = documents.map((invoice) => invoice.supplier.ico).filter((ico) => ico !== '');
 	const counts = [...Map.groupBy(icos, (ico) => ico)];
 	const [winner] = counts.toSorted(([a, x], [b, y]) => y.length - x.length || compareText(a, b));
-	return winner?.[0] ?? '';
+	return winner?.[0] ?? null;
 }
 
 // Šablona řady z čísla dokladu a roku vystavení. Bez ní by řada z jiného softwaru změnila uprostřed
@@ -101,7 +102,7 @@ export function deriveTemplate(number: string, issueDate: string): string | unde
 	const year = issueDate.slice(0, 4);
 	if (year.length < 4 || !number.startsWith(year)) return undefined;
 	const sequence = number.slice(year.length);
-	return SEQUENCE.test(sequence) ? `{RRRR}{${'N'.repeat(sequence.length)}}` : undefined;
+	return isSequence(sequence) ? `{RRRR}{${'N'.repeat(sequence.length)}}` : undefined;
 }
 
 // Nesmyslné rozpětí se nenabízí: cizí doklad může mít cokoli a „−3 dny“ by se pak nabízely u každé
@@ -165,15 +166,14 @@ export async function scanVault({
 	const eligible = loaded
 		.filter(({ source }) => {
 			try {
-				checkSource(source, '');
+				checkSource(source, null);
 			} catch {
 				return false;
 			}
 			return true;
 		})
 		.map(({ source }) => source.invoice);
-	// Stryker disable next-line StringLiteral: ekvivalentní mutant, `normIco` z textu bez číslic udělá prázdné IČO.
-	const ours = deriveOurIco(eligible, normIco(ourIco ?? ''));
+	const ours = deriveOurIco(eligible, ourIco);
 	const inVault = await takenNumberKeys(join(root, 'faktury'));
 	const credits = await creditTargets(vaultPath);
 

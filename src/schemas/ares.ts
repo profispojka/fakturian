@@ -27,7 +27,7 @@ const seatSchema = z.looseObject({
 
 export const aresAnswerSchema = z.looseObject({
 	obchodniJmeno: z.string().optional(),
-	ico: z.string().optional(),
+	ico: z.ico().optional(),
 	dic: z.string().optional(),
 	sidlo: seatSchema.optional(),
 	seznamRegistraci: z

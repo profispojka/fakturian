@@ -32,15 +32,6 @@ Položky níže na sobě nezávisí.
   uložit, importovat do Pohody nebo Money S3 a ověřit číslo, částku, odběratele,
   příznak neplátce a vazbu dobropisu. Program, verzi a výsledek zapsat do
   [07-KVALITA](07-KVALITA.md) k vydávacím branám.
-- **UCT-36 · Otázky pro účetního — NÍZKÁ.**
-  - `crossingDay` a `stageOf` (`src/utils/dashboard.ts`): dobropis stáhne roční
-    součet pod 2 536 500 Kč, hranice ale v průběhu roku padla — karta hlásí
-    „plátcem od 1. 1.". Ověřit, jestli dobropis zpětně ruší okamžité plátcovství.
-  - `readReceived` (`desktop/received.ts`) bere `TaxInclusiveAmount` bez ohledu
-    na `DocumentType=2`, takže kladně zapsaný přijatý dobropis se započte jako
-    výdaj kladně. U vydaných dokladů kladný dobropis odmítne `checkSource`
-    (`desktop/import.ts`), `intoInvoice` znaménko sám nenormalizuje. Rozhodnout
-    nad vzorkem z Pohody nebo iDokladu: normalizovat, nebo odmítnout.
 - **NAST-1 · Appka není podepsaná ani notarizovaná a nemá updater — BLOKUJE.**
   `electron-builder.yml` má `hardenedRuntime: true` a entitlements, ale
   `notarize: false`, žádnou podpisovou identitu a žádný `publish`; job `package`

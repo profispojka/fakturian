@@ -222,7 +222,7 @@ useAsyncState(refreshLogo, undefined, {
 									<UInput v-model="form.name" placeholder="Jan Dodavatel" data-testid="field-name" />
 								</UFormField>
 								<UFormField name="ico" label="IČO">
-									<UInput v-model="form.ico" data-testid="field-ico" />
+									<UInput v-model.trim="form.ico" data-testid="field-ico" />
 								</UFormField>
 								<UFormField name="registration" label="Zápis do rejstříku nebo evidence">
 									<UInput v-model="form.registration" data-testid="field-registration" />

@@ -4,7 +4,9 @@ import { STATUS_CODES } from 'node:http';
 import { AsyncEntry } from '@napi-rs/keyring';
 import BigDecimal from 'big.js';
 
+import { fioTokenSchema } from '~/schemas/fio';
 import { isDateString } from '~/utils/date';
+import { issuesText } from '~/utils/errors';
 
 import { amountCents } from './isdoc/mod.ts';
 import { parseJson } from './store.ts';
@@ -25,9 +27,8 @@ const NOT_FOUND = 44;
 // Bez limitu visí dotaz na nedostupné síti minuty se zamrzlým tlačítkem.
 const TIMEOUT = 15_000;
 
-// Fio vydává token o 64 znacích `[A-Za-z0-9]`. Tvar se hlídá přesně, protože token jde do cesty URL:
-// mezera, `/`, `?` nebo `#` by dotaz poslaly jinam.
-const TOKEN = /^[A-Za-z0-9]{64}$/;
+// Token Fio má 64 ASCII alfanumerických znaků, protože jde do URL.
+// `/`, `?`, `#` nebo mezera by změnily cestu.
 
 // Klíčenka umí otevřít systémový dialog; `AsyncEntry` na něj čeká mimo smyčku událostí.
 let keychain: AsyncEntry | undefined = new AsyncEntry(KEYCHAIN_SERVICE, KEYCHAIN_ACCOUNT);
@@ -39,9 +40,8 @@ export function keepTokenInMemory(): void {
 }
 
 export function checkToken(token: string): void {
-	if (!TOKEN.test(token)) {
-		throw new Error('Fio token má být 64 znaků A–Z, a–z, 0–9 (zkopíruj ho z internetového bankovnictví celý).');
-	}
+	const checked = fioTokenSchema.safeParse(token);
+	if (!checked.success) throw new Error(issuesText(checked.error));
 }
 
 // Data jdou do cesty URL vedle tokenu, takže by je `../` odklonilo na jiný endpoint.

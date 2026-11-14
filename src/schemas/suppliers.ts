@@ -16,7 +16,7 @@ export const defaultDueDaysSchema = z
 // k fakturaci. Klíče ale v souboru být musí.
 export const supplierStoredSchema = z.strictObject({
 	name: z.string(),
-	ico: z.string(),
+	ico: z.ico().or(z.literal('')),
 	address: z.looseObject({
 		street: z.string(),
 		city: z.string(),
@@ -52,7 +52,7 @@ export function emptySupplier(): Supplier {
 
 export const supplierSchema = z.object({
 	name: z.string().trim().min(1, 'Povinné pole.'),
-	ico: z.ico().transform((ico) => ico.replace(/\s+/g, '')),
+	ico: z.ico(),
 	registration: z.string(),
 	address: z.object({
 		street: z.string().trim().min(1, 'Povinné pole.'),

@@ -87,7 +87,7 @@ export function useImport() {
 			};
 
 		// Bez našeho IČO by mezi vydané faktury propadl i přijatý doklad.
-		const report = await importServices.importFiles(vault, paths, supplier.value?.ico ?? null);
+		const report = await importServices.importFiles(vault, paths, supplier.value?.ico || null);
 
 		const addedContacts = await finishImport(report);
 		return {

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { basename, dirname, relative } from 'node:path';
 
-import { noops, offenders, scaleIndex } from './check-tailwind-scales.ts';
+import { offenders, scaleIndex } from './check-tailwind-scales.ts';
 
 import { MIN_WINDOW_SIZE } from '../../desktop/window-size.ts';
 
@@ -595,9 +595,7 @@ export const tailwindScales: Rule = {
 		return {
 			Program() {
 				const source = context.sourceCode.text;
-				const hits = offenders(source, TAILWIND_SCALE_INDEX);
-				if (context.filename.endsWith('.vue')) hits.push(...noops(source));
-				for (const hit of hits) {
+				for (const hit of offenders(source, TAILWIND_SCALE_INDEX)) {
 					context.report({
 						message: `${hit.found} → ${hit.want}`,
 						loc: {

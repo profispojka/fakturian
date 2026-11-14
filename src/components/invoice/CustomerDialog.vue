@@ -63,7 +63,7 @@ function confirm() {
 					<div class="form-grid form-grid--wide-first">
 						<UFormField name="ico" label="IČO">
 							<UInput
-								v-model="form.ico"
+								v-model.trim="form.ico"
 								data-testid="customer-field-ico"
 								:disabled="aresLoading"
 								:ui="{ trailing: 'pe-0', base: 'pe-16' }">

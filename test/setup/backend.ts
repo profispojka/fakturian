@@ -635,7 +635,7 @@ const commands: Record<string, (a: Args) => unknown> = {
 
 	// Hlášky jako `desktop/ares.ts`: síť a stav odpovědi obsluhuje hlavní proces.
 	ares_subject: ({ ico }) => {
-		if (/\s/.test(ico) || !isValidIco(ico)) throw new Error('Neplatné IČO (8 číslic).');
+		if (!isValidIco(ico)) throw new Error('Neplatné IČO (8 číslic).');
 		if (backend.ares.unavailable) throw new Error('Nepodařilo se spojit s ARES (jste offline?).');
 		const company = backend.ares.companies.get(ico);
 		if (company === undefined) throw new Error('Firma s tímto IČO nebyla v ARES nalezena.');

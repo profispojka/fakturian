@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readFileSync } from 'node:fs';
+import { globSync, readFileSync } from 'node:fs';
 
 import { parse } from 'postcss';
 
@@ -16,6 +16,7 @@ interface ScaleIndex {
 }
 
 const CSS = 'src/assets/css/main.css';
+const SOURCES = ['src/**/*.vue', CSS];
 
 const clean = (value: string): string => value.replace(/\/\*.*?\*\//g, '').trim();
 
@@ -55,8 +56,8 @@ export function scaleIndex(css: string, floor = 0): ScaleIndex {
 const COLOR = String.raw`(?:text|bg|border|border-[tblrxyse]|fill|stroke|outline|divide|ring|caret|decoration|from|to|via)`;
 
 /**
- * Vrací `{ line, found, want }`; `want` je celá třída, která se má napsat místo nalezené, ne jen
- * jméno tokenu — ať se oprava dá přepsat rovnou, bez dohledávání předpony.
+ * Vrací `{ line, column, found, want }`; `want` je celá třída, která se má napsat místo nalezené,
+ * ne jen jméno tokenu — ať se oprava dá přepsat rovnou, bez dohledávání předpony.
  */
 export function offenders(
 	text: string,
@@ -160,7 +161,7 @@ export function noops(text: string): { line: number; column: number; found: stri
 	for (const [i, line] of text.split('\n').entries()) {
 		for (const match of line.matchAll(/<[a-z][a-z0-9]*\b[^>]*?\bclass="([^"]*)"/g)) {
 			const classes = match[1] ?? '';
-			const classesColumn = (match.index ?? 0) + match[0].indexOf(classes);
+			const classesColumn = (match.index ?? 0) + match[0].indexOf('class="') + 'class="'.length;
 			for (const classMatch of classes.matchAll(NOOP)) {
 				const found = classMatch[0];
 				hits.push({
@@ -177,11 +178,17 @@ export function noops(text: string): { line: number; column: number; found: stri
 
 if (import.meta.main) {
 	const index = scaleIndex(readFileSync(CSS, 'utf8'), MIN_WINDOW_SIZE.width);
-	const hits = offenders(readFileSync(CSS, 'utf8'), index);
-	for (const hit of hits) console.error(`${CSS}:${hit.line}  ${hit.found}  →  ${hit.want}`);
-	const total = hits.length;
+	let total = 0;
+	for (const file of SOURCES.flatMap((pattern) => globSync(pattern)).toSorted((a, b) => a.localeCompare(b))) {
+		const text = readFileSync(file, 'utf8');
+		const hits = file.endsWith('.vue') ? [...offenders(text, index), ...noops(text)] : offenders(text, index);
+		for (const hit of hits) {
+			console.error(`${file}:${hit.line}  ${hit.found}  →  ${hit.want}`);
+			total += 1;
+		}
+	}
 	if (total > 0) {
-		console.error(`\n${total}× třída mimo škály a zlomy v ${CSS}.`);
+		console.error(`\n${total}× třída mimo škály a zlomy z ${CSS}.`);
 		process.exit(1);
 	}
 }

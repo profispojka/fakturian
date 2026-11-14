@@ -98,7 +98,7 @@ const receivedFile = z.strictObject({
 const documents = z.strictObject({
 	vaultPath: z.string(),
 	paths: z.array(z.string()),
-	ourIco: z.string().nullable(),
+	ourIco: z.ico().nullable(),
 });
 
 // Tvar dokladu ověřuje celý `invoiceArgument` uvnitř příkazu, hranice hlídá jen, že jde o objekt.
@@ -111,7 +111,7 @@ const draft = {
 const filter = {
 	filterName: z.string().trim().min(1, 'Filtr dialogu potřebuje název.'),
 	extensions: z
-		.array(z.string().regex(/^[a-z0-9]+$/i, 'Přípona smí mít jen písmena a číslice, bez tečky.'))
+		.array(z.asciiAlphaNumeric('Přípona smí mít jen písmena a číslice, bez tečky.'))
 		.min(1, 'Dialog potřebuje aspoň jednu příponu.'),
 };
 
@@ -149,7 +149,7 @@ export function commands(shell: Shell, bridge: Bridge) {
 		scan_vault: command(
 			z.strictObject({
 				vaultPath: z.string(),
-				ourIco: z.string().nullable(),
+				ourIco: z.ico().nullable(),
 			}),
 			scanVault,
 		),

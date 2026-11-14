@@ -45,26 +45,28 @@ které patří.
 `bun run check` je jeden řetěz kroků; přesné pořadí je skript `check`
 v `package.json`. Každý krok musí projít, jinak řetěz skončí.
 
-| Krok                          | Co ověřuje                                                                                                                                                      |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `lint:check`                  | oxlint (vlastní pravidla v `tools/lint/oxlint-fakturian.ts`) a ESLint nad `<script>` a šablonou `.vue` (type-aware pravidla, `data-testid`, nescoped `<style>`) |
-| `lint:scales`                 | Tailwind používá projektové stupnice, tokeny a zlomy `split:`/`wide:`; žádné no-op utility na obyčejném elementu                                                |
-| `lint:dead-css`               | tvar v `main.css` nosí víc souborů, mrtvý tvar nenosí nikdo, `<style>` blok začíná `@reference`                                                                 |
-| `format:check`                | formát přes oxfmt                                                                                                                                               |
-| `typecheck`                   | typy frontendu, hlavního procesu (`desktop/tsconfig.json`), nástrojů a skriptů showcase; Vitest testy se netypují                                               |
-| `typecheck:e2e`               | typy E2E scénářů a jejich podpory (`test/e2e/tsconfig.json`)                                                                                                    |
-| `bun run test -- --coverage`  | Vitest projekty `unit`, `nuxt` a `desktop` a 100% prahy pro každý zahrnutý soubor                                                                               |
-| `generate`                    | statický Nuxt build                                                                                                                                             |
-| `desktop:build`               | esbuild hlavního procesu, validátoru ISDOC a preloadu do `.output/desktop/`                                                                                     |
-| `bun audit --audit-level=low` | advisories JS závislostí                                                                                                                                        |
+| Krok                          | Co ověřuje                                                                                                                                                                           |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `lint:check`                  | oxlint (vlastní pravidla v `tools/lint/oxlint-fakturian.ts`, včetně škál v `.ts`) a ESLint nad `<script>` a šablonou `.vue` (type-aware pravidla, `data-testid`, nescoped `<style>`) |
+| `lint:scales`                 | Tailwind používá projektové stupnice, tokeny a zlomy `split:`/`wide:` ve Vue šablonách a CSS; žádné no-op utility na obyčejném elementu                                              |
+| `lint:dead-css`               | tvar v `main.css` nosí víc souborů, mrtvý tvar nenosí nikdo, `<style>` blok začíná `@reference`                                                                                      |
+| `format:check`                | formát přes oxfmt                                                                                                                                                                    |
+| `typecheck`                   | typy frontendu, hlavního procesu (`desktop/tsconfig.json`), nástrojů a skriptů showcase; Vitest testy se netypují                                                                    |
+| `typecheck:e2e`               | typy E2E scénářů a jejich podpory (`test/e2e/tsconfig.json`)                                                                                                                         |
+| `bun run test -- --coverage`  | Vitest projekty `unit`, `nuxt` a `desktop` a 100% prahy pro každý zahrnutý soubor                                                                                                    |
+| `generate`                    | statický Nuxt build                                                                                                                                                                  |
+| `desktop:build`               | esbuild hlavního procesu, validátoru ISDOC a preloadu do `.output/desktop/`                                                                                                          |
+| `bun audit --audit-level=low` | advisories JS závislostí                                                                                                                                                             |
 
 Vitest používá `tools/testing/required-tests-reporter.ts`. Prázdná nebo
 přeskočená sada, skip/todo, neúspěšný hook, neošetřená chyba i úspěch až po
 retry znamenají selhání. `allowOnly: false` zakazuje `.only`.
-Vlastní pravidla Oxlintu mají `RuleTester` testy v `test/tooling/`; Vitest
-spouští je v projektu `unit`. Čisté unit testy jsou v `test/unit/` a jejich
-soubory jsou pojmenované podle testovaného tématu. Testy bran kvality tamtéž
-ověřují selhání Vitestu při úmyslných poruchách v oddělených procesech.
+Oxlintův JavaScript plugin kontroluje škály v `.ts`; jeho AST nezahrnuje Vue
+šablonu a CSS nelintuje, proto tyto zdroje zůstávají v `lint:scales`.
+Pravidla Oxlintu jsou pokrytá `RuleTester` testy; kontrola škál se testuje v
+`test/unit/`. Čisté unit testy jsou v `test/unit/` a jejich soubory jsou
+pojmenované podle testovaného tématu. Testy bran kvality tamtéž ověřují selhání
+Vitestu při úmyslných poruchách v oddělených procesech.
 
 ### Mimo `check`
 

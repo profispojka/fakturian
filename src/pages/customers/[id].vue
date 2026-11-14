@@ -94,7 +94,7 @@ async function save() {
 								<div class="form-grid form-grid--wide-first">
 									<UFormField name="ico" label="IČO">
 										<UInput
-											v-model="contact.ico"
+											v-model.trim="contact.ico"
 											data-testid="field-ico"
 											:disabled="aresLoading"
 											:ui="id ? {} : { trailing: 'pe-0', base: 'pe-16' }">

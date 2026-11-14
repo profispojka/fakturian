@@ -5,7 +5,7 @@ const CZECH_PLURAL = new Intl.PluralRules(LOCALE);
 export const czechList = new Intl.ListFormat(LOCALE);
 
 export const czechPercent = new Intl.NumberFormat(LOCALE, {
-	// Stryker disable next-line StringLiteral: Neplatný `style` hodí RangeError už při importu, takže se nespustí žádný test a runner nemá co započítat; hodnotu hlídá aserce v `test/plural.spec.ts`.
+	// Stryker disable next-line StringLiteral: Neplatný `style` hodí RangeError už při importu, takže se nespustí žádný test a runner nemá co započítat; hodnotu hlídá aserce v `test/unit/plural.spec.ts`.
 	style: 'percent',
 	maximumFractionDigits: 0,
 });

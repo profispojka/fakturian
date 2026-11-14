@@ -86,11 +86,6 @@ export function renderTypstSvg(source: string, files: TypstFiles): string[] {
 	);
 }
 
-// `ModDate` přílohy v UTC na celé sekundy. Odříznutí milisekund zaokrouhlí dolů i čas před rokem 1970.
-export function pdfModDate(): string {
-	return `D:${new Date().toISOString().slice(0, 19).replace(/\D/g, '')}Z`;
-}
-
 // `updateMetadata: false`: pdf-lib by jinak přepsal slovník `Info` a rozešel ho s XMP, na kterém stojí
 // PDF/A. Chyba načtení nese důvod od pdf-lib, volající ho zasadí do své věty.
 export function loadPdf(bytes: Uint8Array): Promise<PDFDocument> {
@@ -282,7 +277,7 @@ export async function replaceIsdoc(pdf: PDFDocument, xml: string): Promise<void>
 		PDFName.of('Params'),
 		pdf.context.obj({
 			Size: content.byteLength,
-			ModDate: PDFString.of(pdfModDate()),
+			ModDate: PDFString.fromDate(new Date()),
 		}),
 	);
 	pdf.context.assign(lookup.entry, PDFRawStream.of(dict, content));

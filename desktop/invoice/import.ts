@@ -5,7 +5,7 @@ import { DocumentKind } from '~/constants/invoice';
 import { errorText } from '~/utils/errors';
 import { invoiceTotalCents } from '~/utils/invoice';
 
-import { alreadyThere, checkSource, isCreditNote, normIco, readSource, type Source } from '../import.ts';
+import { alreadyThere, checkSource, isCreditNote, readSource, type Source } from '../import.ts';
 import { fromCents } from '../isdoc/mod.ts';
 import { asciiLower } from '../numbering.ts';
 import { errorCode, type NewFile, readDocument, writeNew } from '../util.ts';
@@ -106,7 +106,7 @@ export async function placePdf(source: string, target: string, move: boolean): P
 
 interface Batch {
 	dir: string;
-	ourIco: string;
+	ourIco: string | null;
 	move: boolean;
 	// Roste o právě zapsané doklady: snímek pořízený před dávkou o jejím prvním dokladu neví, takže by
 	// dva soubory téhož čísla prošly oba.
@@ -133,9 +133,8 @@ async function importOne(context: Batch, path: string, source: Source, report: I
 		totalCents: invoiceTotalCents(invoice),
 	});
 	const { name, ico, dic, address, email } = invoice.customer;
-	const normalized = normIco(ico);
 	const known = report.customers.some((customer) =>
-		normalized === '' ? asciiLower(customer.name) === asciiLower(name) : normIco(customer.ico) === normalized,
+		ico === '' ? asciiLower(customer.name) === asciiLower(name) : customer.ico === ico,
 	);
 	if (!known) {
 		report.customers.push({
@@ -168,8 +167,7 @@ export async function batch(
 	const credits = await creditTargets(vaultPath);
 	const context: Batch = {
 		dir,
-		// Stryker disable next-line StringLiteral: ekvivalentní mutant, `normIco` z textu bez číslic udělá prázdné IČO.
-		ourIco: normIco(ourIco ?? ''),
+		ourIco,
 		move,
 		numbers,
 		credits,

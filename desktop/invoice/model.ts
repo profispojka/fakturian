@@ -26,7 +26,7 @@ export function fmtnum(value: number): string {
 
 const partySchema = z.strictObject({
 	name: z.string(),
-	ico: z.string().default(''),
+	ico: z.ico().or(z.literal('')).default(''),
 	dic: z.string().default(''),
 	address: z
 		.strictObject({

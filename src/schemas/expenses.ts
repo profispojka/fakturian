@@ -6,7 +6,7 @@ import type { BrokenReceived, ReceivedDocument as WireReceivedDocument } from '~
 const expenseShape = {
 	id: z.string(),
 	supplier: z.string(),
-	supplierIco: z.string().optional(),
+	supplierIco: z.ico().optional(),
 	description: z.string(),
 	amountCents: z.number().int(),
 	date: z.dateString(),
@@ -31,13 +31,13 @@ export function emptyExpenses(): ExpensesFile {
 export const receivedDocumentSchema = z.strictObject({
 	file: z.string(),
 	supplier: z.string(),
-	supplierIco: z.string(),
+	supplierIco: z.ico().or(z.literal('')),
 	number: z.string(),
 	uuid: z.string(),
 	description: z.string(),
 	amountCents: z.number().int(),
 	date: z.isdocDate(),
-	recipientIco: z.string(),
+	recipientIco: z.ico().or(z.literal('')),
 }) satisfies Zod.ZodType<unknown, WireReceivedDocument>;
 
 export type ReceivedDocument = Zod.infer<typeof receivedDocumentSchema>;

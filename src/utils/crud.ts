@@ -18,6 +18,11 @@ export function normalizeSearchText(value: string): string {
 	return value
 		.trim()
 		.normalize('NFD')
-		.replace(/[\u0300-\u036f]/g, '')
+		.split('')
+		.filter((character) => {
+			const code = character.charCodeAt(0);
+			return code < 0x0300 || code > 0x036f;
+		})
+		.join('')
 		.toLowerCase();
 }

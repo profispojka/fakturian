@@ -26,7 +26,7 @@ const PDF_HEADER = Buffer.from('%PDF-');
 // z vaultu sice neutekl, ale smazal by jiný soubor, než na který uživatel ukázal.
 function safeFileName(name: string): string {
 	const base = name.trim();
-	if (base === '' || base.startsWith('.') || /[/\\]/.test(base)) {
+	if (base === '' || base.startsWith('.') || base.includes('/') || base.includes('\\')) {
 		throw new Error(`Nepoužitelný název souboru: ${name}`);
 	}
 	return base;
@@ -35,7 +35,9 @@ function safeFileName(name: string): string {
 // Pod očištěným jménem: na macOS je `\` v názvu legální, ale `safeFileName` ho odmítá, takže by takový
 // doklad nešlo z vaultu odstranit ani otevřít.
 function sourceFileName(source: string): string {
-	const cleaned = basename(source).trim().replace(/[\\:]/g, '-').replace(/^\.+/, '').trim();
+	let cleaned = basename(source).trim().replaceAll('\\', '-').replaceAll(':', '-').trim();
+	while (cleaned.startsWith('.')) cleaned = cleaned.slice(1);
+	cleaned = cleaned.trim();
 	if (cleaned === '') throw new Error(`Nepoužitelný název souboru: ${source}`);
 	return safeFileName(cleaned);
 }
@@ -63,7 +65,7 @@ async function createFreeTarget(dir: string, name: string): Promise<string> {
 }
 
 async function readPdf(source: string, name: string): Promise<Uint8Array> {
-	if (!/\.pdf$/i.test(name)) throw new Error(`Přijatý doklad musí být PDF: ${name}`);
+	if (extname(name).toLowerCase() !== '.pdf') throw new Error(`Přijatý doklad musí být PDF: ${name}`);
 	let content: Uint8Array;
 	try {
 		content = await readDocument(source);

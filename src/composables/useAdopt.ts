@@ -28,7 +28,7 @@ export function useAdopt() {
 			return null;
 		}
 		try {
-			scan.value = await importServices.scan(vaultPath.value, supplier.value?.ico?.trim() || null);
+			scan.value = await importServices.scan(vaultPath.value, supplier.value?.ico || null);
 		} catch (e) {
 			scan.value = null;
 			scanError.value = errorText(e);
@@ -41,15 +41,15 @@ export function useAdopt() {
 	 * číslo účtu.
 	 */
 	async function fillSupplier(d: AdoptedSupplier | null): Promise<boolean> {
-		if (!d || supplier.value?.ico?.trim()) return false;
+		if (!d || supplier.value?.ico) return false;
 		const draft = supplierFromAdopted(d);
-		if (!draft.name.trim() && !draft.ico.trim()) return false;
+		if (!draft.name.trim() && !draft.ico) return false;
 		await setSupplier(draft);
 		return supplierReadyForInvoicing(draft);
 	}
 
 	async function adopt(scanned: AdoptScan): Promise<AdoptResult> {
-		const ourIco = supplier.value?.ico?.trim() || scanned.supplier?.ico || null;
+		const ourIco = supplier.value?.ico || scanned.supplier?.ico || null;
 		const { report, addedContacts } = await adoptFiles(
 			scanned.candidates.map((c) => c.path),
 			ourIco,
