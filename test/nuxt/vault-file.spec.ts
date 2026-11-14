@@ -69,7 +69,9 @@ describe('načtení souboru domény', () => {
 		const f = file();
 
 		await expect(f.load()).rejects.toThrow(
-			new Error('Soubor cenik.json má poškozený obsah (name: Neplatný vstup: očekáváno řetězec, obdrženo undefined).'),
+			new Error(
+				'Soubor cenik.json má poškozený obsah (name: Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
+			),
 		);
 		expect(f.loaded.value).toBe(false);
 		await expect(f.save()).rejects.toThrow('Data (cenik.json) se nepodařilo načíst');

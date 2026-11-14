@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { emptyPayments, paymentFormSchema, paymentsFileSchema } from '~/schemas/payments';
+import { paymentFormSchema, paymentsFileSchema } from '~/schemas/payments';
 import { addDays, today } from '~/utils/date';
 import { lastPaymentOn, ledgerOf, settlementOf } from '~/utils/payments';
 

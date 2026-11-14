@@ -456,7 +456,9 @@ describe('platby.json', () => {
 		const f = useNuxtApp().vueApp.runWithContext(usePaymentsFile);
 
 		await expect(f.load()).rejects.toThrow(
-			new Error('Soubor platby.json má poškozený obsah (payments: Neplatný vstup: očekáváno record, obdrženo undefined).'),
+			new Error(
+				'Soubor platby.json má poškozený obsah (payments: Neplatný vstup: očekáváno record, obdrženo undefined).',
+			),
 		);
 		expect(f.loaded.value).toBe(false);
 		await expect(f.save()).rejects.toThrow('Data (platby.json) se nepodařilo načíst');
@@ -498,7 +500,9 @@ describe('vydaje.json', () => {
 		const f = useNuxtApp().vueApp.runWithContext(useExpensesFile);
 
 		await expect(f.load()).rejects.toThrow(
-			new Error('Soubor vydaje.json má poškozený obsah (expenses: Neplatný vstup: očekáváno pole, obdrženo undefined).'),
+			new Error(
+				'Soubor vydaje.json má poškozený obsah (expenses: Neplatný vstup: očekáváno pole, obdrženo undefined).',
+			),
 		);
 		expect(f.loaded.value).toBe(false);
 		await expect(f.save()).rejects.toThrow('Data (vydaje.json) se nepodařilo načíst');

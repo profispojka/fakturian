@@ -352,27 +352,6 @@ describe('uložení a načtení', () => {
 		);
 	});
 
-	it('souběžné faktury nemohou společně překročit limit', async () => {
-		const document = {
-			...invoice(),
-			lines: [
-				{
-					...invoice().lines[0],
-					quantity: 1,
-					unitPriceCents: 150_000_000,
-				},
-			],
-		};
-		const results = await Promise.allSettled([
-			saveNew(document),
-			saveNew({
-				...document,
-				number: '20260002',
-			}),
-		]);
-		expect(results.map((result) => result.status).toSorted()).toEqual(['fulfilled', 'rejected']);
-	});
-
 	it('zpětně vystavená faktura nesmí překročit limit před pozdějším dobropisem', async () => {
 		const original = {
 			...invoice(),

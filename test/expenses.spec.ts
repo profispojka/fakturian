@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { emptyExpense, emptyExpenses, expensesFileSchema } from '~/schemas/expenses';
+import { emptyExpense, expensesFileSchema } from '~/schemas/expenses';
 import { periodOf, today, yearOf } from '~/utils/date';
 import { checkRecipient, expenseFromReceived, expensesTotalCents, sameReceivedDocument } from '~/utils/expenses';
 
