@@ -764,13 +764,37 @@ describe('import z jiného softwaru', () => {
 describe('logo', () => {
 	it('stav loga se zjistí po otevření stránky', async () => {
 		backend.files.add('/vault/logo.png');
-		await mount();
+		const c = await mount();
 		expect(useNuxtApp().vueApp.runWithContext(useLogo).hasLogo.value).toBe(true);
-		expect(backend.args('vault_has_logo')).toEqual([{ vaultPath: '/vault' }]);
+		expect(backend.args('vault_logo_state')).toEqual([{ vaultPath: '/vault' }]);
+		expect(c.find('[data-testid="logo-warning"]').exists()).toBe(false);
+	});
+
+	it('logo, které nejde přečíst, ohlásí varováním a nabídne ho změnit i odebrat', async () => {
+		backend.keepsReturning('vault_logo_state', 'unreadable');
+		const c = await mount();
+
+		expect(c.find('[data-testid="logo-warning"] [data-slot="title"]').text()).toBe('Logo nejde přečíst');
+		expect(c.find('[data-testid="logo-warning"] [data-slot="description"]').text()).toBe(
+			'Soubor logo.png v datové složce je poškozený, není to obrázek PNG, nebo ho iCloud na tenhle Mac nestáhl. Faktury proto vycházejí bez loga, dokud ho nenastavíš znovu nebo neodebereš.',
+		);
+		expect(c.find('[data-testid="logo-set"]').text()).toContain('Změnit logo');
+		expect(c.find('[data-testid="logo-remove"]').exists()).toBe(true);
+	});
+
+	it('nově nastavené logo varování schová', async () => {
+		backend.returns('vault_logo_state', 'unreadable');
+		backend.dialog.push('/Users/jan/logo.png');
+		const c = await mount();
+
+		await c.find('[data-testid="logo-set"]').trigger('click');
+		await answerDialog(true);
+
+		expect(c.find('[data-testid="logo-warning"]').exists()).toBe(false);
 	});
 
 	it('nedostupnou složku při zjišťování loga ohlásí', async () => {
-		backend.breaks('vault_has_logo', 'Datová složka /vault neexistuje.');
+		backend.breaks('vault_logo_state', 'Datová složka /vault neexistuje.');
 		await mount();
 
 		expect(useNuxtApp().vueApp.runWithContext(useToast).toasts.value).toContainEqual(

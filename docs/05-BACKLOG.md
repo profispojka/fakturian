@@ -89,17 +89,6 @@ příznak neplátce a vazbu dobropisu. Program, verzi a výsledek zapsat do
 
 ---
 
-## Bezpečnost a soukromí — `BEZP`
-
-### BEZP-17 · Vadné logo se tiše vynechá — NÍZKÁ
-
-`invoiceFiles` (`desktop/invoice/mod.ts`) logo, které nejde dekódovat, v prázdném
-`catch` vynechá, takže doklad vyjde bez loga a uživatel se to nedozví;
-`vaultHasLogo` (`desktop/vault.ts`) přitom Nastavení hlásí, že logo je. Stane se
-to i logu, které iCloud na tenhle Mac nestáhl. Vadné logo ve vaultu ohlásit.
-
----
-
 ## Nástroje, build a release — `NAST`
 
 ### NAST-1 · Appka není podepsaná ani notarizovaná a nemá updater — BLOKUJE
@@ -115,14 +104,6 @@ doméně a záloha podpisového klíče mimo tento disk. Entitlement
 s podpisem, takže přílohu mailu přes Mail.app je potřeba ověřit na podepsaném
 buildu. Job `package` podpis balíčku neověřuje; s certifikátem do něj patří
 `codesign --verify` a `spctl`.
-
-### NAST-21 · CI není doložené skutečným během — STŘEDNÍ
-
-Zelený běh jobů `required`, `package` a `e2e` z `.github/workflows/quality.yml`
-nad identifikovanou revizí doložený není. Úplné mutace (`bun run mutants:ts`)
-běží jen lokálně a zelený běh nad vydávanou revizí doložený taky není. Job `e2e`
-pouští sadu s `--ignore-snapshots`, takže vizuální sadu
-(`bun run test:e2e:visual`) ověřuje jen vývojový Mac.
 
 ### NAST-23 · Licence třetích stran neodpovídají buildu — STŘEDNÍ
 

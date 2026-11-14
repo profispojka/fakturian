@@ -71,7 +71,7 @@
 		"fast-png": "8.0.0",
 		"happy-dom": "^21.0.4",
 		"jsqr": "1.4.0",
-		"nuxt": "^4.6.2",
+		"nuxt": "^4.6.4",
 		"oxfmt": "^0.70.0",
 		"oxlint": "^1.88.0",
 		"oxlint-tsgolint": "^7.0.2004",

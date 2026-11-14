@@ -8,6 +8,7 @@ import { errorText } from '~/utils/errors';
 import { errorCode, MIB, writeAtomic } from './util.ts';
 
 import type { Stats } from 'node:fs';
+import type { LogoState } from '~/bindings';
 
 // `.fakturian/` založí až první zápis dat nebo cache.
 export async function ensureVault({ vaultPath }: { vaultPath: string }): Promise<null> {
@@ -70,11 +71,28 @@ export async function requireWithin(vaultPath: string, path: string): Promise<st
 export const LOGO_FILE = 'logo.png';
 const MAX_LOGO_BYTES = 2 * MIB;
 
+// Jediné čtení loga: stav, který appka hlásí, musí sedět s tím, co se na doklad vysází. Typst by na
+// souboru, který není PNG, shodil celý doklad.
+export async function readLogo(root: string): Promise<Uint8Array | Exclude<LogoState, 'ready'>> {
+	try {
+		const bytes = await readFile(join(root, LOGO_FILE));
+		decode(bytes);
+		return bytes;
+	} catch (error) {
+		if (errorCode(error) !== 'ENOENT') return 'unreadable';
+	}
+	// Zástupce souboru, který iCloud na tenhle Mac nestáhl: logo ve vaultu je, jen ho nejde vysázet.
+	const [placeholder] = await Promise.allSettled([stat(join(root, `.${LOGO_FILE}.icloud`))]);
+	if (placeholder.status === 'fulfilled') return 'unreadable';
+	return 'missing';
+}
+
 // Logo obsluhuje backend, webview k souborům přístup nemá.
-export async function vaultHasLogo({ vaultPath }: { vaultPath: string }): Promise<boolean> {
+export async function vaultLogoState({ vaultPath }: { vaultPath: string }): Promise<LogoState> {
 	const root = await overVault(vaultPath);
-	const [logo] = await Promise.allSettled([stat(join(root, LOGO_FILE))]);
-	return logo.status === 'fulfilled' && logo.value.isFile();
+	const logo = await readLogo(root);
+	if (typeof logo === 'string') return logo;
+	return 'ready';
 }
 
 export async function setVaultLogo({ vaultPath, source }: { vaultPath: string; source: string }): Promise<null> {

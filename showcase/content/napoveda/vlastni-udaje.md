@@ -29,6 +29,9 @@ sama.
 - **E-mail**
 - **Logo** — uloží se jako `logo.png` přímo do datové složky, takže cestuje
   s daty. Nejlíp vypadá PNG s průhledným pozadím; sedí v bočním pásu dokladu.
+  Když soubor nejde přečíst (je poškozený, není to PNG nebo ho iCloud nestáhl),
+  faktury vycházejí bez loga a appka na to upozorní v Nastavení i nad fakturou.
+  Stačí logo nastavit znovu.
 
 ## Číselná řada
 

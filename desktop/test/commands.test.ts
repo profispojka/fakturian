@@ -25,7 +25,7 @@ import { defaultVaultPath, homeDir, loadVaultPath, saveVaultPath } from '../pref
 import { importReceived, listBrokenReceived, receivedPath, removeReceived } from '../received.ts';
 import { readDataFile, snapshotsPath, writeDataFile } from '../store.ts';
 import { notify, openUrl, revealPath, setWindowTheme } from '../system.ts';
-import { checkVault, ensureVault, removeVaultLogo, setVaultLogo, vaultHasLogo } from '../vault.ts';
+import { checkVault, ensureVault, removeVaultLogo, setVaultLogo, vaultLogoState } from '../vault.ts';
 
 // Dialogy jen zaznamenané: test nesmí nic otevřít.
 vi.mock('electron', () => ({
@@ -201,7 +201,7 @@ describe('brána příkazů', () => {
 const CASES: [string, unknown, unknown, string][] = [
 	['ensure_vault', { vaultPath: VAULT }, { vaultPath: 42 }, `vaultPath: ${STRING_GOT} číslo`],
 	['check_vault', { vaultPath: VAULT }, { vaultPath: null }, `vaultPath: ${STRING_GOT} null`],
-	['vault_has_logo', { vaultPath: VAULT }, {}, `vaultPath: ${STRING_GOT} undefined`],
+	['vault_logo_state', { vaultPath: VAULT }, {}, `vaultPath: ${STRING_GOT} undefined`],
 	[
 		'set_vault_logo',
 		{
@@ -561,7 +561,7 @@ describe('seznam příkazů', () => {
 		expect(handlers).toEqual({
 			ensure_vault: ensureVault,
 			check_vault: checkVault,
-			vault_has_logo: vaultHasLogo,
+			vault_logo_state: vaultLogoState,
 			set_vault_logo: setVaultLogo,
 			remove_vault_logo: removeVaultLogo,
 			read_data_file: readDataFile,
@@ -606,7 +606,7 @@ describe('seznam příkazů', () => {
 		for (const [name, args] of [
 			['ensure_vault', { vaultPath }],
 			['check_vault', { vaultPath }],
-			['vault_has_logo', { vaultPath }],
+			['vault_logo_state', { vaultPath }],
 			[
 				'read_data_file',
 				{
@@ -646,10 +646,10 @@ describe('seznam příkazů', () => {
 				},
 			],
 			[
-				'vault_has_logo',
+				'vault_logo_state',
 				{
 					ok: true,
-					value: false,
+					value: 'missing',
 				},
 			],
 			[

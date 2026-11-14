@@ -1,7 +1,6 @@
 import { mkdir, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { decode } from 'fast-png';
 import pLimit from 'p-limit';
 
 import { DocumentKind } from '~/constants/invoice';
@@ -19,7 +18,7 @@ import { intoInvoice } from '../isdoc/projection.ts';
 import { ISDOC_ATTACHMENT, loadPdf, readIsdoc, renderTypstPdf, type TypstFiles } from '../pdf.ts';
 import { saveSnapshot, snapshotDir } from '../store.ts';
 import { writeAtomic, writeNew } from '../util.ts';
-import { LOGO_FILE, overVault } from '../vault.ts';
+import { overVault, readLogo } from '../vault.ts';
 
 import { documentNumberCount, findDocument, removeIndexEntry } from './index.ts';
 
@@ -45,21 +44,16 @@ export async function invoiceFiles(vaultPath: string, invoice: Invoice, previous
 		isdoc = toXml(document);
 	}
 	const spayd = buildSpayd(invoice);
-	let logo: Uint8Array | undefined;
-	try {
-		const bytes = await readFile(join(vaultPath, LOGO_FILE));
-		decode(bytes);
-		logo = bytes;
-	} catch {
-		// Logo mohl mimo appku nahradit jiný soubor; typst by na něm shodil celý doklad, a kvůli ozdobě
-		// nesmí selhat vystavení, takže se vynechá.
-	}
-	const data = invoiceData(invoice, spayd !== undefined, logo !== undefined);
+	// Kvůli ozdobě nesmí selhat vystavení: logo, které nejde přečíst, se vynechá a stránkám ho
+	// hlásí `vaultLogoState`.
+	const logo = await readLogo(vaultPath);
+	const hasLogo = typeof logo !== 'string';
+	const data = invoiceData(invoice, spayd !== undefined, hasLogo);
 	return {
 		'invoice.json': new TextEncoder().encode(JSON.stringify(data)),
 		[ISDOC_ATTACHMENT]: new TextEncoder().encode(isdoc),
 		...(spayd !== undefined && { 'qr.png': qrPng(spayd) }),
-		...(logo && { 'logo.png': logo }),
+		...(hasLogo && { 'logo.png': logo }),
 	};
 }
 

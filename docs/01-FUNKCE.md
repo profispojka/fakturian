@@ -54,6 +54,9 @@ a editovatelné v Nastavení. Novou fakturu jimi appka předvyplní.
 - Výchozí splatnost ve dnech
 - **Logo na fakturu** — uložené jako `logo.png` přímo ve vaultu (cestuje
   s daty), sedí v bočním pásu dokladu. Nejlíp vypadá PNG s průhledným pozadím.
+  Logo, které nejde přečíst (poškozené, jiný formát, nestažené z iCloudu),
+  vystavení nezastaví: doklad vyjde bez něj a Nastavení i formulář faktury na
+  to upozorní.
 - **Jeden vzhled PDF** — boční pás nese logo, kontakt, platební údaje a QR
   platbu; hlavní plocha jen položky a částku. Tlačítko **Náhled** v Nastavení
   vysází ukázkovou fakturu z vlastních údajů bez ukládání. Doklad nese v patce

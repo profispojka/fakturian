@@ -116,6 +116,36 @@ describe('nová faktura', () => {
 		);
 	});
 
+	it('logo, které nejde přečíst, ohlásí nad dokladem dřív, než vyjde bez něj', async () => {
+		backend.keepsReturning('vault_logo_state', 'unreadable');
+		const c = await mountInvoice();
+
+		expect(c.find('[data-testid="logo-warning"] [data-slot="title"]').text()).toBe('Logo nejde přečíst');
+		expect(c.find('[data-testid="logo-warning"] [data-slot="description"]').text()).toBe(
+			'Soubor logo.png v datové složce je poškozený, není to obrázek PNG, nebo ho iCloud na tenhle Mac nestáhl. Faktura proto vyjde bez loga, dokud ho v Nastavení nenastavíš znovu nebo neodebereš.',
+		);
+	});
+
+	it('s logem v pořádku ani bez loga nevaruje', async () => {
+		const c = await mountInvoice();
+
+		expect(backend.args('vault_logo_state')).toEqual([{ vaultPath: '/vault' }]);
+		expect(c.find('[data-testid="logo-warning"]').exists()).toBe(false);
+	});
+
+	it('nedostupnou složku při zjišťování loga ohlásí jako neotevřenou fakturu', async () => {
+		backend.breaks('vault_logo_state', 'Datová složka /vault neexistuje.');
+		await mountInvoice();
+
+		expect(useNuxtApp().vueApp.runWithContext(useToast).toasts.value).toContainEqual(
+			expect.objectContaining({
+				title: 'Fakturu se nepodařilo otevřít',
+				description: 'Datová složka /vault neexistuje.',
+				color: 'error',
+			}),
+		);
+	});
+
 	it('načte archiv kvůli ročním limitům ceníku', async () => {
 		invoiceInVault('20260001');
 		invoiceInVault('20260002');

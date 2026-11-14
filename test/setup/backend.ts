@@ -462,7 +462,7 @@ const commands: Record<string, (a: Args) => unknown> = {
 		backend.folder(vaultPath);
 		return null;
 	},
-	vault_has_logo: ({ vaultPath }) => backend.files.has(`${vaultPath}/logo.png`),
+	vault_logo_state: ({ vaultPath }) => (backend.files.has(`${vaultPath}/logo.png`) ? 'ready' : 'missing'),
 	set_vault_logo: ({ vaultPath }) => {
 		backend.folder(vaultPath);
 		backend.files.add(`${vaultPath}/logo.png`);

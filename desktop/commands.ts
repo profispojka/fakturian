@@ -19,7 +19,7 @@ import { defaultVaultPath, homeDir, loadVaultPath, saveVaultPath } from './prefe
 import { importReceived, listBrokenReceived, receivedPath, removeReceived } from './received.ts';
 import { readDataFile, snapshotsPath, writeDataFile } from './store.ts';
 import { notify, openUrl, pickFiles, pickFolder, pickSavePath, revealPath, setWindowTheme } from './system.ts';
-import { checkVault, ensureVault, removeVaultLogo, setVaultLogo, vaultHasLogo } from './vault.ts';
+import { checkVault, ensureVault, removeVaultLogo, setVaultLogo, vaultLogoState } from './vault.ts';
 
 import type { IpcResult } from './ipc.ts';
 import type { CommandArgs, CommandName, CommandResults } from '~/bindings';
@@ -120,7 +120,7 @@ export function commands(shell: Shell, bridge: Bridge) {
 	return {
 		ensure_vault: command(vault, ensureVault),
 		check_vault: command(vault, checkVault),
-		vault_has_logo: command(vault, vaultHasLogo),
+		vault_logo_state: command(vault, vaultLogoState),
 		set_vault_logo: command(
 			z.strictObject({
 				vaultPath: z.string(),

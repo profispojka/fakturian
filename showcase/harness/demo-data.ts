@@ -524,7 +524,7 @@ const emptyImport = () =>
 
 		ensure_vault: () => null,
 		check_vault: () => null,
-		vault_has_logo: () => hasLogo,
+		vault_logo_state: () => (hasLogo ? 'ready' : 'missing'),
 		set_vault_logo: () => {
 			hasLogo = true;
 			return null;

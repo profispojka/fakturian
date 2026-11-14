@@ -914,4 +914,12 @@ describe('vykreslení a logo', () => {
 			expect(imageCount(await readFile(path))).toBe(1);
 		}
 	});
+
+	it('logo nestažené z iCloudu vystavení nezablokuje a doklad vyjde bez něj', async () => {
+		await writeFile(join(base, '.logo.png.icloud'), 'zástupce');
+
+		const path = await saveNew(invoice());
+
+		expect(imageCount(await readFile(path))).toBe(1);
+	});
 });

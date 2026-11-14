@@ -136,7 +136,7 @@ async function onImport() {
 	}
 }
 
-const { setLogo, hasLogo, removeLogo, refreshLogo } = useLogo();
+const { setLogo, hasLogo, logoUnreadable, removeLogo, refreshLogo } = useLogo();
 
 async function onLogo() {
 	vaultMsg.value = '';
@@ -348,6 +348,15 @@ useAsyncState(refreshLogo, undefined, {
 						{{ vaultPath }}
 					</p>
 					<VaultEmptyState v-else class="mb-3" />
+					<UAlert
+						v-if="logoUnreadable"
+						class="mb-3"
+						color="warning"
+						variant="subtle"
+						icon="i-lucide-image-off"
+						title="Logo nejde přečíst"
+						description="Soubor logo.png v datové složce je poškozený, není to obrázek PNG, nebo ho iCloud na tenhle Mac nestáhl. Faktury proto vycházejí bez loga, dokud ho nenastavíš znovu nebo neodebereš."
+						data-testid="logo-warning" />
 
 					<div v-if="vaultPath" class="flex flex-wrap gap-2">
 						<UButton

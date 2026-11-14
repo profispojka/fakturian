@@ -1,7 +1,7 @@
 export interface CommandArgs {
 	ensure_vault: { vaultPath: string };
 	check_vault: { vaultPath: string };
-	vault_has_logo: { vaultPath: string };
+	vault_logo_state: { vaultPath: string };
 	set_vault_logo: { vaultPath: string; source: string };
 	remove_vault_logo: { vaultPath: string };
 	read_data_file: { vaultPath: string; name: string };
@@ -49,7 +49,7 @@ export interface CommandArgs {
 export interface CommandResults {
 	ensure_vault: null;
 	check_vault: null;
-	vault_has_logo: boolean;
+	vault_logo_state: LogoState;
 	set_vault_logo: null;
 	remove_vault_logo: null;
 	read_data_file: string;
@@ -130,7 +130,7 @@ export const commands = {
 	ensureVault: (vaultPath: string) => invoke('ensure_vault', { vaultPath }),
 	// Selže, když složka na cestě není; nic nezakládá.
 	checkVault: (vaultPath: string) => invoke('check_vault', { vaultPath }),
-	vaultHasLogo: (vaultPath: string) => invoke('vault_has_logo', { vaultPath }),
+	vaultLogoState: (vaultPath: string) => invoke('vault_logo_state', { vaultPath }),
 	setVaultLogo: (vaultPath: string, source: string) =>
 		invoke('set_vault_logo', {
 			vaultPath,
@@ -280,6 +280,10 @@ export const commands = {
 	setWindowTheme: (theme: 'light' | 'dark') => invoke('set_window_theme', { theme }),
 	closeWindow: () => invoke('close_window', {}),
 };
+
+// `unreadable`: soubor loga ve vaultu je, ale doklady vycházejí bez něj — není to PNG, nejde
+// přečíst, nebo ho iCloud na tenhle Mac nestáhl.
+export type LogoState = 'missing' | 'ready' | 'unreadable';
 
 // Agent spouští connector jako `command` s `args` (`--mcp`); ve vývoji je to Electron s cestou k appce.
 export type McpConnector = {

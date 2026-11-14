@@ -45,6 +45,7 @@ const { archive, pricelist, overflows: limitOverflows, remainingOn: remainingInL
 const { nextNumber, save, preview, load, archived, pendingInvoice, markSent, askRemove } = useInvoices();
 const { emailWithAttachment } = useMail();
 const { refresh: refreshMenuStats } = useMenuStats();
+const { refreshLogo, logoUnreadable } = useLogo();
 
 const savedPath = ref('');
 const status = usePageStatus();
@@ -149,6 +150,7 @@ async function openFromRoute() {
 	forgetPending();
 	try {
 		await refreshUsage();
+		await refreshLogo();
 		if (!number.value) {
 			if (prepared) {
 				savedPath.value = '';
@@ -571,6 +573,15 @@ const lineColumns: TableColumn<InvoiceLineRow>[] = [
 			<EmptyState v-if="missing">Tenhle doklad v evidenci není — nejspíš je smazaný.</EmptyState>
 
 			<div v-else class="mx-auto w-full max-w-5xl" data-testid="invoice-fields">
+				<UAlert
+					v-if="logoUnreadable"
+					class="mb-4"
+					color="warning"
+					variant="subtle"
+					icon="i-lucide-image-off"
+					title="Logo nejde přečíst"
+					description="Soubor logo.png v datové složce je poškozený, není to obrázek PNG, nebo ho iCloud na tenhle Mac nestáhl. Faktura proto vyjde bez loga, dokud ho v Nastavení nenastavíš znovu nebo neodebereš."
+					data-testid="logo-warning" />
 				<UAlert
 					v-if="savedPath"
 					icon="i-lucide-check"

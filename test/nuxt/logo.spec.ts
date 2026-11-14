@@ -93,15 +93,47 @@ describe('useLogo', () => {
 		const { refreshLogo, hasLogo } = useNuxtApp().vueApp.runWithContext(useLogo);
 
 		await refreshLogo();
-		expect(backend.args('vault_has_logo')).toEqual([{ vaultPath: '/vault' }]);
+		expect(backend.args('vault_logo_state')).toEqual([{ vaultPath: '/vault' }]);
 		expect(hasLogo.value).toBe(true);
+	});
+
+	it('logo, které nejde přečíst, ve vaultu je a hlásí se', async () => {
+		backend.returns('vault_logo_state', 'unreadable');
+		const { refreshLogo, hasLogo, logoUnreadable } = useNuxtApp().vueApp.runWithContext(useLogo);
+		expect(logoUnreadable.value).toBe(false);
+
+		await refreshLogo();
+
+		expect([hasLogo.value, logoUnreadable.value]).toEqual([true, true]);
+	});
+
+	it('nové logo varování zruší', async () => {
+		backend.returns('vault_logo_state', 'unreadable');
+		backend.dialog.push('/Users/jan/logo.png');
+		const { refreshLogo, setLogo, hasLogo, logoUnreadable } = useNuxtApp().vueApp.runWithContext(useLogo);
+		await refreshLogo();
+
+		await setLogo();
+
+		expect([hasLogo.value, logoUnreadable.value]).toEqual([true, false]);
+	});
+
+	it('po odebrání se stav čte znovu, zástupce nestaženého loga ve složce zůstane', async () => {
+		backend.keepsReturning('vault_logo_state', 'unreadable');
+		const { refreshLogo, removeLogo, hasLogo, logoUnreadable } = useNuxtApp().vueApp.runWithContext(useLogo);
+		await refreshLogo();
+
+		await removeLogo();
+
+		expect(backend.args('vault_logo_state')).toHaveLength(2);
+		expect([hasLogo.value, logoUnreadable.value]).toEqual([true, true]);
 	});
 
 	it('nedostupná složka nese chybu dál a stav loga nezmění', async () => {
 		backend.files.add(LOGO);
 		const { refreshLogo, hasLogo } = useNuxtApp().vueApp.runWithContext(useLogo);
 		await refreshLogo();
-		backend.breaks('vault_has_logo', 'Datová složka /vault neexistuje.');
+		backend.breaks('vault_logo_state', 'Datová složka /vault neexistuje.');
 
 		await expect(refreshLogo()).rejects.toBe('Datová složka /vault neexistuje.');
 		expect(hasLogo.value).toBe(true);
@@ -113,7 +145,7 @@ describe('useLogo', () => {
 		const { refreshLogo, hasLogo } = useNuxtApp().vueApp.runWithContext(useLogo);
 
 		await refreshLogo();
-		expect(backend.args('vault_has_logo')).toEqual([]);
+		expect(backend.args('vault_logo_state')).toEqual([]);
 		expect(hasLogo.value).toBe(false);
 	});
 });

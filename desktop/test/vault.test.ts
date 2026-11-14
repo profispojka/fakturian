@@ -22,8 +22,9 @@ import {
 	moveFile,
 	removeVaultLogo,
 	requireWithin,
+	readLogo,
 	setVaultLogo,
-	vaultHasLogo,
+	vaultLogoState,
 } from '../vault.ts';
 
 // Přejmenování, které selže tak, jak ho test nastaví; jinak projde skutečný `rename`.
@@ -228,7 +229,8 @@ describe('logo', () => {
 		await ensureVault({ vaultPath: vault });
 		const source = join(base, 'moje-logo.png');
 		await writeFile(source, qrPng('logo'));
-		expect(await vaultHasLogo({ vaultPath: vault })).toBe(false);
+		expect(await vaultLogoState({ vaultPath: vault })).toBe('missing');
+		expect(await readLogo(vault)).toBe('missing');
 
 		const result = await setVaultLogo({
 			vaultPath: vault,
@@ -237,7 +239,8 @@ describe('logo', () => {
 
 		expect(result).toBe(null);
 		expect(new Uint8Array(await readFile(join(vault, LOGO_FILE)))).toEqual(qrPng('logo'));
-		expect(await vaultHasLogo({ vaultPath: vault })).toBe(true);
+		expect(await vaultLogoState({ vaultPath: vault })).toBe('ready');
+		expect(new Uint8Array(await readLogo(vault))).toEqual(qrPng('logo'));
 	});
 
 	it('nové logo nahradí staré a nenechá po sobě dočasný soubor', async () => {
@@ -257,15 +260,32 @@ describe('logo', () => {
 	it('chybějící vault se nehlásí jako vault bez loga', async () => {
 		const vault = join(base, 'odpojeny');
 
-		await expect(vaultHasLogo({ vaultPath: vault })).rejects.toEqual(
+		await expect(vaultLogoState({ vaultPath: vault })).rejects.toEqual(
 			new Error(`Datová složka ${vault} neexistuje.`),
 		);
 	});
 
-	it('složka jménem logo.png není logo', async () => {
+	it('logo, které není PNG, je prázdné nebo je to složka, se hlásí jako nečitelné', async () => {
+		for (const content of ['tohle rozhodne neni PNG', '']) {
+			await writeFile(join(base, LOGO_FILE), content);
+
+			expect(await vaultLogoState({ vaultPath: base })).toBe('unreadable');
+			expect(await readLogo(base)).toBe('unreadable');
+		}
+		await rm(join(base, LOGO_FILE));
 		await mkdir(join(base, LOGO_FILE));
 
-		expect(await vaultHasLogo({ vaultPath: base })).toBe(false);
+		expect(await vaultLogoState({ vaultPath: base })).toBe('unreadable');
+	});
+
+	it('logo, které iCloud na tenhle Mac nestáhl, se hlásí jako nečitelné, dokud ho nenahradí nové', async () => {
+		await writeFile(join(base, '.logo.png.icloud'), 'zástupce');
+
+		expect(await vaultLogoState({ vaultPath: base })).toBe('unreadable');
+
+		await writeFile(join(base, LOGO_FILE), qrPng('logo'));
+
+		expect(await vaultLogoState({ vaultPath: base })).toBe('ready');
 	});
 
 	it('jiný soubor než PNG se jako logo nepřijme a staré logo zůstane', async () => {
