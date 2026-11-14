@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { lstat, stat } from 'node:fs/promises';
-import { basename, isAbsolute, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, resolve } from 'node:path';
 import { promisify } from 'node:util';
 
 import { type BaseWindow, dialog, nativeTheme, Notification, shell } from 'electron';
@@ -39,15 +39,13 @@ export async function pickFolder(win: BaseWindow, { defaultPath }: { defaultPath
 	if (!isAbsolute(defaultPath)) throw new Error(`Výchozí složka ${defaultPath} není absolutní cesta.`);
 	// Neexistující výchozí složku panel přejde a otevře se jinde. Přesunutá datová složka nebo nový
 	// `~/Documents/Fakturian` proto dialog otevřou v nejbližší existující nadřazené složce.
-	const parts = defaultPath.split(sep);
-	let start: string = sep;
-	for (const [i] of parts.entries()) {
-		const candidate = parts.slice(0, parts.length - i).join(sep);
-		const [info] = await Promise.allSettled([stat(candidate)]);
-		if (info.status === 'fulfilled' && info.value.isDirectory()) {
-			start = candidate;
-			break;
-		}
+	let start = defaultPath;
+	while (true) {
+		const [info] = await Promise.allSettled([stat(start)]);
+		if (info.status === 'fulfilled' && info.value.isDirectory()) break;
+		const parent = dirname(start);
+		if (parent === start) break;
+		start = parent;
 	}
 	const { canceled, filePaths } = await dialog.showOpenDialog(win, {
 		defaultPath: start,

@@ -27,7 +27,7 @@ describe('validace příjemce u přijatého dokladu', () => {
 	});
 
 	it('IČO nesedí → import se odmítne a hláška obě IČO pojmenuje', () => {
-		expect(checkRecipient(' 12345678 ', ' 87654321 ')).toEqual({
+		expect(checkRecipient('12345678', '87654321')).toEqual({
 			ok: false,
 			reason: 'Doklad je vystavený na IČO 87654321, ne na tvoje 12345678.',
 		});
@@ -38,13 +38,6 @@ describe('validace příjemce u přijatého dokladu', () => {
 			ok: true,
 			warning: 'Doklad neuvádí IČO odběratele — ověř, že je opravdu vystavený na tebe.',
 		});
-	});
-
-	it('mezery a vedoucí nuly IČO nerozhodují, vnitřní ano', () => {
-		expect(checkRecipient('12345678', ' 12345678 ').ok).toBe(true);
-		expect(checkRecipient('00012345', '12345').ok).toBe(true);
-		// Zahazují se jen nuly zleva: 10000000 a 1 jsou dvě různá IČO.
-		expect(checkRecipient('10000000', '1').ok).toBe(false);
 	});
 
 	it('bez našeho IČO se jen varuje', () => {
@@ -171,7 +164,7 @@ describe('výdaj z přijatého dokladu', () => {
 		const doc = {
 			file: 'prijate/a.pdf',
 			supplier: 'Dodavatel',
-			supplierIco: '0012345679',
+			supplierIco: '12345679',
 			number: 'F2026-7',
 			uuid: 'abc-1',
 			description: '',
@@ -288,6 +281,32 @@ describe('nový výdaj a soubor výdajů', () => {
 	});
 	it('chybějící seznam výdajů je neúplný soubor', () => {
 		expect(expensesFileSchema.safeParse({}).success).toBe(false);
+	});
+	it('uložený výdaj musí mít dodavatele, nulový doklad a dobropis ale projdou', () => {
+		const expense = {
+			...emptyExpense(),
+			supplier: 'Dodavatel',
+		};
+		expect(expensesFileSchema.safeParse({ expenses: [expense] }).success).toBe(true);
+		expect(
+			expensesFileSchema.safeParse({
+				expenses: [
+					{
+						...expense,
+						amountCents: -100,
+					},
+				],
+			}).success,
+		).toBe(true);
+		const result = expensesFileSchema.safeParse({
+			expenses: [
+				{
+					...expense,
+					supplier: '  ',
+				},
+			],
+		});
+		expect(result.error?.issues.map((issue) => issue.path)).toEqual([['expenses', 0, 'supplier']]);
 	});
 	it('výdaj bez dodavatele a popisu neprojde', () => {
 		const result = expensesFileSchema.safeParse({

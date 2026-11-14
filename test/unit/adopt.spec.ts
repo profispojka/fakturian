@@ -13,7 +13,7 @@ import { date } from '../setup/dates';
 import type { ImportedCustomer } from '~/schemas/import';
 import type { InvoiceSummary } from '~/schemas/invoices';
 
-const contract = await import('~/utils/fixtures/adopt-folder.json').then((m) => m.default ?? m);
+const contract = await import('../fixtures/adopt-folder.json').then((m) => m.default ?? m);
 
 const today = date(contract.today);
 const invoices: InvoiceSummary[] = contract.invoices.map((i) => ({

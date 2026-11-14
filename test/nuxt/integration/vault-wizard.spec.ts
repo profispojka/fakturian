@@ -703,7 +703,7 @@ describe('fakturační údaje', () => {
 		);
 	});
 
-	it('odesláním se dodavatel uloží a průvodce dojde na konec', async () => {
+	it('odesláním se dodavatel uloží bez mezer v PSČ a účtu a průvodce dojde na konec', async () => {
 		await folderWithoutSupplier();
 		await openWizard();
 		await layer().find('[data-testid="field-ico"]').setValue('12345679');
@@ -713,9 +713,9 @@ describe('fakturační údaje', () => {
 		await layer().find('[data-testid="field-name"]').setValue('Jan Novák');
 		await layer().find('[data-testid="field-address-street"]').setValue('Krátká 2');
 		await layer().find('[data-testid="field-address-city"]').setValue('Brno');
-		await layer().find('[data-testid="field-address-zip"]').setValue('60200');
-		await layer().find('[data-testid="field-bankAccount"]').setValue('2000145399');
-		await layer().find('[data-testid="field-bankCode"]').setValue('0800');
+		await layer().find('[data-testid="field-address-zip"]').setValue('602 00');
+		await layer().find('[data-testid="field-bankAccount"]').setValue('2000 145399');
+		await layer().find('[data-testid="field-bankCode"]').setValue('08 00');
 		await flushPromises();
 
 		await layer().find('[data-testid="wizard-save"]').trigger('click');
@@ -725,6 +725,13 @@ describe('fakturační údaje', () => {
 			expect.objectContaining({
 				ico: '12345679',
 				name: 'Jan Novák',
+				address: {
+					street: 'Krátká 2',
+					city: 'Brno',
+					zip: '60200',
+				},
+				bankAccount: '2000145399',
+				bankCode: '0800',
 			}),
 		);
 		expect(layer().text()).toContain('Hotovo, můžeš fakturovat');
@@ -867,12 +874,15 @@ describe('fakturační údaje', () => {
 	});
 
 	it('rozepsaný dodavatel si podrží, co průvodce neukazuje', async () => {
-		await folderWithSupplier({
+		const supplier = {
 			...completeSupplier(),
 			bankAccount: '',
 			email: 'jan@novak.cz',
 			invoiceNumberFormat: 'F{NNNN}',
-		});
+			invoiceNumberStart: 'F0042',
+		};
+		supplier.address.country = 'CZ';
+		await folderWithSupplier(supplier);
 		await openWizard();
 		await layer().find('[data-testid="wizard-ico-continue"]').trigger('click');
 		await flushPromises();
@@ -884,13 +894,10 @@ describe('fakturační údaje', () => {
 		await layer().find('[data-testid="wizard-save"]').trigger('click');
 		await flushPromises();
 
-		expect(savedSupplier()).toEqual(
-			expect.objectContaining({
-				bankAccount: '2000145399',
-				email: 'jan@novak.cz',
-				invoiceNumberFormat: 'F{NNNN}',
-			}),
-		);
+		expect(savedSupplier()).toEqual({
+			...supplier,
+			bankAccount: '2000145399',
+		});
 	});
 
 	it('dvojí odeslání uloží dodavatele jen jednou', async () => {

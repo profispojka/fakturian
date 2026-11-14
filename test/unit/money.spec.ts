@@ -139,7 +139,7 @@ describe('lineCents', () => {
 
 describe('sdílená tabulka zaokrouhlení', () => {
 	it('částky řádků sedí s tabulkou', async () => {
-		const table = await import('~/utils/fixtures/money-parity.json');
+		const table = await import('../fixtures/money-parity.json');
 		// Trojice, ne `number[][]`: bez schématu by z JSONu vylezlo pole neurčité délky a `[q, p,
 		// ocekavano]` by z něj destrukturovalo `number | undefined`.
 		const { cases } = z
@@ -152,7 +152,7 @@ describe('sdílená tabulka zaokrouhlení', () => {
 	});
 
 	it('částka se ve formuláři vypíše stejně jako v PDF', async () => {
-		const table = await import('~/utils/fixtures/money-parity.json');
+		const table = await import('../fixtures/money-parity.json');
 		const { formats } = z
 			.object({ formats: z.array(z.tuple([z.number(), z.string()])) })
 			.parse(table.default ?? table);

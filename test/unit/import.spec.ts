@@ -24,7 +24,8 @@ describe('IČO a DIČ z cizího dokladu', () => {
 	});
 
 	it('DIČ se ukládá bez mezer a prázdné chybí', () => {
-		expect(contactFromImported(customer({ dic: 'CZ 123 456 79' })).dic).toBe('CZ12345679');
+		const result = newContactsFromImport([], [customer({ dic: 'CZ 123 456 79' })]);
+		expect(result.contacts[0]?.dic).toBe('CZ12345679');
 		expect(contactFromImported(customer({ dic: ' ' })).dic).toBeUndefined();
 	});
 

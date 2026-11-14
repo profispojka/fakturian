@@ -1,4 +1,3 @@
-import { isValidDic } from '~/utils/validators';
 import { z, type Zod } from '~/utils/zod';
 
 // DIČ zůstává nepovinné: neplátce DPH ani fyzická osoba ho nemají a ARES pro ně vrací prázdno.
@@ -6,7 +5,7 @@ import { z, type Zod } from '~/utils/zod';
 export const contactSchema = z.object({
 	name: z.string().trim().min(1, 'Povinné pole.'),
 	ico: z.ico(),
-	dic: z.string().refine(isValidDic, 'DIČ má tvar „CZ12345678".').optional(),
+	dic: z.dic().optional(),
 	address: z.object({
 		street: z.string().trim().min(1, 'Povinné pole.'),
 		city: z.string().trim().min(1, 'Povinné pole.'),

@@ -192,7 +192,7 @@ kód ani na jeho knihovnu:
 Generuje se přes `fast-check` s pevným seedem (`test/setup/properties.ts`),
 takže Stryker i opakovaný běh vidí stejné vstupy; hlubší běh pustí
 `FAKTURIAN_PROPTEST_CASES`. Zmenšený protipříklad, který model najde, patří
-i do sdílené tabulky (`src/utils/fixtures/money-parity.json`,
+i do sdílené tabulky (`test/fixtures/money-parity.json`,
 `document-number-parity.json`), kterou čtou testy frontendu i hlavního procesu.
 
 Souběh hlídá `test/nuxt/integration/concurrency.spec.ts`. `backend.scheduler` (scheduler
@@ -245,7 +245,7 @@ obětovat.
 
 - **Peníze v celých haléřích.** Součet řádků na papíře, v ISDOC i v SPAYD se
   nikdy nerozejde; parita frontendu a hlavního procesu stojí na
-  `src/utils/fixtures/money-parity.json`.
+  `test/fixtures/money-parity.json`.
 - **ISDOC 6.0.2 validovaný proti oficiálnímu XSD** přes `xmllint-wasm`
   (libxml2) ve workeru `desktop/isdoc/validator.ts`. Deterministické UUIDv5.
 - **Datumy bez pásmových chyb.** `today()` čte datum v místní zóně, `addDays`
@@ -264,7 +264,7 @@ obětovat.
 - **Path traversal ošetřený v hlavním procesu** všude, kde z čísla dokladu
   vzniká název souboru.
 - **`useVaultFile.save()` odmítá zapsat doménu, kterou se nepodařilo načíst.**
-- **Sdílené fixtures jako jediný zdroj pravdy** (`src/utils/fixtures/*.json`)
+- **Sdílené fixtures jako jediný zdroj pravdy** (`test/fixtures/*.json`)
   čtené testy frontendu i hlavního procesu — vzor pro všechno, kde si obě strany
   musí sedět.
 - **Typová hygiena:** žádné `any` a `@ts-*` v `src/` ani `desktop/`, žádné

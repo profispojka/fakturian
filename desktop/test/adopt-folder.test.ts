@@ -5,10 +5,9 @@ import { fileURLToPath } from 'node:url';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import contract from '~/utils/fixtures/adopt-folder.json' with { type: 'json' };
-
 import { names } from './support.ts';
 
+import contract from '../../test/fixtures/adopt-folder.json' with { type: 'json' };
 import { adoptDocuments, scanVault } from '../adopt.ts';
 import { listInvoices, listUsedNumbers } from '../invoice/index.ts';
 import { parseIsdoc } from '../invoice/isdoc.ts';

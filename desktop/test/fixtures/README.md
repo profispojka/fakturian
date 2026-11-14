@@ -39,7 +39,7 @@ pro `sampleInvoice()` z `desktop/test/invoices.ts`.
 Tři smyšlené faktury, které se tváří jako vystavené cizím softwarem: `IssuingSystem` „Testovací
 fakturační systém 1.0“, jeho pojmenování souborů („Vydaná faktura - 2026017.pdf“) a sedmimístná řada.
 Na nich stojí celý průchod převzetí (`adopt-folder.test.ts`) proti sdílenému kontraktu
-`src/utils/fixtures/adopt-folder.json`, který čte i vitest.
+`test/fixtures/adopt-folder.json`, který čte i vitest.
 
 Vizuál vysázela appka, vložený ISDOC je ručně psané cizí XML beze změny: dodavatel s IČO 12345679,
 dva odběratelé a bankovní spojení ze vzorového účtu ČNB, hodnoty jako v kontraktu. Nový vzorek se

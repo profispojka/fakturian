@@ -46,6 +46,20 @@ beforeEach(async () => {
 });
 
 describe('zakládání a úprava', () => {
+	it('DIČ a PSČ uloží bez mezer a zachová poznámku i vlastní pole adresy', async () => {
+		const original = contact('k1', { note: 'Stálý zákazník' });
+		original.preferences = { delivery: 'email' };
+		original.address.country = 'CZ';
+		await vaultWithCustomers(original);
+		const c = await mountPage('/customers/k1');
+		await c.find('[data-testid="field-dic"]').setValue('cz 255\u00a096641');
+		await c.find('[data-testid="field-address-zip"]').setValue('110\u00a000');
+		await c.find('[data-testid="action-save"]').trigger('click');
+		await vi.waitFor(() => expect(currentPath()).toBe('/customers'));
+
+		expect(savedCustomers()).toEqual([original]);
+	});
+
 	it('bez id zakládá nového odběratele', async () => {
 		const c = await mountPage('/customers/new');
 

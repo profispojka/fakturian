@@ -88,6 +88,33 @@ describe('motiv aplikace', () => {
 });
 
 describe('fakturační údaje', () => {
+	it('PSČ, účet a kód banky uloží bez mezer a ukáže uložené hodnoty', async () => {
+		const supplier = completeSupplier();
+		supplier.invoiceNumberFormat = 'F{NNNN}';
+		supplier.invoiceNumberStart = 'F0042';
+		supplier.address.country = 'CZ';
+		await vaultS(supplier);
+		const c = await mount();
+		await c.find('[data-testid="field-address-zip"]').setValue('110\u00a000');
+		await c.find('[data-testid="field-bankAccount"]').setValue('19 - 2000 145399');
+		await c.find('[data-testid="field-bankCode"]').setValue('08\t00');
+		await c.find('[data-testid="settings-save"]').trigger('click');
+		await flushPromises();
+
+		expect(savedSupplier()).toEqual({
+			...supplier,
+			address: {
+				...supplier.address,
+				zip: '11000',
+			},
+			bankAccount: '19-2000145399',
+			bankCode: '0800',
+		});
+		expect(c.find<HTMLInputElement>('[data-testid="field-address-zip"]').element.value).toBe('11000');
+		expect(c.find<HTMLInputElement>('[data-testid="field-bankAccount"]').element.value).toBe('19-2000145399');
+		expect(c.find<HTMLInputElement>('[data-testid="field-bankCode"]').element.value).toBe('0800');
+	});
+
 	it('formulář předvyplní uložené údaje', async () => {
 		const c = await mount();
 

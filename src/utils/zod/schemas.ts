@@ -1,7 +1,15 @@
 import { z } from 'zod';
 
 import { parseDate, parseIsdocDate } from '~/utils/date';
-import { isValidBankAccount, isValidBankCode, isValidIco, isValidZip } from '~/utils/validators';
+import { isAsciiAlphaNumeric, withoutWhitespace } from '~/utils/strings';
+import { isValidBankAccount, isValidBankCode, isValidDic, isValidIco, isValidZip } from '~/utils/validators';
+
+export function asciiAlphaNumeric(message: string) {
+	return z.string().refine((value) => value.length > 0 && isAsciiAlphaNumeric(value), {
+		error: message,
+		abort: true,
+	});
+}
 
 export function dateString() {
 	return z.string('Povinné pole.').transform((text, ctx) => {
@@ -40,7 +48,7 @@ export function isdocDateOrBlank() {
 export function ico() {
 	return z
 		.string()
-		.regex(/\S/, {
+		.refine((value) => value.trim() !== '', {
 			error: 'Povinné pole.',
 			abort: true,
 		})
@@ -50,7 +58,8 @@ export function ico() {
 export function zip() {
 	return z
 		.string()
-		.regex(/\S/, {
+		.transform(withoutWhitespace)
+		.refine((value) => value.trim() !== '', {
 			error: 'Povinné pole.',
 			abort: true,
 		})
@@ -60,7 +69,8 @@ export function zip() {
 export function bankAccount() {
 	return z
 		.string()
-		.regex(/\S/, {
+		.transform(withoutWhitespace)
+		.refine((value) => value.trim() !== '', {
 			error: 'Povinné pole.',
 			abort: true,
 		})
@@ -70,9 +80,17 @@ export function bankAccount() {
 export function bankCode() {
 	return z
 		.string()
-		.regex(/\S/, {
+		.transform(withoutWhitespace)
+		.refine((value) => value.trim() !== '', {
 			error: 'Povinné pole.',
 			abort: true,
 		})
 		.refine(isValidBankCode, 'Kód banky má 4 číslice.');
+}
+
+export function dic() {
+	return z
+		.string()
+		.transform((value) => withoutWhitespace(value).toUpperCase())
+		.refine(isValidDic, 'DIČ má tvar „CZ12345678".');
 }

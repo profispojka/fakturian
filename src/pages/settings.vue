@@ -78,14 +78,9 @@ async function onDesignPreview() {
 
 async function onSubmit(event: FormSubmitEvent<ValidSupplier>) {
 	if (templateError.value) return;
-	// IČO se ukládá v tvaru ze schématu, ne tak, jak ho uživatel napsal.
-	const typed = {
-		...structuredClone(toRaw(form.value)),
-		ico: event.data.ico,
-	};
 	let next: Supplier;
 	try {
-		next = await continueSeries(typed);
+		next = await continueSeries(event.data);
 		await setSupplier(next);
 	} catch (e) {
 		// Bez odchycení by tlačítko tiše nic neudělalo a chyba skončila v konzoli.

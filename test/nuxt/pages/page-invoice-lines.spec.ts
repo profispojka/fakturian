@@ -123,11 +123,11 @@ describe('odběratel', () => {
 		expect(layer().find(`[data-testid="customer-remember"]${CHECKBOX}`).attributes('aria-checked')).toBe('true');
 		await layer().find('[data-testid="customer-field-name"]').setValue('Pekárna Novák');
 		await layer().find('[data-testid="customer-field-ico"]').setValue('27082440');
-		await layer().find('[data-testid="customer-field-dic"]').setValue('CZ27082440');
+		await layer().find('[data-testid="customer-field-dic"]').setValue('cz 270\u00a082440');
 		await layer().find('[data-testid="customer-field-email"]').setValue('pekarna@novak.cz');
 		await layer().find('[data-testid="customer-field-street"]').setValue('Pekařská 3');
 		await layer().find('[data-testid="customer-field-city"]').setValue('Olomouc');
-		await layer().find('[data-testid="customer-field-zip"]').setValue('77900');
+		await layer().find('[data-testid="customer-field-zip"]').setValue('779 00');
 		await layer().find('[data-testid="customer-dialog-confirm"]').trigger('click');
 		await flushPromises();
 

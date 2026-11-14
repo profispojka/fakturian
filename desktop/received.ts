@@ -1,5 +1,5 @@
 import { lstat, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { basename, extname, join } from 'node:path';
+import { basename, extname, join, parse as parsePath } from 'node:path';
 
 import { DocumentKind } from '~/constants/invoice';
 import { parseIsdocDate } from '~/utils/date';
@@ -45,8 +45,7 @@ function sourceFileName(source: string): string {
 // Doklady subdodavatelů se běžně jmenují `faktura.pdf`. Jméno se zabírá atomicky: mezi dotazem
 // „existuje?“ a kopií by soubor mohl založit souběžný import nebo synchronizace.
 async function createFreeTarget(dir: string, name: string): Promise<string> {
-	const extension = extname(name);
-	const stem = name.slice(0, -extension.length);
+	const { name: stem, ext: extension } = parsePath(name);
 	// Stryker disable next-line BlockStatement: mutant smyčku zacyklí, skončí jen timeoutem.
 	for (let attempt = 1; ; attempt += 1) {
 		// Stryker disable next-line ConditionalExpression,StringLiteral: mutant smyčku zacyklí, skončí jen timeoutem.

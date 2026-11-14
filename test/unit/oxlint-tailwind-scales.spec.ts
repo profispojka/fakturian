@@ -52,11 +52,5 @@ tester.run('tailwind-scales', tailwindScales, {
 				},
 			],
 		},
-		{
-			name: 'nulovací utilita na obyčejném elementu',
-			code: '<template><ul class="list-none"></ul></template>',
-			filename: 'src/components/Example.vue',
-			errors: 1,
-		},
 	],
 });

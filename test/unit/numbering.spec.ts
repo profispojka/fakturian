@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_TEMPLATE } from '~/constants/numbering';
 import { emptySupplier } from '~/schemas/suppliers';
-import parity from '~/utils/fixtures/document-number-parity.json';
 import {
 	continuedStart,
 	fitsTemplate,
@@ -14,6 +13,8 @@ import {
 	validateNumber,
 	validateTemplate,
 } from '~/utils/numbering';
+
+import parity from '../fixtures/document-number-parity.json';
 
 describe('templateOf', () => {
 	it('prázdná šablona i chybějící dodavatel znamenají výchozí', () => {

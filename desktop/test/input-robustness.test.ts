@@ -56,7 +56,7 @@ const FIO_SEED = new TextEncoder().encode(
 const JSON_SEEDS = [
 	...(await Promise.all(
 		['adopt-folder.json', 'document-number-parity.json', 'money-parity.json'].map((name) =>
-			readFile(new URL(`../../src/utils/fixtures/${name}`, import.meta.url)),
+			readFile(new URL(`../../test/fixtures/${name}`, import.meta.url)),
 		),
 	)),
 	new TextEncoder().encode(

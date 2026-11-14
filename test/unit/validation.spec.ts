@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { contactSchema } from '~/schemas/customers';
 import { invoiceLineSchema, invoiceSchema, newInvoice } from '~/schemas/invoices';
-import { priceItemSchema } from '~/schemas/pricelist';
+import { priceItemSchema, priceItemStoredSchema } from '~/schemas/pricelist';
 import {
 	defaultDueDaysSchema,
 	supplierReadyForInvoicing,
@@ -125,9 +125,11 @@ describe('isValidIco', () => {
 		expect(isValidIco('abc12345')).toBe(false);
 		expect(isValidIco('')).toBe(false);
 	});
-	it('toleruje mezery', () => {
-		expect(isValidIco('270 824 40')).toBe(true);
-		expect(isValidIco('270\u00a0824\u00a040')).toBe(true);
+	it('mezery a chybějící úvodní nuly neprojdou', () => {
+		expect(isValidIco('270 824 40')).toBe(false);
+		expect(isValidIco(' 27082440')).toBe(false);
+		expect(isValidIco('270\u00a0824\u00a040')).toBe(false);
+		expect(isValidIco('2345679')).toBe(false);
 	});
 });
 
@@ -469,6 +471,22 @@ describe('priceItemSchema', () => {
 	});
 	it('platná položka', () => {
 		expect(invalidFields(priceItemSchema, p())).toEqual([]);
+	});
+	it('uložená položka odmítne prázdný název a jednotku i zápornou cenu', () => {
+		expect(
+			invalidFields(priceItemStoredSchema, {
+				...p(),
+				name: ' ',
+				unit: '',
+				priceCents: -1,
+			}),
+		).toEqual(['name', 'priceCents', 'unit']);
+		expect(
+			priceItemStoredSchema.safeParse({
+				...p(),
+				priceCents: 0,
+			}).success,
+		).toBe(true);
 	});
 	it('chybějící jméno / jednotka', () => {
 		const x = p();
@@ -1081,8 +1099,7 @@ describe('nepovinná pole, která na vstupu vůbec nejsou', () => {
 });
 
 describe('chybějící vstup místo prázdného řetězce', () => {
-	it('chybějící IČO, DIČ a PSČ jsou neplatné, ne pád', () => {
-		expect(isValidIco(undefined)).toBe(false);
+	it('chybějící DIČ a PSČ jsou neplatné, ne pád', () => {
 		expect(isValidDic(undefined)).toBe(false);
 		expect(isValidZip(undefined)).toBe(false);
 	});

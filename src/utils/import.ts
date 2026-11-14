@@ -2,16 +2,16 @@ import { contactSchema, type Contact } from '~/schemas/customers';
 import { emptySupplier, type Supplier } from '~/schemas/suppliers';
 import { normalizeSearchText } from '~/utils/crud';
 import { issuesText } from '~/utils/errors';
+import { withoutWhitespace } from '~/utils/strings';
 
 import type { AdoptedSupplier, ImportedCustomer } from '~/schemas/import';
 
-// IČO a DIČ bez mezer, jinak na nich neuspěje deduplikace odběratelů.
 export function contactFromImported(c: ImportedCustomer): Contact {
 	return {
 		id: crypto.randomUUID(),
 		name: c.name.trim(),
-		ico: c.ico.replace(/\s/g, ''),
-		dic: c.dic.replace(/\s/g, '') || undefined,
+		ico: c.ico,
+		dic: c.dic.trim() || undefined,
 		address: {
 			street: c.address.street.trim(),
 			city: c.address.city.trim(),
@@ -27,10 +27,13 @@ export function supplierFromAdopted(d: AdoptedSupplier): Supplier {
 		...defaultValue,
 		name: d.name,
 		ico: d.ico,
-		address: d.address,
+		address: {
+			...d.address,
+			zip: withoutWhitespace(d.address.zip),
+		},
 		registration: d.registration,
-		bankAccount: d.bankAccount,
-		bankCode: d.bankCode,
+		bankAccount: withoutWhitespace(d.bankAccount),
+		bankCode: withoutWhitespace(d.bankCode),
 		email: d.email || undefined,
 		defaultDueDays: d.defaultDueDays ?? defaultValue.defaultDueDays,
 		// Bez toho by řada uprostřed roku změnila tvar: po `2026022` z iDokladu by výchozí šablona
@@ -61,7 +64,11 @@ export function newContactsFromImport(existing: Contact[], imported: ImportedCus
 		});
 		if (known) continue;
 		const checked = contactSchema.safeParse(candidate);
-		if (checked.success) contacts.push(candidate);
+		if (checked.success)
+			contacts.push({
+				...candidate,
+				...checked.data,
+			});
 		else
 			refused.push({
 				name: candidate.name || 'odběratel bez jména',

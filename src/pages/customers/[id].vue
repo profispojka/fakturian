@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { contactSchema, emptyContact, type Contact } from '~/schemas/customers';
+import { contactStoredSchema, emptyContact, type Contact } from '~/schemas/customers';
+
+import type { FormSubmitEvent } from '@nuxt/ui';
 
 definePageMeta({ alias: ['/customers/new'] });
 
@@ -51,10 +53,10 @@ async function fillFromAres() {
 	contact.value = next;
 }
 
-async function save() {
+async function save(event: FormSubmitEvent<Contact>) {
 	status.clear();
 	try {
-		await upsert(structuredClone(toRaw(contact.value)));
+		await upsert(event.data);
 	} catch (e) {
 		status.error('Odběratele se nepodařilo uložit', e);
 		return;
@@ -65,7 +67,7 @@ async function save() {
 </script>
 
 <template>
-	<UForm v-slot="{ loading }" class="page detail-page" :state="contact" :schema="contactSchema" @submit="save">
+	<UForm v-slot="{ loading }" class="page detail-page" :state="contact" :schema="contactStoredSchema" @submit="save">
 		<header class="detail-header" data-drag-region>
 			<span
 				class="flex size-10 shrink-0 items-center justify-center rounded-xl border border-line-soft bg-card text-ink-2">

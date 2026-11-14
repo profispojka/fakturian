@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { DocumentKind, NON_VAT_PAYER_NOTE } from '~/constants/invoice';
-import moneyParity from '~/utils/fixtures/money-parity.json' with { type: 'json' };
 import { z } from '~/utils/zod';
 
+import moneyParity from '../../../test/fixtures/money-parity.json' with { type: 'json' };
 import { qrPng } from '../../invoice/payment.ts';
 import { czDate, czkCents, invoiceData, invoiceTypst } from '../../invoice/template.ts';
 import { compileTypst, renderTypstPdf, renderTypstSvg } from '../../pdf.ts';
