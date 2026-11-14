@@ -494,7 +494,10 @@ fakturian/
 │   ├── templates/            # Typst šablony dokladů
 │   └── test/                 # testy hlavního procesu a formátů
 ├── test/                     # testy a testovací infrastruktura
-│   └── e2e/                  # Playwright scénáře, jejich podpora a vizuální baseline
+│   ├── unit/                 # čistá logika bez Nuxt runtime
+│   ├── nuxt/                 # komponenty, composables, stránky a integrace
+│   ├── e2e/                  # Playwright smoke, workflows a vizuální scénáře
+│   └── smoke/                # kontrola zabalené aplikace
 └── tools/                    # build, kontrolní, testovací a mutační skripty
 ```
 

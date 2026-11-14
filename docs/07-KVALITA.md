@@ -45,18 +45,18 @@ které patří.
 `bun run check` je jeden řetěz kroků; přesné pořadí je skript `check`
 v `package.json`. Každý krok musí projít, jinak řetěz skončí.
 
-| Krok                         | Co ověřuje                                                                                                                                                      |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `lint:check`                 | oxlint (vlastní pravidla v `tools/lint/oxlint-fakturian.ts`) a ESLint nad `<script>` a šablonou `.vue` (type-aware pravidla, `data-testid`, nescoped `<style>`) |
-| `lint:scales`                | Tailwind používá projektové stupnice, tokeny a zlomy `split:`/`wide:`; žádné no-op utility na obyčejném elementu                                                |
-| `lint:dead-css`              | tvar v `main.css` nosí víc souborů, mrtvý tvar nenosí nikdo, `<style>` blok začíná `@reference`                                                                 |
-| `format:check`               | formát přes oxfmt                                                                                                                                               |
-| `typecheck`                  | typy frontendu, hlavního procesu (`desktop/tsconfig.json`), nástrojů a skriptů showcase; Vitest testy se netypují                                               |
-| `typecheck:e2e`              | typy E2E scénářů a jejich podpory (`test/e2e/tsconfig.json`)                                                                                                    |
-| `bun run test -- --coverage` | Vitest projekty `unit`, `nuxt` a `desktop` a 100% prahy pro každý zahrnutý soubor                                                                               |
-| `generate`                   | statický Nuxt build                                                                                                                                             |
-| `desktop:build`              | esbuild hlavního procesu, validátoru ISDOC a preloadu do `.output/desktop/`                                                                                     |
-| `bun audit --audit-level=low` | advisories JS závislostí                                                                                                                                       |
+| Krok                          | Co ověřuje                                                                                                                                                      |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lint:check`                  | oxlint (vlastní pravidla v `tools/lint/oxlint-fakturian.ts`) a ESLint nad `<script>` a šablonou `.vue` (type-aware pravidla, `data-testid`, nescoped `<style>`) |
+| `lint:scales`                 | Tailwind používá projektové stupnice, tokeny a zlomy `split:`/`wide:`; žádné no-op utility na obyčejném elementu                                                |
+| `lint:dead-css`               | tvar v `main.css` nosí víc souborů, mrtvý tvar nenosí nikdo, `<style>` blok začíná `@reference`                                                                 |
+| `format:check`                | formát přes oxfmt                                                                                                                                               |
+| `typecheck`                   | typy frontendu, hlavního procesu (`desktop/tsconfig.json`), nástrojů a skriptů showcase; Vitest testy se netypují                                               |
+| `typecheck:e2e`               | typy E2E scénářů a jejich podpory (`test/e2e/tsconfig.json`)                                                                                                    |
+| `bun run test -- --coverage`  | Vitest projekty `unit`, `nuxt` a `desktop` a 100% prahy pro každý zahrnutý soubor                                                                               |
+| `generate`                    | statický Nuxt build                                                                                                                                             |
+| `desktop:build`               | esbuild hlavního procesu, validátoru ISDOC a preloadu do `.output/desktop/`                                                                                     |
+| `bun audit --audit-level=low` | advisories JS závislostí                                                                                                                                        |
 
 Vitest používá `tools/testing/required-tests-reporter.ts`. Prázdná nebo
 přeskočená sada, skip/todo, neúspěšný hook, neošetřená chyba i úspěch až po
@@ -180,8 +180,8 @@ Peníze, kalendář, číslování a čerpání limitů mají vedle tabulkových
 generované vstupy porovnané s nezávislým modelem — model nesahá na testovaný
 kód ani na jeho knihovnu:
 
-| oblast    | model                                                    | kde                                                           |
-| --------- | -------------------------------------------------------- | ------------------------------------------------------------- |
+| oblast    | model                                                    | kde                                                                |
+| --------- | -------------------------------------------------------- | ------------------------------------------------------------------ |
 | peníze    | přesná aritmetika v `BigInt`, půlka od nuly, strop       | `test/unit/money.spec.ts`, `desktop/test/invoice/template.test.ts` |
 | kalendář  | pořadové číslo dne (`days_from_civil`), měsíc jako index | `test/unit/date.spec.ts`                                           |
 | číslování | množina použitých pořadí, další = max + 1 nebo start     | `test/unit/numbering.spec.ts`, `desktop/test/numbering.test.ts`    |
@@ -212,8 +212,9 @@ bun run test:e2e:visual
 Sada Playwright (`_electron`, `test/e2e/app.ts`) pouští postavenou appku ve
 skutečném okně Electronu. Každý test dostane vlastní dočasný domov a kopii
 syntetického vaultu z `test/e2e/fixtures/vault`; průchody aplikací jsou v
-`test/e2e/workflows/` a vizuální scénáře v `test/e2e/visual/` fotí ukázkový vault
-z `desktop/examples/demo-vault.ts` proti snímkům v `test/e2e/visual-baselines/`.
+`test/e2e/workflows/`, krátký start aplikace v `test/e2e/smoke/` a vizuální
+scénáře v `test/e2e/visual/` fotí ukázkový vault z
+`desktop/examples/demo-vault.ts` proti snímkům v `test/e2e/visual-baselines/`.
 
 Job `e2e` v CI pouští sadu s `--ignore-snapshots`: snímky vznikly na vývojovém
 Macu a systémové písmo runneru se vykreslí jinak. Vizuální sadu proto ověřuje

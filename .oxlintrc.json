@@ -150,6 +150,7 @@
 			"rules": {
 				"fakturian/await-standalone": "error",
 				"fakturian/error-text": "error",
+				"fakturian/tailwind-scales": "error",
 				"fakturian/shortcut-guard": "error",
 				"fakturian/no-alias-function": "error",
 				"fakturian/comment-style": "error",

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { globSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 
 import { parse } from 'postcss';
 
@@ -16,7 +16,6 @@ interface ScaleIndex {
 }
 
 const CSS = 'src/assets/css/main.css';
-const SOURCES = ['src/**/*.vue', 'src/**/*.ts', CSS];
 
 const clean = (value: string): string => value.replace(/\/\*.*?\*\//g, '').trim();
 
@@ -59,13 +58,17 @@ const COLOR = String.raw`(?:text|bg|border|border-[tblrxyse]|fill|stroke|outline
  * Vrací `{ line, found, want }`; `want` je celá třída, která se má napsat místo nalezené, ne jen
  * jméno tokenu — ať se oprava dá přepsat rovnou, bez dohledávání předpony.
  */
-export function offenders(text: string, index: ScaleIndex): { line: number; found: string; want: string }[] {
-	const hits: { line: number; found: string; want: string }[] = [];
+export function offenders(
+	text: string,
+	index: ScaleIndex,
+): { line: number; column: number; found: string; want: string }[] {
+	const hits: { line: number; column: number; found: string; want: string }[] = [];
 	const lines = text.split('\n');
 	for (const [i, line] of lines.entries()) {
-		const at = (found: string, want: string): number =>
+		const at = (found: string, want: string, column: number): number =>
 			hits.push({
 				line: i + 1,
+				column,
 				found,
 				want,
 			});
@@ -84,49 +87,65 @@ export function offenders(text: string, index: ScaleIndex): { line: number; foun
 				whole: false,
 			},
 		};
-		for (const [, prefix, raw] of line.matchAll(/\b(text|leading|rounded)-\[([^\]]+)\]/g)) {
+		for (const match of line.matchAll(/\b(text|leading|rounded)-\[([^\]]+)\]/g)) {
+			const [, prefix, raw] = match;
 			if (prefix === undefined || raw === undefined) continue;
 			const entry = SCALES[prefix];
 			if (!entry) continue;
 			const { family, whole } = entry;
 			const name = family.get(raw.replaceAll('_', ' '));
-			if (name) at(`${prefix}-[${raw}]`, whole ? name : `${prefix}-${name}`);
+			if (name) at(`${prefix}-[${raw}]`, whole ? name : `${prefix}-${name}`, (match.index ?? 0) + 1);
 		}
 
-		for (const [, prefix, raw] of line.matchAll(new RegExp(String.raw`\b(${COLOR})-\[([^\]]+)\]`, 'g'))) {
+		for (const match of line.matchAll(new RegExp(String.raw`\b(${COLOR})-\[([^\]]+)\]`, 'g'))) {
+			const [, prefix, raw] = match;
 			if (prefix === undefined || raw === undefined) continue;
 			const name = index.literal.get(asColor(raw));
-			if (name) at(`${prefix}-[${raw}]`, `${prefix}-${name}`);
+			if (name) at(`${prefix}-[${raw}]`, `${prefix}-${name}`, (match.index ?? 0) + 1);
 		}
 
-		for (const [, prefix, token] of line.matchAll(new RegExp(String.raw`\b(${COLOR})-\(--([a-z0-9-]+)\)`, 'g'))) {
+		for (const match of line.matchAll(new RegExp(String.raw`\b(${COLOR})-\(--([a-z0-9-]+)\)`, 'g'))) {
+			const [, prefix, token] = match;
 			if (prefix === undefined || token === undefined) continue;
 			const name = index.alias.get(token);
-			if (name) at(`${prefix}-(--${token})`, `${prefix}-${name}`);
+			if (name) at(`${prefix}-(--${token})`, `${prefix}-${name}`, (match.index ?? 0) + 1);
 		}
 
 		const mix = /\b(\w[\w-]*)-\[color-mix\(in[_ ]srgb,var\(--([a-z0-9-]+)\)[_ ](\d+)%,transparent\)\]/g;
-		for (const [, prefix, token, percent] of line.matchAll(mix)) {
+		for (const match of line.matchAll(mix)) {
+			const [, prefix, token, percent] = match;
 			if (prefix === undefined || token === undefined || percent === undefined) continue;
 			const name = index.alias.get(token);
-			if (name) at(`${prefix}-[color-mix(…${token} ${percent}%…)]`, `${prefix}-${name}/${percent}`);
+			if (name)
+				at(
+					`${prefix}-[color-mix(…${token} ${percent}%…)]`,
+					`${prefix}-${name}/${percent}`,
+					(match.index ?? 0) + 1,
+				);
 		}
 
-		for (const [, prefix] of line.matchAll(/(?<![\w:-])(sm|md|lg|xl|2xl):[a-z!-]/g)) {
-			if (prefix !== undefined) at(`${prefix}:`, 'split: nebo wide: — výchozí zlomy jsou jen kvůli Nuxt UI');
+		for (const match of line.matchAll(/(?<![\w:-])(sm|md|lg|xl|2xl):[a-z!-]/g)) {
+			const [, prefix] = match;
+			if (prefix !== undefined)
+				at(`${prefix}:`, 'split: nebo wide: — výchozí zlomy jsou jen kvůli Nuxt UI', (match.index ?? 0) + 1);
 		}
 
-		for (const [, kind, px] of line.matchAll(/\b(min|max)-\[(\d+)px\]:/g)) {
+		for (const match of line.matchAll(/\b(min|max)-\[(\d+)px\]:/g)) {
+			const [, kind, px] = match;
 			if (kind === undefined || px === undefined) continue;
 			const width = Number.parseInt(px, 10);
 			const dead = kind === 'min' ? width <= index.floor : width < index.floor;
 			if (dead) {
 				const always = kind === 'min' ? 'vždycky pravda' : 'vždycky nepravda';
-				at(`${kind}-[${px}px]:`, `smazat — ${always}, okno se pod ${index.floor} px nezmenší`);
+				at(
+					`${kind}-[${px}px]:`,
+					`smazat — ${always}, okno se pod ${index.floor} px nezmenší`,
+					(match.index ?? 0) + 1,
+				);
 				continue;
 			}
 			const name = index.breakpoint.get(kind === 'min' ? width : width + 1);
-			if (name) at(`${kind}-[${px}px]:`, `${kind === 'min' ? '' : 'max-'}${name}:`);
+			if (name) at(`${kind}-[${px}px]:`, `${kind === 'min' ? '' : 'max-'}${name}:`, (match.index ?? 0) + 1);
 		}
 	}
 	return hits;
@@ -136,13 +155,17 @@ export function offenders(text: string, index: ScaleIndex): { line: number; foun
 // její výchozí vzhled, proto se hlásí jen u značky psané malými písmeny.
 const NOOP = /(?<![\w:!-])(m-0|p-0|px-0|py-0|mx-0|my-0|border-0|list-none)(?![\w!-])/g;
 
-export function noops(text: string): { line: number; found: string; want: string }[] {
-	const hits: { line: number; found: string; want: string }[] = [];
+export function noops(text: string): { line: number; column: number; found: string; want: string }[] {
+	const hits: { line: number; column: number; found: string; want: string }[] = [];
 	for (const [i, line] of text.split('\n').entries()) {
-		for (const [, classes] of line.matchAll(/<[a-z][a-z0-9]*\b[^>]*?\bclass="([^"]*)"/g)) {
-			for (const [found] of (classes ?? '').matchAll(NOOP)) {
+		for (const match of line.matchAll(/<[a-z][a-z0-9]*\b[^>]*?\bclass="([^"]*)"/g)) {
+			const classes = match[1] ?? '';
+			const classesColumn = (match.index ?? 0) + match[0].indexOf(classes);
+			for (const classMatch of classes.matchAll(NOOP)) {
+				const found = classMatch[0];
 				hits.push({
 					line: i + 1,
+					column: classesColumn + (classMatch.index ?? 0) + 1,
 					found,
 					want: 'smazat — preflight to už nuluje (proti Nuxt UI s `!`)',
 				});
@@ -154,17 +177,11 @@ export function noops(text: string): { line: number; found: string; want: string
 
 if (import.meta.main) {
 	const index = scaleIndex(readFileSync(CSS, 'utf8'), MIN_WINDOW_SIZE.width);
-	let total = 0;
-	for (const file of SOURCES.flatMap((pattern) => globSync(pattern)).toSorted((a, b) => a.localeCompare(b))) {
-		const text = readFileSync(file, 'utf8');
-		const hits = file.endsWith('.vue') ? [...offenders(text, index), ...noops(text)] : offenders(text, index);
-		for (const hit of hits) {
-			console.error(`${file}:${hit.line}  ${hit.found}  →  ${hit.want}`);
-			total += 1;
-		}
-	}
+	const hits = offenders(readFileSync(CSS, 'utf8'), index);
+	for (const hit of hits) console.error(`${CSS}:${hit.line}  ${hit.found}  →  ${hit.want}`);
+	const total = hits.length;
 	if (total > 0) {
-		console.error(`\n${total}× třída mimo škály a zlomy z ${CSS}.`);
+		console.error(`\n${total}× třída mimo škály a zlomy v ${CSS}.`);
 		process.exit(1);
 	}
 }

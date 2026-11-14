@@ -135,6 +135,6 @@ export async function snap({ app, page }: Desktop, name: string): Promise<void> 
 	});
 	await expect(page).toHaveScreenshot(`${name}.png`, {
 		maxDiffPixelRatio: MAX_MISMATCH,
-		stylePath: join(ROOT, 'e2e', 'snapshot.css'),
+		stylePath: join(ROOT, 'test', 'e2e', 'snapshot.css'),
 	});
 }

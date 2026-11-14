@@ -1,4 +1,9 @@
+import { readFileSync } from 'node:fs';
 import { basename, dirname, relative } from 'node:path';
+
+import { noops, offenders, scaleIndex } from './check-tailwind-scales.ts';
+
+import { MIN_WINDOW_SIZE } from '../../desktop/window-size.ts';
 
 import type { RuleTester } from 'oxlint/plugins-dev';
 
@@ -10,6 +15,11 @@ type Expression = CallNode['callee'];
 type Argument = CallNode['arguments'][number];
 type FunctionNode = Parameters<NonNullable<Visitor['ArrowFunctionExpression']>>[0];
 type Comment = ProgramNode['comments'][number];
+
+const TAILWIND_SCALE_INDEX = scaleIndex(
+	readFileSync(new URL('../../src/assets/css/main.css', import.meta.url), 'utf8'),
+	MIN_WINDOW_SIZE.width,
+);
 
 // Závorky se tu neřeší: AST, které oxlint podává pluginu, je nedrží — rodičem `await`u v `!(await f())`
 // je rovnou `UnaryExpression`.
@@ -575,6 +585,32 @@ export const exactText: Rule = {
 	},
 };
 
+export const tailwindScales: Rule = {
+	meta: {
+		docs: {
+			description: 'Třídy používají projektové škály, tokeny a pojmenované zlomy.',
+		},
+	},
+	create(context) {
+		return {
+			Program() {
+				const source = context.sourceCode.text;
+				const hits = offenders(source, TAILWIND_SCALE_INDEX);
+				if (context.filename.endsWith('.vue')) hits.push(...noops(source));
+				for (const hit of hits) {
+					context.report({
+						message: `${hit.found} → ${hit.want}`,
+						loc: {
+							line: hit.line,
+							column: hit.column,
+						},
+					});
+				}
+			},
+		};
+	},
+};
+
 // oxfmt vynutit rozbalení neumí; při `objectWrap: preserve` ale nechá objekt rozbalený, jakmile za `{` stojí
 // nový řádek. Oprava ho proto jen vloží a vlastnosti na řádky rozhodí formátovač.
 export const objectMultiline: Rule = {
@@ -618,6 +654,7 @@ export default {
 		'no-alias-function': noAliasFunction,
 		'comment-style': commentStyle,
 		'exact-text': exactText,
+		'tailwind-scales': tailwindScales,
 		'object-multiline': objectMultiline,
 	},
 };
