@@ -66,7 +66,7 @@ run typecheck bun run typecheck
 
 # Konfigurace bez Nuxt projektu: jeho příprava sahá do `.nuxt`, kam může stavět běžící dev server.
 if [ -n "$desktop" ]; then
-	run test:desktop bunx vitest related --run --config vitest.mutation.config.ts --project desktop --passWithNoTests $desktop
+	run test:related bunx vitest related --run --config vitest.mutation.config.ts --project desktop --passWithNoTests $desktop
 fi
 
 if [ -n "$fail" ]; then

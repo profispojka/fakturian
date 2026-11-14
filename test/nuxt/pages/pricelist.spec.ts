@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { usePricelist } from '~/composables/usePricelist';
 import { useVaultData } from '~/composables/useVaultData';
 
-import { backend } from '../setup/backend';
-import { savedField, prepareVault, writes } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { savedField, prepareVault, writes } from '../../setup/vault';
 
 import type { PriceItem } from '~/schemas/pricelist';
 

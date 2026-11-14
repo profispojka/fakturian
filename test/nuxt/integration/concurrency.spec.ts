@@ -9,9 +9,9 @@ import { useVaultFile } from '~/composables/useVaultFile';
 import { newInvoice } from '~/schemas/invoices';
 import { z } from '~/utils/zod';
 
-import { backend, resetBackend, wireInvoice } from '../setup/backend';
-import { validInvoice } from '../setup/fixtures';
-import { prepareVault } from '../setup/vault';
+import { backend, resetBackend, wireInvoice } from '../../setup/backend';
+import { validInvoice } from '../../setup/fixtures';
+import { prepareVault } from '../../setup/vault';
 
 const NUMBERS = ['20260001', '20260002', '20260003'];
 

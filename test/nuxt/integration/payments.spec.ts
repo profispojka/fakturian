@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { usePayments } from '~/composables/usePayments';
 
-import { backend } from '../setup/backend';
-import { date } from '../setup/dates';
-import { prepareVault, saved, writes } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { date } from '../../setup/dates';
+import { prepareVault, saved, writes } from '../../setup/vault';
 
 beforeEach(async () => {
 	await prepareVault();

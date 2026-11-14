@@ -8,9 +8,9 @@ import { addDays, today } from '~/utils/date';
 import { contactToParty } from '~/utils/invoice';
 import { czkFromCents } from '~/utils/money';
 
-import { backend } from '../setup/backend';
-import { date } from '../setup/dates';
-import { completeSupplier } from '../setup/fixtures';
+import { backend } from '../../setup/backend';
+import { date } from '../../setup/dates';
+import { completeSupplier } from '../../setup/fixtures';
 import {
 	invoiceInVault,
 	contact,
@@ -19,8 +19,8 @@ import {
 	state,
 	savedInvoice,
 	save,
-} from '../setup/invoice-page';
-import { answerDialog, currentPath, goto, layer, pickDate } from '../setup/mount';
+} from '../../setup/invoice-page';
+import { answerDialog, currentPath, goto, layer, pickDate } from '../../setup/mount';
 
 beforeEach(async () => {
 	await prepareInvoicePage();

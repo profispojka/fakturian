@@ -5,7 +5,7 @@ import { defineComponent, h, ref } from 'vue';
 import DashboardRevenueChart from '~/components/dashboard/RevenueChart.vue';
 import { czkFromCents } from '~/utils/money';
 
-import { CHART_TOKENS, mountUi } from '../setup/mount';
+import { CHART_TOKENS, mountUi } from '../../setup/mount';
 
 interface RevenueOption {
 	xAxis: { data: string[] };

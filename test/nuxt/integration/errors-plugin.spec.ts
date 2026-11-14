@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import plugin from '~/plugins/errors.client';
 
-import { runPlugin } from '../setup/plugin';
+import { runPlugin } from '../../setup/plugin';
 
 // `PromiseRejectionEvent` happy-dom nemá; plugin z události čte jen `reason`.
 class Rejection extends Event {

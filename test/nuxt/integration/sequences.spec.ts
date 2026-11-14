@@ -8,9 +8,9 @@ import { useSettings } from '~/composables/useSettings';
 import { useVault } from '~/composables/useVault';
 import { useVaultData } from '~/composables/useVaultData';
 
-import { backend, resetBackend } from '../setup/backend';
-import { completeSupplier, validInvoice } from '../setup/fixtures';
-import { prepareVault } from '../setup/vault';
+import { backend, resetBackend } from '../../setup/backend';
+import { completeSupplier, validInvoice } from '../../setup/fixtures';
+import { prepareVault } from '../../setup/vault';
 
 import type { AsyncCommand } from 'fast-check';
 

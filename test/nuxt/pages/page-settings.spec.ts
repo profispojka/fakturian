@@ -12,10 +12,10 @@ import { SAMPLE_INVOICE } from '~/constants/sample-invoice';
 import { newInvoice } from '~/schemas/invoices';
 import { emptySupplier, type Supplier } from '~/schemas/suppliers';
 
-import { backend, wireInvoice } from '../setup/backend';
-import { completeSupplier } from '../setup/fixtures';
-import { mountPage, answerDialog, currentPath, dialogDestructive, goto, layer } from '../setup/mount';
-import { prepareVault, saved, writes } from '../setup/vault';
+import { backend, wireInvoice } from '../../setup/backend';
+import { completeSupplier } from '../../setup/fixtures';
+import { mountPage, answerDialog, currentPath, dialogDestructive, goto, layer } from '../../setup/mount';
+import { prepareVault, saved, writes } from '../../setup/vault';
 
 const { useColorModeMock } = vi.hoisted(() => ({ useColorModeMock: vi.fn() }));
 mockNuxtImport('useColorMode', () => useColorModeMock);

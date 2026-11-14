@@ -6,8 +6,8 @@ import { useVault } from '~/composables/useVault';
 import { useVaultFile } from '~/composables/useVaultFile';
 import { z } from '~/utils/zod';
 
-import { backend } from '../setup/backend';
-import { answerDialog, layer, mountUi } from '../setup/mount';
+import { backend } from '../../setup/backend';
+import { answerDialog, layer, mountUi } from '../../setup/mount';
 
 /** Doména vymyšlená schválně pro tenhle test. */
 interface Data {

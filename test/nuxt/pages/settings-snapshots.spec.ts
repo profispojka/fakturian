@@ -4,9 +4,9 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import Snapshots from '~/components/settings/Snapshots.vue';
 import { useVault } from '~/composables/useVault';
 
-import { backend } from '../setup/backend';
-import { mountUi } from '../setup/mount';
-import { prepareVault } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { mountUi } from '../../setup/mount';
+import { prepareVault } from '../../setup/vault';
 
 const SNAPSHOTS = '/vault/.fakturian/snapshots';
 

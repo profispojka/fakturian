@@ -6,9 +6,9 @@ import { CLOSE_REQUESTED_EVENT } from '~/bindings';
 import { useUnsavedGuard } from '~/composables/useForm';
 import plugin from '~/plugins/unsaved-guard.client';
 
-import { backend, outsideDesktop, requestClose } from '../setup/backend';
-import { mountUi } from '../setup/mount';
-import { runPlugin } from '../setup/plugin';
+import { backend, outsideDesktop, requestClose } from '../../setup/backend';
+import { mountUi } from '../../setup/mount';
+import { runPlugin } from '../../setup/plugin';
 
 function openPage(canDiscard: boolean) {
 	return mountUi(

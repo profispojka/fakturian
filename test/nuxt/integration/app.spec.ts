@@ -9,9 +9,9 @@ import { useVault } from '~/composables/useVault';
 import { emptySupplier, type Supplier } from '~/schemas/suppliers';
 import { NOT_DESKTOP_MESSAGE } from '~/utils/desktop';
 
-import { backend, outsideDesktop } from '../setup/backend';
-import { completeSupplier } from '../setup/fixtures';
-import { mountUi, currentPath, focusSvgIcon, shortcut } from '../setup/mount';
+import { backend, outsideDesktop } from '../../setup/backend';
+import { completeSupplier } from '../../setup/fixtures';
+import { mountUi, currentPath, focusSvgIcon, shortcut } from '../../setup/mount';
 
 async function mount() {
 	// Stránky mají vlastní specy a potřebují data i náhrady, o které tady nejde.

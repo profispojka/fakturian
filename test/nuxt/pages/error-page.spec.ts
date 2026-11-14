@@ -4,7 +4,7 @@ import { defineComponent, h, shallowRef } from 'vue';
 
 import ErrorPage from '~/error.vue';
 
-import { currentPath, goto, mountUi } from '../setup/mount';
+import { currentPath, goto, mountUi } from '../../setup/mount';
 
 describe('chybová stránka', () => {
 	it('řekne, co se stalo, a ukáže důvod', () => {

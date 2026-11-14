@@ -493,8 +493,8 @@ fakturian/
 ├── desktop/                  # hlavní proces: okno, soubory, doklady, PDF, MCP
 │   ├── templates/            # Typst šablony dokladů
 │   └── test/                 # testy hlavního procesu a formátů
-├── test/                     # Vitest projekty a testovací infrastruktura
-├── e2e/                      # E2E scénáře a vizuální baseline
+├── test/                     # testy a testovací infrastruktura
+│   └── e2e/                  # Playwright scénáře, jejich podpora a vizuální baseline
 └── tools/                    # build, kontrolní, testovací a mutační skripty
 ```
 

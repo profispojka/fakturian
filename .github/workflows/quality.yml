@@ -42,7 +42,7 @@ jobs:
       # Obsahuje i `tsc -p desktop/tsconfig.json` nad hlavním procesem.
       - run: bun run typecheck
       # Projekty `unit`, `nuxt` a `desktop` se 100% pokrytím na soubor.
-      - run: bun run test:coverage
+      - run: bun run test -- --coverage
       - run: bun run generate
       - run: bun run desktop:build
       - run: bun run audit:js

@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useFio } from '~/composables/useFio';
 
-import { backend } from '../setup/backend';
-import { date } from '../setup/dates';
+import { backend } from '../../setup/backend';
+import { date } from '../../setup/dates';
 
 const TOKEN = 'a'.repeat(64);
 

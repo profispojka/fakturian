@@ -4,7 +4,7 @@ import { useState } from '#app';
 import EmptyState from '~/components/EmptyState.vue';
 import VaultEmptyState from '~/components/vault/EmptyState.vue';
 
-import { mountUi } from '../setup/mount';
+import { mountUi } from '../../setup/mount';
 
 describe('VaultEmptyState', () => {
 	it('řekne, že složka není zvolená', () => {

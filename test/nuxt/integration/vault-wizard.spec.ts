@@ -10,9 +10,9 @@ import { useVaultData } from '~/composables/useVaultData';
 import { emptySupplier, type Supplier } from '~/schemas/suppliers';
 import { today, yearOf } from '~/utils/date';
 
-import { backend } from '../setup/backend';
-import { completeSupplier } from '../setup/fixtures';
-import { mountUi, layer } from '../setup/mount';
+import { backend } from '../../setup/backend';
+import { completeSupplier } from '../../setup/fixtures';
+import { mountUi, layer } from '../../setup/mount';
 
 const THIS_YEAR = yearOf(today());
 

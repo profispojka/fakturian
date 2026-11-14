@@ -6,11 +6,11 @@ import { useFio } from '~/composables/useFio';
 import { addDays, today } from '~/utils/date';
 import { czkFromCents } from '~/utils/money';
 
-import { backend } from '../setup/backend';
-import { date } from '../setup/dates';
-import { LONG_AGO, TODAY, mount, openInvoiceList, savedPayments, summary, vaultS } from '../setup/invoice-list';
-import { layer, enterDate } from '../setup/mount';
-import { writes } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { date } from '../../setup/dates';
+import { LONG_AGO, TODAY, mount, openInvoiceList, savedPayments, summary, vaultS } from '../../setup/invoice-list';
+import { layer, enterDate } from '../../setup/mount';
+import { writes } from '../../setup/vault';
 
 const FIO_TOKEN = 'a'.repeat(64);
 

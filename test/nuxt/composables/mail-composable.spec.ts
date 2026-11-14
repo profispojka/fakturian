@@ -3,8 +3,8 @@ import { nextTick } from 'vue';
 
 import { useMail } from '~/composables/useMail';
 
-import { backend } from '../setup/backend';
-import { prepareVault } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { prepareVault } from '../../setup/vault';
 
 beforeEach(async () => {
 	await prepareVault();

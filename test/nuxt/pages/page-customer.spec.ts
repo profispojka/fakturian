@@ -4,9 +4,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useContacts } from '~/composables/useContacts';
 import { canDiscardUnsaved } from '~/composables/useForm';
 
-import { backend } from '../setup/backend';
-import { answerDialog, currentPath, goto, layer, mountPage } from '../setup/mount';
-import { savedField, prepareVault } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { answerDialog, currentPath, goto, layer, mountPage } from '../../setup/mount';
+import { savedField, prepareVault } from '../../setup/vault';
 
 import type { Contact } from '~/schemas/customers';
 

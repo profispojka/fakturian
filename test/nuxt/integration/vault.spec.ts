@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { useVault } from '~/composables/useVault';
 
-import { backend } from '../setup/backend';
+import { backend } from '../../setup/backend';
 
 function remembered(): unknown {
 	return backend.store.get('vaultPath');

@@ -8,11 +8,11 @@ import { newInvoice } from '~/schemas/invoices';
 import { yearOf } from '~/utils/date';
 import { czkFromCents } from '~/utils/money';
 
-import { backend, wireInvoice } from '../setup/backend';
-import { date } from '../setup/dates';
-import { summary } from '../setup/fixtures';
-import { mountPage, currentPath, CHART_TOKENS } from '../setup/mount';
-import { documentInVault, prepareVault } from '../setup/vault';
+import { backend, wireInvoice } from '../../setup/backend';
+import { date } from '../../setup/dates';
+import { summary } from '../../setup/fixtures';
+import { mountPage, currentPath, CHART_TOKENS } from '../../setup/mount';
+import { documentInVault, prepareVault } from '../../setup/vault';
 
 import type { Expense } from '~/schemas/expenses';
 import type { InvoiceSummary } from '~/schemas/invoices';

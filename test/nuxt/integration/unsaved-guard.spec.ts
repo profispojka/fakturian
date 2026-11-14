@@ -3,7 +3,7 @@ import { defineComponent, h } from 'vue';
 
 import { canDiscardUnsaved, useUnsavedGuard } from '~/composables/useForm';
 
-import { mountUi } from '../setup/mount';
+import { mountUi } from '../../setup/mount';
 
 function page(guard: () => Promise<boolean>) {
 	return defineComponent({

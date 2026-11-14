@@ -10,9 +10,9 @@ import { newInvoice } from '~/schemas/invoices';
 import { emptySupplier } from '~/schemas/suppliers';
 import { today } from '~/utils/date';
 
-import { backend, wireInvoice } from '../setup/backend';
-import { mountUi, currentPath, goto, layer } from '../setup/mount';
-import { prepareVault } from '../setup/vault';
+import { backend, wireInvoice } from '../../setup/backend';
+import { mountUi, currentPath, goto, layer } from '../../setup/mount';
+import { prepareVault } from '../../setup/vault';
 
 import type { Contact } from '~/schemas/customers';
 import type { Expense } from '~/schemas/expenses';

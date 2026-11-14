@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import PricePicker from '~/components/invoice/PricePicker.vue';
 
-import { layer, mountUi } from '../setup/mount';
+import { layer, mountUi } from '../../setup/mount';
 
 describe('PricePicker', () => {
 	it('vloží stejnou položku opakovaně kliknutím na řádek', async () => {

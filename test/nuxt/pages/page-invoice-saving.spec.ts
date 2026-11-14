@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { newInvoice } from '~/schemas/invoices';
 
-import { backend } from '../setup/backend';
-import { completeSupplier } from '../setup/fixtures';
+import { backend } from '../../setup/backend';
+import { completeSupplier } from '../../setup/fixtures';
 import {
 	invoiceInVault,
 	contact,
@@ -16,8 +16,8 @@ import {
 	previewInvoice,
 	save,
 	savedDocuments,
-} from '../setup/invoice-page';
-import { answerDialog, currentPath, goto, layer } from '../setup/mount';
+} from '../../setup/invoice-page';
+import { answerDialog, currentPath, goto, layer } from '../../setup/mount';
 
 import type { VueWrapper } from '@vue/test-utils';
 

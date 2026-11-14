@@ -4,9 +4,9 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { useFio } from '~/composables/useFio';
 import { emptySupplier } from '~/schemas/suppliers';
 
-import { backend } from '../setup/backend';
-import { mountPage, answerDialog, currentPath, goto, layer } from '../setup/mount';
-import { prepareVault } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { mountPage, answerDialog, currentPath, goto, layer } from '../../setup/mount';
+import { prepareVault } from '../../setup/vault';
 
 import type { Contact } from '~/schemas/customers';
 

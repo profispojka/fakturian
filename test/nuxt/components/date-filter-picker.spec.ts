@@ -4,7 +4,7 @@ import InvoiceDateFilterPicker from '~/components/invoice/DateFilterPicker.vue';
 import { yearOf, monthName, today } from '~/utils/date';
 import { yearFilter } from '~/utils/invoice';
 
-import { mountUi, layer } from '../setup/mount';
+import { mountUi, layer } from '../../setup/mount';
 
 import type { InvoiceDateFilter } from '~/utils/invoice';
 

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { mountPage } from '../setup/mount';
-import { prepareVault } from '../setup/vault';
+import { mountPage } from '../../setup/mount';
+import { prepareVault } from '../../setup/vault';
 
 beforeEach(async () => {
 	await prepareVault();

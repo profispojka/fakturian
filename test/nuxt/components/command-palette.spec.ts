@@ -5,10 +5,10 @@ import { useState } from '#app';
 import CommandPalette from '~/components/CommandPalette.vue';
 import { MENU } from '~/constants/palette';
 
-import { backend } from '../setup/backend';
-import { summary } from '../setup/fixtures';
-import { mountUi, currentPath, layer } from '../setup/mount';
-import { documentInVault, prepareVault } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { summary } from '../../setup/fixtures';
+import { mountUi, currentPath, layer } from '../../setup/mount';
+import { documentInVault, prepareVault } from '../../setup/vault';
 
 import type { Contact } from '~/schemas/customers';
 import type { PriceItem } from '~/schemas/pricelist';

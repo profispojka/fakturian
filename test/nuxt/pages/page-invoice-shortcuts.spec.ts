@@ -4,8 +4,8 @@ import { nextTick } from 'vue';
 
 import { newInvoice } from '~/schemas/invoices';
 
-import { backend } from '../setup/backend';
-import { completeSupplier } from '../setup/fixtures';
+import { backend } from '../../setup/backend';
+import { completeSupplier } from '../../setup/fixtures';
 import {
 	contact,
 	invoiceInVault,
@@ -14,8 +14,8 @@ import {
 	state,
 	savedAsNew,
 	save,
-} from '../setup/invoice-page';
-import { answerDialog, currentPath, goto, layer, shortcut } from '../setup/mount';
+} from '../../setup/invoice-page';
+import { answerDialog, currentPath, goto, layer, shortcut } from '../../setup/mount';
 
 beforeEach(async () => {
 	await prepareInvoicePage();

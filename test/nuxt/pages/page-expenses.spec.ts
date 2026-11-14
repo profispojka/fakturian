@@ -4,10 +4,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useExpenses } from '~/composables/useExpenses';
 import { czkFromCents } from '~/utils/money';
 
-import { backend, finderFile } from '../setup/backend';
-import { date } from '../setup/dates';
-import { mountPage, currentPath, answerDialog, layer } from '../setup/mount';
-import { savedField, prepareVault } from '../setup/vault';
+import { backend, finderFile } from '../../setup/backend';
+import { date } from '../../setup/dates';
+import { mountPage, currentPath, answerDialog, layer } from '../../setup/mount';
+import { savedField, prepareVault } from '../../setup/vault';
 
 import type { Expense } from '~/schemas/expenses';
 

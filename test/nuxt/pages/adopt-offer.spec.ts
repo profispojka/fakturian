@@ -5,10 +5,10 @@ import VaultAdoptOffer from '~/components/vault/AdoptOffer.vue';
 import { useAdopt } from '~/composables/useAdopt';
 import { emptySupplier } from '~/schemas/suppliers';
 
-import { backend } from '../setup/backend';
-import { date } from '../setup/dates';
-import { mountUi } from '../setup/mount';
-import { prepareVault } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { date } from '../../setup/dates';
+import { mountUi } from '../../setup/mount';
+import { prepareVault } from '../../setup/vault';
 
 import type { AdoptScan as WireAdoptScan } from '~/bindings';
 import type { AdoptScan } from '~/schemas/import';

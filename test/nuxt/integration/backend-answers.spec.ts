@@ -7,9 +7,9 @@ import { useImport } from '~/composables/useImport';
 import { useInvoices } from '~/composables/useInvoices';
 import { yearOf } from '~/utils/date';
 
-import { backend } from '../setup/backend';
-import { date } from '../setup/dates';
-import { prepareVault } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { date } from '../../setup/dates';
+import { prepareVault } from '../../setup/vault';
 
 import type {
 	AdoptCandidate,

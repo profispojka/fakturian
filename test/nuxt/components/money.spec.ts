@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import Money from '~/components/Money.vue';
 
-import { mountUi } from '../setup/mount';
+import { mountUi } from '../../setup/mount';
 
 describe('částka', () => {
 	it('píše číslo a měnu stejně jako textová částka', () => {

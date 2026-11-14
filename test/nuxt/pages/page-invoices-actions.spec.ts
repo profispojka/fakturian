@@ -7,12 +7,12 @@ import { useVaultData } from '~/composables/useVaultData';
 import { emptySupplier } from '~/schemas/suppliers';
 import { czkFromCents } from '~/utils/money';
 
-import { backend } from '../setup/backend';
-import { date } from '../setup/dates';
-import { completeSupplier } from '../setup/fixtures';
-import { LONG_AGO, mount, openInvoiceList, savedPayments, summary, vaultS } from '../setup/invoice-list';
-import { save, savedDocuments } from '../setup/invoice-page';
-import { currentPath, answerDialog, layer } from '../setup/mount';
+import { backend } from '../../setup/backend';
+import { date } from '../../setup/dates';
+import { completeSupplier } from '../../setup/fixtures';
+import { LONG_AGO, mount, openInvoiceList, savedPayments, summary, vaultS } from '../../setup/invoice-list';
+import { save, savedDocuments } from '../../setup/invoice-page';
+import { currentPath, answerDialog, layer } from '../../setup/mount';
 
 import type { Contact } from '~/schemas/customers';
 

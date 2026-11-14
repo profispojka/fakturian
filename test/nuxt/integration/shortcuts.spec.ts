@@ -6,10 +6,10 @@ import { reactive } from 'vue';
 import App from '~/app.vue';
 import InvoiceContactPicker from '~/components/invoice/ContactPicker.vue';
 
-import { backend } from '../setup/backend';
-import { completeSupplier } from '../setup/fixtures';
-import { mountPage, mountUi } from '../setup/mount';
-import { prepareVault, writes } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { completeSupplier } from '../../setup/fixtures';
+import { mountPage, mountUi } from '../../setup/mount';
+import { prepareVault, writes } from '../../setup/vault';
 
 const { useColorModeMock } = vi.hoisted(() => ({ useColorModeMock: vi.fn() }));
 mockNuxtImport('useColorMode', () => useColorModeMock);

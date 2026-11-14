@@ -5,9 +5,9 @@ import { nextTick } from 'vue';
 import { newInvoice } from '~/schemas/invoices';
 import { yearOf, today } from '~/utils/date';
 
-import { backend, wireInvoice } from '../setup/backend';
-import { mountPage, answerDialog, currentPath, layer, pick as pickFromListbox } from '../setup/mount';
-import { savedField, prepareVault } from '../setup/vault';
+import { backend, wireInvoice } from '../../setup/backend';
+import { mountPage, answerDialog, currentPath, layer, pick as pickFromListbox } from '../../setup/mount';
+import { savedField, prepareVault } from '../../setup/vault';
 
 import type { VueWrapper } from '@vue/test-utils';
 import type { PriceItem } from '~/schemas/pricelist';

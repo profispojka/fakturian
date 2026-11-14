@@ -4,10 +4,10 @@ import { useMenuStats } from '~/composables/useMenuStats';
 import { usePricelist } from '~/composables/usePricelist';
 import { useVault } from '~/composables/useVault';
 
-import { backend } from '../setup/backend';
-import { date } from '../setup/dates';
-import { summary } from '../setup/fixtures';
-import { documentInVault, prepareVault } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { date } from '../../setup/dates';
+import { summary } from '../../setup/fixtures';
+import { documentInVault, prepareVault } from '../../setup/vault';
 
 import type { Contact } from '~/schemas/customers';
 import type { Expense } from '~/schemas/expenses';

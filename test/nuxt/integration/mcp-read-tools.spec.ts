@@ -3,11 +3,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DocumentKind } from '~/constants/invoice';
 import { newInvoice } from '~/schemas/invoices';
 
-import { backend, wireInvoice } from '../setup/backend';
-import { date } from '../setup/dates';
-import { summary } from '../setup/fixtures';
-import { connectAgent, replyTo, usageInVault, vaultWithContent } from '../setup/mcp-client';
-import { documentInVault } from '../setup/vault';
+import { backend, wireInvoice } from '../../setup/backend';
+import { date } from '../../setup/dates';
+import { summary } from '../../setup/fixtures';
+import { connectAgent, replyTo, usageInVault, vaultWithContent } from '../../setup/mcp-client';
+import { documentInVault } from '../../setup/vault';
 
 function creditNoteInVault(number: string, original: string): void {
 	const inv = newInvoice(null, number);

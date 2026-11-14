@@ -4,8 +4,8 @@ import { useSettings } from '~/composables/useSettings';
 import { useVaultData } from '~/composables/useVaultData';
 import { emptySupplier } from '~/schemas/suppliers';
 
-import { backend } from '../setup/backend';
-import { prepareVault, saved, writes } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { prepareVault, saved, writes } from '../../setup/vault';
 
 /** Dvojník dosazený za vault by o tom, co ve složce po uložení leží, netvrdil nic. */
 beforeEach(async () => {

@@ -5,10 +5,10 @@ import { usePricelist } from '~/composables/usePricelist';
 import { useVaultData } from '~/composables/useVaultData';
 import { newInvoice } from '~/schemas/invoices';
 
-import { backend, wireInvoice } from '../setup/backend';
-import { date } from '../setup/dates';
-import { summary } from '../setup/fixtures';
-import { savedField, prepareVault } from '../setup/vault';
+import { backend, wireInvoice } from '../../setup/backend';
+import { date } from '../../setup/dates';
+import { summary } from '../../setup/fixtures';
+import { savedField, prepareVault } from '../../setup/vault';
 
 import type { DocumentType } from '~/constants/invoice';
 import type { Invoice } from '~/schemas/invoices';

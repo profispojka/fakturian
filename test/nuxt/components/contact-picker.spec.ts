@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import ContactPicker from '~/components/invoice/ContactPicker.vue';
 
-import { layer, mountUi } from '../setup/mount';
+import { layer, mountUi } from '../../setup/mount';
 
 import type { Contact } from '~/schemas/customers';
 

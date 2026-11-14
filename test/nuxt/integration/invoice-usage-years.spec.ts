@@ -5,8 +5,8 @@ import { usePricelist } from '~/composables/usePricelist';
 import { newInvoice } from '~/schemas/invoices';
 import { creditNoteFrom, duplicateFrom } from '~/utils/invoice';
 
-import { backend } from '../setup/backend';
-import { invoiceInVault, mountInvoice, prepareInvoicePage, save, savedInvoice, state } from '../setup/invoice-page';
+import { backend } from '../../setup/backend';
+import { invoiceInVault, mountInvoice, prepareInvoicePage, save, savedInvoice, state } from '../../setup/invoice-page';
 
 import type { PriceUsageRecord } from '~/utils/pricelist';
 

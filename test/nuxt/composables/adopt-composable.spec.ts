@@ -5,8 +5,8 @@ import { useVault } from '~/composables/useVault';
 import { useVaultData } from '~/composables/useVaultData';
 import { emptySupplier, type Supplier } from '~/schemas/suppliers';
 
-import { backend } from '../setup/backend';
-import { prepareVault, saved } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { prepareVault, saved } from '../../setup/vault';
 
 function supplierFromDocument(over: Record<string, unknown> = {}) {
 	return {

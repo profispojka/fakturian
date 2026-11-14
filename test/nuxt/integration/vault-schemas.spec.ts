@@ -5,7 +5,7 @@ import { usePaymentsFile } from '~/composables/usePayments';
 import { useVault } from '~/composables/useVault';
 import { useVaultData } from '~/composables/useVaultData';
 
-import { backend } from '../setup/backend';
+import { backend } from '../../setup/backend';
 
 async function vaultFiles(content: Record<string, unknown> = {}): Promise<void> {
 	backend.create('/vault');

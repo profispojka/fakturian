@@ -6,7 +6,7 @@ import { defineComponent } from 'vue';
 import ConfirmDialog from '~/components/ConfirmDialog.vue';
 import { getUserConfirmation } from '~/composables/getUserConfirmation';
 
-import { mountUi, layer } from '../setup/mount';
+import { mountUi, layer } from '../../setup/mount';
 
 const base = {
 	title: 'Smazat položku?',

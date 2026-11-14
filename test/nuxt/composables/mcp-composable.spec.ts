@@ -5,10 +5,10 @@ import { MCP_MESSAGE_EVENT } from '~/bindings';
 import { useVault } from '~/composables/useVault';
 import { useVaultData } from '~/composables/useVaultData';
 
-import { backend, outsideDesktop } from '../setup/backend';
-import { McpHost, completeContact, connectAgent, replyTo, sentTo, toasts, vaultWithContent } from '../setup/mcp-client';
-import { mountUi } from '../setup/mount';
-import { prepareVault } from '../setup/vault';
+import { backend, outsideDesktop } from '../../setup/backend';
+import { McpHost, completeContact, connectAgent, replyTo, sentTo, toasts, vaultWithContent } from '../../setup/mcp-client';
+import { mountUi } from '../../setup/mount';
+import { prepareVault } from '../../setup/vault';
 
 const BROKEN_PAYMENTS =
 	'Soubor platby.json má poškozený obsah (payments: Neplatný vstup: očekáváno record, obdrženo řetězec).';

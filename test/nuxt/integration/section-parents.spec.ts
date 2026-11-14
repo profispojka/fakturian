@@ -9,8 +9,8 @@ import InvoiceForm from '~/pages/invoice/[id].vue';
 import Pricelist from '~/pages/pricelist.vue';
 import PriceForm from '~/pages/pricelist/[id].vue';
 
-import { mountPage } from '../setup/mount';
-import { prepareVault } from '../setup/vault';
+import { mountPage } from '../../setup/mount';
+import { prepareVault } from '../../setup/vault';
 
 beforeEach(async () => {
 	await prepareVault();

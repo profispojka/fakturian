@@ -6,9 +6,9 @@ import { useVault } from '~/composables/useVault';
 import { useVaultData } from '~/composables/useVaultData';
 import { emptySupplier } from '~/schemas/suppliers';
 
-import { backend } from '../setup/backend';
-import { date } from '../setup/dates';
-import { savedField, prepareVault, writes } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { date } from '../../setup/dates';
+import { savedField, prepareVault, writes } from '../../setup/vault';
 
 import type { Expense } from '~/schemas/expenses';
 

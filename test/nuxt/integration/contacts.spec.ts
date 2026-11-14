@@ -4,8 +4,8 @@ import { useContacts } from '~/composables/useContacts';
 import { useVaultData } from '~/composables/useVaultData';
 import { emptySupplier } from '~/schemas/suppliers';
 
-import { backend } from '../setup/backend';
-import { saved, savedField, prepareVault, writes } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { saved, savedField, prepareVault, writes } from '../../setup/vault';
 
 import type { Contact } from '~/schemas/customers';
 

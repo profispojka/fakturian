@@ -5,10 +5,10 @@ import { nextTick } from 'vue';
 import { useExpensesFile } from '~/composables/useExpenses';
 import { canDiscardUnsaved } from '~/composables/useForm';
 
-import { backend } from '../setup/backend';
-import { date } from '../setup/dates';
-import { mountPage, answerDialog, currentPath, goto, layer, enterDate } from '../setup/mount';
-import { savedField, prepareVault } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { date } from '../../setup/dates';
+import { mountPage, answerDialog, currentPath, goto, layer, enterDate } from '../../setup/mount';
+import { savedField, prepareVault } from '../../setup/vault';
 
 import type { Expense } from '~/schemas/expenses';
 

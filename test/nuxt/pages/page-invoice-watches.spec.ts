@@ -3,9 +3,9 @@ import { beforeEach, describe, expect, it } from 'vitest';
 
 import { canDiscardUnsaved } from '~/composables/useForm';
 
-import { backend } from '../setup/backend';
-import { contact, mountInvoice, prepareInvoicePage, state } from '../setup/invoice-page';
-import { answerDialog, layer } from '../setup/mount';
+import { backend } from '../../setup/backend';
+import { contact, mountInvoice, prepareInvoicePage, state } from '../../setup/invoice-page';
+import { answerDialog, layer } from '../../setup/mount';
 
 beforeEach(async () => {
 	await prepareInvoicePage();

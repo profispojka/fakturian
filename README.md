@@ -92,17 +92,19 @@ bun install
 
 ## Skripty
 
-| Příkaz                    | Co dělá                                                                                             |
-| ------------------------- | --------------------------------------------------------------------------------------------------- |
-| `bun run dev`             | appka v okně Electronu nad dev serverem Nuxtu s HMR; `bun run dev:web` je jen frontend v prohlížeči |
-| `bun run build`           | frontend, hlavní proces a balíček `.app`/DMG přes electron-builder do `.output/release/`            |
-| `bun run check`           | **celá kontrolní brána** — pouští se před commitem, viz níž                                         |
-| `bun run test`            | vitest nad změněnými soubory; `test:all` celá sada (`unit`, `nuxt`, `desktop`)                      |
-| `bun run test:coverage`   | celá sada + pokrytí s prahy 100 % na soubor                                                         |
-| `bun run test:desktop`    | jen testy hlavního procesu (`desktop/test/`)                                                        |
-| `bun run mutants:ts`      | mutační testování ze seznamu `mutate` ve `stryker.config.ts`; `--mutate <soubor>` na jeden soubor   |
-| `bun run lint` / `format` | oxlint / oxfmt **se zápisem**; `lint:check` a `format:check` jen kontrolují                         |
-| `bun run typecheck`       | typy appky, hlavního procesu, nástrojů a skriptů showcase                                           |
+| Příkaz                                                                                                                       | Co dělá                                                                                             |
+| ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `bun run dev`                                                                                                                | appka v okně Electronu nad dev serverem Nuxtu s HMR; `bun run dev:web` je jen frontend v prohlížeči |
+| `bun run build`                                                                                                              | frontend, hlavní proces a balíček `.app`/DMG přes electron-builder do `.output/release/`            |
+| `bun run check`                                                                                                              | **celá kontrolní brána** — pouští se před commitem, viz níž                                         |
+| `bun run test`                                                                                                               | celá Vitest sada (`unit`, `nuxt`, `desktop`)                                                        |
+| `bun run test -- --changed --passWithNoTests --reporter=default`                                                             | jen testy související se změnami                                                                    |
+| `bun run test -- --coverage`                                                                                                 | celá sada + pokrytí s prahy 100 % na soubor                                                         |
+| `bun run test -- --config vitest.mutation.config.ts --project desktop`                                                       | jen testy hlavního procesu (`desktop/test/`)                                                        |
+| `FUZZ_CASES=2000 bun run test -- --config vitest.mutation.config.ts --project desktop desktop/test/input-robustness.test.ts` | hlubší fuzz běh                                                                                     |
+| `bun run mutants:ts`                                                                                                         | mutační testování ze seznamu `mutate` ve `stryker.config.ts`; `--mutate <soubor>` na jeden soubor   |
+| `bun run lint` / `format`                                                                                                    | oxlint / oxfmt **se zápisem**; `lint:check` a `format:check` jen kontrolují                         |
+| `bun run typecheck`                                                                                                          | typy appky, hlavního procesu, nástrojů a skriptů showcase                                           |
 
 Co přesně která brána měří, jaké jsou prahy a jak se čtou mutační reporty, je
 v [`docs/10-KVALITA.md`](docs/10-KVALITA.md).

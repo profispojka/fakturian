@@ -3,9 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { canDiscardUnsaved } from '~/composables/useForm';
 
-import { backend } from '../setup/backend';
-import { answerDialog, currentPath, goto, layer, mountPage } from '../setup/mount';
-import { savedField, prepareVault } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { answerDialog, currentPath, goto, layer, mountPage } from '../../setup/mount';
+import { savedField, prepareVault } from '../../setup/vault';
 
 import type { PriceItem } from '~/schemas/pricelist';
 

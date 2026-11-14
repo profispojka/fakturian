@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { mountPage } from '../setup/mount';
-import { prepareVault } from '../setup/vault';
+import { mountPage } from '../../setup/mount';
+import { prepareVault } from '../../setup/vault';
 
 describe('tlačítko palety v hlavičce výpisu', () => {
 	it.each([

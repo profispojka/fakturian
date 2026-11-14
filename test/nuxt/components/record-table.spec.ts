@@ -4,7 +4,7 @@ import { h } from 'vue';
 
 import RecordTable from '~/components/RecordTable.vue';
 
-import { mountUi } from '../setup/mount';
+import { mountUi } from '../../setup/mount';
 
 import type { TableColumn } from '@nuxt/ui';
 

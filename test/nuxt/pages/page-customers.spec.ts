@@ -1,9 +1,9 @@
 import { flushPromises } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { backend } from '../setup/backend';
-import { mountPage, answerDialog, currentPath, layer } from '../setup/mount';
-import { savedField, prepareVault } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { mountPage, answerDialog, currentPath, layer } from '../../setup/mount';
+import { savedField, prepareVault } from '../../setup/vault';
 
 import type { VueWrapper } from '@vue/test-utils';
 import type { Contact } from '~/schemas/customers';

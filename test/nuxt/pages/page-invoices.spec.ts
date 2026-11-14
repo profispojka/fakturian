@@ -5,10 +5,10 @@ import InvoiceDateFilterPicker from '~/components/invoice/DateFilterPicker.vue';
 import { useMenuStats } from '~/composables/useMenuStats';
 import { czkFromCents } from '~/utils/money';
 
-import { backend } from '../setup/backend';
-import { date } from '../setup/dates';
-import { LONG_AGO, TODAY_DATE, mount, openInvoiceList, summary, vaultS } from '../setup/invoice-list';
-import { goto, currentPath, layer } from '../setup/mount';
+import { backend } from '../../setup/backend';
+import { date } from '../../setup/dates';
+import { LONG_AGO, TODAY_DATE, mount, openInvoiceList, summary, vaultS } from '../../setup/invoice-list';
+import { goto, currentPath, layer } from '../../setup/mount';
 
 beforeEach(async () => {
 	await openInvoiceList();

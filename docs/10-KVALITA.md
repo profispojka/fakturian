@@ -45,18 +45,18 @@ které patří.
 `bun run check` je jeden řetěz kroků; přesné pořadí je skript `check`
 v `package.json`. Každý krok musí projít, jinak řetěz skončí.
 
-| Krok            | Co ověřuje                                                                                                                                                      |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `lint:check`    | oxlint (vlastní pravidla v `tools/lint/oxlint-fakturian.ts`) a ESLint nad `<script>` a šablonou `.vue` (type-aware pravidla, `data-testid`, nescoped `<style>`) |
-| `lint:scales`   | Tailwind používá projektové stupnice, tokeny a zlomy `split:`/`wide:`; žádné no-op utility na obyčejném elementu                                                |
-| `lint:dead-css` | tvar v `main.css` nosí víc souborů, mrtvý tvar nenosí nikdo, `<style>` blok začíná `@reference`                                                                 |
-| `format:check`  | formát přes oxfmt                                                                                                                                               |
-| `typecheck`     | typy frontendu, hlavního procesu (`desktop/tsconfig.json`), nástrojů a skriptů showcase; Vitest testy se netypují                                               |
-| `typecheck:e2e` | typy E2E scénářů a jejich podpory (`e2e/tsconfig.json`)                                                                                                         |
-| `test:coverage` | Vitest projekty `unit`, `nuxt` a `desktop` a 100% prahy pro každý zahrnutý soubor                                                                               |
-| `generate`      | statický Nuxt build                                                                                                                                             |
-| `desktop:build` | esbuild hlavního procesu, validátoru ISDOC a preloadu do `.output/desktop/`                                                                                     |
-| `audit:js`      | advisories JS závislostí                                                                                                                                        |
+| Krok                         | Co ověřuje                                                                                                                                                      |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lint:check`                 | oxlint (vlastní pravidla v `tools/lint/oxlint-fakturian.ts`) a ESLint nad `<script>` a šablonou `.vue` (type-aware pravidla, `data-testid`, nescoped `<style>`) |
+| `lint:scales`                | Tailwind používá projektové stupnice, tokeny a zlomy `split:`/`wide:`; žádné no-op utility na obyčejném elementu                                                |
+| `lint:dead-css`              | tvar v `main.css` nosí víc souborů, mrtvý tvar nenosí nikdo, `<style>` blok začíná `@reference`                                                                 |
+| `format:check`               | formát přes oxfmt                                                                                                                                               |
+| `typecheck`                  | typy frontendu, hlavního procesu (`desktop/tsconfig.json`), nástrojů a skriptů showcase; Vitest testy se netypují                                               |
+| `typecheck:e2e`              | typy E2E scénářů a jejich podpory (`test/e2e/tsconfig.json`)                                                                                                    |
+| `bun run test -- --coverage` | Vitest projekty `unit`, `nuxt` a `desktop` a 100% prahy pro každý zahrnutý soubor                                                                               |
+| `generate`                   | statický Nuxt build                                                                                                                                             |
+| `desktop:build`              | esbuild hlavního procesu, validátoru ISDOC a preloadu do `.output/desktop/`                                                                                     |
+| `audit:js`                   | advisories JS závislostí                                                                                                                                        |
 
 Vitest používá `tools/testing/required-tests-reporter.ts`. Prázdná nebo
 přeskočená sada, skip/todo, neúspěšný hook, neošetřená chyba i úspěch až po
@@ -70,12 +70,12 @@ při úmyslných poruchách v oddělených procesech.
 Pomalejší kroky nebo kroky, které potřebují prostředí, jaké běžná lokální brána
 nemá:
 
-| Příkaz                       | Co ověřuje                                                             |
-| ---------------------------- | ---------------------------------------------------------------------- |
-| `bun run test:fuzz`          | generativní testy vstupů zvenku s vyšším počtem případů                |
-| `bun run mutants:ts`          | mutační testování frontendu i hlavního procesu                         |
-| `bun run test:e2e`            | scénáře nad skutečným oknem Electronu včetně vizuální sady (viz „E2E") |
-| `bun run test:release-smoke`  | start zabaleného `.app` a most MCP (viz „Smoke test balíčku")          |
+| Příkaz                                                                                                                       | Co ověřuje                                                             |
+| ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `FUZZ_CASES=2000 bun run test -- --config vitest.mutation.config.ts --project desktop desktop/test/input-robustness.test.ts` | generativní testy vstupů zvenku s vyšším počtem případů                |
+| `bun run mutants:ts`                                                                                                         | mutační testování frontendu i hlavního procesu                         |
+| `bun run test:e2e`                                                                                                           | scénáře nad skutečným oknem Electronu včetně vizuální sady (viz „E2E") |
+| `bun run test:release-smoke`                                                                                                 | start zabaleného `.app` a most MCP (viz „Smoke test balíčku")          |
 
 ## Pokrytí
 
@@ -153,7 +153,7 @@ V CI mutace neběží, celý rozsah trvá desítky minut. Pouští se lokálně
 ## Generativní testování vstupů zvenku
 
 ```sh
-bun run test:fuzz
+FUZZ_CASES=2000 bun run test -- --config vitest.mutation.config.ts --project desktop desktop/test/input-robustness.test.ts
 ```
 
 `desktop/test/input-robustness.test.ts` (`fast-check`) kontroluje hranice
@@ -170,7 +170,7 @@ v `desktop/test/fixtures/`. Přijatý ISDOC musí jít znovu serializovat a nač
 PDF smí vrátit jen čitelnou ISDOC přílohu, MCP odpověď musí zůstat jedním
 platným JSON řádkem, úspěšný zápis vaultu musí jít znovu načíst a přijaté
 číslo dokladu musí tvořit jedinou relativní komponentu cesty. Běžná sada
-pouští 64 případů na cíl, `bun run test:fuzz` víc; počet určuje proměnná
+spouští 64 případů na cíl, uvedený příkaz víc; počet určuje proměnná
 `FUZZ_CASES`.
 
 ## Property testy proti modelu
@@ -192,7 +192,7 @@ takže Stryker i opakovaný běh vidí stejné vstupy; hlubší běh pustí
 i do sdílené tabulky (`src/utils/fixtures/money-parity.json`,
 `document-number-parity.json`), kterou čtou testy frontendu i hlavního procesu.
 
-Souběh hlídá `test/nuxt/concurrency.spec.ts`. `backend.scheduler` (scheduler
+Souběh hlídá `test/nuxt/integration/concurrency.spec.ts`. `backend.scheduler` (scheduler
 z `fast-check`) rozhoduje, kdy se asynchronní příkaz provede a kdy odpoví —
 mezi tím může doběhnout jiný, jako v hlavním procesu, kde příkaz čeká na disk,
 síť nebo jiný proces. Čtení a zápis datových souborů (`write_data_file`,
@@ -208,11 +208,11 @@ bun run test:e2e
 bun run test:e2e:visual
 ```
 
-Sada Playwright (`_electron`, `e2e/app.ts`) pouští postavenou appku ve
+Sada Playwright (`_electron`, `test/e2e/app.ts`) pouští postavenou appku ve
 skutečném okně Electronu. Každý test dostane vlastní dočasný domov a kopii
-syntetického vaultu z `e2e/fixtures/vault`; vizuální scénáře
-(`e2e/specs/visual-*.spec.ts`) fotí ukázkový vault
-z `desktop/examples/demo-vault.ts` proti snímkům v `e2e/visual-baselines/`.
+syntetického vaultu z `test/e2e/fixtures/vault`; průchody aplikací jsou v
+`test/e2e/workflows/` a vizuální scénáře v `test/e2e/visual/` fotí ukázkový vault
+z `desktop/examples/demo-vault.ts` proti snímkům v `test/e2e/visual-baselines/`.
 
 Job `e2e` v CI pouští sadu s `--ignore-snapshots`: snímky vznikly na vývojovém
 Macu a systémové písmo runneru se vykreslí jinak. Vizuální sadu proto ověřuje

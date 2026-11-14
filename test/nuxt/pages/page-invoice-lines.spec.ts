@@ -4,8 +4,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { newInvoice } from '~/schemas/invoices';
 import { czkFromCents } from '~/utils/money';
 
-import { backend } from '../setup/backend';
-import { completeSupplier } from '../setup/fixtures';
+import { backend } from '../../setup/backend';
+import { completeSupplier } from '../../setup/fixtures';
 import {
 	invoiceInVault,
 	contact,
@@ -14,8 +14,8 @@ import {
 	savedInvoice,
 	state,
 	save,
-} from '../setup/invoice-page';
-import { CHECKBOX, check, layer } from '../setup/mount';
+} from '../../setup/invoice-page';
+import { CHECKBOX, check, layer } from '../../setup/mount';
 
 import type { VueWrapper } from '@vue/test-utils';
 import type { PriceItem } from '~/schemas/pricelist';

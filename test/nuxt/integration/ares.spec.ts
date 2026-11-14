@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { useAres } from '~/composables/useAres';
 
-import { backend } from '../setup/backend';
+import { backend } from '../../setup/backend';
 
 const COMPANY = {
 	name: 'Jan Novák',

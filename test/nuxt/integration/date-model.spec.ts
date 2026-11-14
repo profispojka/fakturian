@@ -6,8 +6,8 @@ import { defineComponent, ref } from 'vue';
 import { useDateModel } from '~/composables/useDateModel';
 import { MIN_DATE, MAX_DATE } from '~/utils/date';
 
-import { date } from '../setup/dates';
-import { enterDate, mountUi } from '../setup/mount';
+import { date } from '../../setup/dates';
+import { enterDate, mountUi } from '../../setup/mount';
 
 import type { DateString } from '~/utils/date';
 

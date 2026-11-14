@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { czkFromCents } from '~/utils/money';
 
-import { backend } from '../setup/backend';
-import { summary } from '../setup/fixtures';
+import { backend } from '../../setup/backend';
+import { summary } from '../../setup/fixtures';
 import {
 	VACATION,
 	completeContact,
@@ -16,9 +16,9 @@ import {
 	vaultWithContent,
 	toasts,
 	McpHost,
-} from '../setup/mcp-client';
-import { answerDialog, layer, mountUi } from '../setup/mount';
-import { documentInVault } from '../setup/vault';
+} from '../../setup/mcp-client';
+import { answerDialog, layer, mountUi } from '../../setup/mount';
+import { documentInVault } from '../../setup/vault';
 
 /** Vystavení čeká na potvrzení v okně — test ho odklepne, jako by to udělal uživatel. */
 async function issueConfirmed(args: unknown): Promise<{ result: unknown; error: string | null }> {

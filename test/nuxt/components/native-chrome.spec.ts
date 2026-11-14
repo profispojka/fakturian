@@ -5,8 +5,8 @@ import { ref } from 'vue';
 import { FOCUS_CHANGED_EVENT } from '~/bindings';
 import plugin from '~/plugins/native-chrome.client';
 
-import { backend, outsideDesktop } from '../setup/backend';
-import { runPlugin } from '../setup/plugin';
+import { backend, outsideDesktop } from '../../setup/backend';
+import { runPlugin } from '../../setup/plugin';
 
 // Podstrčený je jen `useColorMode()`: stav vzhledu zakládá plugin `@nuxtjs/color-mode`, který
 // v testovacím runtimu neběží.

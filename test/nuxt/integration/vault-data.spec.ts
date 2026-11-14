@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { useVault } from '~/composables/useVault';
 import { useVaultData } from '~/composables/useVaultData';
 
-import { backend } from '../setup/backend';
+import { backend } from '../../setup/backend';
 
 // Nová doména se přidává do `useVaultData`, ne na tři místa, odkud se načítá — test proto vyjmenovává
 // soubory, ne pořadí volání.

@@ -9,10 +9,10 @@ import { newInvoice } from '~/schemas/invoices';
 import { emptySupplier, type Supplier } from '~/schemas/suppliers';
 import { deletionQuestion, supplierToParty } from '~/utils/invoice';
 
-import { backend, wireInvoice } from '../setup/backend';
-import { summary, validInvoice } from '../setup/fixtures';
-import { answerDialog, layer, mountUi } from '../setup/mount';
-import { documentInVault, prepareVault, saved, writes } from '../setup/vault';
+import { backend, wireInvoice } from '../../setup/backend';
+import { summary, validInvoice } from '../../setup/fixtures';
+import { answerDialog, layer, mountUi } from '../../setup/mount';
+import { documentInVault, prepareVault, saved, writes } from '../../setup/vault';
 
 function invoiceFromVault() {
 	const s = {

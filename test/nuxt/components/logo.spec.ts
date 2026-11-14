@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { useLogo } from '~/composables/useLogo';
 import { useVault } from '~/composables/useVault';
 
-import { backend } from '../setup/backend';
-import { prepareVault } from '../setup/vault';
+import { backend } from '../../setup/backend';
+import { prepareVault } from '../../setup/vault';
 
 /**
  * Logo žije jako `logo.png` **přímo ve vaultu**, ne v konfiguraci appky, aby cestovalo s daty — kdo
