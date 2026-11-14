@@ -13,7 +13,7 @@ function run(command: string, args: string[]): void {
 }
 
 // Sada pouští appku z `.output-e2e`: frontend z prostředí `e2e` (posunutý dnešek, bez animací,
-// `e2e/e2e.client.ts`) a vedle něj tentýž hlavní proces, jaký jde do balíčku.
+// `test/e2e/e2e.client.ts`) a vedle něj tentýž hlavní proces, jaký jde do balíčku.
 export default function globalSetup(): void {
 	run('bun', ['x', 'nuxt', 'generate', '--envName', 'e2e']);
 	run('bun', ['run', 'desktop:build']);

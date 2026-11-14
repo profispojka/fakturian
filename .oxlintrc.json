@@ -354,7 +354,7 @@
 		{
 			// Playwright čte závislosti fixture z destrukturalizace prvního parametru; fixture bez
 			// závislostí ji má prázdnou (`async ({}, use) => …`).
-			"files": ["e2e/**/*.ts"],
+			"files": ["test/e2e/**/*.ts"],
 			"rules": { "fakturian/exact-text": "error", "no-empty-pattern": "off" }
 		},
 		{

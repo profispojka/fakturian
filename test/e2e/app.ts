@@ -7,7 +7,7 @@ import { _electron, type ElectronApplication, expect, type Page, test as base } 
 
 import { E2E_TODAY } from './constants.ts';
 
-export const ROOT = fileURLToPath(new URL('..', import.meta.url));
+export const ROOT = fileURLToPath(new URL('../..', import.meta.url));
 // Postavená appka pro sadu; `nuxt generate` složku při každém sestavení smaže celou.
 export const E2E_APP = join(ROOT, '.output-e2e', 'app');
 export const DEMO_VAULT = join(ROOT, '.output-e2e', 'demo-vault');
@@ -24,11 +24,11 @@ export interface Desktop {
 	page: Page;
 }
 
-// Kopie syntetického vaultu z `e2e/fixtures/vault`; každý test dostane vlastní, aby jeho výsledek
+// Kopie syntetického vaultu z `test/e2e/fixtures/vault`; každý test dostane vlastní, aby jeho výsledek
 // nezávisel na tom, co zapsal jiný.
 export function fixtureVault(dir: string, { invoice = false, adopt = false } = {}): string {
 	const vault = join(dir, 'vault');
-	cpSync(join(ROOT, 'e2e', 'fixtures', 'vault'), vault, { recursive: true });
+	cpSync(join(ROOT, 'test', 'e2e', 'fixtures', 'vault'), vault, { recursive: true });
 	// Faktura `RRRR0001` uložená stejnou cestou jako v appce, takže PDF i vložený ISDOC mají její tvar.
 	if (invoice) execFileSync('node', ['desktop/examples/run.ts', 'e2e-invoice', vault, E2E_TODAY], { cwd: ROOT });
 	// Vzorky leží mimo `faktury/`, aby je appka nabídla k převzetí; vystavil je dodavatel z fixture.
@@ -36,7 +36,7 @@ export function fixtureVault(dir: string, { invoice = false, adopt = false } = {
 	return vault;
 }
 
-// Ukázková data z `desktop/examples/demo-vault.ts`, vygenerovaná jednou za běh v `e2e/global-setup.ts`.
+// Ukázková data z `desktop/examples/demo-vault.ts`, vygenerovaná jednou za běh v `test/e2e/global-setup.ts`.
 export function demoVault(dir: string): string {
 	const vault = join(dir, 'vault');
 	cpSync(DEMO_VAULT, vault, { recursive: true });

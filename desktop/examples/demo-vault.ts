@@ -872,7 +872,6 @@ const settings = {
 	supplier: {
 		name: SUPPLIER.name,
 		ico: SUPPLIER.ico,
-		dic: SUPPLIER.dic,
 		address: SUPPLIER.address,
 		registration: REGISTRATION,
 		bankAccount: BANK,

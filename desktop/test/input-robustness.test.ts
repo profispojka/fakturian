@@ -24,7 +24,7 @@ import type { PDFDocument } from 'pdf-lib';
 import type { FioPayment } from '~/bindings';
 
 const SEED = 202_609;
-// `bun run test:fuzz` počet zvedá; běžné sadě stačí krátký běh se stejným seedem.
+// FUZZ_CASES zvedá počet případů; běžné sadě stačí krátký běh se stejným seedem.
 const requested = process.env.FUZZ_CASES ?? '64';
 if (!/^[1-9]\d*$/.test(requested)) throw new Error(`FUZZ_CASES musí být kladné celé číslo, ne „${requested}“.`);
 const CASES = Number(requested);

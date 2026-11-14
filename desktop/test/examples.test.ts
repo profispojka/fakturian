@@ -15,7 +15,7 @@ import { listInvoices } from '../invoice/index.ts';
 import { loadInvoice } from '../invoice/mod.ts';
 
 const RUN = fileURLToPath(new URL('../examples/run.ts', import.meta.url));
-const E2E_SETTINGS = fileURLToPath(new URL('../../e2e/fixtures/vault/.fakturian/nastaveni.json', import.meta.url));
+const E2E_SETTINGS = fileURLToPath(new URL('../../test/e2e/fixtures/vault/.fakturian/nastaveni.json', import.meta.url));
 
 let base = '';
 

@@ -62,7 +62,8 @@ Vitest používá `tools/testing/required-tests-reporter.ts`. Prázdná nebo
 přeskočená sada, skip/todo, neúspěšný hook, neošetřená chyba i úspěch až po
 retry znamenají selhání. `allowOnly: false` zakazuje `.only`.
 Vlastní pravidla Oxlintu mají `RuleTester` testy v `test/tooling/`; Vitest
-spouští je v projektu `unit`.
+spouští je v projektu `unit`. Testy bran kvality tamtéž ověřují selhání Vitestu
+při úmyslných poruchách v oddělených procesech.
 
 ### Mimo `check`
 
@@ -71,13 +72,17 @@ nemá:
 
 | Příkaz                       | Co ověřuje                                                             |
 | ---------------------------- | ---------------------------------------------------------------------- |
-| `bun run test:gates`         | chování bran úmyslnými poruchami v oddělených procesech                |
 | `bun run test:fuzz`          | generativní testy vstupů zvenku s vyšším počtem případů                |
-| `bun run mutants:ts`         | mutační testování frontendu i hlavního procesu                         |
-| `bun run test:e2e`           | scénáře nad skutečným oknem Electronu včetně vizuální sady (viz „E2E") |
-| `bun run test:release-smoke` | start zabaleného `.app` a most MCP (viz „Smoke test balíčku")          |
+| `bun run mutants:ts`          | mutační testování frontendu i hlavního procesu                         |
+| `bun run test:e2e`            | scénáře nad skutečným oknem Electronu včetně vizuální sady (viz „E2E") |
+| `bun run test:release-smoke`  | start zabaleného `.app` a most MCP (viz „Smoke test balíčku")          |
 
 ## Pokrytí
+
+`vitest.config.ts` skládá projekty `unit`, `nuxt` a `desktop` stejným způsobem
+jako ostatní Nuxt projekty: konfigurace projektů jsou pohromadě ve
+`vitest.projects.ts`. Samostatný běh `desktop` a Stryker používají
+`vitest.mutation.config.ts`, který Nuxt projekt záměrně nenačítá.
 
 `vitest.config.ts` používá `thresholds: { 100: true, perFile: true }`. Sto
 procent příkazů, větví, funkcí a řádků musí splnit každý zahrnutý soubor, ne
@@ -118,7 +123,8 @@ bun run mutants:ts --mutate desktop/numbering.ts
 Výchozí rozsah je seznam `mutate` ve `stryker.config.ts`: vyjmenované soubory
 `src/` a celý `desktop/` kromě testů, ukázek a `*.d.ts`. Runner dostává
 `vitest.mutation.config.ts` s projekty `unit` a `desktop`; projekt `nuxt` by ke
-každému mutantovi stavěl Nuxt runtime. Testy `desktop` sahají na klíčenku,
+každému mutantovi stavěl Nuxt runtime. Konfigurace znovu používá definice z
+`vitest.projects.ts`. Testy `desktop` sahají na klíčenku,
 sockety a veraPDF, mutační běh proto potřebuje macOS s veraPDF a běh mimo
 sandbox.
 

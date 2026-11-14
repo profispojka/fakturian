@@ -1,5 +1,9 @@
 import { defineConfig } from 'vitest/config';
 
+import { createNuxtProject, desktopProject, unitProject } from './vitest.projects.ts';
+
+const nuxtProject = await createNuxtProject();
+
 /** Dvě prostředí schválně, rozdělená na projekty. */
 export default defineConfig({
 	test: {
@@ -7,11 +11,11 @@ export default defineConfig({
 		passWithNoTests: false,
 		retry: 0,
 		reporters: ['default', './tools/testing/required-tests-reporter.ts'],
-		// Projekty pořadí přebírají odsud; proč na něm záleží, stojí ve `vitest.nuxt.config.ts`.
+		// Pořadí projektů a jejich přípravných souborů musí zůstat stabilní.
 		sequence: {
 			setupFiles: 'list',
 		},
-		projects: ['./vitest.unit.config.ts', './vitest.nuxt.config.ts', './vitest.desktop.config.ts'],
+		projects: [unitProject, nuxtProject, desktopProject],
 		coverage: {
 			provider: 'v8',
 			include: ['src/**', 'desktop/**/*.ts'],

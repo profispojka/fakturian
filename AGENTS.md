@@ -43,7 +43,7 @@ ARES, argumenty od agenta přes MCP a formuláře.
 Fakturian nemá uživatele ani produkční data. Kód nikde neřeší data zapsaná jiným tvarem: žádné
 migrace, verze schématu, čtení starého pole vedle nového (`raw.newKey ?? raw.oldKey`) ani
 `transform` starého klíče. Když se tvar dat změní, změní se schéma a generátory ukázkových dat
-(`desktop/examples/demo-vault.ts`, `showcase/harness/demo-data.ts`, `e2e/fixtures/vault/`).
+(`desktop/examples/demo-vault.ts`, `showcase/harness/demo-data.ts`, `test/e2e/fixtures/vault/`).
 Soubor v jiném tvaru spadne na validaci a to je v pořádku. Migraci nenavrhuj ani se na ni neptej.
 
 ## Názvy

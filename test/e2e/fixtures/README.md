@@ -1,7 +1,7 @@
 # E2E vault
 
 Obsah je syntetický a smí se používat jen pro automatické testy. Sada ho
-kopíruje do nové dočasné složky (`fixtureVault()` v `e2e/app.ts`); aplikace
+kopíruje do nové dočasné složky (`fixtureVault()` v `test/e2e/app.ts`); aplikace
 běží s dočasným domovem, takže nikdy nepracuje s osobním vaultem ani s uloženou
 cestou běžného Fakturianu.
 
