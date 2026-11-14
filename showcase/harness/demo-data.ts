@@ -530,7 +530,7 @@ const emptyImport = () =>
 			hasLogo = false;
 			return null;
 		},
-		read_data_file: ({ name }) => JSON.stringify((name && files[name]) ?? {}),
+		read_data_file: ({ name }) => (name && Object.hasOwn(files, name) ? JSON.stringify(files[name]) : null),
 		write_data_file: ({ name, json }) => {
 			if (!name || !json) throw new Error('Chybí název nebo obsah souboru.');
 			const parsed: unknown = JSON.parse(json);

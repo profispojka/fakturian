@@ -43,8 +43,7 @@ schémat. Datum se neověřuje vlastním `regex`em.
 ## Co umí zod, nepíše se znovu
 
 Před vlastní kontrolou formátu ověř ve zdrojáku (`node_modules/zod/v4/core/schemas.js`), co zod
-umí. `z.iban()` hlídá i kontrolní součet mod-97, takže vlastní `isValidIban` by byla duplicita.
-Vlastní validátor v `src/utils/validators.ts` má místo jen tam, kde zod formát nemá.
+umí. Vlastní validátor v `src/utils/validators.ts` má místo jen tam, kde zod formát nemá.
 
 ## Schéma na hranici
 
