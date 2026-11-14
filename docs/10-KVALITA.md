@@ -61,6 +61,8 @@ v `package.json`. Každý krok musí projít, jinak řetěz skončí.
 Vitest používá `tools/testing/required-tests-reporter.ts`. Prázdná nebo
 přeskočená sada, skip/todo, neúspěšný hook, neošetřená chyba i úspěch až po
 retry znamenají selhání. `allowOnly: false` zakazuje `.only`.
+Vlastní pravidla Oxlintu mají `RuleTester` testy v `test/tooling/`; Vitest
+spouští je v projektu `unit`.
 
 ### Mimo `check`
 

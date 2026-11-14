@@ -84,6 +84,11 @@ describe('nálezy', () => {
 		expect(dead(['page'], '<p class="page">x</p>', index)).toEqual([]);
 	});
 
+	it('rozlišuje hranice názvu od podřetězců a zachovává podtržítko jako součást slova', () => {
+		expect(dead(['page'], '<div class="page-wide page_2 xpage">', [])).toEqual(['page']);
+		expect(dead(['page'], '<div class="page.">', [])).toEqual([]);
+	});
+
 	it('nepovažuje složeninu za použití jejího základu', () => {
 		expect(dead(['btn'], '<p class="btn-primary">x</p>', [])).toEqual(['btn']);
 	});
@@ -182,6 +187,10 @@ describe('kde tvar bydlí', () => {
 
 	it('vyjmenuje soubory, které tvar nosí', () => {
 		expect(wearers('row', markup)).toEqual(['src/pages/index.vue', 'src/pages/invoices.vue']);
+	});
+
+	it('nepovažuje část delšího názvu třídy za nošení', () => {
+		expect(wearers('row', new Map([['src/pages/index.vue', '<div class="row-1 row_2 xrow">']]))).toEqual([]);
 	});
 
 	it('hlásí tvar, který nosí jediná stránka', () => {

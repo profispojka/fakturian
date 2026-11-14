@@ -453,12 +453,12 @@ describe('platba a odběratel', () => {
 		for (const code of ['42', '042']) {
 			const invoice = await project(xml.replace('<PaymentMeansCode>42<', `<PaymentMeansCode>${code}<`));
 
-			expect([
-				invoice.bankAccount,
-				invoice.bankCode,
-				invoice.variableSymbol,
-				invoice.dueDate,
-			]).toEqual(['2000145399', '0800', '202600047', '2026-03-24']);
+			expect([invoice.bankAccount, invoice.bankCode, invoice.variableSymbol, invoice.dueDate]).toEqual([
+				'2000145399',
+				'0800',
+				'202600047',
+				'2026-03-24',
+			]);
 			expect(invoice).not.toHaveProperty('iban');
 		}
 	});
@@ -473,7 +473,13 @@ describe('platba a odběratel', () => {
 
 	it('vydaný ISDOC odvodí IBAN z českého účtu a bez účtu nechá element prázdný', () => {
 		expect(buildIsdoc(sampleInvoice())).toContain('<IBAN>CZ7908000000002000145399</IBAN>');
-		expect(buildIsdoc({ ...sampleInvoice(), bankAccount: '', bankCode: '' })).toContain('<IBAN></IBAN>');
+		expect(
+			buildIsdoc({
+				...sampleInvoice(),
+				bankAccount: '',
+				bankCode: '',
+			}),
+		).toContain('<IBAN></IBAN>');
 	});
 
 	it('anonymní odběratel má pole odběratele prázdná', async () => {

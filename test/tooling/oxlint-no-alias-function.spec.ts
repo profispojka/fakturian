@@ -1,7 +1,7 @@
 import { RuleTester } from 'oxlint/plugins-dev';
 import { describe, it } from 'vitest';
 
-import { noAliasFunction } from '../tools/lint/oxlint-fakturian';
+import { noAliasFunction } from '../../tools/lint/oxlint-fakturian';
 
 // `RuleTester` si `describe`/`it` bere ze statických vlastností, ne z globálů.
 RuleTester.describe = describe;

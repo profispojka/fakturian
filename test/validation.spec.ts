@@ -127,6 +127,7 @@ describe('isValidIco', () => {
 	});
 	it('toleruje mezery', () => {
 		expect(isValidIco('270 824 40')).toBe(true);
+		expect(isValidIco('270\u00a0824\u00a040')).toBe(true);
 	});
 });
 
@@ -158,6 +159,7 @@ describe('isValidZip / isValidBankCode / isValidBankAccount', () => {
 		expect(isValidBankAccount('19-2000145399')).toBe(true);
 		expect(isValidBankAccount('1')).toBe(false);
 		expect(isValidBankAccount('abc')).toBe(false);
+		expect(isValidBankAccount('１９-2000145399')).toBe(false);
 	});
 	it('mod-11 odhalí překlep v poslední číslici hlavní části i předčíslí', () => {
 		expect(isValidBankAccount('2000145398')).toBe(false);

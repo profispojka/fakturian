@@ -135,6 +135,10 @@ describe('parseSeq', () => {
 		expect(parseSeq('{RRRR}', 2026, '2026')).toBeNull();
 	});
 
+	it('při neplatné šabloně se zachová pořadí první značky', () => {
+		expect(parseSeq('{N}-{N}', 2026, '12-3')).toBe(12);
+	});
+
 	it('okrajové mezery kolem čísla nevadí', () => {
 		expect(parseSeq(DEFAULT_TEMPLATE, 2026, '  20260137  ')).toBe(137);
 	});

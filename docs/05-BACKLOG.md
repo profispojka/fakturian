@@ -9,115 +9,56 @@ a nálezy, o kterých je rozhodnuto, že se neřeší, v
 [13-ZNAME-OMEZENI](13-ZNAME-OMEZENI.md); zamítnuté funkce v sekci „Mimo rozsah"
 v [01-FUNKCE](01-FUNKCE.md).
 
-## Jak se s tímhle souborem pracuje
+Vyřešená položka se smaže, nepřeškrtává; důkazem opravy je kód a jeho test.
+Každá položka má stabilní ID, které se po smazání znovu nepoužije, místo v kódu
+(soubor a funkce, symbol nebo `data-testid`, bez čísla řádku) a konkrétní
+scénář, který uživatele poškodí nebo zdrží. Oblast určuje následek, ne vrstva:
+`DATA` integrita účetních dat, `UCT` účetnictví a legislativa, `BEZP` bezpečnost
+a soukromí, `LOG` aplikační logika, `UI` rozhraní, `TEST` testy, `NAST` nástroje
+a release, `DOC` dokumentace, `ARCH` architektura a `NAPAD` nápady mimo rozsah.
+Závažnost je **BLOKUJE** (bez opravy se nesmí vydat), **VYSOKÁ** (špatný
+výsledek bez upozornění), **STŘEDNÍ** (viditelná vada nebo obejitelná ochrana)
+nebo **NÍZKÁ** (drobnost). Úklid kódu, duplicity, styl a „šlo by to
+jednodušší" sem nepatří. Před přidáním nálezu zkontroluj „Rozhodnuto neřešit"
+v [13-ZNAME-OMEZENI](13-ZNAME-OMEZENI.md); položku odtud nezakládej znovu bez
+nového scénáře.
 
-- **Vyřešená položka se smaže**, nepřeškrtává. Důkazem opravy je kód a jeho
-  test. Historii drží git.
-- **Každá položka má stabilní ID.** Na ID se odkazuje v commitech a v diskuzi;
-  po smazání se číslo znovu nepoužije.
-- **Každá položka má místo v kódu:** soubor a jméno funkce, symbolu nebo
-  `data-testid`. Čísla řádků se nepíšou. Bez místa v kódu nebo bez konkrétního
-  scénáře to není položka backlogu, ale dojem.
-- **Nová položka patří do oblasti podle následku**, ne podle vrstvy, ve které
-  bydlí. Ztráta dokladu je `DATA`, i když ji způsobí Vue komponenta.
-- **Položka má scénář, který uživatele poškodí nebo zdrží.** Úklid kódu,
-  duplicita, styl a „šlo by to jednodušší" sem nepatří. Než nález přidáš,
-  podívej se do sekce „Rozhodnuto neřešit" v
-  [13-ZNAME-OMEZENI](13-ZNAME-OMEZENI.md): co tam stojí, se znovu nezakládá,
-  dokud k tomu nepřibude nový scénář.
+Položky níže na sobě nezávisí.
 
-### Oblasti
-
-| Prefix  | Oblast                                  |
-| ------- | --------------------------------------- |
-| `DATA`  | trvanlivost a integrita účetních dat    |
-| `UCT`   | účetnictví a legislativa ČR             |
-| `BEZP`  | bezpečnost a soukromí                   |
-| `LOG`   | chyby v aplikační logice                |
-| `UI`    | ovládání, rozsah funkcí, výkon rozhraní |
-| `TEST`  | mezery v testech a v jejich hygieně     |
-| `NAST`  | nástroje, build, release engineering    |
-| `DOC`   | dokumentace a komentáře proti kódu      |
-| `ARCH`  | architektura, duplicity a přísnost typů |
-| `NAPAD` | nápady mimo současný rozsah             |
-
-### Závažnost
-
-| Stupeň      | Znamená                                                                |
-| ----------- | ---------------------------------------------------------------------- |
-| **BLOKUJE** | bez opravy se nesmí vydat — ztráta účetních dat nebo porušení předpisu |
-| **VYSOKÁ**  | uživatel dostane špatný výsledek a nepozná to                          |
-| **STŘEDNÍ** | viditelná vada nebo chybějící ochrana, kterou lze obejít               |
-| **NÍZKÁ**   | drobnost, kosmetika, úklid                                             |
-
----
-
-## Před vydáním
-
-Co musí být hotové, aby šly doložit vydávací brány z
-[10-KVALITA](10-KVALITA.md). Položky na sobě nezávisí.
-
-`NAST-1` podpis, notarizace, updater · `NAST-21` doložené CI, úplné mutace a E2E
-s vizuální sadou · `UCT-40` ruční import ISDOC.
-
----
-
-## Účetnictví a legislativa — `UCT`
-
-Právní podklad je v [07-PRAVO](07-PRAVO.md).
-
-### UCT-40 · Ruční import ISDOC do cizího programu není doložený — STŘEDNÍ
-
-Vzorky dokladů jsou `samples()` v `desktop/test/invoices.ts` (faktura,
-dobropis, faktura na zálohu, minimální doklad); PDF z nich staví jen
-`desktop/test/pdfa.test.ts` do dočasné složky, kterou po sobě smaže. Vzorky
-uložit, importovat do Pohody nebo Money S3 a ověřit číslo, částku, odběratele,
-příznak neplátce a vazbu dobropisu. Program, verzi a výsledek zapsat do
-[10-KVALITA](10-KVALITA.md) k vydávacím branám.
-
-### UCT-36 · Otázky pro účetního — NÍZKÁ
-
-- `crossingDay` a `stageOf` (`src/utils/dashboard.ts`): dobropis stáhne roční
-  součet pod 2 536 500 Kč, hranice ale v průběhu roku padla — karta hlásí
-  „plátcem od 1. 1.". Ověřit, jestli dobropis zpětně ruší okamžité plátcovství.
-- `readReceived` (`desktop/received.ts`) bere `TaxInclusiveAmount` bez ohledu
-  na `DocumentType=2`, takže kladně zapsaný přijatý dobropis se započte jako
-  výdaj kladně. U vydaných dokladů kladný dobropis odmítne `checkSource`
-  (`desktop/import.ts`), `intoInvoice` znaménko sám nenormalizuje. Rozhodnout
-  nad vzorkem z Pohody nebo iDokladu: normalizovat, nebo odmítnout.
-
----
-
-## Nástroje, build a release — `NAST`
-
-### NAST-1 · Appka není podepsaná ani notarizovaná a nemá updater — BLOKUJE
-
-`electron-builder.yml` má `hardenedRuntime: true` a entitlements, ale
-`notarize: false`, žádnou podpisovou identitu a žádný `publish`; job `package`
-v `quality.yml` balí s `CSC_IDENTITY_AUTO_DISCOVERY: 'false'`. `electron-updater`
-v `package.json` není. Nepodepsanou appku laik nespustí a bez updateru se
-k uživateli nedostane žádná oprava. Patří sem Developer ID certifikát
-a notarizace v CI, hosting podepsaného buildu s feedem pro updater na vlastní
-doméně a záloha podpisového klíče mimo tento disk. Entitlement
-`automation.apple-events` (`desktop/entitlements.plist`) začne platit až
-s podpisem, takže přílohu mailu přes Mail.app je potřeba ověřit na podepsaném
-buildu. Job `package` podpis balíčku neověřuje; s certifikátem do něj patří
-`codesign --verify` a `spctl`.
-
----
-
-## Nápady mimo současný rozsah — `NAPAD`
-
-- **MCP se zavřenou appkou.** Agent čte vault jen přes běžící appku. Čtení
-  přímo ze souborů by potřebovalo zámkový soubor respektovaný appkou
+- **UCT-40 · Ruční import ISDOC do cizího programu není doložený — STŘEDNÍ.**
+  Vzorky dokladů jsou `samples()` v `desktop/test/invoices.ts` (faktura,
+  dobropis, faktura na zálohu, minimální doklad); PDF z nich staví jen
+  `desktop/test/pdfa.test.ts` do dočasné složky, kterou po sobě smaže. Vzorky
+  uložit, importovat do Pohody nebo Money S3 a ověřit číslo, částku, odběratele,
+  příznak neplátce a vazbu dobropisu. Program, verzi a výsledek zapsat do
+  [10-KVALITA](10-KVALITA.md) k vydávacím branám.
+- **UCT-36 · Otázky pro účetního — NÍZKÁ.**
+  - `crossingDay` a `stageOf` (`src/utils/dashboard.ts`): dobropis stáhne roční
+    součet pod 2 536 500 Kč, hranice ale v průběhu roku padla — karta hlásí
+    „plátcem od 1. 1.". Ověřit, jestli dobropis zpětně ruší okamžité plátcovství.
+  - `readReceived` (`desktop/received.ts`) bere `TaxInclusiveAmount` bez ohledu
+    na `DocumentType=2`, takže kladně zapsaný přijatý dobropis se započte jako
+    výdaj kladně. U vydaných dokladů kladný dobropis odmítne `checkSource`
+    (`desktop/import.ts`), `intoInvoice` znaménko sám nenormalizuje. Rozhodnout
+    nad vzorkem z Pohody nebo iDokladu: normalizovat, nebo odmítnout.
+- **NAST-1 · Appka není podepsaná ani notarizovaná a nemá updater — BLOKUJE.**
+  `electron-builder.yml` má `hardenedRuntime: true` a entitlements, ale
+  `notarize: false`, žádnou podpisovou identitu a žádný `publish`; job `package`
+  v `quality.yml` balí s `CSC_IDENTITY_AUTO_DISCOVERY: 'false'`. `electron-updater`
+  v `package.json` není. Nepodepsanou appku laik nespustí a bez updateru se
+  k uživateli nedostane žádná oprava. Patří sem Developer ID certifikát
+  a notarizace v CI, hosting podepsaného buildu s feedem pro updater na vlastní
+  doméně a záloha podpisového klíče mimo tento disk. Entitlement
+  `automation.apple-events` (`desktop/entitlements.plist`) začne platit až
+  s podpisem, takže přílohu mailu přes Mail.app je potřeba ověřit na podepsaném
+  buildu. Job `package` podpis balíčku neověřuje; s certifikátem do něj patří
+  `codesign --verify` a `spctl`.
+- **NAPAD-1 · MCP se zavřenou appkou.** Agent čte vault jen přes běžící appku.
+  Čtení přímo ze souborů by potřebovalo zámkový soubor respektovaný appkou
   i connectorem (`desktop/mcp/connector.ts`, `desktop/store.ts`). Má smysl, jen
   když nutnost mít appku otevřenou začne vadit.
-- **Výpočty mimo hlavní proces.** Překlad Typstu (`compileTypst` v
+- **NAPAD-2 · Výpočty mimo hlavní proces.** Překlad Typstu (`compileTypst` v
   `desktop/pdf.ts`) a `inflateSync` ve `streamBytes` běží synchronně v hlavním
   procesu a fronta `exclusive` v `desktop/store.ts` je jedna pro všechny datové
   soubory. Worker a fronta po souborech mají smysl, jen když uložení nebo náhled
   začnou okno znatelně zdržovat.
-
-
-Nová závislost k prototypu: oficiální MCP SDK
-[Connector (line 163)](/Users/jiricq/Desktop/enterprises/fakturian/desktop/mcp/connector.ts:163) sám obsluhuje část MCP protokolu. Oficiální TypeScript SDK by mohlo převzít registraci nástrojů, komunikaci přes stdio a část údržby protokolových verzí. Není to však přímá náhrada: autentizovaný socket, limity zpráv, fungování seznamu nástrojů bez otevřeného okna, přeposílání do okna, odpojení a rušení volání jsou specifické pro Fakturian. Doporučuji nejdřív malý prototyp a porovnání s existujícími MCP testy; bez něj není prokázané, že celkový kód skutečně zjednoduší.
