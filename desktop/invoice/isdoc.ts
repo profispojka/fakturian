@@ -7,7 +7,7 @@ import { DocumentKind } from '~/constants/invoice';
 import { invoiceTotalCents, lineTotalCents } from '~/utils/invoice';
 
 import { fmtnum, type Invoice, type InvoiceLine, type InvoiceParty } from './model.ts';
-import { paymentSymbol } from './payment.ts';
+import { czechIban, paymentSymbol } from './payment.ts';
 
 import {
 	extensionElement,
@@ -56,6 +56,7 @@ export function buildIsdoc(invoice: Invoice): string {
 	const sign = invoice.documentType === DocumentKind.CreditNote ? -1 : 1;
 	const total = fromCents(invoiceTotalCents(invoice) * sign);
 	const vatNote = invoice.vatNote.trim();
+	const iban = czechIban(invoice.bankAccount, invoice.bankCode) ?? '';
 	const document = IMPLEMENTATION.createDocument(ISDOC_NAMESPACE, '', null);
 
 	// Prázdná hodnota dá `<X></X>`, ne `<X/>`.
@@ -179,6 +180,7 @@ export function buildIsdoc(invoice: Invoice): string {
 	add(details, 'ID', invoice.bankAccount);
 	add(details, 'BankCode', invoice.bankCode);
 	add(details, 'Name', '');
+	add(details, 'IBAN', iban);
 	add(details, 'BIC', '');
 	add(details, 'VariableSymbol', paymentSymbol(invoice));
 	return toXml(document);

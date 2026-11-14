@@ -301,6 +301,7 @@ export const MINIMAL_ISDOC = `<?xml version="1.0" encoding="UTF-8"?>
         <ID>2000145399</ID>
         <BankCode>0800</BankCode>
         <Name>Česká spořitelna</Name>
+        <IBAN></IBAN>
         <BIC></BIC>
         <VariableSymbol>20260001</VariableSymbol>
       </Details>

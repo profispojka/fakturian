@@ -26,8 +26,6 @@ export function useVaultFile<T extends object>(name: string, empty: () => T, sch
 		try {
 			const json = await commands.readDataFile(vaultPath.value, name);
 			if (json === null) {
-				data.value = empty();
-				persisted.value = structuredClone(toRaw(data.value));
 				loaded.value = true;
 				return;
 			}

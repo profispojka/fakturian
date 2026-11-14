@@ -378,34 +378,34 @@ plnění appka nevede; proč, popisuje `UCT-37` v
 Editace faktury = naparsovat ISDOC z PDF → naplnit formulář → upravit →
 přegenerovat PDF. **Každé pole formuláře má své místo v ISDOC.**
 
-| Pole ve formuláři                 | ISDOC 6.0.2                                                                                                                  |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Číslo faktury                     | `Invoice/ID`                                                                                                                 |
-| GUID dokladu                      | `UUID` — odvozené deterministicky z IČO + typu + čísla, při editaci se nemění                                                |
-| Typ (faktura / dobropis)          | `DocumentType` (1 / opravný doklad) + reference                                                                              |
-| Datum vystavení                   | `IssueDate`                                                                                                                  |
-| Datum splatnosti                  | `PaymentMeans/Payment/Details/PaymentDueDate`                                                                                |
-| Dodavatel                         | `AccountingSupplierParty`                                                                                                    |
-| Zápis do rejstříku nebo evidence  | `Party/RegisterIdentification/Preformatted`                                                                                  |
-| Neplátce DPH                      | `VATApplicable=false` (text na PDF se z toho odvodí)                                                                         |
-| Odběratel (IČO/DIČ, adresa, mail) | `AccountingCustomerParty`: IČO v `PartyIdentification/ID`, DIČ v `PartyTaxScheme/CompanyID`, mail v `Contact/ElectronicMail` |
-| Položka: popis                    | `InvoiceLine/Item/Description`                                                                                               |
-| Položka: množství + jednotka      | `InvoicedQuantity` (+ `@unitCode`)                                                                                           |
-| Položka: cena za jednotku         | `UnitPrice`                                                                                                                  |
-| Řádkový / celkový součet          | `LineExtensionAmount` / `LegalMonetaryTotal`                                                                                 |
-| Měna                              | `LocalCurrencyCode` — vždy `CZK`                                                                                             |
-| Datum uskutečnění plnění          | `TaxPointDate` — **nezapisuje se** (`UCT-37`)                                                                                |
-| Číslo účtu                        | `PaymentMeans/Payment/Details` (`ID`/`BankCode`); `IBAN` se nečte ani nevydává |
-| Variabilní symbol (= číslo)       | `PaymentMeans/.../VariableSymbol`                                                                                            |
-| Poznámka                          | `Note`                                                                                                                       |
-| Vazba řádku na položku ceníku     | `InvoiceLine/Item/SellersItemIdentification/ID`                                                                              |
-| Rok čerpání ročního limitu        | `InvoiceLine/Extensions/fakturian:UsageYear`                                                                                 |
-| Odesláno                          | `Extensions/fakturian:SentAt` + `fakturian:SentBy`                                                                           |
-| QR / SPAYD                        | **není v ISDOC** — sestaví se z účtu + částky + VS                                                                           |
-| Platby                            | **není v ISDOC** — `platby.json`                                                                                             |
-| Vykázané množství za rok          | **není v ISDOC ani v souboru** — počítá se z řádků archivu                                                                   |
-| Předchozí verze po editaci        | týdenní PDF zálohy v `.fakturian/snapshots/faktury/`                                                                         |
-| Logo                              | **není v ISDOC** — `logo.png` ve vaultu                                                                                      |
+| Pole ve formuláři                 | ISDOC 6.0.2                                                                                                                        |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Číslo faktury                     | `Invoice/ID`                                                                                                                       |
+| GUID dokladu                      | `UUID` — odvozené deterministicky z IČO + typu + čísla, při editaci se nemění                                                      |
+| Typ (faktura / dobropis)          | `DocumentType` (1 / opravný doklad) + reference                                                                                    |
+| Datum vystavení                   | `IssueDate`                                                                                                                        |
+| Datum splatnosti                  | `PaymentMeans/Payment/Details/PaymentDueDate`                                                                                      |
+| Dodavatel                         | `AccountingSupplierParty`                                                                                                          |
+| Zápis do rejstříku nebo evidence  | `Party/RegisterIdentification/Preformatted`                                                                                        |
+| Neplátce DPH                      | `VATApplicable=false` (text na PDF se z toho odvodí)                                                                               |
+| Odběratel (IČO/DIČ, adresa, mail) | `AccountingCustomerParty`: IČO v `PartyIdentification/ID`, DIČ v `PartyTaxScheme/CompanyID`, mail v `Contact/ElectronicMail`       |
+| Položka: popis                    | `InvoiceLine/Item/Description`                                                                                                     |
+| Položka: množství + jednotka      | `InvoicedQuantity` (+ `@unitCode`)                                                                                                 |
+| Položka: cena za jednotku         | `UnitPrice`                                                                                                                        |
+| Řádkový / celkový součet          | `LineExtensionAmount` / `LegalMonetaryTotal`                                                                                       |
+| Měna                              | `LocalCurrencyCode` — vždy `CZK`                                                                                                   |
+| Datum uskutečnění plnění          | `TaxPointDate` — **nezapisuje se** (`UCT-37`)                                                                                      |
+| Číslo účtu                        | `PaymentMeans/Payment/Details` (`ID`/`BankCode`); povinný element `IBAN` se odvodí z českého účtu, importovaná hodnota se ignoruje |
+| Variabilní symbol (= číslo)       | `PaymentMeans/.../VariableSymbol`                                                                                                  |
+| Poznámka                          | `Note`                                                                                                                             |
+| Vazba řádku na položku ceníku     | `InvoiceLine/Item/SellersItemIdentification/ID`                                                                                    |
+| Rok čerpání ročního limitu        | `InvoiceLine/Extensions/fakturian:UsageYear`                                                                                       |
+| Odesláno                          | `Extensions/fakturian:SentAt` + `fakturian:SentBy`                                                                                 |
+| QR / SPAYD                        | **není v ISDOC** — sestaví se z účtu + částky + VS                                                                                 |
+| Platby                            | **není v ISDOC** — `platby.json`                                                                                                   |
+| Vykázané množství za rok          | **není v ISDOC ani v souboru** — počítá se z řádků archivu                                                                         |
+| Předchozí verze po editaci        | týdenní PDF zálohy v `.fakturian/snapshots/faktury/`                                                                               |
+| Logo                              | **není v ISDOC** — `logo.png` ve vaultu                                                                                            |
 
 Vlastní elementy `fakturian:*` jsou ve jmenném prostoru
 `https://fakturian.app/isdoc/extensions/1`; schéma ISDOC je přijímá přes
@@ -429,7 +429,7 @@ nemá standardní pole.
 
 - Řetězec **SPAYD**, např.
   `SPD*1.0*ACC:CZ6508000000192000145399*AM:12100.00*CC:CZK*X-VS:20260001*MSG:Faktura 20260001`.
-- `ACC` se interně odvodí z českého čísla účtu; IBAN se nezadává ani neukládá.
+- `ACC` se interně odvodí z českého čísla účtu. IBAN se nezadává ani neukládá.
 - Vykreslí ho hlavní proces (`qrcode` → PNG přes `fast-png`, `qrPng`
   v `desktop/invoice/payment.ts`) a typst šablona ho vloží jako
   `#image("qr.png")`.

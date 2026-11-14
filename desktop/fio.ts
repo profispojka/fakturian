@@ -70,7 +70,7 @@ export async function fioSetToken({ token }: { token: string }): Promise<null> {
 	return null;
 }
 
-// Hledání bez `-w` vrací jen atributy položky, ne heslo, takže se klíčenka na povolení neptá.
+// Hledání bez `-w` čte jen atributy; `getPassword()` by mohl otevřít dialog Klíčenky.
 export async function fioHasToken(): Promise<boolean> {
 	if (knownToken !== undefined) return true;
 	if (keychain === undefined) return false;

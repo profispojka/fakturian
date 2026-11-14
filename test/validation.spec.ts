@@ -12,13 +12,7 @@ import {
 } from '~/schemas/suppliers';
 import { emptyVaultData, vaultDataSchema } from '~/schemas/vault-data';
 import { czkFromCents } from '~/utils/money';
-import {
-	isValidBankAccount,
-	isValidBankCode,
-	isValidDic,
-	isValidIco,
-	isValidZip,
-} from '~/utils/validators';
+import { isValidBankAccount, isValidBankCode, isValidDic, isValidIco, isValidZip } from '~/utils/validators';
 import { z, type Zod } from '~/utils/zod';
 
 import { date } from './setup/dates';

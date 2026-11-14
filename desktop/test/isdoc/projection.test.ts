@@ -17,7 +17,7 @@ const PAYMENT_DETAILS = `      <Details>
         <ID>2000145399</ID>
         <BankCode>0800</BankCode>
         <Name>Česká spořitelna</Name>
-        <IBAN>CZ6508000000192000145399</IBAN>
+        <IBAN></IBAN>
         <BIC></BIC>
         <VariableSymbol>20260001</VariableSymbol>
       </Details>
@@ -471,8 +471,9 @@ describe('platba a odběratel', () => {
 		expect([invoice.bankAccount, invoice.variableSymbol]).toEqual(['2000145399', '20260001']);
 	});
 
-	it('vydaný ISDOC neobsahuje IBAN', () => {
-		expect(buildIsdoc(sampleInvoice())).not.toContain('<IBAN>');
+	it('vydaný ISDOC odvodí IBAN z českého účtu a bez účtu nechá element prázdný', () => {
+		expect(buildIsdoc(sampleInvoice())).toContain('<IBAN>CZ7908000000002000145399</IBAN>');
+		expect(buildIsdoc({ ...sampleInvoice(), bankAccount: '', bankCode: '' })).toContain('<IBAN></IBAN>');
 	});
 
 	it('anonymní odběratel má pole odběratele prázdná', async () => {
