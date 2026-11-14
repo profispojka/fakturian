@@ -283,7 +283,7 @@ export function extensionElement(document: Document, name: string, value: string
 	element.setAttributeNS(XMLNS_NAMESPACE, `xmlns:${EXTENSION_PREFIX}`, EXTENSION_NAMESPACE);
 	// Čtečka ISDOC v cizím prvku entitu `&amp;` zahodí, takže `Petr & syn` by po načtení vyšel jako
 	// `Petr  syn`. CDATA přečte celé.
-	const cdata = /[&<]/.test(value) && !value.includes(']]>');
+	const cdata = (value.includes('&') || value.includes('<')) && !value.includes(']]>');
 	element.appendChild(cdata ? document.createCDATASection(value) : document.createTextNode(value));
 	return element;
 }
@@ -328,15 +328,13 @@ export function lineUsageYear(line: Element): number | undefined {
 
 // Peníze do ISDOC v účetním tvaru: `1200.00`, `-50.00`.
 export function fromCents(cents: number): string {
-	const sign = cents < 0 ? '-' : '';
-	const whole = Math.abs(cents);
-	return `${sign}${Math.trunc(whole / 100)}.${String(whole % 100).padStart(2, '0')}`;
+	return new BigDecimal(cents).div(100).toFixed(2);
 }
 
 // Hodnota `xs:decimal` z dokladu, který prošel XSD; `big.js` jen nebere znaménko `+`.
 export function decimal(value: string): BigDecimal {
-	// Stryker disable next-line Regex: ekvivalentní mutant, `xs:decimal` pustí `+` jen na začátek.
-	return new BigDecimal(value.trim().replace(/^\+/, ''));
+	const trimmed = value.trim();
+	return new BigDecimal(trimmed.startsWith('+') ? trimmed.slice(1) : trimmed);
 }
 
 // Zaokrouhlení půlkou od nuly. Částka nad strop se odmítne, oříznutá by v evidenci vypadala jako

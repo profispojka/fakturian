@@ -90,26 +90,26 @@ async function save(event: FormSubmitEvent<Contact>) {
 								<UFormField name="name" label="Název / jméno">
 									<UInput v-model="contact.name" data-testid="field-name" autofocus />
 								</UFormField>
-									<UFormField name="ico" label="IČO">
-										<UInput
-											v-model.trim="contact.ico"
-											data-testid="field-ico"
-											:disabled="aresLoading"
-											:ui="id ? {} : { trailing: 'pe-0', base: 'pe-16' }">
-											<!-- Jen při zakládání: u uloženého odběratele by dotaz přepsal údaje, které si uživatel upravil. -->
-											<template v-if="!id" #trailing>
-												<!-- Šířka je pevná: popisek se při dotahování střídá se spinnerem a poskakující hrana
+								<UFormField name="ico" label="IČO">
+									<UInput
+										v-model.trim="contact.ico"
+										data-testid="field-ico"
+										:disabled="aresLoading"
+										:ui="id ? {} : { trailing: 'pe-0', base: 'pe-16' }">
+										<!-- Jen při zakládání: u uloženého odběratele by dotaz přepsal údaje, které si uživatel upravil. -->
+										<template v-if="!id" #trailing>
+											<!-- Šířka je pevná: popisek se při dotahování střídá se spinnerem a poskakující hrana
 												     by z pole udělala živý obrázek. -->
-												<UButton
-													class="w-14 justify-center rounded-s-none rounded-e-ctl border-s border-s-line-soft text-meta text-ink-2"
-													data-testid="ares"
-													variant="ghost"
-													:loading="aresLoading"
-													:label="aresLoading ? '' : 'ARES'"
-													@click="fillFromAres" />
-											</template>
-										</UInput>
-									</UFormField>
+											<UButton
+												class="w-14 justify-center rounded-s-none rounded-e-ctl border-s border-s-line-soft text-meta text-ink-2"
+												data-testid="ares"
+												variant="ghost"
+												:loading="aresLoading"
+												:label="aresLoading ? '' : 'ARES'"
+												@click="fillFromAres" />
+										</template>
+									</UInput>
+								</UFormField>
 								<FieldError :error="aresError" data-testid="ares-error" />
 								<UFormField name="email" label="E-mail">
 									<UInput v-model.trim.optional="contact.email" data-testid="field-email" />

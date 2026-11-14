@@ -2,7 +2,6 @@ import { contactStoredSchema, type Contact } from '~/schemas/customers';
 import { emptySupplier, type Supplier } from '~/schemas/suppliers';
 import { normalizeSearchText } from '~/utils/crud';
 import { issuesText } from '~/utils/errors';
-import { withoutWhitespace } from '~/utils/strings';
 
 import type { AdoptedSupplier, ImportedCustomer } from '~/schemas/import';
 
@@ -28,11 +27,11 @@ export function supplierFromAdopted(d: AdoptedSupplier): Supplier {
 		ico: d.ico,
 		address: {
 			...d.address,
-			zip: withoutWhitespace(d.address.zip),
+			zip: d.address.zip.replace(/\s+/g, ''),
 		},
 		registration: d.registration,
-		bankAccount: withoutWhitespace(d.bankAccount),
-		bankCode: withoutWhitespace(d.bankCode),
+		bankAccount: d.bankAccount.replace(/\s+/g, ''),
+		bankCode: d.bankCode.replace(/\s+/g, ''),
 		email: d.email || undefined,
 		defaultDueDays: d.defaultDueDays ?? defaultValue.defaultDueDays,
 		// Bez toho by řada uprostřed roku změnila tvar: po `2026022` z iDokladu by výchozí šablona

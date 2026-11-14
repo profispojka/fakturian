@@ -50,11 +50,10 @@ export function emptySupplier(): Supplier {
 	};
 }
 
-export const supplierSchema = z.object({
+export const supplierSchema = supplierStoredSchema.extend({
 	name: z.string().trim().min(1, 'Povinné pole.'),
 	ico: z.ico(),
-	registration: z.string(),
-	address: z.object({
+	address: z.looseObject({
 		street: z.string().trim().min(1, 'Povinné pole.'),
 		city: z.string().trim().min(1, 'Povinné pole.'),
 		zip: z.zip(),
@@ -62,7 +61,6 @@ export const supplierSchema = z.object({
 	bankAccount: z.bankAccount(),
 	bankCode: z.bankCode(),
 	email: z.email('Neplatný e-mail.').optional(),
-	defaultDueDays: defaultDueDaysSchema,
 });
 
 export type ValidSupplier = Zod.infer<typeof supplierSchema>;
@@ -74,8 +72,6 @@ export const supplierSettingsSchema = supplierSchema
 		// Bez zápisu do rejstříku nebo evidence je faktura neúplná obchodní listina (§ 435 odst. 1 OZ).
 		// Průvodce ho nechává na ARES, doplní se tady.
 		registration: z.string().trim().min(1, 'Povinné pole.'),
-		invoiceNumberFormat: z.string(),
-		invoiceNumberStart: z.string().optional(),
 	})
 	// Číslo mimo šablonu `nextNumber` nepřečte a řada by tiše začala od jedničky — tedy čísly, která
 	// klient už má. Rok se nehlídá: navázání platí jen pro svůj rok a loňské se v lednu nerozbije.

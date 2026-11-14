@@ -84,7 +84,7 @@ const areas = [
 		id: 'integrace',
 		heading: 'Integrace',
 		items: [
-			['ARES', 'Doplnění názvu, adresy, IČO a DIČ podle IČO.'],
+			['ARES', 'Doplnění názvu a adresy podle IČO.'],
 			['Fio banka', 'Stažení transakcí a párování plateb.'],
 			[
 				'Claude connector (MCP)',

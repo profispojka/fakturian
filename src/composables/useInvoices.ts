@@ -65,7 +65,7 @@ export function useInvoices() {
 	// ceníku i původní fakturu dobropisu bere z `known`, který volající načetl těsně před kontrolou.
 	function validate(invoice: Invoice, isNew: boolean, known: InvoiceSummary[]): void {
 		const checked = invoiceSchema({
-			...(isNew && { numberTemplate: templateOf(supplier.value) }),
+			numberTemplate: isNew ? templateOf(supplier.value) : undefined,
 			limitOverflows: limitOverflows(
 				invoice,
 				data.value.pricelist,

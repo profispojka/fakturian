@@ -47,7 +47,7 @@ const nextNumberError = ref('');
 const rolled = computed(() => {
 	const number = nextInvoiceNumber.value;
 	const last = number.slice(-1);
-	if (!/\d/.test(last)) {
+	if (/\D/.test(last) || last === '') {
 		return {
 			head: number,
 			digit: null,
@@ -72,7 +72,7 @@ const ADOPT_PREVIEW = 5;
 const adoptCandidates = computed(() => adoptScan.value?.candidates ?? []);
 const adoptCount = computed(() => adoptCandidates.value.length);
 
-const typedIco = computed(() => ico.value.replace(/\s+/g, ''));
+const typedIco = computed(() => ico.value.trim());
 const icoReady = computed(() => isValidIco(typedIco.value) && !ares.loading.value);
 
 function updateIco(value: string) {
@@ -100,7 +100,7 @@ const stage = computed(() => {
 
 function pretty(path: string | null): string {
 	if (!path) return '';
-	const h = home.value.replace(/\/$/, '');
+	const h = home.value.endsWith('/') ? home.value.slice(0, -1) : home.value;
 	if (h && path.startsWith(h)) return `~${path.slice(h.length)}`;
 	return path;
 }
@@ -157,12 +157,9 @@ function afterVaultStep() {
 	const company = structuredClone(toRaw(found.value));
 	form.value = {
 		...stored,
-		// Vyjmenovaně, ne rozprostřením: DIČ z ARES do dodavatele nepatří, neplátce ho na faktuře neuvádí.
-		...(company && {
-			name: company.name,
-			address: company.address,
-		}),
-		ico: ico.value,
+		name: company?.name ?? stored.name,
+		address: company?.address ?? stored.address,
+		ico: typedIco.value,
 		// Firma, u které ARES zápis nezná, nesmí smazat ten, který si dodavatel už vyplnil.
 		registration: company?.registration || stored.registration,
 	};
@@ -243,10 +240,7 @@ async function onSupplierSubmit(event: FormSubmitEvent<ValidSupplier>) {
 	busy.value = true;
 	error.value = '';
 	try {
-		await setSupplier({
-			...structuredClone(toRaw(form.value)),
-			ico: event.data.ico,
-		});
+		await setSupplier(event.data);
 		finish();
 	} catch (e) {
 		error.value = `Údaje se nepodařilo uložit: ${errorText(e)}`;
@@ -304,7 +298,8 @@ async function onSupplierSubmit(event: FormSubmitEvent<ValidSupplier>) {
 						<template v-else-if="step === 'supplier'">
 							<h2 class="welcome-title" data-testid="wizard-heading">Tvoje fakturační údaje</h2>
 							<p class="welcome-lead">
-								Jméno, adresa a účet stojí na každé faktuře. E-mail a splatnost doplníš potom v Nastavení.
+								Jméno, adresa a účet stojí na každé faktuře. E-mail a splatnost doplníš potom v
+								Nastavení.
 							</p>
 						</template>
 						<template v-else>

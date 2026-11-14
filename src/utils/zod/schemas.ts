@@ -1,11 +1,10 @@
 import { z } from 'zod';
 
 import { parseDate, parseIsdocDate } from '~/utils/date';
-import { isAsciiAlphaNumeric, withoutWhitespace } from '~/utils/strings';
 import { isValidBankAccount, isValidBankCode, isValidIco, isValidZip } from '~/utils/validators';
 
 export function asciiAlphaNumeric(message: string) {
-	return z.string().refine((value) => value.length > 0 && isAsciiAlphaNumeric(value), {
+	return z.string().refine((value) => value.length > 0 && !/[^a-zA-Z0-9]/.test(value), {
 		error: message,
 		abort: true,
 	});
@@ -58,7 +57,7 @@ export function ico() {
 export function zip() {
 	return z
 		.string()
-		.transform(withoutWhitespace)
+		.transform((value) => value.replace(/\s+/g, ''))
 		.refine((value) => value.trim() !== '', {
 			error: 'Povinné pole.',
 			abort: true,
@@ -69,7 +68,7 @@ export function zip() {
 export function bankAccount() {
 	return z
 		.string()
-		.transform(withoutWhitespace)
+		.transform((value) => value.replace(/\s+/g, ''))
 		.refine((value) => value.trim() !== '', {
 			error: 'Povinné pole.',
 			abort: true,
@@ -80,7 +79,7 @@ export function bankAccount() {
 export function bankCode() {
 	return z
 		.string()
-		.transform(withoutWhitespace)
+		.transform((value) => value.replace(/\s+/g, ''))
 		.refine((value) => value.trim() !== '', {
 			error: 'Povinné pole.',
 			abort: true,

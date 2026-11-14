@@ -5,7 +5,6 @@ import { DOCUMENT_EXTENSION } from '~/bindings';
 import { daysBetween, parseDate } from '~/utils/date';
 import { errorText } from '~/utils/errors';
 import { invoiceTotalCents } from '~/utils/invoice';
-import { isAsciiDigits } from '~/utils/strings';
 
 import { alreadyThere, checkSource, isCreditNote, readSource, type Source } from './import.ts';
 import { addCredit, batch, checkCredit, creditTargets } from './invoice/import.ts';
@@ -29,7 +28,7 @@ const DEPTH_LIMIT = 6;
 
 // Nejvýš 9 míst pořadí; musí sedět s `validateTemplate` v `src/utils/numbering.ts`.
 function isSequence(value: string): boolean {
-	return value.length >= 1 && value.length <= 9 && isAsciiDigits(value);
+	return value.length >= 1 && value.length <= 9 && !/\D/.test(value);
 }
 
 export interface FoundFiles {

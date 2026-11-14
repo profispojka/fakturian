@@ -5,7 +5,7 @@ import { czechList } from '~/utils/locales';
 import { czkFromCents } from '~/utils/money';
 import { fitsTemplate, validateNumber } from '~/utils/numbering';
 import { formatAmount, type LimitOverflow, type UsageLine } from '~/utils/pricelist';
-import { isValidDic, isValidIco, isValidZip } from '~/utils/validators';
+import { isValidIco, isValidZip } from '~/utils/validators';
 import { z, type Zod } from '~/utils/zod';
 
 import type {
@@ -67,7 +67,6 @@ export function emptyParty(): InvoiceParty {
 	return {
 		name: '',
 		ico: '',
-		dic: '',
 		address: {
 			street: '',
 			city: '',
@@ -117,8 +116,7 @@ export function newInvoice(supplier: Supplier | null, number: string): Invoice {
 // Stryker disable all: Deklarativní IPC schémata hlídají kontrakt přes přesné validní a chybné odpovědi.
 const invoicePartySchema = z.strictObject({
 	name: z.string(),
-	ico: z.string(),
-	dic: z.string(),
+	ico: z.ico().or(z.literal('')),
 	address: z.strictObject({
 		street: z.string(),
 		city: z.string(),
@@ -256,7 +254,6 @@ const invoiceHeaderSchema = z.object({
 		.object({
 			name: z.string().trim().min(1, 'Vyber nebo zadej odběratele.'),
 			ico: z.string(),
-			dic: z.string(),
 			address: z.object({
 				street: z.string(),
 				city: z.string(),
@@ -268,8 +265,6 @@ const invoiceHeaderSchema = z.object({
 			// Hlášky musí pole pojmenovat samy: odběratel se upravuje v dialogu, takže se vypisují ve
 			// stavové liště. Bez vybraného odběratele stačí jediná.
 			if (!customer.name.trim()) return;
-			// DIČ ani e-mail povinné nejsou: DIČ nemá neplátce DPH ani fyzická osoba a fakturu jde předat
-			// i papírem.
 			const missing = [
 				!customer.ico.trim() && 'IČO',
 				!customer.address.street.trim() && 'ulice',
@@ -287,13 +282,6 @@ const invoiceHeaderSchema = z.object({
 					code: 'custom',
 					path: ['ico'],
 					message: 'Neplatné IČO odběratele.',
-				});
-			}
-			if (customer.dic.trim() && !isValidDic(customer.dic)) {
-				checks.addIssue({
-					code: 'custom',
-					path: ['dic'],
-					message: 'Neplatné DIČ odběratele.',
 				});
 			}
 			if (customer.address.zip.trim() && !isValidZip(customer.address.zip)) {

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { whenever } from '@vueuse/core';
 
-import { contactSchema, type Contact } from '~/schemas/customers';
+import { contactStoredSchema, type Contact } from '~/schemas/customers';
 import { partyToContact } from '~/utils/invoice';
 
+import type { FormSubmitEvent } from '@nuxt/ui';
 import type { InvoiceParty } from '~/schemas/invoices';
 
 // Odběratel se zadá přímo na faktuře: cesta přes Odběratele by vedla přes hlídku rozepsaného dokladu.
@@ -32,22 +33,12 @@ async function fillFromAres() {
 		...form.value,
 		name: company.name,
 		ico: company.ico,
-		dic: company.dic,
 		address: company.address,
 	};
 }
 
-function confirm() {
-	emit(
-		'confirm',
-		{
-			...form.value,
-			address: {
-				...form.value.address,
-			},
-		},
-		remember.value,
-	);
+function confirm(event: FormSubmitEvent<Contact>) {
+	emit('confirm', event.data, remember.value);
 	open.value = false;
 }
 </script>
@@ -55,33 +46,28 @@ function confirm() {
 <template>
 	<UModal v-model:open="open" :title="title" class="max-w-2xl!">
 		<template #body>
-			<UForm :state="form" :schema="contactSchema" data-testid="customer-dialog-form" @submit="confirm">
+			<UForm :state="form" :schema="contactStoredSchema" data-testid="customer-dialog-form" @submit="confirm">
 				<div class="form-grid grid-cols-1!">
 					<UFormField name="name" label="Název / jméno">
 						<UInput v-model="form.name" autofocus data-testid="customer-field-name" />
 					</UFormField>
-					<div class="form-grid form-grid--wide-first">
-						<UFormField name="ico" label="IČO">
-							<UInput
-								v-model.trim="form.ico"
-								data-testid="customer-field-ico"
-								:disabled="aresLoading"
-								:ui="{ trailing: 'pe-0', base: 'pe-16' }">
-								<template #trailing>
-									<UButton
-										class="w-14 justify-center rounded-s-none rounded-e-ctl border-s border-s-line-soft text-meta text-ink-2"
-										variant="ghost"
-										data-testid="customer-ares"
-										:loading="aresLoading"
-										:label="aresLoading ? '' : 'ARES'"
-										@click="fillFromAres" />
-								</template>
-							</UInput>
-						</UFormField>
-						<UFormField name="dic" label="DIČ">
-							<UInput v-model.trim.optional="form.dic" data-testid="customer-field-dic" />
-						</UFormField>
-					</div>
+					<UFormField name="ico" label="IČO">
+						<UInput
+							v-model.trim="form.ico"
+							data-testid="customer-field-ico"
+							:disabled="aresLoading"
+							:ui="{ trailing: 'pe-0', base: 'pe-16' }">
+							<template #trailing>
+								<UButton
+									class="w-14 justify-center rounded-s-none rounded-e-ctl border-s border-s-line-soft text-meta text-ink-2"
+									variant="ghost"
+									data-testid="customer-ares"
+									:loading="aresLoading"
+									:label="aresLoading ? '' : 'ARES'"
+									@click="fillFromAres" />
+							</template>
+						</UInput>
+					</UFormField>
 					<FieldError :error="aresError" data-testid="customer-ares-error" />
 					<UFormField name="email" label="E-mail">
 						<UInput v-model.trim.optional="form.email" data-testid="customer-field-email" />
