@@ -459,11 +459,46 @@ describe('vatLimit', () => {
 		expect(vatLimit(items, today).payerFrom).toBe('2026-07-15');
 	});
 
-	it('dobropis obrat snižuje, takže práh nemusí padnout', () => {
+	it('pozdější dobropis sníží obrat, ale nezruší vznik plátcovství', () => {
 		const items = [sum('1', '2026-03-01', '2026-03-15', 2_600_000), sum('2', '2026-03-20', '2026-03-20', -700_000)];
 		const v = vatLimit(items, today);
 		expect(v.turnoverCents).toBe(190_000_000);
-		expect(v.stage).toBe('below');
+		expect(v.stage).toBe('immediate');
+		expect(v.payerFrom).toBe('2026-03-02');
+	});
+
+	it('dobropis před překročením snižuje průběžný obrat', () => {
+		const items = [
+			sum('1', '2026-03-01', '2026-03-15', 2_000_000),
+			sum('2', '2026-03-02', '2026-03-02', -500_000),
+			sum('3', '2026-03-03', '2026-03-15', 900_000),
+		];
+		const v = vatLimit(items, today);
+		expect(v.stage).toBe('next-year');
+		expect(v.payerFrom).toBe('2027-01-01');
+	});
+
+	it('doklady ve stejný den posoudí společně bez ohledu na pořadí', () => {
+		const invoice = sum('1', '2026-03-01', '2026-03-15', 2_600_000);
+		const credit = sum('2', '2026-03-01', '2026-03-01', -700_000);
+		for (const items of [
+			[invoice, credit],
+			[credit, invoice],
+		]) {
+			const v = vatLimit(items, today);
+			expect(v.stage).toBe('below');
+			expect(v.payerFrom).toBeUndefined();
+		}
+	});
+
+	it('zachová loňské překročení i po pozdějším dobropisu', () => {
+		const items = [sum('1', '2025-03-01', '2025-03-15', 2_600_000), sum('2', '2025-03-20', '2025-03-20', -700_000)];
+		expect(vatLimit(items, today).previous).toEqual({
+			year: 2025,
+			turnoverCents: 190_000_000,
+			stage: 'immediate',
+			payerFrom: '2025-03-02',
+		});
 	});
 });
 

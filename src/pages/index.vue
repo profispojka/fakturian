@@ -129,14 +129,16 @@ const vatColor = computed(() => {
 const vatNotice = computed(() => {
 	const v = vat.value;
 	let crossed = v.limitCents;
+	const previous = v.previous;
+	if (previous.payerFrom !== undefined) {
+		if (previous.stage === 'immediate') crossed = v.immediateLimitCents;
+		return `Obrat za rok ${previous.year} překročil ${czkFromCents(crossed)} — plátcem DPH od ${formatDate(previous.payerFrom)}.`;
+	}
 	if (v.payerFrom !== undefined) {
 		if (v.stage === 'immediate') crossed = v.immediateLimitCents;
 		return `Obrat překročil ${czkFromCents(crossed)} — plátcem DPH od ${formatDate(v.payerFrom)}.`;
 	}
-	const previous = v.previous;
-	if (previous.payerFrom === undefined) return '';
-	if (previous.stage === 'immediate') crossed = v.immediateLimitCents;
-	return `Obrat za rok ${previous.year} překročil ${czkFromCents(crossed)} — plátcem DPH od ${formatDate(previous.payerFrom)}.`;
+	return '';
 });
 
 const nearLimit = computed(() => itemsNearLimit(pricelist.value, records.value, thisYear.value));

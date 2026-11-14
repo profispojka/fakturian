@@ -240,12 +240,13 @@ function vatYear(items: InvoiceSummary[], day: DateString): VatYear {
 	const year = yearOf(day);
 	const inYear = items.filter((i) => yearOf(i.issueDate) === year);
 	const turnoverCents = inYear.reduce((sum, i) => sum + i.totalCents, 0);
-	const stage = stageOf(turnoverCents);
+	const crossed = crossingDay(inYear);
+	const stage = stageOf(turnoverCents, crossed);
 	return {
 		year,
 		turnoverCents,
 		stage,
-		payerFrom: payerFrom(stage, crossingDay(inYear), endOfYear(day)),
+		payerFrom: payerFrom(stage, crossed, endOfYear(day)),
 	};
 }
 
@@ -264,8 +265,8 @@ export function vatLimit(items: InvoiceSummary[], today: DateString): VatLimitSt
 	};
 }
 
-function stageOf(turnoverCents: number): VatStage {
-	if (turnoverCents > VAT_LIMIT_IMMEDIATE_CENTS) return 'immediate';
+function stageOf(turnoverCents: number, crossed: DateString | undefined): VatStage {
+	if (crossed !== undefined) return 'immediate';
 	if (turnoverCents > VAT_LIMIT_CENTS) return 'next-year';
 	return 'below';
 }
@@ -284,9 +285,11 @@ function payerFrom(
 // (docs/02-TECHNOLOGIE.md, „Limit plátcovství DPH").
 function crossingDay(inYear: InvoiceSummary[]): DateString | undefined {
 	let running = 0;
-	for (const i of inYear.toSorted((a, b) => a.issueDate.localeCompare(b.issueDate))) {
-		running += i.totalCents;
-		if (running > VAT_LIMIT_IMMEDIATE_CENTS) return addDays(i.issueDate, 1);
+	const days = new Map<DateString, number>();
+	for (const i of inYear) days.set(i.issueDate, (days.get(i.issueDate) ?? 0) + i.totalCents);
+	for (const [day, amount] of [...days].toSorted(([a], [b]) => a.localeCompare(b))) {
+		running += amount;
+		if (running > VAT_LIMIT_IMMEDIATE_CENTS) return addDays(day, 1);
 	}
 	return undefined;
 }

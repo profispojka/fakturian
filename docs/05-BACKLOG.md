@@ -78,9 +78,6 @@ příznak neplátce a vazbu dobropisu. Program, verzi a výsledek zapsat do
 
 ### UCT-36 · Otázky pro účetního — NÍZKÁ
 
-- `crossingDay` a `stageOf` (`src/utils/dashboard.ts`): dobropis stáhne roční
-  součet pod 2 536 500 Kč, hranice ale v průběhu roku padla — karta hlásí
-  „plátcem od 1. 1.". Ověřit, jestli dobropis zpětně ruší okamžité plátcovství.
 - `readReceived` (`desktop/received.ts`) bere `TaxInclusiveAmount` bez ohledu
   na `DocumentType=2`, takže kladně zapsaný přijatý dobropis se započte jako
   výdaj kladně. U vydaných dokladů kladný dobropis odmítne `checkSource`
