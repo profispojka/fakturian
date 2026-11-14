@@ -39,8 +39,7 @@ export function matchingItemForLine(line: InvoiceLine, pricelist: PriceItem[]): 
 	return pricelist.find((p) => p.name.trim() === description && p.unit.trim() === unit) ?? null;
 }
 
-// `quantity` chodí i z cizího dokladu; `NaN` by se sečetlo do `NaN` a shodilo celé vykázané
-// množství.
+// Rozepsaný formulář se přepočítává před validací; nečíselný vstup nesmí shodit celé množství na NaN.
 function lineQuantity(line: UsageLine): number {
 	if (Number.isFinite(line.quantity)) return line.quantity;
 	return 0;
@@ -118,7 +117,7 @@ export function itemUsage(item: PriceItem, records: PriceUsageRecord[], year: nu
 	return {
 		limit,
 		used,
-		remaining: Math.min(limit, Math.max(0, limit - used)),
+		remaining: Math.max(0, limit - used),
 		invoices: active
 			.map(({ invoiceNumber, quantity }) => ({
 				invoiceNumber,

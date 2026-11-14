@@ -124,11 +124,14 @@ describe('isValidIco', () => {
 		expect(isValidIco('1234567')).toBe(false);
 		expect(isValidIco('abc12345')).toBe(false);
 		expect(isValidIco('')).toBe(false);
+		expect(isValidIco(undefined)).toBe(false);
 	});
 	it('mezery a chybějící úvodní nuly neprojdou', () => {
 		expect(isValidIco('270 824 40')).toBe(false);
 		expect(isValidIco(' 27082440')).toBe(false);
 		expect(isValidIco('270\u00a0824\u00a040')).toBe(false);
+		expect(isValidIco('27082440\n')).toBe(false);
+		expect(isValidIco('２７０８２４４０')).toBe(false);
 		expect(isValidIco('2345679')).toBe(false);
 	});
 });
@@ -368,11 +371,14 @@ describe('supplierSchema', () => {
 		s.email = 'nope';
 		expect(invalidFields(supplierSchema, s)).toEqual(['email']);
 	});
-	it('IČO s mezerami vydá bez nich', () => {
+	it.each(['270 82 440', ' 270\u00a082440\t', '27082440\n'])('IČO %s vydá bez bílých znaků', (ico) => {
 		const s = goodSupplier();
-		s.ico = '270 82 440';
+		s.ico = ico;
 
 		expect(supplierSchema.parse(s).ico).toBe('27082440');
+	});
+	it('uložené IČO s mezerami odmítne místo tiché normalizace', () => {
+		expect(invalidFields(supplierStoredSchema, { ...goodSupplier(), ico: '270 82 440' })).toEqual(['ico']);
 	});
 	it('odmítne uloženého dodavatele s již nepodporovaným polem', () => {
 		expect(

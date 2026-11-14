@@ -459,11 +459,30 @@ describe('vatLimit', () => {
 		expect(vatLimit(items, today).payerFrom).toBe('2026-07-15');
 	});
 
+	it.each([false, true])('doklady stejného dne vyhodnotí společně, obrácené pořadí %s', (reverse) => {
+		const sameDay = [
+			sum('1', '2026-01-01', '2026-01-15', 2_600_000),
+			{ ...sum('2', '2026-01-01', '2026-01-01', -700_000), documentType: 2 as const, originalInvoice: '1' },
+		];
+		const items = reverse ? sameDay.toReversed() : sameDay;
+		const beforeCrossing = vatLimit(items, today);
+		expect(beforeCrossing.turnoverCents).toBe(190_000_000);
+		expect(beforeCrossing.stage).toBe('below');
+		expect(beforeCrossing.payerFrom).toBeUndefined();
+
+		const crossed = vatLimit([sum('3', '2026-02-01', '2026-02-15', 700_000), ...items], today);
+		expect(crossed.turnoverCents).toBe(260_000_000);
+		expect(crossed.stage).toBe('immediate');
+		expect(crossed.payerFrom).toBe('2026-02-02');
+	});
+
 	it('pozdější dobropis sníží obrat, ale nesmaže překročení limitu', () => {
 		const items = [sum('1', '2026-03-01', '2026-03-15', 2_600_000), sum('2', '2026-03-20', '2026-03-20', -700_000)];
 		const v = vatLimit(items, today);
 		expect(v.turnoverCents).toBe(190_000_000);
 		expect(v.stage).toBe('immediate');
+		expect(v.payerFrom).toBe('2026-03-02');
+		expect(vatLimit([...items, sum('3', '2026-04-01', '2026-04-15', 700_000)], today).payerFrom).toBe('2026-03-02');
 	});
 });
 

@@ -21,6 +21,13 @@ describe('IČO z cizího dokladu', () => {
 	it('IČO se ukládá bez mezer', () => {
 		expect(contactFromImported(customer({ ico: '123 45 679' })).ico).toBe('12345679');
 	});
+	it('stejné IČO s bílými znaky nezaloží druhého odběratele', () => {
+		const existing = contactFromImported(customer());
+		expect(newContactsFromImport([existing], [customer({ ico: ' 255\u00a096641\t' })])).toEqual({
+			contacts: [],
+			refused: [],
+		});
+	});
 
 	it('odběratel s IČO, které neprojde mod-11, se nezaloží', () => {
 		expect(newContactsFromImport([], [customer({ ico: '123 45 678' })])).toEqual({
@@ -74,7 +81,7 @@ describe('klíč navíc v odpovědi backendu', () => {
 	it('dodavatel s neznámým polem se odmítne', () => {
 		const d = {
 			name: 'Jan Novák',
-			ico: '87654321',
+			ico: '27082440',
 			address: {
 				street: 'Krátká 2',
 				city: 'Brno',

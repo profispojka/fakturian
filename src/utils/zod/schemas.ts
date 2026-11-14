@@ -57,8 +57,8 @@ export function ico() {
 export function zip() {
 	return z
 		.string()
-		.transform((value) => value.replace(/\s+/g, ''))
-		.refine((value) => value.trim() !== '', {
+		.overwrite((value) => value.replace(/\s+/g, ''))
+		.min(1, {
 			error: 'Povinné pole.',
 			abort: true,
 		})
@@ -68,8 +68,8 @@ export function zip() {
 export function bankAccount() {
 	return z
 		.string()
-		.transform((value) => value.replace(/\s+/g, ''))
-		.refine((value) => value.trim() !== '', {
+		.overwrite((value) => value.replace(/\s+/g, ''))
+		.min(1, {
 			error: 'Povinné pole.',
 			abort: true,
 		})
@@ -79,8 +79,8 @@ export function bankAccount() {
 export function bankCode() {
 	return z
 		.string()
-		.transform((value) => value.replace(/\s+/g, ''))
-		.refine((value) => value.trim() !== '', {
+		.overwrite((value) => value.replace(/\s+/g, ''))
+		.min(1, {
 			error: 'Povinné pole.',
 			abort: true,
 		})

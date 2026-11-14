@@ -124,6 +124,16 @@ describe('lastPaymentOn', () => {
 	it('bez plateb data nemá', () => {
 		expect(lastPaymentOn([])).toBeUndefined();
 	});
+
+	it('zachová vstup i při shodných datech a přelomu roku', () => {
+		const received = Object.freeze([
+			{ date: date('2027-01-01'), amountCents: 100 },
+			{ date: date('2026-12-31'), amountCents: 200 },
+			{ date: date('2027-01-01'), amountCents: 300 },
+		]);
+		expect(lastPaymentOn(received)).toBe('2027-01-01');
+		expect(received.map((payment) => payment.amountCents)).toEqual([100, 200, 300]);
+	});
 });
 
 describe('faktura s dobropisem', () => {
