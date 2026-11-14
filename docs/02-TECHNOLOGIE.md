@@ -371,6 +371,10 @@ Karta na Přehledu sčítá obrat za kalendářní rok podle **data vystavení**
 a počítá i loňský rok (`vatLimit` v `utils/dashboard.ts`). Datum zdanitelného
 plnění appka nevede; proč, popisuje `UCT-37` v
 [13-ZNAME-OMEZENI](13-ZNAME-OMEZENI.md).
+První den překročení horního limitu hledá v průběžném součtu po jednotlivých
+dnech. Dobropis sníží součet ve svém dni, ale pozdější pokles nemaže již
+zjištěné překročení; doklady se stejným datem se posuzují společně. Právní
+podklad a omezení tohoto výpočtu jsou v [07-PRAVO](07-PRAVO.md#dobropis-a-vznik-plátcovství-dph).
 
 ### ISDOC — mapování polí
 

@@ -452,6 +452,31 @@ describe('splatnost v nezaplacených', () => {
 });
 
 describe('loňské plátcovství', () => {
+	it('upřednostní loňské plátcovství i při letošním překročení', async () => {
+		await vaultS({
+			invoices: [
+				summary('20250001', {
+					...THIS_YEARS,
+					issueDate: date('2025-06-10'),
+					totalCents: 2_600_000_00,
+				}),
+				summary('20250002', {
+					...THIS_YEARS,
+					issueDate: date('2025-07-10'),
+					totalCents: -700_000_00,
+				}),
+				summary('20260001', {
+					...THIS_YEARS,
+					totalCents: 2_100_000_00,
+				}),
+			],
+		});
+		const c = await mount();
+		expect(c.find('[data-testid="overview-vat-notice"]').text()).toBe(
+			`Obrat za rok 2025 překročil ${czkFromCents(VAT_LIMIT_IMMEDIATE_CENTS)} — plátcem DPH od 11. 6. 2025.`,
+		);
+	});
+
 	it('loňské překročení hlásí i v roce, kdy letošní obrat limit nedosáhl', async () => {
 		await vaultS({
 			invoices: [
