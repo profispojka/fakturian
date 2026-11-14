@@ -25,7 +25,6 @@
 		"test:e2e:visual:update": "playwright test visual- --update-snapshots=all",
 		"typecheck:e2e": "tsc --noEmit -p e2e/tsconfig.json",
 		"mutants:ts": "node tools/mutation/mutants-ts.ts",
-		"test:gates": "node --test test/tooling/quality-gate.test.ts",
 		"lint": "oxlint --fix --type-aware --ignore-pattern 'test/**' --ignore-pattern 'desktop/test/**' . && oxlint --fix test desktop/test && eslint \"src/**/*.vue\" --fix",
 		"lint:check": "oxlint --type-aware --ignore-pattern 'test/**' --ignore-pattern 'desktop/test/**' . && oxlint test desktop/test && eslint \"src/**/*.vue\"",
 		"lint:scales": "node tools/lint/check-tailwind-scales.ts",

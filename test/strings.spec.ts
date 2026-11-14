@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { digitsOnly, isAsciiAlphaNumeric, isAsciiDigits, withoutLeadingZeros, withoutWhitespace } from '~/utils/strings';
+import {
+	digitsOnly,
+	isAsciiAlphaNumeric,
+	isAsciiDigits,
+	withoutLeadingZeros,
+	withoutWhitespace,
+} from '~/utils/strings';
 
 describe('řetězcové kontroly', () => {
 	it('odstraní jen ASCII číslice a zachová jejich pořadí', () => {
