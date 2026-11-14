@@ -694,6 +694,9 @@ describe('částky v ISDOC', () => {
 		expect(fromCents(0)).toBe('0.00');
 		expect(fromCents(-5_000)).toBe('-50.00');
 		expect(fromCents(37)).toBe('0.37');
+		expect(fromCents(-1)).toBe('-0.01');
+		expect(fromCents(MAX_CENTS)).toBe('90000000000.00');
+		expect(fromCents(-MAX_CENTS)).toBe('-90000000000.00');
 	});
 
 	it('xs:decimal převede na haléře přesně a půlku zaokrouhlí od nuly', () => {

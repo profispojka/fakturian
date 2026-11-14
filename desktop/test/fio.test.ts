@@ -144,6 +144,7 @@ describe('Fio token v klíčence', () => {
 			`${head}?3`,
 			`${head}#3`,
 			`${head}č3`,
+			`${TOKEN.slice(0, 63)}\n`,
 		]) {
 			await expect(fioSetToken({ token: wrong })).rejects.toThrow(new Error(TOKEN_MESSAGE));
 		}

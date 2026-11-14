@@ -19,14 +19,9 @@ export function expenseFromReceived(doc: ReceivedDocument): Expense {
 // bajtu stejný soubor sem nedojde, ten odmítne už import.
 export function sameReceivedDocument(expense: Expense, doc: ReceivedDocument): boolean {
 	if (doc.uuid && expense.documentUuid?.toLowerCase() === doc.uuid.toLowerCase()) return true;
-	const supplier = normIco(doc.supplierIco);
-	if (!supplier || !doc.number) return false;
+	if (!doc.supplierIco || !doc.number) return false;
 
-	return (
-		expense.documentNumber === doc.number &&
-		expense.supplierIco !== undefined &&
-		normIco(expense.supplierIco) === supplier
-	);
+	return expense.documentNumber === doc.number && expense.supplierIco === doc.supplierIco;
 }
 
 // Každý zapsaný výdaj jednou, v období svého data: appka nic nedopočítává, za takovým číslem by nestál
@@ -38,30 +33,23 @@ export function expensesTotalCents(expenses: Expense[], inPeriod: (date: DateStr
 // Sjednocení, ne objekt s nepovinnými poli: odmítnutí vždycky nese důvod.
 export type RecipientCheck = { ok: true; warning?: string } | { ok: false; reason: string };
 
-function normIco(ico: string): string {
-	return ico.replace(/\D/g, '').replace(/^0+/, '');
-}
-
 export function checkRecipient(ourIco: string, documentIco: string): RecipientCheck {
-	const our = normIco(ourIco);
-	const document = normIco(documentIco);
-
-	if (!document) {
+	if (!documentIco) {
 		return {
 			ok: true,
 			warning: 'Doklad neuvádí IČO odběratele — ověř, že je opravdu vystavený na tebe.',
 		};
 	}
-	if (!our) {
+	if (!ourIco) {
 		return {
 			ok: true,
 			warning: 'Nemáš vyplněné vlastní IČO, takže příjemce nejde ověřit.',
 		};
 	}
-	if (our !== document) {
+	if (ourIco !== documentIco) {
 		return {
 			ok: false,
-			reason: `Doklad je vystavený na IČO ${documentIco.trim()}, ne na tvoje ${ourIco.trim()}.`,
+			reason: `Doklad je vystavený na IČO ${documentIco}, ne na tvoje ${ourIco}.`,
 		};
 	}
 	return { ok: true };

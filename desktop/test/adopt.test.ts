@@ -754,4 +754,37 @@ describe('odvození z dokladů', () => {
 
 		expect(deriveSupplier([tenth, ninth])?.name).toBe('Dodavatel z desítky');
 	});
+
+	it('při shodném datu řadí oddělovače česky a shodná čísla ponechá v pořadí vstupu', async () => {
+		const source = await fixture('foreign-document.isdoc');
+		const read = await parseIsdoc(source.replace('12345678', '27074358').replace('87654321', '27074358'));
+		const first = {
+			...read,
+			number: 'F-1',
+			supplier: {
+				...read.supplier,
+				name: 'První',
+			},
+		};
+		const second = {
+			...first,
+			number: 'F1',
+			supplier: {
+				...read.supplier,
+				name: 'Druhý',
+			},
+		};
+		expect(deriveSupplier([second, first])?.name).toBe('Druhý');
+
+		const padded = {
+			...first,
+			number: '007',
+		};
+		const plain = {
+			...second,
+			number: '7',
+		};
+		expect(deriveSupplier([padded, plain])?.name).toBe('Druhý');
+		expect(deriveSupplier([plain, padded])?.name).toBe('První');
+	});
 });

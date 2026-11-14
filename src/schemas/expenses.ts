@@ -5,7 +5,7 @@ import type { BrokenReceived, ReceivedDocument as WireReceivedDocument } from '~
 
 const expenseShape = {
 	id: z.string(),
-	supplier: z.string(),
+	supplier: z.string().trim().min(1),
 	supplierIco: z.ico().optional(),
 	description: z.string(),
 	amountCents: z.number().int(),

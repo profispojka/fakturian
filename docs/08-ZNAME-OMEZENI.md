@@ -149,9 +149,12 @@ jednodušší" a „není to konzistentní" novým scénářem není.
   v composable domény, takže průchozí metoda je cena za to pravidlo.
 - **ARCH-20 · Drobnosti hlavního procesu.** `markInvoiceSent`
   (`desktop/invoice/status.ts`) čte celý doklad kvůli jménu dodavatele;
-  `compareNumbers` (`desktop/numbering.ts`) nemá paritní fixture s řazením ve
-  výpisu, které si frontend dělá sám; `linePrice`
+  `linePrice`
   (`desktop/isdoc/projection.ts`) formátuje cenu ručně jen do popisu řádku.
+- **ARCH-21 · Výběr dodavatele při shodném datu.** `deriveSupplier` (`desktop/adopt.ts`)
+  při shodě data vybere doklad podle českého číselného řazení čísla; pokud jsou čísla
+  podle něj shodná, rozhodne pořadí vstupu. Odlišné údaje na těchto dokladech se
+  nerozlišují podle skutečného času vystavení; tento rozdíl nepovažujeme za podstatný.
 - **UI-37 · `get_invoice` čte celý archiv, částky jdou agentovi jako číslo.**
   `src/composables/useMcpTools.ts`: archiv je potřeba kvůli stavu platby.
 

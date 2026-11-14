@@ -388,8 +388,48 @@ describe('uložení', () => {
 });
 
 describe('náhled', () => {
-	it('vyrenderuje i nevyplněnou fakturu, bez ukládání', async () => {
+	it('nevyplněnou fakturu neodešle k vykreslení', async () => {
 		const c = await mountInvoice();
+
+		await c.find('[data-testid="action-show"]').trigger('click');
+		await flushPromises();
+
+		expect(backend.args('preview_invoice')).toEqual([]);
+		expect(backend.args('save_invoice')).toEqual([]);
+		expect(layer().find('[data-testid="invoice-preview-heading"]').exists()).toBe(false);
+		expect(useNuxtApp().vueApp.runWithContext(useToast).toasts.value).toContainEqual(
+			expect.objectContaining({
+				title: 'Zkontroluj zvýrazněná pole formuláře.',
+				color: 'error',
+			}),
+		);
+	});
+
+	it.each(['12A', '１２', '12345678901'])(
+		'neplatný variabilní symbol %s odmítne a po opravě náhled otevře',
+		async (symbol) => {
+			const c = await loadedInvoice();
+			await c.find('[data-testid="field-vs"]').setValue(symbol);
+
+			await c.find('[data-testid="action-show"]').trigger('click');
+			await flushPromises();
+
+			expect(backend.args('preview_invoice')).toEqual([]);
+			expect(c.find('[data-testid="field-vs"]').attributes('aria-invalid')).toBe('true');
+			expect(layer().find('[data-testid="invoice-preview-heading"]').exists()).toBe(false);
+
+			await c.find('[data-testid="field-vs"]').setValue('0042');
+			await c.find('[data-testid="action-show"]').trigger('click');
+			await flushPromises();
+
+			expect(previewInvoice().variableSymbol).toBe('0042');
+			expect(layer().find('[data-testid="invoice-preview-heading"]').exists()).toBe(true);
+			expect(backend.args('save_invoice')).toEqual([]);
+		},
+	);
+
+	it('platnou fakturu vykreslí bez ukládání', async () => {
+		const c = await loadedInvoice();
 
 		await c.find('[data-testid="action-show"]').trigger('click');
 		await flushPromises();
@@ -402,7 +442,7 @@ describe('náhled', () => {
 	});
 
 	it('zavřený náhled zmizí', async () => {
-		const c = await mountInvoice();
+		const c = await loadedInvoice();
 		await c.find('[data-testid="action-show"]').trigger('click');
 		await flushPromises();
 
@@ -414,7 +454,7 @@ describe('náhled', () => {
 
 	it('selhání náhledu se ohlásí', async () => {
 		backend.breaks('preview_invoice', 'Typst spadl');
-		const c = await mountInvoice();
+		const c = await loadedInvoice();
 
 		await c.find('[data-testid="action-show"]').trigger('click');
 		await flushPromises();
@@ -430,7 +470,7 @@ describe('náhled', () => {
 
 	it('dvojklik na náhled renderuje jen jednou', async () => {
 		backend.postpone('preview_invoice');
-		const c = await mountInvoice();
+		const c = await loadedInvoice();
 
 		const show = c.find('[data-testid="action-show"]');
 		void show.trigger('click');
@@ -441,14 +481,15 @@ describe('náhled', () => {
 	});
 
 	it('prázdný variabilní symbol doplní i pro náhled', async () => {
-		const c = await mountInvoice();
-		await c.find('[name="variableSymbol"]').setValue('');
+		const c = await loadedInvoice();
+		await c.find('[data-testid="field-vs"]').setValue('');
 		await flushPromises();
 
 		await c.find('[data-testid="action-show"]').trigger('click');
 		await flushPromises();
 
 		expect(previewInvoice().variableSymbol).toBe('20260001');
+		expect(c.find<HTMLInputElement>('[data-testid="field-vs"]').element.value).toBe('');
 	});
 });
 

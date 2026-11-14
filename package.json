@@ -7,7 +7,7 @@
 	"type": "module",
 	"main": ".output/desktop/main.mjs",
 	"scripts": {
-		"dev": "node tools/desktop/dev.ts",
+		"dev": "bun run desktop:build && concurrently --kill-others --success command-electron --names nuxt,electron -P \"bun run dev:web\" \"wait-on http-get://127.0.0.1:1420 && cross-env FAKTURIAN_DEV_URL=http://127.0.0.1:1420 electron . {@}\" --",
 		"dev:web": "nuxt dev",
 		"generate": "nuxt generate",
 		"preview": "nuxt preview",
@@ -54,6 +54,8 @@
 		"@vueuse/router": "^14.4.0",
 		"@xmldom/xmldom": "0.9.12",
 		"big.js": "^7.0.1",
+		"concurrently": "^10.0.7",
+		"cross-env": "^10.1.0",
 		"echarts": "^6.1.0",
 		"electron": "44.11.3",
 		"electron-builder": "26.15.3",
@@ -80,6 +82,7 @@
 		"vue-echarts": "^8.3.2",
 		"vue-eslint-parser": "^10.4.2",
 		"vue-tsc": "^3.3.14",
+		"wait-on": "^9.5.1",
 		"zod": "^4.6.7"
 	},
 	"overrides": {

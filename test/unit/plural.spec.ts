@@ -7,7 +7,6 @@ import {
 	formatCount,
 	formatCountOutOf,
 	formatPassiveCount,
-	zeroPadded,
 } from '~/utils/locales';
 
 const NBSP = String.fromCharCode(0x00a0);
@@ -84,16 +83,5 @@ describe('formatCountOutOf', () => {
 		expect(formatCountOutOf(1, 2, 'document')).toBe('1 z 2 dokladů');
 		expect(formatCountOutOf(2, 21, 'document')).toBe('2 z 21 dokladů');
 		expect(formatCountOutOf(1000, 1500, 'document')).toBe('1 000 z 1 500 dokladů');
-	});
-});
-
-describe('zeroPadded', () => {
-	it('doplní nuly zleva na zadanou šířku', () => {
-		expect(zeroPadded(7, 4)).toBe('0007');
-		expect(zeroPadded(0, 3)).toBe('000');
-	});
-
-	it('delší číslo nechá celé a bez oddělovače tisíců', () => {
-		expect(zeroPadded(999_999_999, 4)).toBe('999999999');
 	});
 });

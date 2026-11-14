@@ -47,12 +47,15 @@ describe('IBAN generovaný pro QR platbu', () => {
 		expect(czechIban('1062', '0800')).toBe('CZ0208000000000000001062');
 	});
 
-	it('mezery a prázdné předčíslí přeskočí', () => {
+	it('mezery přeskočí, prázdné předčíslí odmítne', () => {
 		expect(czechIban('19 - 2000 145 399', ' 08 00 ')).toBe('CZ6508000000192000145399');
-		expect(czechIban('-2000145399', '0800')).toBe('CZ7908000000002000145399');
+		expect(czechIban('-2000145399', '0800')).toBe(undefined);
 	});
 
 	it('nesmyslný účet nebo kód nepřevede', () => {
+		expect(czechIban('19-2000145399x', '0800')).toBe(undefined);
+		expect(czechIban('19-2000145399', '0800x')).toBe(undefined);
+		expect(czechIban('19--2000145399', '0800')).toBe(undefined);
 		expect(czechIban('2000145399', '80')).toBe(undefined);
 		expect(czechIban('', '0800')).toBe(undefined);
 		expect(czechIban('1234567-2000145399', '0800')).toBe(undefined);

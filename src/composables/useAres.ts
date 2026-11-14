@@ -10,20 +10,19 @@ export function useAres() {
 
 	async function lookup(ico: string): Promise<AresParty | null> {
 		error.value = '';
-		const digits = ico.replace(/\s+/g, '');
-		if (!digits) {
+		if (!ico) {
 			error.value = 'Zadej nejdřív IČO.';
 			return null;
 		}
 		// Překlep v kontrolní číslici se pozná hned, bez vteřiny čekání na hlášku o nenalezené firmě.
-		if (!isValidIco(digits)) {
+		if (!isValidIco(ico)) {
 			error.value = 'Neplatné IČO (8 číslic).';
 			return null;
 		}
 
 		loading.value = true;
 		try {
-			const company = await aresServices.query(digits);
+			const company = await aresServices.query(ico);
 			return company;
 		} catch (e) {
 			error.value = errorText(e);

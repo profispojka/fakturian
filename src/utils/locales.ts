@@ -12,14 +12,6 @@ export const czechPercent = new Intl.NumberFormat(LOCALE, {
 
 const COUNT = new Intl.NumberFormat(LOCALE);
 
-export function zeroPadded(value: number, width: number): string {
-	const formatter = new Intl.NumberFormat(LOCALE, {
-		minimumIntegerDigits: width,
-		useGrouping: false,
-	});
-	return formatter.format(value);
-}
-
 export function czechPlural(value: number, forms: CzechPluralForms): string {
 	// `select()` je typovaný na všechny kategorie CLDR, čeština ale `zero` ani `two` nemá.
 	const byCategory: Record<Intl.LDMLPluralRule, string> = {
