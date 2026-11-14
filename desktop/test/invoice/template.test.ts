@@ -157,6 +157,13 @@ describe('data pro šablonu', () => {
 		]);
 	});
 
+	it('množství bez exponentu se tak vytiskne i v PDF', () => {
+		const document = invoice();
+		document.lines[0]!.quantity = 1e-7;
+
+		expect(printedOn(document)).toContain('0,0000001');
+	});
+
 	it('zápis v rejstříku nese obě strany bez okrajových mezer', () => {
 		const document = sampleInvoice();
 		document.supplier.registration = '  Zapsáno v evidenci pod IČO 12345679 ';

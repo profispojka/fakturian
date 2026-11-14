@@ -117,3 +117,10 @@ buildu. Job `package` podpis balíčku neověřuje; s certifikátem do něj pat�
   procesu a fronta `exclusive` v `desktop/store.ts` je jedna pro všechny datové
   soubory. Worker a fronta po souborech mají smysl, jen když uložení nebo náhled
   začnou okno znatelně zdržovat.
+
+
+Nová závislost k prototypu: oficiální MCP SDK
+[Connector (line 163)](/Users/jiricq/Desktop/enterprises/fakturian/desktop/mcp/connector.ts:163) sám obsluhuje část MCP protokolu. Oficiální TypeScript SDK by mohlo převzít registraci nástrojů, komunikaci přes stdio a část údržby protokolových verzí. Není to však přímá náhrada: autentizovaný socket, limity zpráv, fungování seznamu nástrojů bez otevřeného okna, přeposílání do okna, odpojení a rušení volání jsou specifické pro Fakturian. Doporučuji nejdřív malý prototyp a porovnání s existujícími MCP testy; bez něj není prokázané, že celkový kód skutečně zjednoduší.
+
+opravit a projit zbytek aplikace zda nekde neni podobny problem
+Ještě drobnost k údržbě závislostí: [dokumentace kvality (line 129)](/Users/jiricq/Desktop/enterprises/fakturian/docs/10-KVALITA.md:129) uvádí uzamčený Vitest 4.1.12, zatímco aktuální `package.json` obsahuje Vitest 5.1.0. To je nesoulad dokumentace; funkčnost mutačního runneru jsem touto revizí neověřoval. - prosim oprav to a projdi si zbytek aplikace, zda 

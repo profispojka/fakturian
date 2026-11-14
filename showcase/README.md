@@ -92,13 +92,6 @@ sám, žádná konfigurace v repu není potřeba. Po přidání vlastní domény
 změnit `site.url` v `nuxt.config.ts`, protože z něj se berou canonical,
 sitemapa i OG obrázky.
 
-## Kontrola před nasazením
-
-```bash
-bun run generate
-bun run audit:web           # title/description, H1, alt, odkazy, sitemap, velikosti
-```
-
 ## Až bude co stahovat
 
 Stav produktu drží jediná komponenta: `app/components/StatusNote.vue`. Až bude

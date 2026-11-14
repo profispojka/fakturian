@@ -8,6 +8,7 @@ describe('číslo do dokladu', () => {
 		expect(fmtnum(6.5)).toBe('6.5');
 		expect(fmtnum(0.1)).toBe('0.1');
 		expect(fmtnum(-2.25)).toBe('-2.25');
+		expect(fmtnum(-0)).toBe('0');
 	});
 
 	it('nikdy nepíše exponent', () => {
