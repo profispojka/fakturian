@@ -68,6 +68,8 @@ const UTF8 = new TextDecoder('utf-8', { fatal: true });
 export type WindowMessage = Zod.infer<typeof windowMessageSchema>;
 
 export interface McpServer {
+	// Cesta, na které most naslouchá; stránka Integrace ji ukáže jen od běžícího mostu.
+	socket: string;
 	close(): Promise<void>;
 }
 
@@ -376,6 +378,7 @@ export async function serveMcp(socket: string, bridge: Bridge): Promise<McpServe
 	}
 
 	return {
+		socket,
 		async close() {
 			const closed = once(server, 'close');
 			server.close();

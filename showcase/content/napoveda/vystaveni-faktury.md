@@ -33,7 +33,8 @@ počítají samy.
 ## Data a období
 
 - **Datum vystavení** a **splatnost** — splatnost se předvyplní podle výchozího
-  počtu dní z nastavení.
+  počtu dní z nastavení. Když u nové faktury změníš datum vystavení, splatnost
+  se posune s ním; jakmile ji nastavíš ručně, zůstane, kde je.
 - **Fakturované období** je nepovinné a výchozí je minulý měsíc. Určuje také,
   do kterého roku spadne vykázaná položka ceníku.
 

@@ -183,7 +183,8 @@ async function saveAll() {
 							:data-error="Boolean(mcpPathsError) || undefined"
 							data-testid="mcp-status">
 							<UChip standalone inset :color="mcpStatusColor" />
-							<template v-if="mcpPathsError">Most nejde zjistit</template>
+							<template v-if="mcpPathsError && socketPath">Most nejde zjistit</template>
+							<template v-else-if="mcpPathsError">Most neběží</template>
 							<template v-else-if="socketPath">Most běží</template>
 							<template v-else>Bez mostu</template>
 						</span>

@@ -250,6 +250,7 @@ export const commands = {
 			session,
 			line,
 		}),
+	// Cesta socketu, na kterém most naslouchá; když se nespustil, příkaz selže.
 	mcpSocketPath: () => invoke('mcp_socket_path', {}),
 	mcpConnector: () => invoke('mcp_connector', {}),
 	pickFolder: (defaultPath: string) => invoke('pick_folder', { defaultPath }),

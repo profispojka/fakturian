@@ -115,7 +115,9 @@ a editovatelné v Nastavení. Novou fakturu jimi appka předvyplní.
 - Odběratel — výběr ze seznamu, nebo zadání přímo na faktuře (i s dotažením
   z ARES), volitelně rovnou uložené do Odběratelů. Údaje vybraného odběratele
   jde na dokladu upravit bez zásahu do evidence.
-- Datum vystavení a datum splatnosti (předvyplní se podle výchozí splatnosti)
+- Datum vystavení a datum splatnosti (předvyplní se podle výchozí splatnosti).
+  U nové faktury se splatnost posouvá s datem vystavení, dokud ji uživatel
+  nenastaví sám; u vystavené se nemění.
 - **Datum plnění appka nevede** (`UCT-37` v [13-ZNAME-OMEZENI](13-ZNAME-OMEZENI.md)).
   Rok čerpání limitu ceníku se nastavuje zvlášť u hlídaného řádku (sekce 5).
 - Položky (sekce 4) a automaticky počítaná celková částka

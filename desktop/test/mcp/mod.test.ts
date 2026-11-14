@@ -679,6 +679,14 @@ describe('most na unixovém socketu', () => {
 		]);
 	});
 
+	it('běžící most řekne, na které cestě naslouchá', async () => {
+		const path = join(dir, 'runtime', 'mcp.sock');
+
+		await startBridge(path);
+
+		expect(servers.map((server) => server.socket)).toEqual([path]);
+	});
+
 	it('klíč je dlouhý a náhodný', async () => {
 		const first = await startBridge();
 		const second = await startBridge(join(dir, 'druhy', 'mcp.sock'));

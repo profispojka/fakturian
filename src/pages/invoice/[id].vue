@@ -6,6 +6,8 @@ import { emptyLine, emptyParty, newInvoice, invoiceSchema } from '~/schemas/invo
 import {
 	yearOf,
 	today,
+	addDays,
+	daysBetween,
 	formatDate,
 	fromCalendarDate,
 	toCalendarDate,
@@ -207,15 +209,24 @@ const calendarNext = {
 	icon: 'i-lucide-chevron-right',
 	'data-testid': 'date-month-next',
 };
+const issueDate = useDateModel(inv, 'issueDate');
+const dueDate = useDateModel(inv, 'dueDate');
+// Formuláře, kde splatnost nastavil uživatel sám. `reset()` dá formuláři nový objekt, takže se nemaže.
+const ownDueDate = new WeakSet<Invoice>();
+
 const dateFields = reactive([
 	{
 		name: 'issueDate',
 		label: 'Datum vystavení',
 		open: false,
 		model: computed({
-			get: () => toCalendarDate(inv.value.issueDate),
-			set: (selected: NonNullable<Parameters<typeof fromCalendarDate>[0]>) => {
-				inv.value.issueDate = fromCalendarDate(selected);
+			get: () => issueDate.value,
+			set: (selected: typeof issueDate.value) => {
+				const before = inv.value.issueDate;
+				issueDate.value = selected;
+				// Nový doklad drží lhůtu splatnosti; u vystaveného by posun potichu změnil, co už odešlo.
+				if (number.value || !inv.value.dueDate || ownDueDate.has(inv.value)) return;
+				inv.value.dueDate = addDays(inv.value.dueDate, daysBetween(before, inv.value.issueDate));
 			},
 		}),
 	},
@@ -223,7 +234,13 @@ const dateFields = reactive([
 		name: 'dueDate',
 		label: 'Datum splatnosti',
 		open: false,
-		model: useDateModel(inv, 'dueDate'),
+		model: computed({
+			get: () => dueDate.value,
+			set: (selected: typeof dueDate.value) => {
+				ownDueDate.add(inv.value);
+				dueDate.value = selected;
+			},
+		}),
 	},
 ]);
 

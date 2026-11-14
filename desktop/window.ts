@@ -28,6 +28,9 @@ import { MIN_WINDOW_SIZE } from './window-size.ts';
 // Klient MCP, který nečte, by zavírání mostu zdržel; zavření appky na něj nečeká donekonečna.
 const MCP_CLOSE_WAIT = 2000;
 
+const MCP_DOWN =
+	'Most se nepodařilo spustit, takže se Claude k Fakturianu nepřipojí. Ukonči Fakturian a spusť ho znovu.';
+
 const geometrySchema = z.strictObject({
 	width: z.int().min(MIN_WINDOW_SIZE.width),
 	height: z.int().min(MIN_WINDOW_SIZE.height),
@@ -217,6 +220,22 @@ export function startShell(
 		bridge.detach();
 	}
 
+	async function openMcp(): Promise<void> {
+		try {
+			server = await serveMcp(bridge);
+		} catch (error) {
+			await log(`MCP socket se nepodařilo otevřít: ${errorText(error)}`);
+		}
+	}
+	const opening = openMcp();
+
+	// Čeká na výsledek otevření: stránka Integrace nesmí hlásit běžící most jen podle cesty k socketu.
+	async function mcpSocket(): Promise<string> {
+		await opening;
+		if (server === undefined) throw new Error(MCP_DOWN);
+		return server.socket;
+	}
+
 	// Zavřením posledního okna proces končí, takže úklid musí proběhnout před ním.
 	async function shutdown(): Promise<null> {
 		if (closing) return null;
@@ -244,6 +263,7 @@ export function startShell(
 			{
 				window: win,
 				close: shutdown,
+				mcpSocket,
 			},
 			bridge,
 		),
@@ -303,15 +323,6 @@ export function startShell(
 	contents.on('did-fail-load', (_event, code, description, url, isMainFrame) => {
 		if (isMainFrame) void log(`Stránka ${url} se nenačetla: ${description} (${code}).`);
 	});
-
-	async function openMcp(): Promise<void> {
-		try {
-			server = await serveMcp(bridge);
-		} catch (error) {
-			await log(`MCP socket se nepodařilo otevřít: ${errorText(error)}`);
-		}
-	}
-	void openMcp();
 
 	return {
 		requestClose,

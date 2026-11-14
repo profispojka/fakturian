@@ -14,7 +14,7 @@ import { previewInvoice } from './invoice/preview.ts';
 import { markInvoiceSent } from './invoice/status.ts';
 import { log } from './log.ts';
 import { mailComposeWithAttachment } from './mail.ts';
-import { type Bridge, mcpConnector, mcpSocketPath } from './mcp/mod.ts';
+import { type Bridge, mcpConnector } from './mcp/mod.ts';
 import { defaultVaultPath, homeDir, loadVaultPath, saveVaultPath } from './preferences.ts';
 import { importReceived, listBrokenReceived, receivedPath, removeReceived } from './received.ts';
 import { readDataFile, snapshotsPath, writeDataFile } from './store.ts';
@@ -36,10 +36,12 @@ export interface Command<Args, Result> {
 // Každý příkaz musí přijmout argumenty, které mu `commands` ve webview posílá, a vrátit, co čeká.
 type Contract = { [Name in CommandName]: Command<CommandArgs[Name], CommandResults[Name]> };
 
-// Okno, ke kterému patří dialogy, a úklid, po kterém se zavře.
+// Okno, ke kterému patří dialogy, úklid, po kterém se zavře, a socket mostu, který k oknu vede agenty.
 export interface Shell {
 	window: BaseWindow;
 	close(): Promise<null>;
+	// Odmítne, když most nenaslouchá.
+	mcpSocket(): Promise<string>;
 }
 
 // Hranice mezi webview a backendem: příkaz dostane jen objekt, který prošel schématem, nikdy nic
@@ -218,7 +220,7 @@ export function commands(shell: Shell, bridge: Bridge) {
 				return null;
 			},
 		),
-		mcp_socket_path: command(none, mcpSocketPath),
+		mcp_socket_path: command(none, () => shell.mcpSocket()),
 		mcp_connector: command(none, () =>
 			mcpConnector({
 				execPath: process.execPath,

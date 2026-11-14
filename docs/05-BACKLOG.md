@@ -100,25 +100,6 @@ to i logu, které iCloud na tenhle Mac nestáhl. Vadné logo ve vaultu ohlásit.
 
 ---
 
-## Chyby v aplikační logice — `LOG`
-
-### LOG-28 · Integrace hlásí běžící most bez ověření — NÍZKÁ
-
-`integrations.vue` hlásí „Most běží" podle `mcpSocketPath` (`desktop/mcp/mod.ts`),
-který jen skládá cestu a běh mostu neověřuje. Selhání `serveMcp` zná jen log
-(`openMcp` v `desktop/window.ts`). Stav mostu ověřovat skutečně.
-
-### LOG-30 · Změna data vystavení nepřepočítá splatnost — NÍZKÁ
-
-Setter `issueDate` v `dateFields` (`src/pages/invoice/[id].vue`) mění jen
-`issueDate` a je to ruční `computed` s `toCalendarDate`/`fromCalendarDate`,
-kdežto `dueDate` používá `useDateModel`. Posun dopředu skončí „Splatnost před
-vystavením", posun dozadu splatnost tiše prodlouží. Převést na `useDateModel`
-a u nového dokladu posouvat splatnost o stejný počet dní, dokud se na ni
-nesáhlo.
-
----
-
 ## Nástroje, build a release — `NAST`
 
 ### NAST-1 · Appka není podepsaná ani notarizovaná a nemá updater — BLOKUJE

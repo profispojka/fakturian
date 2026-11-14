@@ -141,8 +141,8 @@ export function useMcp() {
 	void attach();
 }
 
-// Obojí zná jen hlavní proces: connector je spustitelný soubor této instalace a socket leží v domovské
-// složce.
+// Obojí zná jen hlavní proces: connector je spustitelný soubor této instalace a cestu k socketu vydá
+// jen most, který naslouchá.
 export function useMcpPaths() {
 	const socket = useLazyAsyncData('mcp-socket', () => commands.mcpSocketPath(), { default: () => '' });
 	const connector = useLazyAsyncData('mcp-connector', () => commands.mcpConnector(), {

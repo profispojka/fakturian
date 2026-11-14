@@ -33,6 +33,9 @@ a connector se s appkou nemůže rozejít verzí. Příkaz pro tuto instalaci je
 stránce **Integrace** i s tlačítkem na zkopírování: příkaz `mcp_connector` vrací
 `{ command, args }` (`mcpConnector` v `desktop/mcp/mod.ts`). Ve vývoji je
 `command` spustitelný soubor Electronu a v `args` je před `--mcp` cesta k appce.
+Stav mostu tam hlásí příkaz `mcp_socket_path`: cestu vydá, jen když most
+naslouchá, a selže, když se ho při startu nepodařilo otevřít (`mcpSocket`
+v `desktop/window.ts`).
 Nástroje si můžeš dál omezit v právech svého MCP klienta.
 
 ## Nástroje

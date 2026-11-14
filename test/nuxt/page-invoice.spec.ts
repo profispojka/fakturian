@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePricelist } from '~/composables/usePricelist';
 import { newInvoice } from '~/schemas/invoices';
 import { emptySupplier } from '~/schemas/suppliers';
-import { today } from '~/utils/date';
+import { addDays, today } from '~/utils/date';
 import { contactToParty } from '~/utils/invoice';
 import { czkFromCents } from '~/utils/money';
 
@@ -43,6 +43,57 @@ describe('nová faktura', () => {
 		await flushPromises();
 		expect(c.find('[data-testid="field-dueDate"]').attributes('data-value')).toBe(today());
 		expect(layer().find('[data-testid="date-calendar"]').exists()).toBe(false);
+	});
+
+	it('posun data vystavení posune splatnost o stejný počet dní, dopředu i dozadu', async () => {
+		const c = await mountInvoice();
+		const due = addDays(today(), 14);
+		expect(c.find('[data-testid="field-dueDate"]').attributes('data-value')).toBe(due);
+
+		await pickDate(c.find('[data-testid="field-issueDate"]'), addDays(today(), 40));
+		expect(c.find('[data-testid="field-dueDate"]').attributes('data-value')).toBe(addDays(due, 40));
+
+		await pickDate(c.find('[data-testid="field-issueDate"]'), addDays(today(), -40));
+		expect(c.find('[data-testid="field-dueDate"]').attributes('data-value')).toBe(addDays(due, -40));
+
+		await c.find('[data-testid="field-issueDate"]').trigger('click');
+		await flushPromises();
+		await layer().find('[data-testid="field-issueDate-today"]').trigger('click');
+		await flushPromises();
+		expect(c.find('[data-testid="field-dueDate"]').attributes('data-value')).toBe(due);
+	});
+
+	it('splatnost, kterou uživatel nastavil sám, se s datem vystavení neposouvá', async () => {
+		const c = await mountInvoice();
+		await pickDate(c.find('[data-testid="field-dueDate"]'), addDays(today(), 60));
+
+		await pickDate(c.find('[data-testid="field-issueDate"]'), addDays(today(), 10));
+
+		expect(c.find('[data-testid="field-issueDate"]').attributes('data-value')).toBe(addDays(today(), 10));
+		expect(c.find('[data-testid="field-dueDate"]').attributes('data-value')).toBe(addDays(today(), 60));
+	});
+
+	it('další nová faktura posouvá splatnost znovu, i když ji ta předchozí měla nastavenou ručně', async () => {
+		const c = await mountInvoice();
+		const due = addDays(today(), 14);
+		await pickDate(c.find('[data-testid="field-dueDate"]'), addDays(today(), 60));
+		await c.find('[data-testid="action-new"]').trigger('click');
+		await answerDialog(true);
+		expect(c.find('[data-testid="field-dueDate"]').attributes('data-value')).toBe(due);
+
+		await pickDate(c.find('[data-testid="field-issueDate"]'), addDays(today(), 3));
+
+		expect(c.find('[data-testid="field-dueDate"]').attributes('data-value')).toBe(addDays(due, 3));
+	});
+
+	it('vystavené faktuře změna data vystavení splatnost nechá', async () => {
+		invoiceInVault('20260001');
+		const c = await mountInvoice('20260001');
+
+		await pickDate(c.find('[data-testid="field-issueDate"]'), date('2026-03-05'));
+
+		expect(c.find('[data-testid="field-issueDate"]').attributes('data-value')).toBe('2026-03-05');
+		expect(c.find('[data-testid="field-dueDate"]').attributes('data-value')).toBe('2026-03-15');
 	});
 
 	it('bez datové složky se číslo nepřiděluje', async () => {

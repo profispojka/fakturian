@@ -20,7 +20,7 @@ import { exportInvoicePdf, loadInvoice, saveInvoice } from '../invoice/mod.ts';
 import { previewInvoice } from '../invoice/preview.ts';
 import { markInvoiceSent } from '../invoice/status.ts';
 import { mailComposeWithAttachment } from '../mail.ts';
-import { Bridge, mcpSocketPath } from '../mcp/mod.ts';
+import { Bridge } from '../mcp/mod.ts';
 import { defaultVaultPath, homeDir, loadVaultPath, saveVaultPath } from '../preferences.ts';
 import { importReceived, listBrokenReceived, receivedPath, removeReceived } from '../received.ts';
 import { readDataFile, snapshotsPath, writeDataFile } from '../store.ts';
@@ -503,6 +503,7 @@ describe('seznam příkazů', () => {
 		{
 			window: win,
 			close,
+			mcpSocket: () => Promise.resolve('/Users/jana/Library/Application Support/com.fakturian.desktop/mcp.sock'),
 		},
 		new Bridge(() => undefined),
 	);
@@ -546,6 +547,7 @@ describe('seznam příkazů', () => {
 		const wrapped = [
 			'mcp_attach',
 			'mcp_send',
+			'mcp_socket_path',
 			'mcp_connector',
 			'pick_folder',
 			'pick_files',
@@ -586,7 +588,6 @@ describe('seznam příkazů', () => {
 			fio_clear_token: fioClearToken,
 			fio_fetch: fioFetch,
 			ares_subject: aresSubject,
-			mcp_socket_path: mcpSocketPath,
 			open_url: openUrl,
 			reveal_path: revealPath,
 			notify,
@@ -721,7 +722,7 @@ describe('seznam příkazů', () => {
 				'mcp_socket_path',
 				{
 					ok: true,
-					value: join(home, 'Library', 'Application Support', 'com.fakturian.desktop', 'mcp.sock'),
+					value: '/Users/jana/Library/Application Support/com.fakturian.desktop/mcp.sock',
 				},
 			],
 			[

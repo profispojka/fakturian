@@ -277,7 +277,7 @@ describe('zabezpečení stránky', () => {
 
 describe('slupka okna', () => {
 	let win: FakeWindow;
-	let server: { close: ReturnType<typeof vi.fn> };
+	let server: { socket: string; close: ReturnType<typeof vi.fn> };
 	let bridgeOf: ReturnType<typeof vi.fn>;
 	let shell: ReturnType<typeof startShell>;
 
@@ -304,7 +304,10 @@ describe('slupka okna', () => {
 
 	beforeEach(async () => {
 		win = new FakeWindow();
-		server = { close: vi.fn(() => Promise.resolve()) };
+		server = {
+			socket: '/Users/jana/Library/Application Support/com.fakturian.desktop/mcp.sock',
+			close: vi.fn(() => Promise.resolve()),
+		};
 		bridgeOf = vi.fn(() => Promise.resolve(server));
 		shell = startShell(win, {
 			origin: ORIGIN,
@@ -553,6 +556,13 @@ describe('slupka okna', () => {
 		]);
 	});
 
+	it('stránka se dozví cestu socketu, na kterém most naslouchá', async () => {
+		expect(await invoke('mcp_socket_path', {})).toEqual({
+			ok: true,
+			value: '/Users/jana/Library/Application Support/com.fakturian.desktop/mcp.sock',
+		});
+	});
+
 	it('most posílá zprávy připojené stránce a nová stránka odpojí agenty', async () => {
 		const [[bridge]] = bridgeOf.mock.calls;
 		const socket = new FakeSocket();
@@ -605,6 +615,65 @@ describe('most MCP při startu a zavření', () => {
 
 		expect(win.closed).toBe(1);
 		expect(await loggedLines(home)).toEqual(['MCP socket se nepodařilo otevřít: EADDRINUSE']);
+	});
+
+	it('most, který se neotevřel, stránka nedostane jako běžící', async () => {
+		const win = new FakeWindow();
+		startShell(win, {
+			origin: ORIGIN,
+			serveMcp: () => Promise.reject(new Error('EADDRINUSE')),
+		});
+		const [[, handler]] = vi.mocked(ipcMain.handle).mock.calls;
+
+		expect(
+			await handler(
+				{
+					sender: win.webContents,
+					senderFrame: {
+						parent: null,
+						url: 'app://fakturian/integrations',
+					},
+				},
+				'mcp_socket_path',
+				{},
+			),
+		).toEqual({
+			ok: false,
+			error: 'Most se nepodařilo spustit, takže se Claude k Fakturianu nepřipojí. Ukonči Fakturian a spusť ho znovu.',
+		});
+	});
+
+	it('odpověď o mostu počká, až je jasné, jestli se otevřel', async () => {
+		const win = new FakeWindow();
+		const opened = Promise.withResolvers();
+		startShell(win, {
+			origin: ORIGIN,
+			serveMcp: () => opened.promise,
+		});
+		const [[, handler]] = vi.mocked(ipcMain.handle).mock.calls;
+
+		const answer = handler(
+			{
+				sender: win.webContents,
+				senderFrame: {
+					parent: null,
+					url: 'app://fakturian/integrations',
+				},
+			},
+			'mcp_socket_path',
+			{},
+		);
+		expect(await Promise.race([answer, settle()])).toBeUndefined();
+
+		opened.resolve({
+			socket: '/tmp/mcp.sock',
+			close: () => Promise.resolve(),
+		});
+
+		expect(await answer).toEqual({
+			ok: true,
+			value: '/tmp/mcp.sock',
+		});
 	});
 
 	it('okno zrušené dřív, než se most otevřel, appku pustí', async () => {

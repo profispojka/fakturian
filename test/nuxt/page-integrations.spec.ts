@@ -320,18 +320,24 @@ describe('Claude connector (MCP)', () => {
 		expect(dot.attributes('data-off')).toBeUndefined();
 	});
 
-	it('nezjištěný socket puntík ohlásí jako chybu i s důvodem', async () => {
-		backend.breaks('mcp_socket_path', 'Domovská složka není dostupná');
+	it('most, který se nespustil, puntík ohlásí jako chybu i s důvodem', async () => {
+		backend.breaks(
+			'mcp_socket_path',
+			'Most se nepodařilo spustit, takže se Claude k Fakturianu nepřipojí. Ukonči Fakturian a spusť ho znovu.',
+		);
 		const c = await mount();
 
 		const dot = c.find('[data-testid="mcp-status"]');
-		expect(dot.text()).toBe('Most nejde zjistit');
+		expect(dot.text()).toBe('Most neběží');
 		expect(dot.attributes('data-error')).toBe('true');
 		expect(dot.attributes('data-off')).toBeUndefined();
-		expect(c.find('[data-testid="mcp-paths-error"]').text()).toBe('Domovská složka není dostupná');
+		expect(c.find('[data-testid="mcp-paths-error"]').text()).toBe(
+			'Most se nepodařilo spustit, takže se Claude k Fakturianu nepřipojí. Ukonči Fakturian a spusť ho znovu.',
+		);
+		expect(c.find('[data-testid="mcp-socket"]').exists()).toBe(false);
 	});
 
-	it('nezjištěný connector se ohlásí taky', async () => {
+	it('nezjištěný connector se ohlásí taky, most přitom běží', async () => {
 		backend.breaks('mcp_connector', 'Cesta ke spustitelnému souboru appky není dostupná');
 		const c = await mount();
 
@@ -339,6 +345,7 @@ describe('Claude connector (MCP)', () => {
 		expect(c.find('[data-testid="mcp-paths-error"]').text()).toBe(
 			'Cesta ke spustitelnému souboru appky není dostupná',
 		);
+		expect(c.find('[data-testid="mcp-socket"]').exists()).toBe(true);
 	});
 
 	it('bez cesty k socketu puntík řekne, že most není', async () => {
