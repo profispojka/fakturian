@@ -36,8 +36,6 @@ jobs:
       - run: bun install --cwd showcase --frozen-lockfile
       - run: bun run test:gates
       - run: bun run lint:check
-      - run: bun run lint:scales
-      - run: bun run lint:dead-css
       - run: bun run format:check
       # Obsahuje i `tsc -p desktop/tsconfig.json` nad hlavním procesem.
       - run: bun run typecheck

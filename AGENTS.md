@@ -1,6 +1,6 @@
 # Fakturian — pravidla pro agenty
 
-Co hlídá nástroj (oxlint, ESLint, `tsc`, `lint:scales`, `lint:dead-css`), tady stojí jednou větou
+Co hlídá nástroj (oxlint, ESLint, `tsc`), tady stojí jednou větou
 se jménem pravidla a důvodem. Postupy pro konkrétní práci jsou ve skillech v `.claude/skills/`:
 
 | skill          | kdy                                                                |
@@ -71,6 +71,9 @@ texty v UI a hlášky. Česky zůstávají i jména, která jsou data nebo veře
   `desktop/tsconfig.json`) a u změny v `desktop/` testy projektu `desktop`, které na ni dosáhnou
   (`.claude/hooks/`). Codex hooky nespouští — ověř to výslovně: `bun run lint:check`,
   `bun run typecheck`, `bun run test`.
+- **Před dokončením práce** spusť z kořene projektu `node scripts/check-tailwind-scales.ts`
+  a `node scripts/check-dead-css.ts` a oprav jejich nálezy. Tyto samostatné skripty kontrolují
+  projektové škály Tailwindu a použití CSS.
 
 ## Kód
 

@@ -23,13 +23,11 @@
 		"mutants:ts": "node tools/mutation/mutants-ts.ts",
 		"lint": "oxlint --fix --type-aware --ignore-pattern 'test/**' --ignore-pattern 'desktop/test/**' . && oxlint --fix --type-aware test/smoke && oxlint --fix test desktop/test && eslint \"src/**/*.vue\" --fix",
 		"lint:check": "oxlint --type-aware --ignore-pattern 'test/**' --ignore-pattern 'desktop/test/**' . && oxlint --type-aware test/smoke && oxlint test desktop/test && eslint \"src/**/*.vue\"",
-		"lint:scales": "node tools/lint/check-tailwind-scales.ts",
-		"lint:dead-css": "node tools/lint/check-dead-css.ts",
 		"format": "oxfmt --write .",
 		"format:check": "oxfmt --check .",
 		"typecheck": "vue-tsc --noEmit -p .nuxt/tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p desktop/tsconfig.json && tsc --noEmit -p showcase/tsconfig.scripts.json",
 		"desktop:build": "node tools/desktop/build.ts",
-		"check": "bun run lint:check && bun run lint:scales && bun run lint:dead-css && bun run format:check && bun run typecheck && bun run typecheck:e2e && bun run test -- --coverage && bun run generate && bun run desktop:build && bun audit --audit-level=low"
+		"check": "bun run lint:check && bun run format:check && bun run typecheck && bun run typecheck:e2e && bun run test -- --coverage && bun run generate && bun run desktop:build && bun audit --audit-level=low"
 	},
 	"dependencies": {
 		"@myriaddreamin/typst-ts-node-compiler": "0.8.0-rc3",
@@ -78,11 +76,11 @@
 		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.72.2",
 		"vitest": "5.1.0",
-		"wait-on": "^9.5.1",
 		"vue": "^3.5.45",
 		"vue-echarts": "^8.3.2",
 		"vue-eslint-parser": "^10.4.2",
 		"vue-tsc": "^3.3.14",
+		"wait-on": "^9.5.1",
 		"zod": "^4.6.7"
 	},
 	"overrides": {

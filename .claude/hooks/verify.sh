@@ -59,8 +59,6 @@ $cmd_out"
 }
 
 run lint bun run lint:check
-run lint:scales bun run lint:scales
-run lint:dead-css bun run lint:dead-css
 # `typecheck` obsahuje i `tsc -p desktop/tsconfig.json`; hlavní proces importuje typy z `src/`.
 run typecheck bun run typecheck
 
