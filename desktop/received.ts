@@ -113,6 +113,8 @@ async function readReceived(content: Uint8Array, name: string): Promise<Omit<Rec
 	} catch (error) {
 		throw new Error(`${name}: částka s daní v <TaxInclusiveAmount>: ${errorText(error)}.`, { cause: error });
 	}
+	if (amountCents < 0) throw new Error(`${name}: doklad má zápornou celkovou částku.`);
+	if (invoice.documentType === DocumentKind.CreditNote) amountCents = -amountCents;
 	const kind = invoice.documentType === DocumentKind.CreditNote ? 'Dobropis' : 'Faktura';
 	return {
 		supplier: invoice.supplier.name,

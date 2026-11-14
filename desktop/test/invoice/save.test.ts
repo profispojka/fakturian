@@ -296,6 +296,107 @@ describe('doklad z webview', () => {
 });
 
 describe('uložení a načtení', () => {
+	it('nepřekročí roční limit a dovolí přesně dva miliony', async () => {
+		const first = {
+			...invoice(),
+			lines: [
+				{
+					...invoice().lines[0],
+					quantity: 1,
+					unitPriceCents: 199_999_900,
+				},
+			],
+		};
+		await saveNew(first);
+		const last = {
+			...first,
+			number: '20260002',
+			lines: [
+				{
+					...first.lines[0],
+					unitPriceCents: 100,
+				},
+			],
+		};
+		await saveNew(last);
+		await expect(
+			saveNew({
+				...last,
+				number: '20260003',
+				lines: [
+					{
+						...last.lines[0],
+						unitPriceCents: 1,
+					},
+				],
+			}),
+		).rejects.toThrow('Doklad nejde uložit, protože by obrat za kalendářní rok překročil 2 000 000 Kč.');
+		await expect(
+			saveEdit({
+				...last,
+				lines: [
+					{
+						...last.lines[0],
+						unitPriceCents: 101,
+					},
+				],
+			}),
+		).rejects.toThrow('Doklad nejde uložit, protože by obrat za kalendářní rok překročil 2 000 000 Kč.');
+	});
+
+	it('nedovolí vystavení, pokud kvůli vadnému dokladu nelze ověřit obrat', async () => {
+		await mkdir(join(base, 'faktury'));
+		await writeFile(join(base, 'faktury', 'vadny.pdf'), 'nečitelné');
+		await expect(saveNew(invoice())).rejects.toThrow(
+			'Limit obratu nejde ověřit, protože některé faktury nejdou přečíst.',
+		);
+	});
+
+	it('souběžné faktury nemohou společně překročit limit', async () => {
+		const document = {
+			...invoice(),
+			lines: [
+				{
+					...invoice().lines[0],
+					quantity: 1,
+					unitPriceCents: 150_000_000,
+				},
+			],
+		};
+		const results = await Promise.allSettled([
+			saveNew(document),
+			saveNew({
+				...document,
+				number: '20260002',
+			}),
+		]);
+		expect(results.map((result) => result.status).toSorted()).toEqual(['fulfilled', 'rejected']);
+	});
+
+	it('zpětně vystavená faktura nesmí překročit limit před pozdějším dobropisem', async () => {
+		const original = {
+			...invoice(),
+			lines: [
+				{
+					...invoice().lines[0],
+					quantity: 1,
+					unitPriceCents: 200_000_000,
+				},
+			],
+		};
+		await saveNew(original);
+		await saveNew({
+			...creditNote(),
+			issueDate: '2026-06-01',
+		});
+		await expect(
+			saveNew({
+				...invoice(),
+				number: '20260003',
+				issueDate: '2026-05-01',
+			}),
+		).rejects.toThrow('Doklad nejde uložit, protože by obrat za kalendářní rok překročil 2 000 000 Kč.');
+	});
 	it('uložený doklad se načte zpátky se zhmotněným UUID', async () => {
 		const path = await saveNew(sample());
 

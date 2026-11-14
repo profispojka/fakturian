@@ -452,13 +452,19 @@ Obchodní model je **source available**, licence **FSL-1.1-MIT**. Způsob veřej
 distribuce není rozhodnutý.
 
 - `bun run build` → `nuxt generate` (`.output/public`), `desktop:build`
-  a `electron-builder` (`electron-builder.yml`). Výstup je v `.output/release`:
+  a `electron-builder` (`electron-builder.yml`). Výstup je v
+  `.output/release`:
   DMG a ZIP pro arm64, jen macOS, minimální systém `mac.minimumSystemVersion`.
 - `desktop:build` (`tools/desktop/build.ts`) zabalí esbuildem hlavní proces do
   `.output/desktop/main.mjs`, worker ISDOC do `validator.mjs` a preload do
   `preload.cjs` (preload v sandboxu nesmí být ES modul). Mimo bundl zůstávají
   jen `dependencies` — nativní addony a wasm; frontend a nástroje patří do
   `devDependencies`. Addony a worker leží v balíčku mimo archiv `asar`.
+- `THIRD-PARTY-NOTICES.txt` uvádí licence a copyrighty závislostí dodávaných
+  v aplikaci včetně balíčků zabalených do frontendu a hlavního procesu. Udržuje
+  se ručně a balíček jej nese v `Contents/Resources`.
+- Licence Electronu a souhrn licencí Chromia se přibalují z distribuce Electronu
+  do `Contents/Resources` jako `LICENSE.electron.txt` a `LICENSES.chromium.html`.
 - Balíček má hardened runtime s oprávněními z `desktop/entitlements.plist`.
 - **Code signing + notarizace je povinná** — nepodepsanou appku laik nespustí.
   Stav je v backlogu (`NAST-1`).

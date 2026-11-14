@@ -240,7 +240,14 @@ function vatYear(items: InvoiceSummary[], day: DateString): VatYear {
 	const year = yearOf(day);
 	const inYear = items.filter((i) => yearOf(i.issueDate) === year);
 	const turnoverCents = inYear.reduce((sum, i) => sum + i.totalCents, 0);
-	const stage = stageOf(turnoverCents);
+	const days = Map.groupBy(inYear, (item) => item.issueDate);
+	let running = 0;
+	let highest = 0;
+	for (const [, dayItems] of [...days.entries()].toSorted(([a], [b]) => a.localeCompare(b))) {
+		running += dayItems.reduce((sum, item) => sum + item.totalCents, 0);
+		highest = Math.max(highest, running);
+	}
+	const stage = stageOf(highest);
 	return {
 		year,
 		turnoverCents,

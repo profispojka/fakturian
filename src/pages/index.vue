@@ -128,15 +128,12 @@ const vatColor = computed(() => {
 // Loňské překročení platí i letos: od ledna je uživatel plátcem, i když letošní obrat začíná od nuly.
 const vatNotice = computed(() => {
 	const v = vat.value;
-	let crossed = v.limitCents;
 	if (v.payerFrom !== undefined) {
-		if (v.stage === 'immediate') crossed = v.immediateLimitCents;
-		return `Obrat překročil ${czkFromCents(crossed)} — plátcem DPH od ${formatDate(v.payerFrom)}.`;
+		return `Obrat překročil ${czkFromCents(v.limitCents)}. Fakturian je určený pro podnikatele do tohoto limitu. Další postup ověř s účetním.`;
 	}
 	const previous = v.previous;
 	if (previous.payerFrom === undefined) return '';
-	if (previous.stage === 'immediate') crossed = v.immediateLimitCents;
-	return `Obrat za rok ${previous.year} překročil ${czkFromCents(crossed)} — plátcem DPH od ${formatDate(previous.payerFrom)}.`;
+	return `Obrat za rok ${previous.year} překročil ${czkFromCents(v.limitCents)}. Fakturian je určený pro podnikatele do tohoto limitu. Další postup ověř s účetním.`;
 });
 
 const nearLimit = computed(() => itemsNearLimit(pricelist.value, records.value, thisYear.value));

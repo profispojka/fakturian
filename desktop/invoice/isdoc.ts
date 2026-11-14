@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 
 import { DOMImplementation, type Element } from '@xmldom/xmldom';
 
+import { DocumentKind } from '~/constants/invoice';
 import { invoiceTotalCents, lineTotalCents } from '~/utils/invoice';
 
 import { fmtnum, type Invoice, type InvoiceLine, type InvoiceParty } from './model.ts';
@@ -52,7 +53,8 @@ export function invoiceUuid(invoice: Invoice): string {
 // Prvky jdou v pořadí sekvence z XSD; doklad bez položek XSD neprojde.
 export function buildIsdoc(invoice: Invoice): string {
 	const uuid = invoiceUuid(invoice);
-	const total = fromCents(invoiceTotalCents(invoice));
+	const sign = invoice.documentType === DocumentKind.CreditNote ? -1 : 1;
+	const total = fromCents(invoiceTotalCents(invoice) * sign);
 	const vatNote = invoice.vatNote.trim();
 	const document = IMPLEMENTATION.createDocument(ISDOC_NAMESPACE, '', null);
 
@@ -90,8 +92,8 @@ export function buildIsdoc(invoice: Invoice): string {
 
 	function addLine(lines: Element, id: number, line: InvoiceLine): void {
 		const element = add(lines, 'InvoiceLine');
-		const amount = fromCents(lineTotalCents(line));
-		const price = fromCents(line.unitPriceCents);
+		const amount = fromCents(lineTotalCents(line) * sign);
+		const price = fromCents(line.unitPriceCents * sign);
 		add(element, 'ID', String(id));
 		add(element, 'InvoicedQuantity', fmtnum(line.quantity)).setAttribute('unitCode', line.unit);
 		add(element, 'LineExtensionAmount', amount);

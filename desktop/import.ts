@@ -37,6 +37,7 @@ export async function sourceFromPdf(pdf: PDFDocument): Promise<Source> {
 	} catch (error) {
 		throw new Error(`částka k úhradě v <PayableAmount>: ${errorText(error)}`, { cause: error });
 	}
+	if (invoice.documentType === DocumentKind.CreditNote) payableCents = -payableCents;
 	const currency = text(root, 'ForeignCurrencyCode').trim();
 	return {
 		invoice,

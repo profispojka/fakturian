@@ -126,6 +126,23 @@ describe('import přijatého dokladu', () => {
 		const document = await importFrom(path);
 
 		expect(document.description).toBe('Dobropis 20260001');
+		expect(document.amountCents).toBe(-100_000);
+	});
+
+	it('dobropis se zápornou celkovou částkou odmítne', async () => {
+		const xml = MINIMAL_ISDOC.replace('<DocumentType>1</DocumentType>', '<DocumentType>2</DocumentType>').replace(
+			'<TaxInclusiveAmount>1000.00</TaxInclusiveAmount>\n    <AlreadyClaimedTaxExclusiveAmount>',
+			'<TaxInclusiveAmount>-1000.00</TaxInclusiveAmount>\n    <AlreadyClaimedTaxExclusiveAmount>',
+		);
+		const path = await source('dobropis.pdf', pdfWithIsdoc(xml));
+		await expect(importFrom(path)).rejects.toThrow('dobropis.pdf: doklad má zápornou celkovou částku.');
+	});
+
+	it('přijatý doklad s nulovou částkou přijme', async () => {
+		const xml = MINIMAL_ISDOC.replaceAll('1000.00', '0.00');
+		const path = await source('nulovy.pdf', pdfWithIsdoc(xml));
+		const document = await importFrom(path);
+		expect(document.amountCents).toBe(0);
 	});
 
 	it('u plátce DPH vezme částku s daní', async () => {

@@ -151,6 +151,7 @@ export function intoInvoice(document: Document): Invoice {
 	}
 	const lineElements = children(child(root, 'InvoiceLines'), 'InvoiceLine');
 	const lines = lineElements.map((line) => lineToItem(line, own));
+	const documentType = documentKind(Number(text(root, 'DocumentType')));
 	// Řádek je poctivější než skryté pole: uživatel zaokrouhlení vidí a součet položek se nerozejde
 	// s částkou k úhradě.
 	const totals = child(root, 'LegalMonetaryTotal');
@@ -166,12 +167,15 @@ export function intoInvoice(document: Document): Invoice {
 			});
 		}
 	}
+	if (documentType === DocumentKind.CreditNote) {
+		for (const line of lines) line.unitPriceCents = -line.unitPriceCents;
+	}
 	const payment = bankDetails(root);
 	const original = child(child(root, 'OriginalDocumentReferences'), 'OriginalDocumentReference');
 	return {
 		number: text(root, 'ID').trim(),
 		uuid: text(root, 'UUID'),
-		documentType: documentKind(Number(text(root, 'DocumentType'))),
+		documentType,
 		originalInvoice: text(original, 'ID').trim(),
 		// Data a UUID nesou v XSD vzor, takže mezery kolem neprojdou.
 		originalIssueDate: text(original, 'IssueDate'),

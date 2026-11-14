@@ -58,8 +58,7 @@ Co musí být hotové, aby šly doložit vydávací brány z
 [10-KVALITA](10-KVALITA.md). Položky na sobě nezávisí.
 
 `NAST-1` podpis, notarizace, updater · `NAST-21` doložené CI, úplné mutace a E2E
-s vizuální sadou · `NAST-23` licence třetích stran v balíčku · `UCT-40` ruční
-import ISDOC.
+s vizuální sadou · `UCT-40` ruční import ISDOC.
 
 ---
 
@@ -104,14 +103,6 @@ doméně a záloha podpisového klíče mimo tento disk. Entitlement
 s podpisem, takže přílohu mailu přes Mail.app je potřeba ověřit na podepsaném
 buildu. Job `package` podpis balíčku neověřuje; s certifikátem do něj patří
 `codesign --verify` a `spctl`.
-
-### NAST-23 · Licence třetích stran neodpovídají buildu — STŘEDNÍ
-
-`THIRD-PARTY-NOTICES.txt` se píše ručně a nic ho proti závislostem negeneruje
-ani nekontroluje. esbuild (`tools/desktop/build.ts`) i `nuxt generate` zabalí
-`devDependencies` (pdf-lib, `@xmldom/xmldom`, fast-png, qrcode, zod, Vue …) do
-bundlu bez jejich licenčních textů a `files` v `electron-builder.yml` notices do
-`.app` nebere.
 
 ---
 

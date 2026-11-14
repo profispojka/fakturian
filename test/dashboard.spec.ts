@@ -459,11 +459,11 @@ describe('vatLimit', () => {
 		expect(vatLimit(items, today).payerFrom).toBe('2026-07-15');
 	});
 
-	it('dobropis obrat snižuje, takže práh nemusí padnout', () => {
+	it('pozdější dobropis sníží obrat, ale nesmaže překročení limitu', () => {
 		const items = [sum('1', '2026-03-01', '2026-03-15', 2_600_000), sum('2', '2026-03-20', '2026-03-20', -700_000)];
 		const v = vatLimit(items, today);
 		expect(v.turnoverCents).toBe(190_000_000);
-		expect(v.stage).toBe('below');
+		expect(v.stage).toBe('immediate');
 	});
 });
 

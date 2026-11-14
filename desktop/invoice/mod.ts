@@ -3,8 +3,11 @@ import { join } from 'node:path';
 
 import pLimit from 'p-limit';
 
+import { VAT_LIMIT_CENTS } from '~/constants/dashboard';
 import { DocumentKind } from '~/constants/invoice';
 import { invoiceSchema } from '~/schemas/invoices';
+import { parseIsdocDate, yearOf } from '~/utils/date';
+import { invoiceTotalCents } from '~/utils/invoice';
 import { czechList } from '~/utils/locales';
 import { validateNumber } from '~/utils/numbering';
 
@@ -20,12 +23,12 @@ import { saveSnapshot, snapshotDir } from '../store.ts';
 import { writeAtomic, writeNew } from '../util.ts';
 import { overVault, readLogo } from '../vault.ts';
 
-import { documentNumberCount, findDocument, removeIndexEntry } from './index.ts';
+import { documentNumberCount, findDocument, removeIndexEntry, scanInvoices } from './index.ts';
 
 import type { Document } from '@xmldom/xmldom';
 import type { PDFDocument } from 'pdf-lib';
 
-// Kontrola čísla a zápis dokladu musí proběhnout bez přerušení: dvojklik nebo UI souběžně s MCP by
+// TODO: tohoto se zbavit, radeji mit kvalitni flagy v template - Kontrola čísla a zápis dokladu musí proběhnout bez přerušení: dvojklik nebo UI souběžně s MCP by
 // jinak oba prošly kontrolou volného čísla a pozdější zápis by ten první přepsal.
 export const invoiceWrites = pLimit(1);
 
@@ -160,6 +163,49 @@ export async function saveInvoice({
 		}
 		if (invoice.documentType === DocumentKind.CreditNote && !invoice.originalInvoice.trim()) {
 			throw new Error('Dobropis musí odkazovat na fakturu, kterou opravuje.');
+		}
+		const scan = await scanInvoices({ vaultPath });
+		const prior = scan.readable.find((item) => item.path === previous?.path);
+		const amount = invoiceTotalCents(invoice);
+		const canIncrease =
+			prior === undefined ? amount > 0 : amount > prior.totalCents || invoice.issueDate !== prior.issueDate;
+		if (canIncrease) {
+			if (scan.broken.length > 0) {
+				throw new Error(
+					'Limit obratu nejde ověřit, protože některé faktury nejdou přečíst. Nejdřív oprav vadné doklady v Přehledu.',
+				);
+			}
+			const days = Map.groupBy(scan.items, (item) => item.issueDate);
+			if (!days.has(invoice.issueDate)) days.set(invoice.issueDate, []);
+			const dates = [...days.entries()].toSorted(([a], [b]) => a.localeCompare(b));
+			const before = new Map<number, number>();
+			const after = new Map<number, number>();
+			const crossed = new Set<number>();
+			for (const [date, dayItems] of dates) {
+				const parsed = parseIsdocDate(date);
+				if (parsed === undefined) throw new Error('Limit obratu nejde ověřit kvůli neplatnému datu dokladu.');
+				const year = yearOf(parsed);
+				const oldDay = dayItems.reduce((sum, item) => sum + item.totalCents, 0);
+				const newDay =
+					oldDay -
+					(prior?.issueDate === date ? prior.totalCents : 0) +
+					(invoice.issueDate === date ? amount : 0);
+				const oldTotal = (before.get(year) ?? 0) + oldDay;
+				const newTotal = (after.get(year) ?? 0) + newDay;
+				before.set(year, oldTotal);
+				after.set(year, newTotal);
+				if (oldTotal > VAT_LIMIT_CENTS) crossed.add(year);
+				if ((newTotal > VAT_LIMIT_CENTS || crossed.has(year)) && newTotal > oldTotal) {
+					throw new Error(
+						'Doklad nejde uložit, protože by obrat za kalendářní rok překročil 2 000 000 Kč. Fakturian je určený pro podnikatele do tohoto limitu.',
+					);
+				}
+			}
+			if (amount > 0 && crossed.has(yearOf(checked.data.issueDate) - 1)) {
+				throw new Error(
+					'Doklad nejde uložit, protože obrat v předchozím roce překročil 2 000 000 Kč. Další postup ověř s účetním.',
+				);
+			}
 		}
 
 		const files = await invoiceFiles(vaultPath, invoice, previous?.isdoc);

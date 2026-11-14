@@ -251,6 +251,12 @@ V sandboxu Claude Code tohle potřebuje `dangerouslyDisableSandbox: true` (není
 
 ## Git a spolupráce s Codexem
 
+Při každé změně `package.json`, `bun.lock` nebo použití závislostí zkontroluj licence a
+copyrighty přímých i tranzitivních balíčků dodávaných v aplikaci, včetně těch
+zabalených z `devDependencies` do frontendu a hlavního procesu. Aktualizuj
+`THIRD-PARTY-NOTICES.txt` podle požadavků jejich licencí; ověř i případné
+`NOTICE` soubory a nativní závislosti. Build soupis automaticky nekontroluje.
+
 Pracuje se přímo v této složce na aktuální větvi. Worktree jen na výslovné vyžádání. V hlavním
 repozitáři se do gitu nezapisuje (`add`, `commit`, `checkout`, `push` …) — hlídají to `deny`
 pravidla v `.claude/settings.json`. Zachovej rozpracované změny, lokální konfiguraci a `.env`.

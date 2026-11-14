@@ -2,7 +2,7 @@ import { flushPromises } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useVault } from '~/composables/useVault';
-import { VAT_LIMIT_CENTS, VAT_LIMIT_IMMEDIATE_CENTS } from '~/constants/dashboard';
+import { VAT_LIMIT_CENTS } from '~/constants/dashboard';
 import { DocumentKind } from '~/constants/invoice';
 import { newInvoice } from '~/schemas/invoices';
 import { yearOf } from '~/utils/date';
@@ -381,7 +381,7 @@ describe('limit plátcovství DPH', () => {
 		const c = await mount();
 
 		expect(c.find('[data-testid="overview-vat-notice"]').text()).toBe(
-			'Obrat překročil 2\u00a0000\u00a0000,00 Kč — plátcem DPH od 1. 1. 2027.',
+			'Obrat překročil 2\u00a0000\u00a0000,00 Kč. Fakturian je určený pro podnikatele do tohoto limitu. Další postup ověř s účetním.',
 		);
 	});
 
@@ -398,7 +398,7 @@ describe('limit plátcovství DPH', () => {
 		const c = await mount();
 
 		expect(c.find('[data-testid="overview-vat-notice"]').text()).toBe(
-			'Obrat překročil 2\u00a0536\u00a0500,00 Kč — plátcem DPH od 11. 6. 2026.',
+			'Obrat překročil 2\u00a0000\u00a0000,00 Kč. Fakturian je určený pro podnikatele do tohoto limitu. Další postup ověř s účetním.',
 		);
 	});
 });
@@ -465,7 +465,7 @@ describe('loňské plátcovství', () => {
 		const c = await mount();
 
 		expect(c.find('[data-testid="overview-vat-notice"]').text()).toBe(
-			`Obrat za rok 2025 překročil ${czkFromCents(VAT_LIMIT_CENTS)} — plátcem DPH od 1. 1. 2026.`,
+			`Obrat za rok 2025 překročil ${czkFromCents(VAT_LIMIT_CENTS)}. Fakturian je určený pro podnikatele do tohoto limitu. Další postup ověř s účetním.`,
 		);
 	});
 
@@ -482,7 +482,7 @@ describe('loňské plátcovství', () => {
 		const c = await mount();
 
 		expect(c.find('[data-testid="overview-vat-notice"]').text()).toBe(
-			`Obrat za rok 2025 překročil ${czkFromCents(VAT_LIMIT_IMMEDIATE_CENTS)} — plátcem DPH od 11. 6. 2025.`,
+			`Obrat za rok 2025 překročil ${czkFromCents(VAT_LIMIT_CENTS)}. Fakturian je určený pro podnikatele do tohoto limitu. Další postup ověř s účetním.`,
 		);
 	});
 });

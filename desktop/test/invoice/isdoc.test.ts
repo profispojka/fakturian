@@ -119,8 +119,10 @@ describe('zápis vlastního ISDOC', () => {
 			})),
 		};
 
-		const parsed = await parseIsdoc(buildIsdoc(note));
+		const xml = buildIsdoc(note);
+		const parsed = await parseIsdoc(xml);
 
+		expect(xml).toContain('<TaxInclusiveAmount>3659.97</TaxInclusiveAmount>');
 		expect(parsed).toEqual(await afterWrite(note));
 	});
 
