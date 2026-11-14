@@ -9,17 +9,17 @@ related:
     - /napoveda/datova-slozka
 ---
 
-## „Část dat se nepodařilo načíst"
+## „Data ve složce nejdou načíst"
 
-Některý datový soubor má poškozený obsah. Appka do té domény **nezapisuje** —
-radši nic než přepsat skutečná data oříznutou verzí. Ostatní části appky jedou
-dál.
+Některý datový soubor má poškozený obsah. Appka se nad ním **nerozjede** —
+radši nic než přepsat skutečná data oříznutou verzí. Složka i doklady v ní
+zůstávají na místě; hláška říká, o který soubor jde.
 
 Co s tím:
 
-1. Zavři appku.
-2. Vezmi poslední dobrý soubor z `.fakturian/snapshots/` nebo ze zálohy složky.
-3. Nahraď jím ten ve složce a appku spusť znovu.
+1. Vezmi poslední dobrý soubor z `.fakturian/snapshots/` nebo ze zálohy složky.
+2. Nahraď jím ten ve složce.
+3. Klikni na **Zkusit znovu**.
 
 ## „Tohle je desktopová aplikace — v prohlížeči nefunguje"
 

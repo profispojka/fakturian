@@ -57,9 +57,9 @@ v [01-FUNKCE](01-FUNKCE.md).
 Co musí být hotové, aby šly doložit vydávací brány z
 [10-KVALITA](10-KVALITA.md). Položky na sobě nezávisí.
 
-`NAST-1` podpis, notarizace, updater · `NAST-19` smoke balíčku · `NAST-21`
-doložené CI, úplné mutace a E2E s vizuální sadou · `NAST-23` licence třetích
-stran v balíčku · `UCT-40` ruční import ISDOC.
+`NAST-1` podpis, notarizace, updater · `NAST-21` doložené CI, úplné mutace a E2E
+s vizuální sadou · `NAST-23` licence třetích stran v balíčku · `UCT-40` ruční
+import ISDOC.
 
 ---
 
@@ -117,13 +117,6 @@ vystavením", posun dozadu splatnost tiše prodlouží. Převést na `useDateMod
 a u nového dokladu posouvat splatnost o stejný počet dní, dokud se na ni
 nesáhlo.
 
-### LOG-31 · Jeden vadný soubor vypadá jako přesunutá složka — NÍZKÁ
-
-`app.vue` při jakékoli chybě `init()`/`load()` (`useVaultData.load` slučuje
-chyby všech souborů) ukáže „Datová složka není na svém místě" a nabídne „Začít
-načisto" (`start-error-fresh`), i když jde o jeden vadný JSON. Chybějící složku
-odlišit od vadného souboru.
-
 ---
 
 ## Nástroje, build a release — `NAST`
@@ -139,16 +132,8 @@ a notarizace v CI, hosting podepsaného buildu s feedem pro updater na vlastní
 doméně a záloha podpisového klíče mimo tento disk. Entitlement
 `automation.apple-events` (`desktop/entitlements.plist`) začne platit až
 s podpisem, takže přílohu mailu přes Mail.app je potřeba ověřit na podepsaném
-buildu.
-
-### NAST-19 · Balíček se nespouští a podpis se neověřuje — VYSOKÁ
-
-Job `package` v `.github/workflows/quality.yml` postaví DMG a ZIP a ověří jen,
-že v `.app` leží `app.asar`, rozbalený `validator.mjs` a `xmllint-wasm`; appku
-z balíčku nespustí. `bun run test:release-smoke` (`tools/e2e/release-smoke.ts`:
-start appky z `.output/release`, most MCP přes socket) není v CI ani v `check`.
-Zapojit ho do jobu `package` a po `NAST-1` ověřit podpis (`codesign --verify`,
-`spctl`).
+buildu. Job `package` podpis balíčku neověřuje; s certifikátem do něj patří
+`codesign --verify` a `spctl`.
 
 ### NAST-21 · CI není doložené skutečným během — STŘEDNÍ
 

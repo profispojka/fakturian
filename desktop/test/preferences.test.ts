@@ -91,22 +91,22 @@ describe('zapamatovaná datová složka', () => {
 
 	it('poškozený soubor se ohlásí, ne tiše zahodí', async () => {
 		await mkdir(join(file, '..'), { recursive: true });
-		for (const [content, reason, cause] of [
-			['{"vaultPath":', 'Unexpected end of JSON input', expect.any(SyntaxError)],
+		for (const [content, problem, cause] of [
+			['{"vaultPath":', 'je poškozené.', expect.any(SyntaxError)],
 			[
 				new Uint8Array([0x7b, 0xff, 0x7d]),
-				'The encoded data was not valid for encoding utf-8',
+				'je poškozené.',
 				expect.objectContaining({ code: 'ERR_ENCODING_INVALID_ENCODED_DATA' }),
 			],
-			['{}', 'vaultPath: Neplatný vstup: očekáváno řetězec, obdrženo undefined'],
-			['{"vaultPath":"Fakturian"}', 'vaultPath: Cesta musí být absolutní.'],
-			['{"vaultPath":"/Users/jana/Fakturian","theme":"dark"}', 'Neznámé klíče: "theme"'],
-			['["/Users/jana/Fakturian"]', 'Neplatný vstup: očekáváno object, obdrženo pole'],
+			['{}', 'je poškozené (vaultPath: Neplatný vstup: očekáváno řetězec, obdrženo undefined).'],
+			['{"vaultPath":"Fakturian"}', 'je poškozené (vaultPath: Cesta musí být absolutní.).'],
+			['{"vaultPath":"/Users/jana/Fakturian","theme":"dark"}', 'je poškozené (Neznámé klíče: "theme").'],
+			['["/Users/jana/Fakturian"]', 'je poškozené (Neplatný vstup: očekáváno object, obdrženo pole).'],
 		] as const) {
 			await writeFile(file, content);
 
 			await expect(loadVaultPath()).rejects.toThrow(
-				new Error(`Nastavení appky ${file} je poškozené (${reason}). ${REPAIR}`, { cause }),
+				new Error(`Nastavení appky ${file} ${problem} ${REPAIR}`, { cause }),
 			);
 		}
 	});

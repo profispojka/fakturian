@@ -1,5 +1,6 @@
 export interface CommandArgs {
 	ensure_vault: { vaultPath: string };
+	check_vault: { vaultPath: string };
 	vault_has_logo: { vaultPath: string };
 	set_vault_logo: { vaultPath: string; source: string };
 	remove_vault_logo: { vaultPath: string };
@@ -47,6 +48,7 @@ export interface CommandArgs {
 
 export interface CommandResults {
 	ensure_vault: null;
+	check_vault: null;
 	vault_has_logo: boolean;
 	set_vault_logo: null;
 	remove_vault_logo: null;
@@ -126,6 +128,8 @@ function invoke<Name extends CommandName>(name: Name, args: CommandArgs[Name]): 
 export const commands = {
 	// `.fakturian/` založí až první zápis dat nebo cache.
 	ensureVault: (vaultPath: string) => invoke('ensure_vault', { vaultPath }),
+	// Selže, když složka na cestě není; nic nezakládá.
+	checkVault: (vaultPath: string) => invoke('check_vault', { vaultPath }),
 	vaultHasLogo: (vaultPath: string) => invoke('vault_has_logo', { vaultPath }),
 	setVaultLogo: (vaultPath: string, source: string) =>
 		invoke('set_vault_logo', {

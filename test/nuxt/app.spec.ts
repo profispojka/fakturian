@@ -66,6 +66,11 @@ function withoutRememberedFolder(): void {
 	backend.store.delete('vaultPath');
 }
 
+/** Složku někdo přesunul nebo odpojil disk; appka si pamatuje cestu, na které nic není. */
+function folderGone(): void {
+	backend.folders.delete('/vault');
+}
+
 beforeEach(() => {
 	rememberedFolder();
 });
@@ -117,12 +122,30 @@ describe('načtení dat po startu', () => {
 		expect(backend.args('read_data_file')).toEqual([]);
 	});
 
-	it('chybu načtení ukáže místo stránky', async () => {
+	it('vadný soubor ukáže místo stránky a nenabízí začít načisto', async () => {
 		backend.breaks('read_data_file', 'vydaje.json má poškozený obsah');
 		const c = await mount();
 
-		expect(c.find('[data-testid="start-error"]').text()).toContain('poškozený obsah');
+		const screen = c.find('[data-testid="start-error"]').text();
+		expect(screen).toContain('Data ve složce nejdou načíst');
+		expect(screen).toContain('poškozený obsah');
+		expect(screen).toContain('Složka i doklady v ní jsou na místě.');
+		expect(c.find('[data-testid="start-error-fresh"]').exists()).toBe(false);
+		expect(c.find('[data-testid="start-error-retry"]').exists()).toBe(true);
 		expect(c.find('[data-testid="menu-new"]').exists()).toBe(false);
+	});
+
+	it('chybějící složku ohlásí dřív, než z ní začne číst', async () => {
+		folderGone();
+		const c = await mount();
+
+		const screen = c.find('[data-testid="start-error"]').text();
+		expect(screen).toContain('Datová složka není na svém místě');
+		expect(screen).toContain('Datová složka /vault neexistuje.');
+		expect(screen).toContain('Pokud jsi složku přesunul nebo přejmenoval');
+		expect(c.find('[data-testid="start-error-fresh"]').exists()).toBe(true);
+		expect(c.find('[data-testid="start-error-retry"]').exists()).toBe(false);
+		expect(backend.args('read_data_file')).toEqual([]);
 	});
 
 	it('po chybě načtení průvodce neotevírá', async () => {
@@ -131,11 +154,84 @@ describe('načtení dat po startu', () => {
 
 		expect(wizardOpened()).toBe(false);
 	});
+
+	it('bez složky na místě průvodce neotevírá', async () => {
+		folderGone();
+		await mount();
+
+		expect(wizardOpened()).toBe(false);
+	});
 });
 
-describe('cesta ven z chybové obrazovky', () => {
+describe('cesta ven z obrazovky vadných dat', () => {
+	it('po opravě souboru se appka na „Zkusit znovu“ rozjede', async () => {
+		backend.breaks('read_data_file', 'vydaje.json má poškozený obsah');
+		const c = await mount();
+		backend.repairs('read_data_file');
+
+		await c.find('[data-testid="start-error-retry"]').trigger('click');
+		await flushPromises();
+
+		expect(c.find('[data-testid="start-error"]').exists()).toBe(false);
+		await vi.waitFor(() => expect(c.find('[data-testid="menu-new"]').exists()).toBe(true));
+		expect(wizardOpened()).toBe(false);
+	});
+
+	it('nad stále vadným souborem zůstane hláška', async () => {
+		backend.breaks('read_data_file', 'vydaje.json má poškozený obsah');
+		const c = await mount();
+
+		await c.find('[data-testid="start-error-retry"]').trigger('click');
+		await flushPromises();
+
+		expect(c.find('[data-testid="start-error"]').text()).toContain('poškozený obsah');
+		expect(wizardOpened()).toBe(false);
+	});
+
+	it('složka, která mezitím zmizela, se ohlásí jako chybějící', async () => {
+		backend.breaks('read_data_file', 'vydaje.json má poškozený obsah');
+		const c = await mount();
+		folderGone();
+
+		await c.find('[data-testid="start-error-retry"]').trigger('click');
+		await flushPromises();
+
+		expect(c.find('[data-testid="start-error"]').text()).toContain('Datová složka není na svém místě');
+		expect(c.find('[data-testid="start-error-fresh"]').exists()).toBe(true);
+	});
+
+	it('jiná složka se zapamatuje a appka se s ní načte znovu', async () => {
+		backend.breaks('read_data_file', 'vydaje.json má poškozený obsah');
+		const replace = vi.spyOn(window.location, 'replace');
+		const c = await mount();
+		backend.create('/nova');
+		backend.dialog.push('/nova');
+
+		await c.find('[data-testid="start-error-pick"]').trigger('click');
+		await flushPromises();
+
+		expect(backend.store.get('vaultPath')).toBe('/nova');
+		expect(replace).toHaveBeenCalledWith('/');
+	});
+
+	it('nepovedený výběr jiné složky nechá obrazovku vadných dat', async () => {
+		backend.breaks('read_data_file', 'vydaje.json má poškozený obsah');
+		const c = await mount();
+		backend.dialog.push('/jenpro-cteni');
+		backend.breaks('ensure_vault', 'do složky nejde zapisovat');
+
+		await c.find('[data-testid="start-error-pick"]').trigger('click');
+		await flushPromises();
+
+		const screen = c.find('[data-testid="start-error"]').text();
+		expect(screen).toContain('Data ve složce nejdou načíst');
+		expect(screen).toContain('do složky nejde zapisovat');
+	});
+});
+
+describe('cesta ven z obrazovky chybějící složky', () => {
 	it('vybraná složka se zapamatuje a appka se s ní načte znovu', async () => {
-		backend.breaks('read_data_file', 'Datová složka /vault neexistuje.');
+		folderGone();
 		const replace = vi.spyOn(window.location, 'replace');
 		const c = await mount();
 		backend.create('/nova');
@@ -149,7 +245,7 @@ describe('cesta ven z chybové obrazovky', () => {
 	});
 
 	it('zrušený výběr nechá obrazovku na místě', async () => {
-		backend.breaks('read_data_file', 'Datová složka /vault neexistuje.');
+		folderGone();
 		const c = await mount();
 		backend.dialog.push(null);
 
@@ -181,7 +277,7 @@ describe('cesta ven z chybové obrazovky', () => {
 		expect(wizardOpened()).toBe(false);
 	});
 
-	it('když je i nová složka rozbitá, ukáže se její chyba', async () => {
+	it('když má nová složka vadný soubor, ukáže se obrazovka vadných dat', async () => {
 		backend.breaks('load_vault_path', 'fakturian.json nejde přečíst');
 		const c = await mount();
 		backend.create('/nova');
@@ -191,7 +287,10 @@ describe('cesta ven z chybové obrazovky', () => {
 		await c.find('[data-testid="start-error-pick"]').trigger('click');
 		await flushPromises();
 
-		expect(c.find('[data-testid="start-error"]').text()).toContain('poškozený obsah');
+		const screen = c.find('[data-testid="start-error"]').text();
+		expect(screen).toContain('Data ve složce nejdou načíst');
+		expect(screen).toContain('poškozený obsah');
+		expect(c.find('[data-testid="start-error-fresh"]').exists()).toBe(false);
 	});
 
 	it('čistý start založí složku v Dokumentech a doptá se na dodavatele', async () => {
@@ -207,7 +306,7 @@ describe('cesta ven z chybové obrazovky', () => {
 	});
 
 	it('čistý start místo zapamatované složky appku načte znovu', async () => {
-		backend.breaks('read_data_file', 'Datová složka /vault neexistuje.');
+		folderGone();
 		const replace = vi.spyOn(window.location, 'replace');
 		const c = await mount();
 

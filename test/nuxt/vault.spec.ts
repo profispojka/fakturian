@@ -10,6 +10,7 @@ function remembered(): unknown {
 
 describe('načtení uložené cesty', () => {
 	it('vezme cestu z úložiště a ohlásí připravenost', async () => {
+		backend.create('/vault');
 		backend.store.set('vaultPath', '/vault');
 		const v = useNuxtApp().vueApp.runWithContext(useVault);
 
@@ -137,6 +138,14 @@ describe('když se něco nepovede', () => {
 		await expect(v.init()).rejects.toBe('fakturian.json nejde přečíst');
 		expect(v.ready.value).toBe(false);
 		expect(v.vaultPath.value).toBeNull();
+	});
+
+	it('zapamatovaná složka, která na místě není, se ohlásí a cesta zůstane', async () => {
+		backend.store.set('vaultPath', '/presunuta');
+		const v = useNuxtApp().vueApp.runWithContext(useVault);
+
+		await expect(v.init()).rejects.toBe('Datová složka /presunuta neexistuje.');
+		expect(v.vaultPath.value).toBe('/presunuta');
 	});
 
 	it('selhání přípravy složky ji nenastaví ani nezapamatuje', async () => {

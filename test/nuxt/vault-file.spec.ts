@@ -418,9 +418,7 @@ describe('soubor, který nejde přečíst', () => {
 		backend.writeText('/vault', 'cenik.json', '{ tohle není JSON');
 		const f = file();
 
-		await expect(f.load()).rejects.toBe(
-			"Soubor cenik.json není platný JSON: SyntaxError: Expected property name or '}' in JSON at position 2 (line 1 column 3)",
-		);
+		await expect(f.load()).rejects.toBe('Soubor cenik.json má poškozený obsah: není to platný JSON.');
 		expect(f.loaded.value).toBe(false);
 
 		await expect(f.save()).rejects.toThrow(
@@ -468,13 +466,12 @@ describe('soubor, který nejde přečíst', () => {
 		await f.load();
 		backend.breaks(
 			'write_data_file',
-			'Soubor cenik.json ve vaultu není platný JSON (expected value at line 1 column 1), takže nejde ' +
-				'poznat, co v něm bylo — přepsat ho by ta data zahodilo. Kopie je v /vault/.zalohy. ' +
-				'Oprav soubor, nebo ho odsud smaž.',
+			'Soubor cenik.json ve vaultu není platný JSON, takže nejde poznat, co v něm bylo — přepsat ho ' +
+				'by ta data zahodilo. Kopie je v /vault/.fakturian/snapshots. Oprav soubor, nebo ho odsud smaž.',
 		);
 
 		await expect(f.save()).rejects.toBe(
-			'Soubor cenik.json ve vaultu není platný JSON (expected value at line 1 column 1), takže nejde poznat, co v něm bylo — přepsat ho by ta data zahodilo. Kopie je v /vault/.zalohy. Oprav soubor, nebo ho odsud smaž.',
+			'Soubor cenik.json ve vaultu není platný JSON, takže nejde poznat, co v něm bylo — přepsat ho by ta data zahodilo. Kopie je v /vault/.fakturian/snapshots. Oprav soubor, nebo ho odsud smaž.',
 		);
 	});
 

@@ -216,12 +216,15 @@ jen lokální běh.
 Job `package` v CI na macOS postaví frontend, hlavní proces a nepodepsaný
 balíček přes electron-builder (`electron-builder.yml`, výstup
 `.output/release/`) a ověří, že `Fakturian.app` nese `app.asar`, rozbalený
-validátor ISDOC i `xmllint-wasm` a že vznikly DMG a ZIP. Balíček nespouští
-(`NAST-19` v [05-BACKLOG](05-BACKLOG.md)).
+validátor ISDOC i `xmllint-wasm` a že vznikly DMG a ZIP. Tutéž `Fakturian.app`
+pak spustí přes `bun run test:release-smoke -- --prebuilt` a jeho hlášení
+(`.output-release-smoke/`) nahraje k artefaktům.
 
-`bun run test:release-smoke` (`tools/e2e/release-smoke.ts`) postaví nepodepsaný
-balíček, spustí `Fakturian.app` z `.output/release/` a ověří most MCP přes
-socket. Pouští se ručně na macOS.
+`bun run test:release-smoke` (`tools/e2e/release-smoke.ts`) spustí
+`Fakturian.app` z `.output/release/` v dočasném domově, počká na socket MCP
+a přes connector zavolá `list_invoices`. Bez `--prebuilt` si nepodepsaný balíček
+nejdřív sám postaví; tak se pouští ručně na macOS. Podpis balíčku neověřuje
+(`NAST-1` v [05-BACKLOG](05-BACKLOG.md)).
 
 ## Co musí zůstat pravdou
 
@@ -275,8 +278,8 @@ Vydání je možné, až je doloženo:
 
 - podpis, notarizaci a instalaci distribučního buildu z DMG,
 - showcase (kromě typů jeho skriptů),
-- spuštění zabaleného `.app` (`bun run test:release-smoke` není v `check` ani
-  v CI),
+- spuštění zabaleného `.app` v `bun run check` (`bun run test:release-smoke`
+  pouští jen job `package` v CI),
 - vizuální sadu E2E v CI,
 - type-aware pravidla v šablonových částech `.vue`,
 - právní a produktovou správnost účetních pravidel.

@@ -191,17 +191,20 @@ const isolatedEnvironment = {
 let forcedTermination = false;
 let result = 'failed';
 try {
-	// Stačí rozbalená `.app` bez podpisu: smoke ověřuje obsah balíčku, ne identitu vývojáře, a hledání
-	// identity by sahalo do klíčenky toho, kdo ho pouští.
-	for (const args of [
-		['run', 'generate'],
-		['run', 'desktop:build'],
-		['x', 'electron-builder', '--config', 'electron-builder.yml', '--dir', '-c.mac.identity=null'],
-	]) {
-		execFileSync(bun, args, {
-			cwd: root,
-			stdio: 'inherit',
-		});
+	// Job `package` v CI balíček staví sám a `--prebuilt` spustí právě ten, ze kterého vznikly DMG a ZIP.
+	if (!process.argv.includes('--prebuilt')) {
+		// Stačí rozbalená `.app` bez podpisu: smoke ověřuje obsah balíčku, ne identitu vývojáře, a hledání
+		// identity by sahalo do klíčenky toho, kdo ho pouští.
+		for (const args of [
+			['run', 'generate'],
+			['run', 'desktop:build'],
+			['x', 'electron-builder', '--config', 'electron-builder.yml', '--dir', '-c.mac.identity=null'],
+		]) {
+			execFileSync(bun, args, {
+				cwd: root,
+				stdio: 'inherit',
+			});
+		}
 	}
 	accessSync(appExecutable, constants.X_OK);
 

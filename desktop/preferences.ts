@@ -53,7 +53,7 @@ export async function loadVaultPath(): Promise<string | null> {
 	try {
 		json = parseJson(UTF8.decode(raw));
 	} catch (error) {
-		throw new Error(`Nastavení appky ${file} je poškozené (${errorText(error)}). ${REPAIR}`, { cause: error });
+		throw new Error(`Nastavení appky ${file} je poškozené. ${REPAIR}`, { cause: error });
 	}
 	const preferences = preferencesSchema.safeParse(json);
 	if (!preferences.success) {

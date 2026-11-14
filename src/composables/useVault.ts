@@ -9,6 +9,7 @@ export function useVault() {
 	async function init() {
 		vaultPath.value = await commands.loadVaultPath();
 		ready.value = true;
+		if (vaultPath.value) await commands.checkVault(vaultPath.value);
 	}
 
 	// `false` znamená, že se stránka kvůli přepnutí načítá znovu a volající už nemá co dělat.

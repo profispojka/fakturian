@@ -458,6 +458,10 @@ const commands: Record<string, (a: Args) => unknown> = {
 		if (!backend.folders.has(vaultPath)) backend.folders.set(vaultPath, emptyFolder());
 		return null;
 	},
+	check_vault: ({ vaultPath }) => {
+		backend.folder(vaultPath);
+		return null;
+	},
 	vault_has_logo: ({ vaultPath }) => backend.files.has(`${vaultPath}/logo.png`),
 	set_vault_logo: ({ vaultPath }) => {
 		backend.folder(vaultPath);
@@ -484,7 +488,7 @@ const commands: Record<string, (a: Args) => unknown> = {
 		try {
 			v = JSON.parse(json);
 		} catch (e) {
-			throw new Error(`Soubor ${name} není platný JSON: ${String(e)}`, { cause: e });
+			throw new Error(`Soubor ${name} má poškozený obsah: není to platný JSON.`, { cause: e });
 		}
 
 		if (typeof v !== 'object' || v === null || Array.isArray(v)) {

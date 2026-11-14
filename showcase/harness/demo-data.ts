@@ -523,6 +523,7 @@ const emptyImport = () =>
 		ares_subject: () => null,
 
 		ensure_vault: () => null,
+		check_vault: () => null,
 		vault_has_logo: () => hasLogo,
 		set_vault_logo: () => {
 			hasLogo = true;

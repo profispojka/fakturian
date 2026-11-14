@@ -37,6 +37,12 @@ export async function overVault(vaultPath: string): Promise<string> {
 	return vaultPath;
 }
 
+// Start appky jím odliší složku, která není na místě, od souboru v ní, který nejde přečíst.
+export async function checkVault({ vaultPath }: { vaultPath: string }): Promise<null> {
+	await overVault(vaultPath);
+	return null;
+}
+
 // Rozbalí symlinky a `..`, aby se cesta dala porovnat s kořenem vaultu. Bez toho projde
 // `faktury/../../.ssh/id_rsa` i symlink mířící ven.
 export async function canonical(path: string): Promise<string> {

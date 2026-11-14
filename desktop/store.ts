@@ -87,7 +87,7 @@ function canonicalJson(name: string, json: string): string {
 	try {
 		value = parseJson(json);
 	} catch (error) {
-		throw new Error(`Soubor ${name} není platný JSON: ${errorText(error)}`, { cause: error });
+		throw new Error(`Soubor ${name} má poškozený obsah: není to platný JSON.`, { cause: error });
 	}
 	if (typeof value !== 'object' || value === null || Array.isArray(value)) {
 		throw new Error(`Soubor ${name} musí být JSON objekt, ne pole nebo hodnota.`);
@@ -171,7 +171,7 @@ export function writeDataFile({
 			} catch (error) {
 				await saveSnapshot(snapshotDir(root), name, 'json', existing);
 				throw new Error(
-					`Soubor ${name} ve vaultu není platný JSON (${errorText(error)}), takže nejde poznat, ` +
+					`Soubor ${name} ve vaultu není platný JSON, takže nejde poznat, ` +
 						`co v něm bylo — přepsat ho by ta data zahodilo. Kopie je v ${snapshotDir(root)}. ` +
 						'Oprav soubor, nebo ho odsud smaž.',
 					{ cause: error },

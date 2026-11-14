@@ -190,10 +190,9 @@ describe('datové soubory', () => {
 				json: '{tohle není JSON',
 			}),
 		).rejects.toEqual(
-			new Error(
-				"Soubor vydaje.json není platný JSON: Expected property name or '}' in JSON at position 1 (line 1 column 2)",
-				{ cause: expect.any(SyntaxError) },
-			),
+			new Error('Soubor vydaje.json má poškozený obsah: není to platný JSON.', {
+				cause: expect.any(SyntaxError),
+			}),
 		);
 	});
 
@@ -230,7 +229,11 @@ describe('datové soubory', () => {
 				name: 'platby.json',
 				json: '{"payments":{"a":1e400}}',
 			}),
-		).rejects.toEqual(new Error('Soubor platby.json není platný JSON: číslo u klíče „a“ je mimo rozsah'));
+		).rejects.toEqual(
+			new Error('Soubor platby.json má poškozený obsah: není to platný JSON.', {
+				cause: new SyntaxError('číslo u klíče „a“ je mimo rozsah'),
+			}),
+		);
 	});
 
 	it('čtení rozbitého souboru selže nahlas', async () => {
@@ -242,9 +245,9 @@ describe('datové soubory', () => {
 				name: 'vydaje.json',
 			}),
 		).rejects.toEqual(
-			new Error(
-				"Soubor vydaje.json není platný JSON: Expected property name or '}' in JSON at position 1 (line 1 column 2)",
-			),
+			new Error('Soubor vydaje.json má poškozený obsah: není to platný JSON.', {
+				cause: expect.any(SyntaxError),
+			}),
 		);
 	});
 
@@ -752,9 +755,8 @@ describe('zálohy datových souborů', () => {
 			}),
 		).rejects.toEqual(
 			new Error(
-				"Soubor platby.json ve vaultu není platný JSON (Expected ':' after property name in JSON at position 23 " +
-					'(line 1 column 24)), takže nejde poznat, co v něm bylo — přepsat ho by ta data zahodilo. ' +
-					`Kopie je v ${snapshotDir(base)}. Oprav soubor, nebo ho odsud smaž.`,
+				'Soubor platby.json ve vaultu není platný JSON, takže nejde poznat, co v něm bylo — přepsat ho by ' +
+					`ta data zahodilo. Kopie je v ${snapshotDir(base)}. Oprav soubor, nebo ho odsud smaž.`,
 				{ cause: expect.any(SyntaxError) },
 			),
 		);

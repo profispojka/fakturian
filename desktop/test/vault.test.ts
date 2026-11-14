@@ -15,6 +15,7 @@ import { markInvoiceSent } from '../invoice/status.ts';
 import { readDataFile, snapshotsPath, writeDataFile } from '../store.ts';
 import {
 	canonical,
+	checkVault,
 	ensureVault,
 	junk,
 	LOGO_FILE,
@@ -117,6 +118,20 @@ describe('struktura vaultu', () => {
 });
 
 describe('kořen vaultu', () => {
+	it('složka na místě projde kontrolou a nic se v ní nezaloží', async () => {
+		expect(await checkVault({ vaultPath: base })).toBe(null);
+		expect(await names(base)).toEqual([]);
+	});
+
+	it('soubor kontrolou kořene neprojde', async () => {
+		const file = join(base, 'faktury.txt');
+		await writeFile(file, 'tohle není složka');
+
+		await expect(checkVault({ vaultPath: file })).rejects.toEqual(
+			new Error(`Datová složka ${file} není složka, ale soubor. Vyber v nastavení jinou.`),
+		);
+	});
+
 	it('soubor není vault', async () => {
 		const file = join(base, 'faktury.txt');
 		await writeFile(file, 'tohle není složka');
@@ -159,6 +174,7 @@ describe('kořen vaultu', () => {
 			cause: expect.objectContaining({ code: 'ENOENT' }),
 		});
 
+		await expect(checkVault({ vaultPath: vault })).rejects.toEqual(missing);
 		await expect(
 			readDataFile({
 				vaultPath: vault,
