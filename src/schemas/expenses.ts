@@ -16,7 +16,7 @@ const expenseShape = {
 	documentUuid: z.string().optional(),
 };
 
-export const expensesFileSchema = z.looseObject({ expenses: z.array(z.looseObject(expenseShape)).default([]) });
+export const expensesFileSchema = z.looseObject({ expenses: z.array(z.looseObject(expenseShape)) });
 
 // Typ bez indexové signatury `looseObject`: s ní by formulář výdaje četl každé pole jako `unknown`.
 export type Expense = Zod.infer<Zod.ZodObject<typeof expenseShape>>;

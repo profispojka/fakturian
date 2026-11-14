@@ -1220,7 +1220,8 @@ describe('vazba řádku na ceník ve schématu faktury', () => {
 });
 
 describe('vaultDataSchema', () => {
-	it('vault bez dodavatele je prázdná evidence', () => {
-		expect(vaultDataSchema.parse({ supplier: null })).toEqual(emptyVaultData());
+	it('chybějící klíče nastavení jsou neúplný soubor', () => {
+		expect(vaultDataSchema.safeParse({ supplier: null }).success).toBe(false);
+		expect(vaultDataSchema.parse(emptyVaultData())).toEqual(emptyVaultData());
 	});
 });

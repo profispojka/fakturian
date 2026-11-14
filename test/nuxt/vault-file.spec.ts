@@ -16,8 +16,8 @@ interface Data {
 }
 
 const schema = z.object({
-	items: z.array(z.string()).default([]),
-	name: z.string().default(''),
+	items: z.array(z.string()),
+	name: z.string(),
 });
 const empty = (): Data => ({
 	items: [],
@@ -59,15 +59,21 @@ describe('načtení souboru domény', () => {
 		await f.load();
 		expect(f.data.value).toEqual(empty());
 		expect(f.loaded.value).toBe(true);
+
+		await f.save();
+		expect(backend.readFile('/vault', 'cenik.json')).toEqual(empty());
 	});
 
-	it('chybějící pole doplní výchozí hodnoty', async () => {
+	it('chybějící pole v existujícím souboru se odmítnou', async () => {
 		vaultHas({ items: ['a'] });
 		const f = file();
 
-		await f.load();
-		expect(f.data.value.name).toBe('');
-		expect(f.loaded.value).toBe(true);
+		await expect(f.load()).rejects.toThrow(
+			new Error('Soubor cenik.json má poškozený obsah (name: Neplatný vstup: očekáváno řetězec, obdrženo undefined).'),
+		);
+		expect(f.loaded.value).toBe(false);
+		await expect(f.save()).rejects.toThrow('Data (cenik.json) se nepodařilo načíst');
+		expect(backend.readFile('/vault', 'cenik.json')).toEqual({ items: ['a'] });
 	});
 
 	it('poškozený obsah se ohlásí a soubor zůstane nenačtený', async () => {

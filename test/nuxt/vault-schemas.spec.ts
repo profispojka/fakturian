@@ -54,8 +54,24 @@ const PRICE_ITEM = {
 	priceCents: 120_000,
 	unit: 'hod',
 };
+const EMPTY_SETTINGS = {
+	supplier: null,
+	contacts: [],
+	pricelist: [],
+};
 
 describe('konfigurace vaultu (nastaveni.json)', () => {
+	it('nový vault načte prázdnou evidenci pro všechna data', async () => {
+		const vault = useNuxtApp().vueApp.runWithContext(useVaultData);
+		const payments = useNuxtApp().vueApp.runWithContext(usePaymentsFile);
+		const expenses = useNuxtApp().vueApp.runWithContext(useExpensesFile);
+
+		await vault.load();
+		expect(vault.data.value).toEqual(EMPTY_SETTINGS);
+		expect(payments.data.value.payments).toEqual({});
+		expect(expenses.data.value.expenses).toEqual([]);
+	});
+
 	it('načte dodavatele, odběratele i ceník', async () => {
 		await vaultFiles({
 			'nastaveni.json': {
@@ -76,7 +92,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 	it('supplier: null projde', async () => {
 		await vaultFiles({
 			'nastaveni.json': {
-				supplier: null,
+				...EMPTY_SETTINGS,
 			},
 		});
 		const v = useNuxtApp().vueApp.runWithContext(useVaultData);
@@ -86,9 +102,28 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 		expect(v.loaded.value).toBe(true);
 	});
 
+	it('chybějící klíč nastavení v existujícím souboru se odmítne', async () => {
+		const incomplete = {
+			supplier: null,
+			contacts: [],
+		};
+		await vaultFiles({ 'nastaveni.json': incomplete });
+		const v = useNuxtApp().vueApp.runWithContext(useVaultData);
+
+		await expect(v.load()).rejects.toThrow(
+			new Error(
+				'Soubor nastaveni.json má poškozený obsah (pricelist: Neplatný vstup: očekáváno pole, obdrženo undefined).',
+			),
+		);
+		expect(v.loaded.value).toBe(false);
+		await expect(v.save()).rejects.toThrow('Data (nastaveni.json) se nepodařilo načíst');
+		expect(backend.readFile('/vault', 'nastaveni.json')).toEqual(incomplete);
+	});
+
 	it('odběratelé, kteří nejsou pole, shodí načtení a soubor zůstane nezapsatelný', async () => {
 		await vaultFiles({
 			'nastaveni.json': {
+				...EMPTY_SETTINGS,
 				contacts: 'ahoj',
 			},
 		});
@@ -111,6 +146,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 	it('odběratel bez id nebo bez jména se odmítne', async () => {
 		await vaultFiles({
 			'nastaveni.json': {
+				...EMPTY_SETTINGS,
 				contacts: [
 					{
 						name: 'Acme',
@@ -126,6 +162,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 
 		await vaultFiles({
 			'nastaveni.json': {
+				...EMPTY_SETTINGS,
 				contacts: [
 					{
 						id: 'k1',
@@ -144,6 +181,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 		const { address: _address, ...withoutAddress } = CUSTOMER;
 		await vaultFiles({
 			'nastaveni.json': {
+				...EMPTY_SETTINGS,
 				contacts: [withoutAddress],
 			},
 		});
@@ -164,6 +202,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 		const supplier = Object.fromEntries(Object.entries(SUPPLIER).filter(([k]) => k !== key));
 		await vaultFiles({
 			'nastaveni.json': {
+				...EMPTY_SETTINGS,
 				supplier,
 			},
 		});
@@ -176,6 +215,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 	it('rozpracovaný dodavatel s neplatným IČO se načíst dá', async () => {
 		await vaultFiles({
 			'nastaveni.json': {
+				...EMPTY_SETTINGS,
 				supplier: {
 					...SUPPLIER,
 					ico: '123',
@@ -195,6 +235,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 	])('neplatnou splatnost %s odmítne při načtení', async (defaultDueDays, problem) => {
 		await vaultFiles({
 			'nastaveni.json': {
+				...EMPTY_SETTINGS,
 				supplier: {
 					...SUPPLIER,
 					defaultDueDays,
@@ -209,6 +250,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 	it('prázdný roční limit v souboru se odmítne, chybějící projde', async () => {
 		await vaultFiles({
 			'nastaveni.json': {
+				...EMPTY_SETTINGS,
 				pricelist: [
 					{
 						...PRICE_ITEM,
@@ -225,6 +267,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 
 		await vaultFiles({
 			'nastaveni.json': {
+				...EMPTY_SETTINGS,
 				pricelist: [PRICE_ITEM],
 			},
 		});
@@ -240,6 +283,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 		const item = Object.fromEntries(Object.entries(PRICE_ITEM).filter(([k]) => k !== key));
 		await vaultFiles({
 			'nastaveni.json': {
+				...EMPTY_SETTINGS,
 				pricelist: [item],
 			},
 		});
@@ -252,6 +296,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 	it('klíč dopsaný uživatelem uložení přežije i uvnitř záznamů', async () => {
 		await vaultFiles({
 			'nastaveni.json': {
+				...EMPTY_SETTINGS,
 				myNote: 'nesmazat',
 				supplier: {
 					...SUPPLIER,
@@ -398,13 +443,24 @@ describe('platby.json', () => {
 		expect(f.loaded.value).toBe(false);
 	});
 
-	it('chybějící mapa plateb se doplní prázdnou', async () => {
-		await vaultFiles({ 'platby.json': {} });
+	it('chybějící soubor plateb založí prázdnou evidenci', async () => {
 		const f = useNuxtApp().vueApp.runWithContext(usePaymentsFile);
 
 		await f.load();
 		expect(f.data.value.payments).toEqual({});
 		expect(f.loaded.value).toBe(true);
+	});
+
+	it('chybějící mapa v existujícím souboru se odmítne', async () => {
+		await vaultFiles({ 'platby.json': {} });
+		const f = useNuxtApp().vueApp.runWithContext(usePaymentsFile);
+
+		await expect(f.load()).rejects.toThrow(
+			new Error('Soubor platby.json má poškozený obsah (payments: Neplatný vstup: očekáváno record, obdrženo undefined).'),
+		);
+		expect(f.loaded.value).toBe(false);
+		await expect(f.save()).rejects.toThrow('Data (platby.json) se nepodařilo načíst');
+		expect(backend.readFile('/vault', 'platby.json')).toEqual({});
 	});
 
 	it('příznak zaplacení místo seznamu plateb se odmítne', async () => {
@@ -437,6 +493,18 @@ const EXPENSE = {
 };
 
 describe('vydaje.json', () => {
+	it('chybějící seznam v existujícím souboru se odmítne', async () => {
+		await vaultFiles({ 'vydaje.json': {} });
+		const f = useNuxtApp().vueApp.runWithContext(useExpensesFile);
+
+		await expect(f.load()).rejects.toThrow(
+			new Error('Soubor vydaje.json má poškozený obsah (expenses: Neplatný vstup: očekáváno pole, obdrženo undefined).'),
+		);
+		expect(f.loaded.value).toBe(false);
+		await expect(f.save()).rejects.toThrow('Data (vydaje.json) se nepodařilo načíst');
+		expect(backend.readFile('/vault', 'vydaje.json')).toEqual({});
+	});
+
 	it('načte výdaj bez nepovinných polí', async () => {
 		await vaultFiles({
 			'vydaje.json': {
@@ -562,6 +630,7 @@ describe('načtení celého vaultu', () => {
 			'nastaveni.json': {
 				supplier: SUPPLIER,
 				contacts: [CUSTOMER],
+				pricelist: [],
 			},
 			'vydaje.json': {
 				expenses: [

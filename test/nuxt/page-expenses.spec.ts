@@ -60,13 +60,18 @@ function savedExpenses(): Expense[] {
 }
 
 /** Pošle stránce událost přetažení, jak ji Chromium posílá při tažení z Finderu. */
-function drag(type: string, transfer: { types: string[]; files: File[] } | null): void {
+function drag(type: string, transfer: { types: string[]; files: File[] } | null): Event {
 	const event = new Event(type, {
 		bubbles: true,
 		cancelable: true,
 	});
-	Object.defineProperty(event, 'dataTransfer', { value: transfer });
+	const dataTransfer = transfer && {
+		...transfer,
+		items: transfer.types.map((dataType) => ({ kind: dataType === 'Files' ? 'file' : 'string' })),
+	};
+	Object.defineProperty(event, 'dataTransfer', { value: dataTransfer });
 	document.querySelector('[data-testid="expenses-footer"]')!.dispatchEvent(event);
+	return event;
 }
 
 function dropFiles(...paths: string[]): void {
@@ -510,12 +515,10 @@ describe('přetažení dokladů', () => {
 
 	it('nad stránkou dovolí soubor pustit', async () => {
 		await mount();
-		const event = new Event('dragover', {
-			bubbles: true,
-			cancelable: true,
+		const event = drag('dragover', {
+			types: ['Files'],
+			files: [],
 		});
-
-		document.querySelector('[data-testid="expenses-footer"]')!.dispatchEvent(event);
 
 		expect(event.defaultPrevented).toBe(true);
 	});

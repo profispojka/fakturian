@@ -388,24 +388,21 @@ function onValidationError(event: FormErrorEvent) {
 }
 
 async function onSubmit() {
-	// Formulář odešle tlačítko, ⌘S i Enter — zamykat se má zápis, ne jeho spouštěč.
 	if (saving.value) return;
-	// Odběratel už má původní verzi, takže přepsat odeslaný doklad musí být vědomé rozhodnutí.
-
-	if (sentAt.value) {
-		const confirmed = await getUserConfirmation(
-			`Doklad ${inv.value.number} už byl odeslaný a odběratel má u sebe původní verzi. Opravdu ho chceš upravit?`,
-			{
-				title: 'Upravit odeslaný doklad?',
-				confirmLabel: 'Upravit',
-			},
-		);
-		if (!confirmed) return;
-	}
 	saving.value = true;
-	if (!inv.value.variableSymbol) inv.value.variableSymbol = variableSymbolFor(inv.value.number);
-	status.clear();
 	try {
+		if (sentAt.value) {
+			const confirmed = await getUserConfirmation(
+				`Doklad ${inv.value.number} už byl odeslaný a odběratel má u sebe původní verzi. Opravdu ho chceš upravit?`,
+				{
+					title: 'Upravit odeslaný doklad?',
+					confirmLabel: 'Upravit',
+				},
+			);
+			if (!confirmed) return;
+		}
+		if (!inv.value.variableSymbol) inv.value.variableSymbol = variableSymbolFor(inv.value.number);
+		status.clear();
 		const wasNew = !number.value;
 		savedPath.value = await save(inv.value, wasNew);
 		// Uložený doklad už není rozepsaný a hlídka nesmí zdržet přepis adresy níž.

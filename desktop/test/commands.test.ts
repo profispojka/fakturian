@@ -656,7 +656,7 @@ describe('seznam příkazů', () => {
 				'read_data_file',
 				{
 					ok: true,
-					value: '{}',
+					value: null,
 				},
 			],
 			[

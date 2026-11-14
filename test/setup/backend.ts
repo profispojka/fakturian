@@ -482,7 +482,7 @@ const commands: Record<string, (a: Args) => unknown> = {
 		const json = folder.files.get(name);
 		folder.seen.set(name, json ?? null);
 		// Chybějící soubor je normální stav (nový vault), ne chyba.
-		if (json === undefined) return '{}';
+		if (json === undefined) return null;
 
 		let v: unknown;
 		try {

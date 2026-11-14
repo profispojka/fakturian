@@ -286,8 +286,8 @@ describe('nový výdaj a soubor výdajů', () => {
 		});
 		expect(emptyExpense().id).not.toBe(expense.id);
 	});
-	it('chybějící soubor je prázdná evidence', () => {
-		expect(expensesFileSchema.parse({})).toEqual(emptyExpenses());
+	it('chybějící seznam výdajů je neúplný soubor', () => {
+		expect(expensesFileSchema.safeParse({}).success).toBe(false);
 	});
 	it('výdaj bez dodavatele a popisu neprojde', () => {
 		const result = expensesFileSchema.safeParse({

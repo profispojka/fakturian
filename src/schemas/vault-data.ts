@@ -6,9 +6,9 @@ import { z, type Zod } from '~/utils/zod';
 // Soubory vaultu jsou textové a uživatel si do nich smí dopsat vlastní klíč. Uložená schémata jsou
 // proto `looseObject`: obyčejný `z.object` by ho při načtení ořízl a první uložení smazalo.
 export const vaultDataSchema = z.looseObject({
-	supplier: supplierStoredSchema.nullable().default(null),
-	contacts: z.array(contactStoredSchema).default([]),
-	pricelist: z.array(priceItemStoredSchema).default([]),
+	supplier: supplierStoredSchema.nullable(),
+	contacts: z.array(contactStoredSchema),
+	pricelist: z.array(priceItemStoredSchema),
 });
 
 export type VaultData = Zod.infer<typeof vaultDataSchema>;

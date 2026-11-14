@@ -90,6 +90,20 @@ describe('uložení', () => {
 		expect(savedAsNew(0)).toBe(false);
 	});
 
+	it('dvojklik na uložení odešle jen jeden požadavek', async () => {
+		const { finish } = backend.postpone('save_invoice');
+		const c = await loadedInvoice();
+		const button = c.find('[data-testid="action-save"]');
+
+		void button.trigger('click');
+		await button.trigger('click');
+		await flushPromises();
+
+		expect(backend.args('save_invoice')).toHaveLength(1);
+		finish();
+		await flushPromises();
+	});
+
 	it('druhé uložení téže faktury už není nové', async () => {
 		const c = await mountInvoice();
 		state.contacts.value.push(contact('k1'));

@@ -299,8 +299,8 @@ describe('soubor plateb', () => {
 		fioId: '26001',
 	};
 
-	it('chybějící soubor je prázdná evidence', () => {
-		expect(paymentsFileSchema.parse({})).toEqual(emptyPayments());
+	it('chybějící mapa plateb je neúplný soubor', () => {
+		expect(paymentsFileSchema.safeParse({}).success).toBe(false);
 	});
 	it('faktura bez plateb i platba z Fia projdou beze změny', () => {
 		const file = {

@@ -25,6 +25,12 @@ export function useVaultFile<T extends object>(name: string, empty: () => T, sch
 		persisted.value = empty();
 		try {
 			const json = await commands.readDataFile(vaultPath.value, name);
+			if (json === null) {
+				data.value = empty();
+				persisted.value = structuredClone(toRaw(data.value));
+				loaded.value = true;
+				return;
+			}
 			const body: unknown = JSON.parse(json);
 			const parsedBody = schema.safeParse(body);
 			if (!parsedBody.success)

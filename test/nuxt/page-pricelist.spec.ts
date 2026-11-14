@@ -543,6 +543,8 @@ describe('nepovedené načtení', () => {
 		await expect(
 			prepareVault({
 				'nastaveni.json': {
+					supplier: null,
+					contacts: [],
 					pricelist: 'rozbito',
 				},
 			}),

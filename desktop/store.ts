@@ -99,7 +99,7 @@ function revisionOf(content: Uint8Array): string {
 	return createHash('sha256').update(content).digest('hex');
 }
 
-export function readDataFile({ vaultPath, name }: { vaultPath: string; name: string }): Promise<string> {
+export function readDataFile({ vaultPath, name }: { vaultPath: string; name: string }): Promise<string | null> {
 	return exclusive(async () => {
 		checkName(name);
 		// Chybějící soubor je normální stav, chybějící kořen ne: bez toho rozdílu by odpojený disk
@@ -120,7 +120,7 @@ export function readDataFile({ vaultPath, name }: { vaultPath: string; name: str
 				throw new Error(`Soubor ${name} nejde přečíst: ${errorText(error)}`, { cause: error });
 			}
 			KNOWN.set(key, null);
-			return '{}';
+			return null;
 		}
 		const json = canonicalJson(name, text);
 		KNOWN.set(key, revisionOf(raw));

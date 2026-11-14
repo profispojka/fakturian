@@ -1,8 +1,8 @@
-import { execFile } from 'node:child_process';
 import { copyFile, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { shell } from 'electron';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DocumentKind } from '~/constants/invoice';
@@ -15,20 +15,11 @@ import { loggedLines, names } from '../support.ts';
 
 import type { Invoice } from '../../invoice/model.ts';
 
-// Skutečný nástroj běží, dokud test neřekne jinak; podvržený odpoví jako `execFile`.
-vi.mock(import('node:child_process'), async (importOriginal) => {
-	const actual = await importOriginal();
-	return {
-		...actual,
-		execFile: vi.fn<typeof actual.execFile>(actual.execFile),
-	};
-});
-
-function answer(error: Error | null, stderr: string) {
-	return (_file: string, _args: string[], respond: (error: Error | null, stdout: string, stderr: string) => void) => {
-		respond(error, '', stderr);
-	};
-}
+vi.mock('electron', () => ({
+	shell: {
+		trashItem: vi.fn(),
+	},
+}));
 
 let base = '';
 
@@ -379,7 +370,6 @@ describe('smazání dokladu', () => {
 });
 
 describe('přesun do Koše', () => {
-	// Výstup nástroje jde do logu v domovské složce, test proto nesmí psát do skutečné.
 	beforeEach(() => {
 		vi.stubEnv('HOME', base);
 	});
@@ -388,47 +378,34 @@ describe('přesun do Koše', () => {
 		vi.unstubAllEnvs();
 	});
 
-	it(
-		'chybějící soubor do Koše nejde, hláška ho jmenuje a výpis nástroje jde do logu',
-		{ timeout: 2000 },
-		async () => {
-			await expect(moveToTrash('/nonexistent-fakturian/20260001.pdf')).rejects.toThrow(
-				new Error('Doklad /nonexistent-fakturian/20260001.pdf se nepodařilo přesunout do Koše.'),
-			);
-			// Výpis nese text nástroje, pevně ho ověřuje test s podvrženým nástrojem.
-			const lines = await loggedLines(base);
-			expect(lines.length).toBe(1);
-		},
-	);
-
-	it('přesun zavolá systémový nástroj s cestou dokladu a nic nevrací', { timeout: 2000 }, async () => {
+	it('přesun zavolá Electron a nic nevrací', async () => {
 		const path = join(base, '20260001.pdf');
-		vi.mocked(execFile).mockImplementationOnce(answer(null, ''));
+		vi.mocked(shell.trashItem).mockResolvedValueOnce(undefined);
 
 		await expect(moveToTrash(path)).resolves.toBe(undefined);
 
 		expect(await loggedLines(base)).toEqual([]);
-		expect(execFile).toHaveBeenLastCalledWith('/usr/bin/trash', [path], expect.any(Function));
+		expect(shell.trashItem).toHaveBeenCalledExactlyOnceWith(path);
 	});
 
-	it('nespustitelný nástroj se ohlásí stejně jako nepovedený přesun', async () => {
+	it('odmítnutý přesun se zaloguje a vrátí českou hlášku s příčinou', async () => {
 		const path = join(base, '20260001.pdf');
-		vi.mocked(execFile).mockImplementationOnce(answer(new Error('spawn /usr/bin/trash ENOENT'), ''));
+		const cause = new Error('Unable to move item to trash');
+		vi.mocked(shell.trashItem).mockRejectedValueOnce(cause);
 
-		await expect(moveToTrash(path)).rejects.toThrow(
-			new Error(`Doklad ${path} se nepodařilo přesunout do Koše.`, {
-				cause: new Error('spawn /usr/bin/trash ENOENT'),
-			}),
+		const failure = moveToTrash(path);
+		await expect(failure).rejects.toThrow(
+			new Error(`Doklad ${path} se nepodařilo přesunout do Koše.`, { cause }),
 		);
 
 		expect(await loggedLines(base)).toEqual([
-			`Doklad ${path} se nepodařilo přesunout do Koše. spawn /usr/bin/trash ENOENT`,
+			`Doklad ${path} se nepodařilo přesunout do Koše. Unable to move item to trash`,
 		]);
 	});
 
 	it('smazání bez vlastního úklidu posílá doklad do Koše', async () => {
 		const path = await saveNumbered('20260031');
-		vi.mocked(execFile).mockImplementationOnce(answer(new Error('Command failed'), 'Koš nejde otevřít\n'));
+		vi.mocked(shell.trashItem).mockRejectedValueOnce(new Error('Koš nejde otevřít'));
 
 		await expect(
 			deleteInvoice({

@@ -48,9 +48,9 @@ Vlastní validátor v `src/utils/validators.ts` má místo jen tam, kde zod form
 
 ## Schéma na hranici
 
-- **Povinná hodnota nemá `.default()`, `.catch()` ani `.prefault()`.** Výjimka je `.default()`
-  nad celým souborem evidence — chybějící soubor vrací hlavní proces jako `{}` a prázdná evidence je
-  platný stav.
+- **Povinná hodnota nemá `.default()`, `.catch()` ani `.prefault()`.** Chybějící soubor evidence
+  vrací `read_data_file` jako `null`; prázdnou evidenci pro něj vytvoří `empty*()` v `useVaultFile`.
+  Chybějící klíč v existujícím souboru je chyba.
 - **Nepovinné je `undefined`, prázdný řetězec je vadná hodnota.** Schéma nepovinného pole je
   holé `z.email('Neplatný e-mail.').optional()`, žádné „…nebo prázdné". Prázdné pole převádí na
   `undefined` ten, kdo hodnotu přinesl: formulář přes `<UInput v-model.trim.optional>`, import

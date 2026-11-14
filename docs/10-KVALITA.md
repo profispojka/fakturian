@@ -124,12 +124,11 @@ sandbox.
 timeout. Wrapper `tools/mutation/mutants-ts.ts` navíc vyžaduje úspěšnou
 baseline a úplný report. Výstupy jsou v `reports/mutation/`.
 
-Mutační brána stojí na Vitestu 4: `vitest` a `@vitest/coverage-v8` jsou
-v `package.json` zamknuté přesně na `4.1.12`. Vitest 5 porovnává
-`testNamePattern` s celým řetězcem suite a testu spojeným `>`, zatímco
-`@stryker-mutator/vitest-runner` 10.0.0 skládá jméno mezerou; nad mutantem pak
-neběží žádný test a každý pokrytý mutant přežije, skóre padá na jednotky procent
-(stryker-js#6210). Vitest 5 se zvedne, až vyjde runner s opravou (stryker-js#6214).
+Mutační brána používá Vitest 5. `vitest` i `@vitest/coverage-v8` jsou
+v `package.json` zamknuté přesně na `5.1.0`; runner
+`@stryker-mutator/vitest-runner` podle verze Vitestu skládá názvy testů
+oddělovačem, který odpovídá jeho `testNamePattern`. Díky tomu může `perTest`
+analýza vybrat testy pro jednotlivé mutanty.
 
 Ignorované mutanty (deklarativní konstrukce zod schémat, jejichž vstupy ověřují
 přímé testy kontraktů) report vede zvlášť a do skóre se nepočítají.

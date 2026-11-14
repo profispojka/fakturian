@@ -108,14 +108,14 @@ describe('datové soubory', () => {
 		).toBe('{\n  "expenses": []\n}');
 	});
 
-	it('chybějící soubor vrátí prázdný objekt a složku nezaloží', async () => {
+	it('chybějící soubor vrátí null a složku nezaloží', async () => {
 		for (const name of DATA_FILES) {
 			expect(
 				await readDataFile({
 					vaultPath: base,
 					name,
 				}),
-			).toBe('{}');
+			).toBeNull();
 		}
 		expect(await names(base)).toEqual([]);
 
@@ -125,7 +125,7 @@ describe('datové soubory', () => {
 				vaultPath: base,
 				name: 'platby.json',
 			}),
-		).toBe('{}');
+		).toBeNull();
 	});
 
 	it('soubor se zapíše čitelně a s pořadím klíčů', async () => {
@@ -598,7 +598,7 @@ describe('konflikty zápisu', () => {
 				vaultPath: base,
 				name: 'platby.json',
 			}),
-		).toBe('{}');
+		).toBeNull();
 		expect(
 			await writeDataFile({
 				vaultPath: base,

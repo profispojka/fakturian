@@ -5,8 +5,6 @@ import { DocumentKind } from '~/constants/invoice';
 import { errorText } from '~/utils/errors';
 import { invoiceTotalCents } from '~/utils/invoice';
 
-import { invoiceWrites } from './mod.ts';
-
 import { alreadyThere, checkSource, isCreditNote, normIco, readSource, type Source } from '../import.ts';
 import { fromCents } from '../isdoc/mod.ts';
 import { asciiLower } from '../numbering.ts';
@@ -152,70 +150,68 @@ async function importOne(context: Batch, path: string, source: Source, report: I
 
 // Společné tělo importu i převzetí složky. Přesun potřebuje jedině převzetí: zdroj leží uvnitř vaultu
 // a kopie by tam nechala tentýž doklad dvakrát.
-export function batch(
+export async function batch(
 	vaultPath: string,
 	documents: { path: string; file: string }[],
 	ourIco: string | null,
 	move: boolean,
 ): Promise<ImportReport> {
-	return invoiceWrites(async () => {
-		// Kořen musí existovat: zakládat ho při importu by z odpojené složky udělalo druhý vault.
-		const root = await overVault(vaultPath);
-		const dir = join(root, 'faktury');
-		try {
-			await mkdir(dir, { recursive: true });
-		} catch (error) {
-			throw new Error(`Složku faktury/ nejde vytvořit: ${errorText(error)}`, { cause: error });
-		}
-		const numbers = await takenNumberKeys(dir);
-		const credits = await creditTargets(vaultPath);
-		const context: Batch = {
-			dir,
-			// Stryker disable next-line StringLiteral: ekvivalentní mutant, `normIco` z textu bez číslic udělá prázdné IČO.
-			ourIco: normIco(ourIco ?? ''),
-			move,
-			numbers,
-			credits,
-		};
+	// Kořen musí existovat: zakládat ho při importu by z odpojené složky udělalo druhý vault.
+	const root = await overVault(vaultPath);
+	const dir = join(root, 'faktury');
+	try {
+		await mkdir(dir, { recursive: true });
+	} catch (error) {
+		throw new Error(`Složku faktury/ nejde vytvořit: ${errorText(error)}`, { cause: error });
+	}
+	const numbers = await takenNumberKeys(dir);
+	const credits = await creditTargets(vaultPath);
+	const context: Batch = {
+		dir,
+		// Stryker disable next-line StringLiteral: ekvivalentní mutant, `normIco` z textu bez číslic udělá prázdné IČO.
+		ourIco: normIco(ourIco ?? ''),
+		move,
+		numbers,
+		credits,
+	};
 
-		// `file` je jméno, pod kterým doklad zná uživatel; `path` může být kanonická cesta k témuž souboru.
-		const reads: { path: string; file: string; read: PromiseSettledResult<Source> }[] = [];
-		for (const { path, file } of documents) {
-			const [read] = await Promise.allSettled([readSource(path)]);
-			reads.push({
-				path,
+	// `file` je jméno, pod kterým doklad zná uživatel; `path` může být kanonická cesta k témuž souboru.
+	const reads: { path: string; file: string; read: PromiseSettledResult<Source> }[] = [];
+	for (const { path, file } of documents) {
+		const [read] = await Promise.allSettled([readSource(path)]);
+		reads.push({
+			path,
+			file,
+			read,
+		});
+	}
+	// Dobropis se ověřuje proti své faktuře, a tu může přinést až tatáž dávka.
+	const creditLast = ({ read }: { read: PromiseSettledResult<Source> }) =>
+		Number(read.status === 'fulfilled' && isCreditNote(read.value));
+
+	const report: ImportReport = {
+		imported: [],
+		skipped: [],
+		customers: [],
+	};
+	for (const { path, file, read } of reads.toSorted((a, b) => creditLast(a) - creditLast(b))) {
+		if (read.status === 'rejected') {
+			report.skipped.push({
 				file,
-				read,
+				reason: errorText(read.reason),
+			});
+			continue;
+		}
+		try {
+			await importOne(context, path, read.value, report);
+		} catch (error) {
+			report.skipped.push({
+				file,
+				reason: errorText(error),
 			});
 		}
-		// Dobropis se ověřuje proti své faktuře, a tu může přinést až tatáž dávka.
-		const creditLast = ({ read }: { read: PromiseSettledResult<Source> }) =>
-			Number(read.status === 'fulfilled' && isCreditNote(read.value));
-
-		const report: ImportReport = {
-			imported: [],
-			skipped: [],
-			customers: [],
-		};
-		for (const { path, file, read } of reads.toSorted((a, b) => creditLast(a) - creditLast(b))) {
-			if (read.status === 'rejected') {
-				report.skipped.push({
-					file,
-					reason: errorText(read.reason),
-				});
-				continue;
-			}
-			try {
-				await importOne(context, path, read.value, report);
-			} catch (error) {
-				report.skipped.push({
-					file,
-					reason: errorText(error),
-				});
-			}
-		}
-		return report;
-	});
+	}
+	return report;
 }
 
 // `ourIco` z nastavení nepustí mezi vydané faktury přijatý doklad: počítal by se jako vlastní tržba

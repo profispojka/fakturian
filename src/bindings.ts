@@ -52,7 +52,7 @@ export interface CommandResults {
 	vault_logo_state: LogoState;
 	set_vault_logo: null;
 	remove_vault_logo: null;
-	read_data_file: string;
+	read_data_file: string | null;
 	write_data_file: DataFileWrite;
 	snapshots_path: string | null;
 	import_documents: ImportReport;
@@ -137,7 +137,7 @@ export const commands = {
 			source,
 		}),
 	removeVaultLogo: (vaultPath: string) => invoke('remove_vault_logo', { vaultPath }),
-	// Chybějící soubor je normální stav (nový vault), ne chyba.
+	// Chybějící soubor vrací null; neúplný existující obsah musí odmítnout schéma volajícího.
 	readDataFile: (vaultPath: string, name: string) =>
 		invoke('read_data_file', {
 			vaultPath,

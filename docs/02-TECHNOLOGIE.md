@@ -128,7 +128,8 @@ Zod tím **nekončí a končit nemá**: `load_invoice` vrací typ `Invoice`, ale
 hodnota vznikla naparsováním ISDOC z PDF, které mohlo projít rukama cizího
 softwaru — typ je slib o našem parseru, ne o těch datech. Dělba je:
 **TypeScript drží tvar, zod hodnoty.** JSON soubory ve vaultu nemají typ vůbec:
-`read_data_file` vrací holý řetězec, takže tam je zod jediná obrana.
+`read_data_file` vrací řetězec, nebo `null` pro chybějící soubor, takže tam je zod jediná obrana
+proti neúplnému existujícímu obsahu.
 
 Seznam nástrojů MCP posílá agentovi connector i se zavřenou appkou. Connector je
 hlavní proces bez okna a seznam skládá přímo z `mcpToolList()` ve
