@@ -160,7 +160,6 @@ describe('oficiální vzorky ISDOC', () => {
 		expect(invoice.supplier).toEqual({
 			name: 'ABRA Software a.s.',
 			ico: '25097563',
-			dic: 'CZ25097563',
 			address: {
 				street: 'Jeremiášova 1422',
 				city: 'Praha 13',
@@ -497,7 +496,6 @@ describe('platba a odběratel', () => {
 		expect(invoice.customer).toEqual({
 			name: '',
 			ico: '',
-			dic: '',
 			address: {
 				street: '',
 				city: '',

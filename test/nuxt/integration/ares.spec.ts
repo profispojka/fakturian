@@ -7,7 +7,6 @@ import { backend } from '../../setup/backend';
 const COMPANY = {
 	name: 'Jan Novák',
 	ico: '25596641',
-	dic: 'CZ25596641',
 	address: {
 		street: 'Dlouhá 1',
 		city: 'Praha',
@@ -19,7 +18,6 @@ const COMPANY = {
 const FOUND = {
 	name: 'Jan Novák',
 	ico: '25596641',
-	dic: 'CZ25596641',
 	address: {
 		street: 'Dlouhá 1',
 		city: 'Praha',

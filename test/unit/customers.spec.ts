@@ -28,7 +28,6 @@ describe('uložený odběratel', () => {
 		id: 'c',
 		name: 'Firma',
 		ico: '27082440',
-		dic: 'CZ27082440',
 		address: {
 			street: 'Dlouhá 1',
 			city: 'Praha',
@@ -77,12 +76,11 @@ describe('formulář odběratele', () => {
 		},
 	});
 
-	it('úplný odběratel projde i bez DIČ a bez e-mailu', () => {
+	it('úplný odběratel projde i bez e-mailu', () => {
 		expect(contactSchema.safeParse(complete()).success).toBe(true);
 		expect(
 			contactSchema.safeParse({
 				...complete(),
-				dic: 'CZ27082440',
 				email: 'fakturace@firma.cz',
 			}).success,
 		).toBe(true);
@@ -108,7 +106,6 @@ describe('formulář odběratele', () => {
 	it.each([
 		[{ name: '   ' }, ['name'], 'Povinné pole.'],
 		[{ ico: '123' }, ['ico'], 'Neplatné IČO (8 číslic).'],
-		[{ dic: 'xx' }, ['dic'], 'DIČ má tvar „CZ12345678".'],
 		[
 			{
 				address: {
@@ -145,7 +142,6 @@ describe('formulář odběratele', () => {
 		[{ email: 'x' }, ['email'], 'Neplatný e-mail.'],
 		// Formulář i import převádějí prázdné pole na `undefined`, prázdný řetězec je vadná hodnota.
 		[{ email: '' }, ['email'], 'Neplatný e-mail.'],
-		[{ dic: '' }, ['dic'], 'DIČ má tvar „CZ12345678".'],
 	])('hlásí konkrétní pole pro %j', (change, path, message) => {
 		const result = contactSchema.safeParse({
 			...complete(),

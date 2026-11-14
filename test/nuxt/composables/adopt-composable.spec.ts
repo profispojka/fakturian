@@ -233,7 +233,6 @@ describe('převzetí dokladů', () => {
 				{
 					name: 'Acme s.r.o.',
 					ico: '25596641',
-					dic: '',
 					address: {
 						street: 'Dlouhá 1',
 						city: 'Praha',
@@ -244,7 +243,6 @@ describe('převzetí dokladů', () => {
 				{
 					name: 'Studio',
 					ico: '28456785',
-					dic: '',
 					address: {
 						street: 'Krátká 2',
 						city: 'Brno',
@@ -255,7 +253,6 @@ describe('převzetí dokladů', () => {
 				{
 					name: 'Neúplný',
 					ico: '',
-					dic: '',
 					address: {
 						street: '',
 						city: '',

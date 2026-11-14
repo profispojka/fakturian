@@ -380,7 +380,6 @@ export type ImportReport = {
 export type ImportedCustomer = {
 	name: string;
 	ico: string;
-	dic: string;
 	address: Address;
 	email: string;
 };
@@ -445,7 +444,6 @@ export type InvoiceList_Serialize = {
 export type InvoiceParty = {
 	name: string;
 	ico?: string;
-	dic?: string;
 	address?: Address;
 	email?: string;
 	/**  Zápis do obchodního rejstříku nebo jiné evidence, jak ho žádá § 435 odst. 1 OZ. */

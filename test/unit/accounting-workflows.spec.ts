@@ -4,7 +4,6 @@ import { newContactsFromImport } from '~/utils/import';
 
 describe('kontakty z importu', () => {
 	const blank = {
-		dic: '',
 		address: {
 			street: '',
 			city: '',
@@ -13,7 +12,6 @@ describe('kontakty z importu', () => {
 		email: '',
 	};
 	const complete = {
-		dic: '',
 		address: {
 			street: 'Dlouhá 1',
 			city: 'Praha',
@@ -70,7 +68,6 @@ describe('kontakty z importu', () => {
 				id: contacts[0]!.id,
 				name: 'Beta',
 				ico: '28456785',
-				dic: undefined,
 				address: {
 					street: 'Dlouhá 1',
 					city: 'Praha',

@@ -38,7 +38,6 @@ beforeEach(async () => {
 const SIDE: InvoiceParty = {
 	name: 'Jan Novák',
 	ico: '12345679',
-	dic: 'CZ12345679',
 	address: {
 		street: 'Krátká 2',
 		city: 'Brno',
@@ -109,7 +108,6 @@ const PAYMENT: FioPayment = {
 const CUSTOMER_FROM_DOCUMENT: ImportedCustomer = {
 	name: 'Acme s.r.o.',
 	ico: '25596641',
-	dic: 'CZ25596641',
 	address: {
 		street: 'Dlouhá 1',
 		city: 'Praha',

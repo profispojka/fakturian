@@ -22,7 +22,6 @@ interface DemoContact {
 	id?: string;
 	name: string;
 	ico: string;
-	dic?: string;
 	address: { street: string; city: string; zip: string };
 	email?: string;
 }
@@ -82,7 +81,6 @@ const sum = (lines: DemoLine[]): number =>
 const party = (contact: DemoContact) => ({
 	name: contact.name,
 	ico: contact.ico,
-	dic: contact.dic ?? '',
 	address: {
 		...contact.address,
 	},
@@ -121,7 +119,6 @@ const emptyImport = () =>
 			id: 'c-kolma',
 			name: 'Studio Kolmá s.r.o.',
 			ico: '28471954',
-			dic: 'CZ28471954',
 			address: {
 				street: 'Sochorova 34',
 				city: 'Brno',
@@ -146,7 +143,6 @@ const emptyImport = () =>
 			id: 'c-kovoservis',
 			name: 'Kovoservis Hrubý a.s.',
 			ico: '88025144',
-			dic: 'CZ88025144',
 			address: {
 				street: 'Průmyslová 88',
 				city: 'Ostrava',

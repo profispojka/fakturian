@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { parseDate, parseIsdocDate } from '~/utils/date';
 import { isAsciiAlphaNumeric, withoutWhitespace } from '~/utils/strings';
-import { isValidBankAccount, isValidBankCode, isValidDic, isValidIco, isValidZip } from '~/utils/validators';
+import { isValidBankAccount, isValidBankCode, isValidIco, isValidZip } from '~/utils/validators';
 
 export function asciiAlphaNumeric(message: string) {
 	return z.string().refine((value) => value.length > 0 && isAsciiAlphaNumeric(value), {
@@ -86,11 +86,4 @@ export function bankCode() {
 			abort: true,
 		})
 		.refine(isValidBankCode, 'Kód banky má 4 číslice.');
-}
-
-export function dic() {
-	return z
-		.string()
-		.transform((value) => withoutWhitespace(value).toUpperCase())
-		.refine(isValidDic, 'DIČ má tvar „CZ12345678".');
 }

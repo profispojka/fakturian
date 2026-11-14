@@ -142,7 +142,6 @@ export function invoiceInVault(number: string, over: Partial<WireInvoice> = {}):
 		supplier: {
 			name: 'Já',
 			ico: '',
-			dic: '',
 			address: {
 				street: '',
 				city: '',
@@ -154,7 +153,6 @@ export function invoiceInVault(number: string, over: Partial<WireInvoice> = {}):
 		customer: {
 			name: 'Acme s.r.o.',
 			ico: '27082440',
-			dic: '',
 			address: {
 				street: 'Dlouhá 1',
 				city: 'Praha',

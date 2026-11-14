@@ -15,7 +15,6 @@ function contact(id: string, over: Partial<Contact> = {}): Contact {
 		id,
 		name: `Firma ${id}`,
 		ico: '25596641',
-		dic: 'CZ25596641',
 		address: {
 			street: 'Dlouhá 1',
 			city: 'Praha',
@@ -46,13 +45,12 @@ beforeEach(async () => {
 });
 
 describe('zakládání a úprava', () => {
-	it('DIČ a PSČ uloží bez mezer a zachová poznámku i vlastní pole adresy', async () => {
+	it('PSČ uloží bez mezer a zachová poznámku i vlastní pole adresy', async () => {
 		const original = contact('k1', { note: 'Stálý zákazník' });
 		original.preferences = { delivery: 'email' };
 		original.address.country = 'CZ';
 		await vaultWithCustomers(original);
 		const c = await mountPage('/customers/k1');
-		await c.find('[data-testid="field-dic"]').setValue('cz 255\u00a096641');
 		await c.find('[data-testid="field-address-zip"]').setValue('110\u00a000');
 		await c.find('[data-testid="action-save"]').trigger('click');
 		await vi.waitFor(() => expect(currentPath()).toBe('/customers'));
@@ -89,11 +87,10 @@ describe('zakládání a úprava', () => {
 		expect(savedCustomers()).toEqual([contact('k1', { name: 'Studio Mráz s.r.o.' })]);
 	});
 
-	it('ARES doplní název, DIČ a adresu podle zadaného IČO', async () => {
+	it('ARES doplní název a adresu podle zadaného IČO', async () => {
 		backend.ares.write({
 			name: 'Alza.cz a.s.',
 			ico: '27082440',
-			dic: 'CZ27082440',
 			address: {
 				street: 'Jankovcova 1522/53',
 				city: 'Praha',
@@ -107,7 +104,6 @@ describe('zakládání a úprava', () => {
 		await flushPromises();
 
 		expect(c.find<HTMLInputElement>('[data-testid="field-name"]').element.value).toBe('Alza.cz a.s.');
-		expect(c.find<HTMLInputElement>('[data-testid="field-dic"]').element.value).toBe('CZ27082440');
 		expect(c.find<HTMLInputElement>('[data-testid="field-address-city"]').element.value).toBe('Praha');
 	});
 
@@ -115,7 +111,6 @@ describe('zakládání a úprava', () => {
 		backend.ares.write({
 			name: 'Alza.cz a.s.',
 			ico: '27082440',
-			dic: 'CZ27082440',
 			address: {
 				street: 'Jankovcova 1522/53',
 				city: 'Praha',
@@ -141,7 +136,6 @@ describe('zakládání a úprava', () => {
 		backend.ares.write({
 			name: 'Alza.cz a.s.',
 			ico: '27082440',
-			dic: 'CZ27082440',
 			address: {
 				street: 'Jankovcova 1522/53',
 				city: 'Praha',
@@ -318,28 +312,10 @@ describe('zakládání a úprava', () => {
 		expect(currentPath()).toBe('/customers/new');
 	});
 
-	it('bez DIČ se odběratel uloží', async () => {
+	it('e-mail s mezerami okolo se uloží oříznutý', async () => {
 		const c = await mountPage('/customers/new');
 		await c.find('[data-testid="field-name"]').setValue('Petr Malý');
 		await c.find('[data-testid="field-ico"]').setValue('25596641');
-		await c.find('[data-testid="field-email"]').setValue('petr@maly.cz');
-		await c.find('[data-testid="field-address-street"]').setValue('Husova 41');
-		await c.find('[data-testid="field-address-city"]').setValue('Plzeň');
-		await c.find('[data-testid="field-address-zip"]').setValue('30100');
-
-		await c.find('[data-testid="action-save"]').trigger('click');
-		await flushPromises();
-
-		expect(savedCustomers()).toEqual([expect.objectContaining({ name: 'Petr Malý' })]);
-		expect(savedCustomers()[0]).not.toHaveProperty('dic');
-		expect(savedCustomers()[0]).not.toHaveProperty('note');
-	});
-
-	it('e-mail a DIČ s mezerami okolo se uloží oříznuté', async () => {
-		const c = await mountPage('/customers/new');
-		await c.find('[data-testid="field-name"]').setValue('Petr Malý');
-		await c.find('[data-testid="field-ico"]').setValue('25596641');
-		await c.find('[data-testid="field-dic"]').setValue(' CZ25596641 ');
 		await c.find('[data-testid="field-email"]').setValue('petr@maly.cz ');
 		await c.find('[data-testid="field-address-street"]').setValue('Husova 41');
 		await c.find('[data-testid="field-address-city"]').setValue('Plzeň');
@@ -350,52 +326,15 @@ describe('zakládání a úprava', () => {
 
 		expect(savedCustomers()).toEqual([
 			expect.objectContaining({
-				dic: 'CZ25596641',
 				email: 'petr@maly.cz',
 			}),
 		]);
-	});
-
-	it('ARES u neplátce smaže DIČ, které zbylo z dřívějška', async () => {
-		backend.ares.write({
-			name: 'Jan Novák',
-			ico: '00719331',
-			address: {
-				street: 'č.p. 120',
-				city: 'Ostrožská Lhota',
-				zip: '68723',
-			},
-		});
-		const c = await mountPage('/customers/new');
-		await c.find('[data-testid="field-dic"]').setValue('CZ25596641');
-		await c.find('[data-testid="field-ico"]').setValue('00719331');
-
-		await c.find('[data-testid="ares"]').trigger('click');
-		await flushPromises();
-
-		expect(c.find<HTMLInputElement>('[data-testid="field-dic"]').element.value).toBe('');
-		await c.find('[data-testid="action-save"]').trigger('click');
-		await flushPromises();
-		expect(savedCustomers()).toEqual([expect.objectContaining({ name: 'Jan Novák' })]);
-		expect(savedCustomers()[0]).not.toHaveProperty('dic');
-	});
-
-	it('vepsané a zase smazané DIČ odchod neblokuje', async () => {
-		const c = await mountPage('/customers/new');
-		await c.find('[data-testid="field-dic"]').setValue('C');
-		await c.find('[data-testid="field-dic"]').setValue('');
-
-		await goto('/customers');
-
-		expect(currentPath()).toBe('/customers');
-		expect(layer().find('[data-testid="dialog-confirm"]').exists()).toBe(false);
 	});
 
 	it('uloží všechna vyplněná pole, ne jen jméno', async () => {
 		const c = await mountPage('/customers/new');
 		await c.find('[data-testid="field-name"]').setValue('Acme s.r.o.');
 		await c.find('[data-testid="field-ico"]').setValue('25596641');
-		await c.find('[data-testid="field-dic"]').setValue('CZ25596641');
 		await c.find('[data-testid="field-email"]').setValue('fakturace@acme.cz');
 		await c.find('[data-testid="field-address-street"]').setValue('Dlouhá 1');
 		await c.find('[data-testid="field-address-city"]').setValue('Praha');
@@ -408,7 +347,6 @@ describe('zakládání a úprava', () => {
 		expect(savedCustomers()).toEqual([
 			expect.objectContaining({
 				name: 'Acme s.r.o.',
-				dic: 'CZ25596641',
 				email: 'fakturace@acme.cz',
 				note: 'platí po 30 dnech',
 				address: expect.objectContaining({

@@ -54,7 +54,7 @@ texty v UI a hlášky. Česky zůstávají i jména, která jsou data nebo veře
 
 - složky a soubory vaultu na disku (`faktury/`, `prijate/`, `platby.json`, `vydaje.json` …);
 - adresy a média prezentačního webu (`showcase/content/**`, `/napoveda/…`, `showcase/public/media/`);
-- doménové zkratky `ico`, `dic`, `vs`.
+- doménové zkratky `ico`, `vs`.
 
 ## Lint, typy a formát
 

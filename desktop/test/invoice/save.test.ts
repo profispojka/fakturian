@@ -67,12 +67,10 @@ function sample(): Invoice {
 		...invoice(),
 		supplier: {
 			...supplier(),
-			dic: 'CZ12345679',
 			registration: 'Fyzická osoba zapsaná v živnostenském rejstříku',
 		},
 		customer: {
 			...customer(),
-			dic: '',
 		},
 		lines: [
 			{
@@ -143,7 +141,6 @@ describe('doklad z webview', () => {
 			supplier: {
 				name: 'Jan Dodavatel',
 				ico: '',
-				dic: '',
 				address: {
 					street: '',
 					city: '',
@@ -155,7 +152,6 @@ describe('doklad z webview', () => {
 			customer: {
 				name: 'Odběratel s.r.o.',
 				ico: '',
-				dic: '',
 				address: {
 					street: '',
 					city: '',
@@ -530,7 +526,6 @@ describe('uložení a načtení', () => {
 				customer: {
 					...customer(),
 					ico: '87654321',
-					dic: 'xx',
 					address: {
 						street: 'Odběratelská 2',
 						city: 'Brno',
@@ -539,11 +534,7 @@ describe('uložení a načtení', () => {
 					email: 'kdosi',
 				},
 			}),
-		).rejects.toThrow(
-			new Error(
-				'Doklad nejde uložit (Neplatné IČO odběratele., Neplatné DIČ odběratele. a Neplatné PSČ odběratele.).',
-			),
-		);
+		).rejects.toThrow(new Error('Doklad nejde uložit (Neplatné IČO odběratele. a Neplatné PSČ odběratele.).'));
 		expect(await names(base)).toEqual([]);
 	});
 
@@ -576,19 +567,18 @@ describe('uložení a načtení', () => {
 		expect(await names(base)).toEqual([]);
 	});
 
-	it('odběratel bez DIČ a e-mailu se uloží', async () => {
+	it('odběratel bez e-mailu se uloží', async () => {
 		await saveNew({
 			...invoice(),
 			customer: {
 				...customer(),
-				dic: '',
 				email: '',
 			},
 		});
 
 		const { customer: back } = await load('20260001');
 
-		expect([back.ico, back.dic, back.email]).toEqual(['87654326', '', '']);
+		expect([back.ico, back.email]).toEqual(['87654326', '']);
 	});
 
 	it('složka jménem dokladu číslo nezabere, ale zápis nového dokladu na její místo selže', async () => {
@@ -941,23 +931,21 @@ describe('vykreslení a logo', () => {
 		]);
 	});
 
-	it('holý doklad bez poznámky, DIČ a e-mailu se načte s prázdnými poli', async () => {
+	it('holý doklad bez poznámky a e-mailu se načte s prázdnými poli', async () => {
 		await saveNew({
 			...invoice(),
 			note: '',
 			supplier: {
 				...supplier(),
-				dic: '',
 				email: '',
 			},
 			customer: {
 				...customer(),
-				dic: '',
 			},
 		});
 
 		const back = await load('20260001');
-		expect([back.note, back.supplier.dic, back.customer.dic, back.supplier.email]).toEqual(['', '', '', '']);
+		expect([back.note, back.supplier.email]).toEqual(['', '']);
 	});
 
 	it('logo z vaultu přidá do dokladu právě jeden obrázek', async () => {

@@ -12,7 +12,7 @@ import {
 } from '~/schemas/suppliers';
 import { emptyVaultData, vaultDataSchema } from '~/schemas/vault-data';
 import { czkFromCents } from '~/utils/money';
-import { isValidBankAccount, isValidBankCode, isValidDic, isValidIco, isValidZip } from '~/utils/validators';
+import { isValidBankAccount, isValidBankCode, isValidIco, isValidZip } from '~/utils/validators';
 import { z, type Zod } from '~/utils/zod';
 
 import { date } from '../setup/dates';
@@ -130,19 +130,6 @@ describe('isValidIco', () => {
 		expect(isValidIco(' 27082440')).toBe(false);
 		expect(isValidIco('270\u00a0824\u00a040')).toBe(false);
 		expect(isValidIco('2345679')).toBe(false);
-	});
-});
-
-describe('isValidDic', () => {
-	it('platné DIČ', () => {
-		expect(isValidDic('CZ27082440')).toBe(true);
-		expect(isValidDic('CZ1234567890')).toBe(true);
-		expect(isValidDic('cz27082440')).toBe(true);
-	});
-	it('neplatné DIČ', () => {
-		expect(isValidDic('27082440')).toBe(false);
-		expect(isValidDic('SK27082440')).toBe(false);
-		expect(isValidDic('CZ123')).toBe(false);
 	});
 });
 
@@ -425,7 +412,6 @@ describe('contactSchema', () => {
 		id: 'x',
 		name: 'Acme',
 		ico: '27082440',
-		dic: 'CZ27082440',
 		address: {
 			street: 'Ulice 1',
 			city: 'Praha',
@@ -448,10 +434,9 @@ describe('contactSchema', () => {
 		x.email = 'foo';
 		expect(invalidFields(contactSchema, x)).toEqual(expect.arrayContaining(['ico', 'address.zip', 'email']));
 	});
-	it('prázdné IČO a adresa se hlásí, DIČ ani e-mail chybět nevadí', () => {
+	it('prázdné IČO a adresa se hlásí, e-mail chybět nevadí', () => {
 		const x = c();
 		x.ico = '';
-		delete x.dic;
 		delete x.email;
 		x.address = {
 			street: '',
@@ -967,7 +952,7 @@ describe('roční limity ceníku', () => {
 });
 
 describe('nepovinná pole, která na vstupu vůbec nejsou', () => {
-	it('kontakt bez DIČ a e-mailu projde, bez ostatních klíčů ne', () => {
+	it('kontakt bez e-mailu projde, bez ostatních klíčů ne', () => {
 		const address = {
 			street: 'Ulice 1',
 			city: 'Praha',
@@ -1012,10 +997,9 @@ describe('nepovinná pole, která na vstupu vůbec nejsou', () => {
 		).toContain('address.zip');
 	});
 
-	it('IČO, DIČ a PSČ odběratele se na faktuře kontrolují', () => {
+	it('IČO a PSČ odběratele se na faktuře kontrolují', () => {
 		const inv = buildInvoice();
 		inv.customer.ico = '12345678';
-		inv.customer.dic = 'xx';
 		inv.customer.address.zip = '12';
 		expect(issuesOf(invoiceSchema(), inv)).toEqual([
 			{
@@ -1023,16 +1007,11 @@ describe('nepovinná pole, která na vstupu vůbec nejsou', () => {
 				message: 'Neplatné IČO odběratele.',
 			},
 			{
-				path: ['customer', 'dic'],
-				message: 'Neplatné DIČ odběratele.',
-			},
-			{
 				path: ['customer', 'address', 'zip'],
 				message: 'Neplatné PSČ odběratele.',
 			},
 		]);
 
-		inv.customer.dic = 'CZ27082440';
 		inv.customer.ico = '27082440';
 		inv.customer.address.zip = '110 00';
 		expect(invalidFields(invoiceSchema(), inv)).toEqual([]);
@@ -1047,12 +1026,11 @@ describe('nepovinná pole, která na vstupu vůbec nejsou', () => {
 		expect(invalidFields(invoiceSchema(), inv)).toContain('customer.email');
 	});
 
-	it('odběratel na faktuře musí mít IČO a adresu, DIČ ani e-mail ne', () => {
+	it('odběratel na faktuře musí mít IČO a adresu, e-mail ne', () => {
 		const inv = buildInvoice();
 		inv.customer = {
 			...inv.customer,
 			ico: ' ',
-			dic: '',
 			address: {
 				street: '',
 				city: '',
@@ -1099,8 +1077,7 @@ describe('nepovinná pole, která na vstupu vůbec nejsou', () => {
 });
 
 describe('chybějící vstup místo prázdného řetězce', () => {
-	it('chybějící DIČ a PSČ jsou neplatné, ne pád', () => {
-		expect(isValidDic(undefined)).toBe(false);
+	it('chybějící PSČ je neplatné, ne pád', () => {
 		expect(isValidZip(undefined)).toBe(false);
 	});
 });

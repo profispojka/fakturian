@@ -14,7 +14,6 @@ import type {
 export const importedCustomerSchema = z.strictObject({
 	name: z.string(),
 	ico: z.ico().or(z.literal('')),
-	dic: z.string(),
 	address: z.strictObject({
 		street: z.string(),
 		city: z.string(),

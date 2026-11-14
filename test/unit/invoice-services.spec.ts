@@ -47,7 +47,6 @@ describe('výchozí faktura', () => {
 		const blankParty = {
 			name: '',
 			ico: '',
-			dic: '',
 			address: {
 				street: '',
 				city: '',
@@ -118,7 +117,6 @@ describe('výchozí faktura', () => {
 			supplier: {
 				name: 'Dodavatel',
 				ico: '',
-				dic: '',
 				address: {
 					street: '',
 					city: '',
@@ -130,7 +128,6 @@ describe('výchozí faktura', () => {
 			customer: {
 				name: '',
 				ico: '',
-				dic: '',
 				address: {
 					street: '',
 					city: '',

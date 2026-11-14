@@ -18,7 +18,7 @@ další v řadě podle tvého formátu: nejvyšší číslo letošního roku plu
 ## Odběratel
 
 Buď ho vybereš ze seznamu, nebo zadáš jednorázově. Novou firmu si dotáhneš
-z ARESu podle IČO — doplní se název, adresa, IČO i DIČ.
+z ARESu podle IČO — doplní se název, adresa a IČO.
 
 ## Položky
 

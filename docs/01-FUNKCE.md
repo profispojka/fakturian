@@ -39,8 +39,6 @@ a editovatelné v Nastavení. Novou fakturu jimi appka předvyplní.
 
 - Jméno / název firmy, adresa (ulice, město, PSČ), IČO
 - Zápis do rejstříku nebo evidence (§ 435 OZ)
-- DIČ appka nevede: neplátce ho na faktuře uvádět nemusí (§ 29 ZDPH platí jen pro
-  daňový doklad) a u fyzické osoby v něm je rodné číslo.
 - Text **„Nejsem plátce DPH"** (povinná informace na faktuře neplátce)
 - Číslo účtu (pro platbu a QR kód)
 - Kontaktní e-mail (volitelné)
@@ -68,10 +66,10 @@ a editovatelné v Nastavení. Novou fakturu jimi appka předvyplní.
 
 - Seznam odběratelů (název, IČO, město), vyhledávání
 - **Přidat / upravit / smazat** odběratele
-- **Dotáhnout z ARES** podle IČO — vyplní název, adresu, IČO, DIČ
+- **Dotáhnout z ARES** podle IČO — vyplní název, adresu a IČO
 - Ruční zadání (když firma není v ARESu / fyzická osoba)
-- **Povinné údaje:** název, IČO, ulice, město a PSČ. DIČ jen když ho odběratel
-  má. **E-mail je nepovinný** (fakturu jde předat i papírem); když vyplněný je,
+- **Povinné údaje:** název, IČO, ulice, město a PSČ.
+  **E-mail je nepovinný** (fakturu jde předat i papírem); když vyplněný je,
   musí být platný a použije se pro odeslání faktury.
 - Neúplný odběratel se do evidence nedostane: formulář, zadání na faktuře
   i import ho odmítnou a soubor vaultu s ním spadne na kontrole při načtení.

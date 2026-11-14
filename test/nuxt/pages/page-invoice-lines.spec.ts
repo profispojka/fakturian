@@ -123,7 +123,6 @@ describe('odběratel', () => {
 		expect(layer().find(`[data-testid="customer-remember"]${CHECKBOX}`).attributes('aria-checked')).toBe('true');
 		await layer().find('[data-testid="customer-field-name"]').setValue('Pekárna Novák');
 		await layer().find('[data-testid="customer-field-ico"]').setValue('27082440');
-		await layer().find('[data-testid="customer-field-dic"]').setValue('cz 270\u00a082440');
 		await layer().find('[data-testid="customer-field-email"]').setValue('pekarna@novak.cz');
 		await layer().find('[data-testid="customer-field-street"]').setValue('Pekařská 3');
 		await layer().find('[data-testid="customer-field-city"]').setValue('Olomouc');
@@ -139,7 +138,6 @@ describe('odběratel', () => {
 				id: expect.any(String),
 				name: 'Pekárna Novák',
 				ico: '27082440',
-				dic: 'CZ27082440',
 				address: {
 					street: 'Pekařská 3',
 					city: 'Olomouc',
@@ -229,7 +227,6 @@ describe('odběratel', () => {
 			customer: {
 				name: 'Acme s.r.o.',
 				ico: '27082440',
-				dic: '',
 				address: {
 					street: 'Dlouhá 1',
 					city: 'Praha',
@@ -269,7 +266,6 @@ describe('odběratel', () => {
 		backend.ares.write({
 			name: 'Alza.cz a.s.',
 			ico: '27082440',
-			dic: 'CZ27082440',
 			address: {
 				street: 'Jankovcova 1522/53',
 				city: 'Praha',
@@ -287,7 +283,6 @@ describe('odběratel', () => {
 		expect(layer().find<HTMLInputElement>('[data-testid="customer-field-name"]').element.value).toBe(
 			'Alza.cz a.s.',
 		);
-		expect(layer().find<HTMLInputElement>('[data-testid="customer-field-dic"]').element.value).toBe('CZ27082440');
 		expect(layer().find<HTMLInputElement>('[data-testid="customer-field-street"]').element.value).toBe(
 			'Jankovcova 1522/53',
 		);
@@ -297,7 +292,6 @@ describe('odběratel', () => {
 		backend.ares.write({
 			name: 'Alza.cz a.s.',
 			ico: '27082440',
-			dic: 'CZ27082440',
 			address: {
 				street: 'Jankovcova 1522/53',
 				city: 'Praha',
@@ -327,7 +321,6 @@ describe('odběratel', () => {
 		backend.ares.write({
 			name: 'Alza.cz a.s.',
 			ico: '27082440',
-			dic: 'CZ27082440',
 			address: {
 				street: 'Jankovcova 1522/53',
 				city: 'Praha',

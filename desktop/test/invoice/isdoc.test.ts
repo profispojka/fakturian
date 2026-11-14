@@ -250,10 +250,9 @@ describe('zápis vlastního ISDOC', () => {
 		expect(xml).toBe(sample.replace(SAMPLE_CUSTOMER_REGISTRATION, ''));
 	});
 
-	it('prázdné DIČ, e-mail ani poznámku nevypíše', () => {
+	it('prázdný e-mail ani poznámku nevypíše', () => {
 		const document = sampleInvoice();
 		for (const party of [document.supplier, document.customer]) {
-			party.dic = '';
 			party.email = '';
 		}
 		document.note = '';
@@ -266,7 +265,7 @@ describe('zápis vlastního ISDOC', () => {
 			false,
 		]);
 		expect(['<PartyTaxScheme>', '<Contact>', '<Note>'].map((tag) => sample.includes(tag))).toEqual([
-			true,
+			false,
 			true,
 			true,
 		]);
@@ -428,7 +427,6 @@ describe('vlastní ISDOC proti XSD', () => {
 			...invoice(),
 			supplier: {
 				...invoice().supplier,
-				dic: '',
 				address: {
 					street: '',
 					city: '',
@@ -440,7 +438,6 @@ describe('vlastní ISDOC proti XSD', () => {
 			customer: {
 				name: '',
 				ico: '',
-				dic: '',
 				address: {
 					street: '',
 					city: '',

@@ -8,7 +8,7 @@ const ACTIVE = 'AKTIVNI';
 export function parseAres(v: unknown): AresParty {
 	const answer = aresAnswerSchema.safeParse(v);
 	if (!answer.success) throw new Error(`Odpověď z ARES má neočekávaný tvar (${issuesText(answer.error)}).`);
-	const { obchodniJmeno, ico = '', dic, sidlo = {}, seznamRegistraci = {} } = answer.data;
+	const { obchodniJmeno, ico = '', sidlo = {}, seznamRegistraci = {} } = answer.data;
 	// Firma bez názvu znamená odpověď v tvaru, který appka nezná — prázdná pole by přepsala rozepsané údaje.
 	if (!obchodniJmeno) throw new Error('ARES k tomuto IČO nevrátil název firmy, údaje doplň ručně.');
 
@@ -30,7 +30,6 @@ export function parseAres(v: unknown): AresParty {
 	return {
 		name: obchodniJmeno,
 		ico,
-		...(dic && { dic }),
 		address: {
 			street,
 			city: sidlo.nazevObce ?? '',

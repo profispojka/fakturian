@@ -69,7 +69,6 @@ class Ares {
 		this.companies.set(company.ico, {
 			obchodniJmeno: company.name,
 			ico: company.ico,
-			dic: company.dic,
 			sidlo: {
 				textovaAdresa: company.address.street,
 				nazevObce: company.address.city,
@@ -402,7 +401,6 @@ type Args = {
 const emptyParty = {
 	name: '',
 	ico: '',
-	dic: '',
 	address: {
 		street: '',
 		city: '',

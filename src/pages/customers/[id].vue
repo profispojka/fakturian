@@ -47,9 +47,6 @@ async function fillFromAres() {
 		ico: company.ico,
 		address: company.address,
 	};
-	// Neplátce DIČ nemá; to z předchozího IČO nesmí zůstat.
-	if (company.dic) next.dic = company.dic;
-	else delete next.dic;
 	contact.value = next;
 }
 
@@ -93,7 +90,6 @@ async function save(event: FormSubmitEvent<Contact>) {
 								<UFormField name="name" label="Název / jméno">
 									<UInput v-model="contact.name" data-testid="field-name" autofocus />
 								</UFormField>
-								<div class="form-grid form-grid--wide-first">
 									<UFormField name="ico" label="IČO">
 										<UInput
 											v-model.trim="contact.ico"
@@ -114,10 +110,6 @@ async function save(event: FormSubmitEvent<Contact>) {
 											</template>
 										</UInput>
 									</UFormField>
-									<UFormField name="dic" label="DIČ">
-										<UInput v-model.trim.optional="contact.dic" data-testid="field-dic" />
-									</UFormField>
-								</div>
 								<FieldError :error="aresError" data-testid="ares-error" />
 								<UFormField name="email" label="E-mail">
 									<UInput v-model.trim.optional="contact.email" data-testid="field-email" />

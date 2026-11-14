@@ -1,18 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-	digitsOnly,
-	isAsciiAlphaNumeric,
-	isAsciiDigits,
-	withoutLeadingZeros,
-	withoutWhitespace,
-} from '~/utils/strings';
+import { isAsciiAlphaNumeric, isAsciiDigits, withoutLeadingZeros, withoutWhitespace } from '~/utils/strings';
 
 describe('řetězcové kontroly', () => {
-	it('odstraní jen ASCII číslice a zachová jejich pořadí', () => {
-		expect(digitsOnly('A1٢-03')).toBe('103');
-	});
-
 	it('odstraní bílé znaky i mezi znaky', () => {
 		expect(withoutWhitespace(' 1\t2\u00a03 ')).toBe('123');
 	});

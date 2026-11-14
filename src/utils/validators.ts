@@ -1,5 +1,3 @@
-import { zeroPadded } from '~/utils/locales';
-
 const clean = (s: string | undefined) => (s ?? '').replace(/\s+/g, '');
 
 export function isValidIco(ico: string | undefined): boolean {
@@ -14,10 +12,6 @@ export function isValidIco(ico: string | undefined): boolean {
 	return check === Number(v[7]);
 }
 
-export function isValidDic(dic: string | undefined): boolean {
-	return /^CZ\d{8,10}$/.test(clean(dic).toUpperCase());
-}
-
 export function isValidZip(zip: string | undefined): boolean {
 	return /^\d{5}$/.test(clean(zip));
 }
@@ -27,7 +21,7 @@ export function isValidBankCode(code: string | undefined): boolean {
 }
 
 function weightedMod11(digits: string, weights: number[]): boolean {
-	const padded = zeroPadded(Number(digits), weights.length);
+	const padded = digits.padStart(weights.length, '0');
 	const sum = weights.reduce((s, w, i) => s + w * Number(padded[i]), 0);
 	return sum % 11 === 0;
 }
@@ -42,4 +36,3 @@ export function isValidBankAccount(acc: string | undefined): boolean {
 	if (prefix && !weightedMod11(prefix, [10, 5, 8, 4, 2, 1])) return false;
 	return weightedMod11(main, [6, 3, 7, 9, 10, 5, 8, 4, 2, 1]);
 }
-

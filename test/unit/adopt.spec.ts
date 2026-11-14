@@ -128,7 +128,6 @@ describe('čištění údajů z cizího dokladu', () => {
 		return {
 			name: 'Acme s.r.o.',
 			ico: '25596641',
-			dic: 'CZ25596641',
 			address: {
 				street: 'Dlouhá 1',
 				city: 'Praha',
@@ -146,14 +145,13 @@ describe('čištění údajů z cizího dokladu', () => {
 		expect(
 			refused({
 				ico: '123',
-				dic: 'nesmysl',
 			}),
 		).toEqual({
 			contacts: [],
 			refused: [
 				{
 					name: 'Acme s.r.o.',
-					reason: 'ico: Neplatné IČO (8 číslic). a dic: DIČ má tvar „CZ12345678".',
+					reason: 'ico: Neplatné IČO (8 číslic).',
 				},
 			],
 		});
@@ -210,7 +208,6 @@ describe('čištění údajů z cizího dokladu', () => {
 				id: contacts[0]!.id,
 				name: 'Acme s.r.o.',
 				ico: '25596641',
-				dic: 'CZ25596641',
 				address: {
 					street: 'Dlouhá 1',
 					city: 'Praha',

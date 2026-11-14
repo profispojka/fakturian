@@ -12,7 +12,6 @@ import {
 	bankAccount,
 	bankCode,
 	dateString,
-	dic,
 	ico,
 	isdocDate,
 	isdocDateOrBlank,
@@ -38,7 +37,6 @@ export const z = {
 	isdocDateOrBlank,
 	ico,
 	zip,
-	dic,
 	bankAccount,
 	bankCode,
 };

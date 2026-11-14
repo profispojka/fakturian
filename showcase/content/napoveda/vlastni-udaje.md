@@ -24,7 +24,6 @@ sama.
 
 ## Nepovinné, ale užitečné
 
-- **DIČ** — jen pokud ho máš (formát `CZ` + 8–10 číslic)
 - **E-mail**
 - **Logo** — uloží se jako `logo.png` přímo do datové složky, takže cestuje
   s daty. Nejlíp vypadá PNG s průhledným pozadím; sedí v bočním pásu dokladu.

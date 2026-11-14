@@ -352,7 +352,7 @@ describe('pole dokladu', () => {
 });
 
 describe('strany dokladu', () => {
-	it('u odesílatele ukáže IČO, adresu i e-mail, DIČ nikdy', async () => {
+	it('u odesílatele ukáže IČO, adresu i e-mail', async () => {
 		state.supplier.value = {
 			...completeSupplier(),
 			email: 'jan@novak.cz',
@@ -364,7 +364,6 @@ describe('strany dokladu', () => {
 		expect(sender).toContain('Krátká 2');
 		expect(sender).toContain('Brno 60200');
 		expect(sender).toContain('jan@novak.cz');
-		expect(sender).not.toContain('DIČ');
 	});
 
 	it('u odesílatele bez IČO a ulice ukáže aspoň město', async () => {
@@ -383,28 +382,6 @@ describe('strany dokladu', () => {
 		const sender = c.find('[data-testid="sender"]').text();
 		expect(sender).not.toContain('IČO');
 		expect(sender).toContain('Brno');
-	});
-
-	it('u převzatého dokladu ukáže DIČ, které na něm přišlo', async () => {
-		// Vlastní DIČ appka nevede, převzatý doklad si ale svoje ponechá — jinak by úprava cizí faktury
-		// tiše smazala údaj, který na ní vytiskl původní software.
-		invoiceInVault('FOREIGN-1', {
-			supplier: {
-				name: 'Cizí dodavatel',
-				ico: '12345679',
-				dic: 'CZ12345679',
-				address: {
-					street: '',
-					city: 'Brno',
-					zip: '',
-				},
-				email: '',
-				registration: '',
-			},
-		});
-		const c = await mountInvoice('FOREIGN-1');
-
-		expect(c.find('[data-testid="sender"]').text()).toContain('DIČ: CZ12345679');
 	});
 
 	it('u odesílatele s ulicí a PSČ bez města oddělí čárkou', async () => {
@@ -429,13 +406,12 @@ describe('strany dokladu', () => {
 		expect(c.find('[data-testid="sender"]').text()).toContain('Fakturační údaje zatím nejsou vyplněné');
 	});
 
-	it('u odběratele ukáže IČO, DIČ, adresu i e-mail', async () => {
+	it('u odběratele ukáže IČO, adresu i e-mail', async () => {
 		state.pendingInvoice.value = {
 			...newInvoice(completeSupplier(), '20260009'),
 			customer: {
 				name: 'Acme s.r.o.',
 				ico: '27082440',
-				dic: 'CZ27082440',
 				address: {
 					street: 'Dlouhá 1',
 					city: 'Praha',
@@ -449,19 +425,17 @@ describe('strany dokladu', () => {
 
 		const customer = c.find('[data-testid="customer-summary"]').text();
 		expect(customer).toContain('IČO: 27082440');
-		expect(customer).toContain('DIČ: CZ27082440');
 		expect(customer).toContain('Dlouhá 1');
 		expect(customer).toContain('Praha 11000');
 		expect(customer).toContain('fakturace@acme.cz');
 	});
 
-	it('u odběratele bez IČO a ulice ukáže aspoň DIČ a město', async () => {
+	it('u odběratele bez IČO a ulice ukáže aspoň město', async () => {
 		state.pendingInvoice.value = {
 			...newInvoice(completeSupplier(), '20260009'),
 			customer: {
 				name: 'Acme s.r.o.',
 				ico: '',
-				dic: 'CZ27082440',
 				address: {
 					street: '',
 					city: 'Praha',
@@ -474,7 +448,6 @@ describe('strany dokladu', () => {
 		const c = await mountInvoice();
 
 		const customer = c.find('[data-testid="customer-summary"]').text();
-		expect(customer).toContain('DIČ: CZ27082440');
 		expect(customer).toContain('Praha');
 	});
 
@@ -484,7 +457,6 @@ describe('strany dokladu', () => {
 			customer: {
 				name: 'Acme s.r.o.',
 				ico: '',
-				dic: '',
 				address: {
 					street: 'Dlouhá 1',
 					city: '',
@@ -595,7 +567,6 @@ describe('otevření existující faktury', () => {
 			supplier: {
 				name: '',
 				ico: '',
-				dic: '',
 				address: {
 					street: '',
 					city: '',

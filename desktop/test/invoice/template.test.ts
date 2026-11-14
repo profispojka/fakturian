@@ -259,23 +259,21 @@ describe('co je na papíře', () => {
 		).toEqual(expected);
 	});
 
-	it('holý doklad bez poznámky, DIČ a e-mailu nese aspoň číslo účtu', () => {
+	it('holý doklad bez poznámky a e-mailu nese aspoň číslo účtu', () => {
 		const runs = printedOn({
 			...invoice(),
 			note: '',
 			supplier: {
 				...supplier(),
-				dic: '',
 				email: '',
 			},
 			customer: {
 				...customer(),
-				dic: '',
 			},
 		});
 
 		expect(runs.filter((run) => run.includes('2000145399/0800')).length).toBe(1);
-		expect(runs.filter((run) => run.includes('IBAN') || run.includes('DIČ') || run.includes('@'))).toEqual([]);
+		expect(runs.filter((run) => run.includes('IBAN') || run.includes('@'))).toEqual([]);
 	});
 
 	it('vloží jen písma, která nese překladač, ne písma systému', () => {

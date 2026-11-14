@@ -19,7 +19,6 @@ function customer(over: Partial<ImportedCustomer> = {}) {
 	return {
 		name: 'Acme s.r.o.',
 		ico: '25596641',
-		dic: 'CZ25596641',
 		address: {
 			street: 'Dlouhá 1',
 			city: 'Praha',

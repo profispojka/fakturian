@@ -284,7 +284,7 @@ Dropbox, Git, Time Machine, USB); vlastní cloud appka nemá.
 
 - Veřejné REST API
   `https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/{ICO}`;
-  vrací název, adresu, IČO, DIČ.
+  appka z odpovědi přebírá název, adresu, IČO a zápis do rejstříku.
 - Volá ho příkaz `ares_subject` (`desktop/ares.ts`) v hlavním procesu, stav
   dotazu drží `useAres()`. Hlavní proces vrátí syrový JSON a ověří ho až
   `parseAres` ve `services/ares.ts`.
@@ -378,34 +378,34 @@ plnění appka nevede; proč, popisuje `UCT-37` v
 Editace faktury = naparsovat ISDOC z PDF → naplnit formulář → upravit →
 přegenerovat PDF. **Každé pole formuláře má své místo v ISDOC.**
 
-| Pole ve formuláři                 | ISDOC 6.0.2                                                                                                                        |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| Číslo faktury                     | `Invoice/ID`                                                                                                                       |
-| GUID dokladu                      | `UUID` — odvozené deterministicky z IČO + typu + čísla, při editaci se nemění                                                      |
-| Typ (faktura / dobropis)          | `DocumentType` (1 / opravný doklad) + reference                                                                                    |
-| Datum vystavení                   | `IssueDate`                                                                                                                        |
-| Datum splatnosti                  | `PaymentMeans/Payment/Details/PaymentDueDate`                                                                                      |
-| Dodavatel                         | `AccountingSupplierParty`                                                                                                          |
-| Zápis do rejstříku nebo evidence  | `Party/RegisterIdentification/Preformatted`                                                                                        |
-| Neplátce DPH                      | `VATApplicable=false` (text na PDF se z toho odvodí)                                                                               |
-| Odběratel (IČO/DIČ, adresa, mail) | `AccountingCustomerParty`: IČO v `PartyIdentification/ID`, DIČ v `PartyTaxScheme/CompanyID`, mail v `Contact/ElectronicMail`       |
-| Položka: popis                    | `InvoiceLine/Item/Description`                                                                                                     |
-| Položka: množství + jednotka      | `InvoicedQuantity` (+ `@unitCode`)                                                                                                 |
-| Položka: cena za jednotku         | `UnitPrice`                                                                                                                        |
-| Řádkový / celkový součet          | `LineExtensionAmount` / `LegalMonetaryTotal`                                                                                       |
-| Měna                              | `LocalCurrencyCode` — vždy `CZK`                                                                                                   |
-| Datum uskutečnění plnění          | `TaxPointDate` — **nezapisuje se** (`UCT-37`)                                                                                      |
-| Číslo účtu                        | `PaymentMeans/Payment/Details` (`ID`/`BankCode`); povinný element `IBAN` se odvodí z českého účtu, importovaná hodnota se ignoruje |
-| Variabilní symbol (= číslo)       | `PaymentMeans/.../VariableSymbol`                                                                                                  |
-| Poznámka                          | `Note`                                                                                                                             |
-| Vazba řádku na položku ceníku     | `InvoiceLine/Item/SellersItemIdentification/ID`                                                                                    |
-| Rok čerpání ročního limitu        | `InvoiceLine/Extensions/fakturian:UsageYear`                                                                                       |
-| Odesláno                          | `Extensions/fakturian:SentAt` + `fakturian:SentBy`                                                                                 |
-| QR / SPAYD                        | **není v ISDOC** — sestaví se z účtu + částky + VS                                                                                 |
-| Platby                            | **není v ISDOC** — `platby.json`                                                                                                   |
-| Vykázané množství za rok          | **není v ISDOC ani v souboru** — počítá se z řádků archivu                                                                         |
-| Předchozí verze po editaci        | týdenní PDF zálohy v `.fakturian/snapshots/faktury/`                                                                               |
-| Logo                              | **není v ISDOC** — `logo.png` ve vaultu                                                                                            |
+| Pole ve formuláři                | ISDOC 6.0.2                                                                                                                        |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Číslo faktury                    | `Invoice/ID`                                                                                                                       |
+| GUID dokladu                     | `UUID` — odvozené deterministicky z IČO + typu + čísla, při editaci se nemění                                                      |
+| Typ (faktura / dobropis)         | `DocumentType` (1 / opravný doklad) + reference                                                                                    |
+| Datum vystavení                  | `IssueDate`                                                                                                                        |
+| Datum splatnosti                 | `PaymentMeans/Payment/Details/PaymentDueDate`                                                                                      |
+| Dodavatel                        | `AccountingSupplierParty`                                                                                                          |
+| Zápis do rejstříku nebo evidence | `Party/RegisterIdentification/Preformatted`                                                                                        |
+| Neplátce DPH                     | `VATApplicable=false` (text na PDF se z toho odvodí)                                                                               |
+| Odběratel (IČO, adresa, mail)    | `AccountingCustomerParty`: IČO v `PartyIdentification/ID`, mail v `Contact/ElectronicMail`                                         |
+| Položka: popis                   | `InvoiceLine/Item/Description`                                                                                                     |
+| Položka: množství + jednotka     | `InvoicedQuantity` (+ `@unitCode`)                                                                                                 |
+| Položka: cena za jednotku        | `UnitPrice`                                                                                                                        |
+| Řádkový / celkový součet         | `LineExtensionAmount` / `LegalMonetaryTotal`                                                                                       |
+| Měna                             | `LocalCurrencyCode` — vždy `CZK`                                                                                                   |
+| Datum uskutečnění plnění         | `TaxPointDate` — **nezapisuje se** (`UCT-37`)                                                                                      |
+| Číslo účtu                       | `PaymentMeans/Payment/Details` (`ID`/`BankCode`); povinný element `IBAN` se odvodí z českého účtu, importovaná hodnota se ignoruje |
+| Variabilní symbol (= číslo)      | `PaymentMeans/.../VariableSymbol`                                                                                                  |
+| Poznámka                         | `Note`                                                                                                                             |
+| Vazba řádku na položku ceníku    | `InvoiceLine/Item/SellersItemIdentification/ID`                                                                                    |
+| Rok čerpání ročního limitu       | `InvoiceLine/Extensions/fakturian:UsageYear`                                                                                       |
+| Odesláno                         | `Extensions/fakturian:SentAt` + `fakturian:SentBy`                                                                                 |
+| QR / SPAYD                       | **není v ISDOC** — sestaví se z účtu + částky + VS                                                                                 |
+| Platby                           | **není v ISDOC** — `platby.json`                                                                                                   |
+| Vykázané množství za rok         | **není v ISDOC ani v souboru** — počítá se z řádků archivu                                                                         |
+| Předchozí verze po editaci       | týdenní PDF zálohy v `.fakturian/snapshots/faktury/`                                                                               |
+| Logo                             | **není v ISDOC** — `logo.png` ve vaultu                                                                                            |
 
 Vlastní elementy `fakturian:*` jsou ve jmenném prostoru
 `https://fakturian.app/isdoc/extensions/1`; schéma ISDOC je přijímá přes

@@ -14,7 +14,6 @@ export const SAMPLE_INVOICE: Invoice = {
 	supplier: {
 		name: 'Jan Dodavatel',
 		ico: '12345678',
-		dic: '',
 		address: {
 			street: 'Dlouhá 1',
 			city: 'Praha 1',
@@ -26,7 +25,6 @@ export const SAMPLE_INVOICE: Invoice = {
 	customer: {
 		name: 'Ukázkový odběratel s.r.o.',
 		ico: '27154893',
-		dic: 'CZ27154893',
 		address: {
 			street: 'Sokolovská 651/136a',
 			city: 'Praha 8',

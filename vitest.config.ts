@@ -21,7 +21,6 @@ export default defineConfig({
 			include: ['src/**', 'desktop/**/*.ts'],
 			exclude: [
 				'src/**/*.json',
-				'src/**/fixtures/**',
 				'desktop/test/**',
 				'desktop/examples/**',
 				'desktop/**/*.d.ts',

@@ -139,7 +139,6 @@ describe('IČO', () => {
 		backend.ares.write({
 			name: 'Acme s.r.o.',
 			ico: '12345679',
-			dic: 'CZ12345679',
 			address: {
 				street: 'Dlouhá 1',
 				city: 'Praha',
@@ -176,7 +175,6 @@ describe('IČO', () => {
 		backend.ares.write({
 			name: 'Acme s.r.o.',
 			ico: '12345679',
-			dic: 'CZ12345679',
 			address: {
 				street: 'Dlouhá 1',
 				city: 'Praha',
@@ -197,7 +195,6 @@ describe('IČO', () => {
 		backend.ares.write({
 			name: 'Acme s.r.o.',
 			ico: '12345679',
-			dic: 'CZ12345679',
 			address: {
 				street: 'Dlouhá 1',
 				city: 'Praha',
@@ -221,7 +218,6 @@ describe('IČO', () => {
 		backend.ares.write({
 			name: 'Acme s.r.o.',
 			ico: '12345679',
-			dic: 'CZ12345679',
 			address: {
 				street: 'Dlouhá 1',
 				city: 'Praha',
@@ -618,7 +614,6 @@ describe('fakturační údaje', () => {
 		backend.ares.write({
 			name: 'Acme s.r.o.',
 			ico: '12345679',
-			dic: 'CZ12345679',
 			address: {
 				street: 'Dlouhá 1',
 				city: 'Praha',
@@ -651,7 +646,6 @@ describe('fakturační údaje', () => {
 		backend.ares.write({
 			name: 'Jan Novák',
 			ico: '12345679',
-			dic: '',
 			address: {
 				street: 'Krátká 2',
 				city: 'Brno',
@@ -680,7 +674,6 @@ describe('fakturační údaje', () => {
 		backend.ares.write({
 			name: 'Jan Novák',
 			ico: '12345679',
-			dic: '',
 			address: {
 				street: 'Krátká 2',
 				city: 'Brno',
@@ -771,7 +764,6 @@ describe('fakturační údaje', () => {
 		backend.ares.write({
 			name: 'Acme s.r.o.',
 			ico: '12345679',
-			dic: '',
 			address: {
 				street: 'Dlouhá 1',
 				city: 'Praha',
@@ -837,40 +829,6 @@ describe('fakturační údaje', () => {
 
 		expect(layer().find('[data-testid="wizard-error"]').text()).toContain('nepodařilo zapsat');
 		expect(layer().text()).toContain('Tvoje fakturační údaje');
-	});
-
-	it('DIČ z ARES do dodavatele nepřevezme', async () => {
-		await folderWithoutSupplier();
-		backend.ares.write({
-			name: 'Jan Novák',
-			ico: '12345679',
-			dic: 'CZ12345679',
-			address: {
-				street: 'Krátká 2',
-				city: 'Brno',
-				zip: '60200',
-			},
-		});
-		await openWizard();
-		await layer().find('[data-testid="field-ico"]').setValue('12345679');
-		await flushPromises();
-		await layer().find('[data-testid="wizard-ico-continue"]').trigger('click');
-		await flushPromises();
-		await layer().find('[data-testid="field-bankAccount"]').setValue('2000145399');
-		await layer().find('[data-testid="field-bankCode"]').setValue('0800');
-		await flushPromises();
-
-		await layer().find('[data-testid="wizard-save"]').trigger('click');
-		await flushPromises();
-
-		expect(savedSupplier()).toEqual(
-			expect.objectContaining({
-				name: 'Jan Novák',
-				defaultDueDays: 14,
-			}),
-		);
-		expect(savedSupplier()).not.toHaveProperty('dic');
-		expect(savedSupplier()).not.toHaveProperty('iban');
 	});
 
 	it('rozepsaný dodavatel si podrží, co průvodce neukazuje', async () => {

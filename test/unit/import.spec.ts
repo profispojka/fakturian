@@ -7,7 +7,6 @@ function customer(over: Record<string, string> = {}) {
 	return {
 		name: 'Acme s.r.o.',
 		ico: '25596641',
-		dic: 'CZ25596641',
 		address: {
 			street: 'Dlouhá 1',
 			city: 'Praha',
@@ -18,15 +17,9 @@ function customer(over: Record<string, string> = {}) {
 	};
 }
 
-describe('IČO a DIČ z cizího dokladu', () => {
+describe('IČO z cizího dokladu', () => {
 	it('IČO se ukládá bez mezer', () => {
 		expect(contactFromImported(customer({ ico: '123 45 679' })).ico).toBe('12345679');
-	});
-
-	it('DIČ se ukládá bez mezer a prázdné chybí', () => {
-		const result = newContactsFromImport([], [customer({ dic: 'CZ 123 456 79' })]);
-		expect(result.contacts[0]?.dic).toBe('CZ12345679');
-		expect(contactFromImported(customer({ dic: ' ' })).dic).toBeUndefined();
 	});
 
 	it('odběratel s IČO, které neprojde mod-11, se nezaloží', () => {

@@ -43,7 +43,6 @@ interface Client {
 	id: string;
 	name: string;
 	ico: string;
-	dic: string;
 	street: string;
 	city: string;
 	zip: string;
@@ -57,8 +56,6 @@ const BANK_CODE = '2010';
 const SUPPLIER: InvoiceParty = {
 	name: 'Ukázková dílna s.r.o.',
 	ico: '27458318',
-	// Neplátce DPH DIČ na dokladu neuvádí.
-	dic: '',
 	address: {
 		street: 'Vzorová 12',
 		city: 'Praha',
@@ -72,7 +69,6 @@ const KOVO: Client = {
 	id: 'c-kovo',
 	name: 'Kovo Trade a.s.',
 	ico: '45678901',
-	dic: 'CZ45678901',
 	street: 'Průmyslová 88',
 	city: 'Ostrava',
 	zip: '70200',
@@ -82,7 +78,6 @@ const HLEDACEK: Client = {
 	id: 'c-hledacek',
 	name: 'Portál Hledáček a.s.',
 	ico: '27000001',
-	dic: 'CZ27000001',
 	street: 'Smyšlená 3294/10',
 	city: 'Praha 5',
 	zip: '15000',
@@ -92,7 +87,6 @@ const MRAZ: Client = {
 	id: 'c-mraz',
 	name: 'Studio Mráz s.r.o.',
 	ico: '28456785',
-	dic: 'CZ28456785',
 	street: 'Na příkopě 22',
 	city: 'Praha 1',
 	zip: '11000',
@@ -102,7 +96,6 @@ const SEVERNI: Client = {
 	id: 'c-nordic',
 	name: 'Severní web s.r.o.',
 	ico: '06543219',
-	dic: 'CZ06543219',
 	street: 'Veveří 44',
 	city: 'Brno',
 	zip: '60200',
@@ -112,7 +105,6 @@ const KOTVA: Client = {
 	id: 'c-kotva',
 	name: 'Bistro Kotva s.r.o.',
 	ico: '07713347',
-	dic: '',
 	street: 'Sokolská 14',
 	city: 'Brno',
 	zip: '60200',
@@ -122,7 +114,6 @@ const VLK: Client = {
 	id: 'c-vlk',
 	name: 'Doprava Vlk s.r.o.',
 	ico: '63219841',
-	dic: 'CZ63219841',
 	street: 'Nádražní 401',
 	city: 'Olomouc',
 	zip: '77900',
@@ -132,7 +123,6 @@ const NOVAKOVA: Client = {
 	id: 'c-novakova',
 	name: 'Nováková Design',
 	ico: '87654326',
-	dic: '',
 	street: 'Husova 12',
 	city: 'Brno',
 	zip: '60200',
@@ -142,7 +132,6 @@ const POLEDNIK: Client = {
 	id: 'c-meridian',
 	name: 'Poledník Digital s.r.o.',
 	ico: '09123458',
-	dic: 'CZ09123458',
 	street: 'Přístavní 12',
 	city: 'Ústí nad Labem',
 	zip: '40001',
@@ -152,7 +141,6 @@ const FITNESS: Client = {
 	id: 'c-fitness',
 	name: 'Praha Fitness Group s.r.o.',
 	ico: '24215678',
-	dic: 'CZ24215678',
 	street: 'Vinohradská 1200/40',
 	city: 'Praha 2',
 	zip: '12000',
@@ -162,7 +150,6 @@ const BENES: Client = {
 	id: 'c-benes',
 	name: 'Lukáš Beneš',
 	ico: '99887762',
-	dic: '',
 	street: 'Bezručova 7',
 	city: 'Plzeň',
 	zip: '30100',
@@ -588,7 +575,6 @@ async function saveDocument(header: Header, planned: InvoiceLine[]): Promise<Iss
 		customer: {
 			name: client.name,
 			ico: client.ico,
-			dic: client.dic,
 			address: {
 				street: client.street,
 				city: client.city,
@@ -884,7 +870,6 @@ const settings = {
 		id: client.id,
 		name: client.name,
 		ico: client.ico,
-		...(client.dic && { dic: client.dic }),
 		address: {
 			street: client.street,
 			city: client.city,

@@ -13,7 +13,6 @@ function contact(id: string, over: Partial<Contact> = {}): Contact {
 		id,
 		name: `Firma ${id}`,
 		ico: '25596641',
-		dic: 'CZ25596641',
 		address: {
 			street: 'Dlouhá 1',
 			city: 'Praha',

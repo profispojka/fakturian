@@ -45,7 +45,7 @@ test.describe('převzetí dokladů z cizího systému', () => {
 
 		await expect(page.getByTestId('field-number')).toHaveValue('2026017');
 		await expect(page.getByTestId('customer-summary')).toHaveText(
-			'Ukázková firma a.s.IČO: 31415920·DIČ: CZ31415920Modelová 7, Ostrava 70200ucetni@ukazkova-firma.example Upravit Změnit Odebrat',
+			'Ukázková firma a.s.IČO: 31415920Modelová 7, Ostrava 70200ucetni@ukazkova-firma.example Upravit Změnit Odebrat',
 		);
 		await expect(page.getByTestId('item-label')).toHaveCount(2);
 		await expect(page.getByTestId('item-label').nth(0)).toHaveValue('Front-end vývoj');

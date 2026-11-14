@@ -132,7 +132,7 @@ async function importOne(context: Batch, path: string, source: Source, report: I
 		issueDate: invoice.issueDate,
 		totalCents: invoiceTotalCents(invoice),
 	});
-	const { name, ico, dic, address, email } = invoice.customer;
+	const { name, ico, address, email } = invoice.customer;
 	const known = report.customers.some((customer) =>
 		ico === '' ? asciiLower(customer.name) === asciiLower(name) : customer.ico === ico,
 	);
@@ -140,7 +140,6 @@ async function importOne(context: Batch, path: string, source: Source, report: I
 		report.customers.push({
 			name,
 			ico,
-			dic,
 			address,
 			email,
 		});

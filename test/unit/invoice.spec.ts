@@ -516,12 +516,11 @@ describe('převod na stranu dokladu', () => {
 		s.email = undefined;
 
 		const side = supplierToParty(s);
-		expect(side.dic).toBe('');
 		expect(side.email).toBe('');
 		expect(side.name).toBe('Jan Novák');
 	});
 
-	it('odběratel bez DIČ a e-mailu dá prázdné řetězce', () => {
+	it('odběratel bez e-mailu dá prázdný řetězec', () => {
 		const side = contactToParty({
 			id: 'k1',
 			name: 'Acme',
@@ -534,7 +533,6 @@ describe('převod na stranu dokladu', () => {
 		});
 
 		expect(side.ico).toBe('27082440');
-		expect(side.dic).toBe('');
 		expect(side.email).toBe('');
 	});
 
@@ -551,7 +549,6 @@ describe('převod strany dokladu na odběratele', () => {
 	const party = {
 		name: 'Acme',
 		ico: '27082440',
-		dic: '',
 		email: '',
 		address: {
 			street: 'Dlouhá 1',
@@ -561,7 +558,7 @@ describe('převod strany dokladu na odběratele', () => {
 		registration: '',
 	};
 
-	it('prázdné DIČ a e-mail do odběratele nepřenese', () => {
+	it('prázdný e-mail do odběratele nepřenese', () => {
 		expect(partyToContact(party)).toEqual({
 			id: expect.any(String),
 			name: 'Acme',
@@ -574,18 +571,16 @@ describe('převod strany dokladu na odběratele', () => {
 		});
 	});
 
-	it('vyplněné DIČ a e-mail přenese', () => {
+	it('vyplněný e-mail přenese', () => {
 		expect(
 			partyToContact({
 				...party,
-				dic: 'CZ27082440',
 				email: 'acme@acme.cz',
 			}),
 		).toEqual({
 			id: expect.any(String),
 			name: 'Acme',
 			ico: '27082440',
-			dic: 'CZ27082440',
 			address: {
 				street: 'Dlouhá 1',
 				city: 'Praha',

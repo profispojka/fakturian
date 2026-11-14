@@ -6,7 +6,6 @@ export function supplier(): InvoiceParty {
 	return {
 		name: 'Jan Dodavatel',
 		ico: '12345679',
-		dic: '',
 		address: {
 			street: 'Dodavatelská 1',
 			city: 'Praha',
@@ -21,7 +20,6 @@ export function customer(): InvoiceParty {
 	return {
 		name: 'Odběratel s.r.o.',
 		ico: '87654326',
-		dic: 'CZ87654326',
 		address: {
 			street: 'Odběratelská 2',
 			city: 'Brno',
@@ -108,7 +106,7 @@ export function backup(): Invoice {
 	};
 }
 
-// Odběratel bez DIČ a doklad bez bankovních údajů.
+// Doklad bez bankovních údajů.
 export function minimal(): Invoice {
 	return {
 		...invoice(),
@@ -117,7 +115,6 @@ export function minimal(): Invoice {
 		customer: {
 			name: 'Petra Nováková',
 			ico: '71048294',
-			dic: '',
 			address: {
 				street: 'Horní náměstí 1',
 				city: 'Olomouc',
@@ -168,7 +165,6 @@ function party(name: string, ico: string): InvoiceParty {
 	return {
 		name,
 		ico,
-		dic: `CZ${ico}`,
 		address: {
 			street: 'Ulice 1',
 			city: 'Praha',

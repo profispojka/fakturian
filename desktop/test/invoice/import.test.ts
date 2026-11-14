@@ -149,12 +149,11 @@ describe('import vydaných dokladů', () => {
 
 		const report = await importInto([source]);
 
-		const { name, ico, dic, address, email } = customer();
+		const { name, ico, address, email } = customer();
 		expect(report.customers).toEqual([
 			{
 				name,
 				ico,
-				dic,
 				address,
 				email,
 			},

@@ -41,7 +41,6 @@ describe('parseAres', () => {
 			parseAres({
 				ico: '27082440',
 				obchodniJmeno: 'Alza.cz a.s.',
-				dic: 'CZ27082440',
 				pravniForma: '121',
 				sidlo: {
 					kodStatu: 'CZ',
@@ -57,7 +56,6 @@ describe('parseAres', () => {
 		).toEqual({
 			name: 'Alza.cz a.s.',
 			ico: '27082440',
-			dic: 'CZ27082440',
 			address: {
 				street: 'Jankovcova 1522/53',
 				city: 'Praha',
@@ -134,18 +132,6 @@ describe('parseAres', () => {
 
 	it('firma bez vedlejších údajů dá prázdná pole', () => {
 		expect(parseAres({ obchodniJmeno: 'Acme' })).toStrictEqual({
-			...EMPTY,
-			name: 'Acme',
-		});
-	});
-
-	it('prázdné DIČ z ARES vynechá', () => {
-		expect(
-			parseAres({
-				obchodniJmeno: 'Acme',
-				dic: '',
-			}),
-		).toStrictEqual({
 			...EMPTY,
 			name: 'Acme',
 		});
@@ -250,7 +236,6 @@ describe('aresServices', () => {
 		invoke.mockResolvedValue({
 			obchodniJmeno: 'Firma',
 			ico: '25596641',
-			dic: 'CZ25596641',
 			sidlo: {
 				nazevObce: 'Praha',
 				nazevUlice: 'Dlouhá',
@@ -262,7 +247,6 @@ describe('aresServices', () => {
 		expect(await aresServices.query('25596641')).toEqual({
 			name: 'Firma',
 			ico: '25596641',
-			dic: 'CZ25596641',
 			address: {
 				street: 'Dlouhá 1',
 				city: 'Praha',
@@ -289,7 +273,6 @@ describe('celá odpověď ARES ve skutečném tvaru se smyšlenými hodnotami', 
 		expect(parseAres(aresSro)).toEqual({
 			name: 'Testovací studio s.r.o.',
 			ico: '12345679',
-			dic: 'CZ12345679',
 			address: {
 				street: 'Krátká 2/4',
 				city: 'Brno',
@@ -299,7 +282,7 @@ describe('celá odpověď ARES ve skutečném tvaru se smyšlenými hodnotami', 
 		});
 	});
 
-	it('živnostník dostane větu o živnostenském rejstříku a DIČ nemá', () => {
+	it('živnostník dostane větu o živnostenském rejstříku', () => {
 		expect(parseAres(aresTradesman)).toEqual({
 			name: 'Jan Zkušební',
 			ico: '25596641',

@@ -1,4 +1,4 @@
-import { contactSchema, type Contact } from '~/schemas/customers';
+import { contactStoredSchema, type Contact } from '~/schemas/customers';
 import { emptySupplier, type Supplier } from '~/schemas/suppliers';
 import { normalizeSearchText } from '~/utils/crud';
 import { issuesText } from '~/utils/errors';
@@ -11,7 +11,6 @@ export function contactFromImported(c: ImportedCustomer): Contact {
 		id: crypto.randomUUID(),
 		name: c.name.trim(),
 		ico: c.ico,
-		dic: c.dic.trim() || undefined,
 		address: {
 			street: c.address.street.trim(),
 			city: c.address.city.trim(),
@@ -63,12 +62,8 @@ export function newContactsFromImport(existing: Contact[], imported: ImportedCus
 			return normalizeSearchText(contact.name) === normalizeSearchText(candidate.name);
 		});
 		if (known) continue;
-		const checked = contactSchema.safeParse(candidate);
-		if (checked.success)
-			contacts.push({
-				...candidate,
-				...checked.data,
-			});
+		const checked = contactStoredSchema.safeParse(candidate);
+		if (checked.success) contacts.push(checked.data);
 		else
 			refused.push({
 				name: candidate.name || 'odběratel bez jména',

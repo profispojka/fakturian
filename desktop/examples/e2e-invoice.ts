@@ -35,7 +35,6 @@ const invoice: Invoice = {
 	supplier: {
 		name: 'E2E dodavatel',
 		ico: '12345679',
-		dic: '',
 		address: {
 			street: 'Testovací 1',
 			city: 'Praha',
@@ -47,7 +46,6 @@ const invoice: Invoice = {
 	customer: {
 		name: 'E2E odběratel',
 		ico: '25596641',
-		dic: '',
 		address: {
 			street: 'Kontrolní 2',
 			city: 'Brno',

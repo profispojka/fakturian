@@ -27,7 +27,6 @@ function candidate(number: string) {
 const SUPPLIER_FROM_DOCUMENT = {
 	name: 'Jan Novák',
 	ico: '12345679',
-	dic: 'CZ8501011234',
 	address: {
 		street: 'Krátká 2',
 		city: 'Brno',
@@ -244,7 +243,6 @@ describe('převzetí', () => {
 				{
 					name: 'Alfa',
 					ico: '25596641',
-					dic: '',
 					address: {
 						street: 'Dlouhá 1',
 						city: 'Praha',
@@ -255,7 +253,6 @@ describe('převzetí', () => {
 				{
 					name: 'Beta',
 					ico: '28456785',
-					dic: '',
 					address: {
 						street: 'Krátká 2',
 						city: 'Brno',

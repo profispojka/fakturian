@@ -613,7 +613,6 @@ describe('odeslání e-mailem po uložení', () => {
 			customer: {
 				name: 'Acme s.r.o.',
 				ico: '',
-				dic: '',
 				address: {
 					street: 'Dlouhá 1',
 					city: '  ',

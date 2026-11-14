@@ -30,8 +30,8 @@ nástroje ho neplátci nenabízejí. Ověřeno 16. 9. 2026:
 
 - **iDoklad** — vydaná faktura neplátce ukazuje jen datum vystavení a splatnosti,
   vložený ISDOC `TaxPointDate` nemá. Blog iDokladu: pole nabízí plátcům DPH.
-- **Fakturoid** — nápověda „Návod, jak ve Fakturoidu nastavit DIČ a DUZP na
-  faktuře": pole se zobrazuje pouze plátcům, neplátců se netýká. Identifikovaná
+- **Fakturoid** — nápověda k datu plnění na faktuře: pole se zobrazuje pouze
+  plátcům, neplátců se netýká. Identifikovaná
   osoba ho vidí jen při fakturaci do zahraničí v režimu přenesené daně nebo OSS.
 
 Pole navíc, které nic nemění, cílového uživatele jen mate. Oba nástroje přitom
@@ -69,9 +69,9 @@ přiložit PDF. Takový výdaj se zapíše ručně bez dokladu.
 
 ### UCT-41 · Odběratel jen český
 
-`src/utils/validators.ts` (`isValidIco`, `isValidDic`),
+`src/utils/validators.ts` (`isValidIco`),
 `desktop/invoice/mod.ts` (`saveInvoice`), `desktop/invoice/isdoc.ts` (`buildIsdoc`).
-Odběratel musí mít české IČO, DIČ může být jen české a ISDOC zapisuje zemi
+Odběratel musí mít české IČO a ISDOC zapisuje zemi
 napevno CZ. Zahraničního odběratele appka vyfakturovat neumí.
 
 **Proč:** appka je pro českého neplátce DPH. Služba osobě povinné k dani v jiném

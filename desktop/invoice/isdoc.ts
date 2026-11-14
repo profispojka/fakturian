@@ -81,11 +81,6 @@ export function buildIsdoc(invoice: Invoice): string {
 		const country = add(address, 'Country');
 		add(country, 'IdentificationCode', 'CZ');
 		add(country, 'Name', 'Česko');
-		if (party.dic) {
-			const scheme = add(element, 'PartyTaxScheme');
-			add(scheme, 'CompanyID', party.dic);
-			add(scheme, 'TaxScheme', 'VAT');
-		}
 		const registration = party.registration.trim();
 		if (registration) add(add(element, 'RegisterIdentification'), 'Preformatted', registration);
 		if (party.email) add(add(element, 'Contact'), 'ElectronicMail', party.email);

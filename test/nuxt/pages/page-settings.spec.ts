@@ -687,7 +687,6 @@ describe('import z jiného softwaru', () => {
 				{
 					name: 'Alfa',
 					ico: '25596641',
-					dic: '',
 					address: {
 						street: 'Dlouhá 1',
 						city: 'Praha',
@@ -698,7 +697,6 @@ describe('import z jiného softwaru', () => {
 				{
 					name: 'Beta',
 					ico: '28456785',
-					dic: '',
 					address: {
 						street: 'Krátká 2',
 						city: 'Brno',

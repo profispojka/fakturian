@@ -55,7 +55,6 @@
       #v(0.35em)
       #opt(inv.supplier.email)[#inv.supplier.email \ ]
       IČO: #inv.supplier.ico
-      #opt(inv.supplier.dic)[\ DIČ: #inv.supplier.dic]
       #opt(inv.supplier.registration)[\ #inv.supplier.registration]
     ]
 
@@ -109,7 +108,6 @@
     #v(0.3em)
     #text(size: 9pt)[
       #opt(inv.customer.ico)[IČO: #inv.customer.ico]
-      #opt(inv.customer.dic)[#h(1em) DIČ: #inv.customer.dic]
     ]
 
     #v(1.5em)
