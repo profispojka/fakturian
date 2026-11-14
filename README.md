@@ -107,7 +107,7 @@ bun install
 | `bun run typecheck`                                                                                                          | typy appky, hlavního procesu, nástrojů a skriptů showcase                                           |
 
 Co přesně která brána měří, jaké jsou prahy a jak se čtou mutační reporty, je
-v [`docs/10-KVALITA.md`](docs/10-KVALITA.md).
+v [`docs/07-KVALITA.md`](docs/07-KVALITA.md).
 
 ## Dokumentace
 
@@ -116,11 +116,11 @@ v [`docs/10-KVALITA.md`](docs/10-KVALITA.md).
 | [`docs/01-FUNKCE.md`](docs/01-FUNKCE.md)               | co appka umí, po funkcích, a co je vědomě mimo rozsah |
 | [`docs/02-TECHNOLOGIE.md`](docs/02-TECHNOLOGIE.md)     | zvolený stack, hranice s vnějškem, formát dat a proč  |
 | [`docs/03-DESIGN.md`](docs/03-DESIGN.md)               | vzhled, rozvržení, zkratky a chování UI               |
-| [`docs/05-BACKLOG.md`](docs/05-BACKLOG.md)             | co zbývá udělat — vady, dluhy a nápady po oblastech   |
-| [`docs/06-MCP.md`](docs/06-MCP.md)                     | MCP server nad vaultem                                |
-| [`docs/07-PRAVO.md`](docs/07-PRAVO.md)                 | právní opora účetních pravidel                        |
-| [`docs/09-ISDOC-MODEL.md`](docs/09-ISDOC-MODEL.md)     | model dokladu a ISDOC                                 |
-| [`docs/10-KVALITA.md`](docs/10-KVALITA.md)             | model kvality — pravidla testů, brány, prahy, vydání  |
-| [`docs/13-ZNAME-OMEZENI.md`](docs/13-ZNAME-OMEZENI.md) | vědomě přijaté kompromisy a co se záměrně nemění      |
+| [`docs/04-MCP.md`](docs/04-MCP.md)                     | MCP server nad vaultem                                |
+| [`docs/05-PRAVO.md`](docs/05-PRAVO.md)                 | právní opora účetních pravidel                        |
+| [`docs/06-ISDOC-MODEL.md`](docs/06-ISDOC-MODEL.md)     | model dokladu a ISDOC                                 |
+| [`docs/07-KVALITA.md`](docs/07-KVALITA.md)             | model kvality — pravidla testů, brány, prahy, vydání  |
+| [`docs/08-ZNAME-OMEZENI.md`](docs/08-ZNAME-OMEZENI.md) | vědomě přijaté kompromisy a co se záměrně nemění      |
+| [`docs/09-BACKLOG.md`](docs/09-BACKLOG.md)             | co zbývá udělat — vady, dluhy a nápady po oblastech   |
 
 Pravidla pro psaní kódu a testů jsou v [`AGENTS.md`](AGENTS.md).

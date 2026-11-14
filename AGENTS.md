@@ -10,9 +10,9 @@ se jménem pravidla a důvodem. Postupy pro konkrétní práci jsou ve skillech 
 | `test-ids`     | hledání prvků v testu a `data-testid` v šabloně                    |
 | `styly`        | `class`, `<style>` blok, `main.css`, `app.config.ts`               |
 
-Model kvality (pokrytí, mutace, E2E) popisuje `docs/10-KVALITA.md`, úkoly vede
-`docs/05-BACKLOG.md`. Nálezy, o kterých je rozhodnuto, že se neřeší, vede sekce „Rozhodnuto
-neřešit" v `docs/13-ZNAME-OMEZENI.md` — při revizi kódu ji přečti dřív, než něco nahlásíš, a co
+Model kvality (pokrytí, mutace, E2E) popisuje `docs/07-KVALITA.md`, úkoly vede
+`docs/09-BACKLOG.md`. Nálezy, o kterých je rozhodnuto, že se neřeší, vede sekce „Rozhodnuto
+neřešit" v `docs/08-ZNAME-OMEZENI.md` — při revizi kódu ji přečti dřív, než něco nahlásíš, a co
 v ní stojí, znovu nezakládej bez nového scénáře, který uživatele poškodí.
 
 ## Dovnitř jen kvalitní data
@@ -36,7 +36,7 @@ ARES, argumenty od agenta přes MCP a formuláře.
   `?? []` nad povinnou hodnotou). Obranná větev uvnitř znamená, že kontrola na hranici chybí —
   patří tam.
 - Ruční zadání bez dokladu je platný vstup, pokud ho validuje formulář. Neplatí to jako výmluva pro
-  doklad, ze kterého nejde přečíst povinný údaj (`UCT-38` v `docs/13-ZNAME-OMEZENI.md`).
+  doklad, ze kterého nejde přečíst povinný údaj (`UCT-38` v `docs/08-ZNAME-OMEZENI.md`).
 
 ## Žádné migrace dat
 
@@ -146,7 +146,7 @@ a banery hlídá `fakturian/comment-style`.
 „bývalo to ve službě". Důvod opřený o minulost jde vždycky přepsat na tvrzení o současnosti
 („Selhání se zaloguje a vrátí nenulový kód, ne panika"). „Dřív" ve smyslu pořadí kroků je
 v pořádku, stejně jako zákaz do budoucna („`test/setup/ui-stubs.ts` se nemá vracet"). Platí to
-i na `docs/05-BACKLOG.md`: položka popisuje, co je v kódu teď, vyřešená se maže.
+i na `docs/09-BACKLOG.md`: položka popisuje, co je v kódu teď, vyřešená se maže.
 
 ## Kde co bydlí
 
@@ -203,7 +203,7 @@ by jinak otevřel cizí doklad.
 
 ## Testy
 
-Postup je ve skillech `vue-testy` a `test-ids`, celý model v `docs/10-KVALITA.md`. Vždy:
+Postup je ve skillech `vue-testy` a `test-ids`, celý model v `docs/07-KVALITA.md`. Vždy:
 
 - Vue vrstva se testuje proti skutečnému Nuxt UI, routeru a potvrzovacímu dialogu — žádné stuby.
 - **Vitest testy se netypují a jejich matchery se nezakazují** (rozhodnutí z 17. 10. 2026).
@@ -223,7 +223,7 @@ Postup je ve skillech `vue-testy` a `test-ids`, celý model v `docs/10-KVALITA.m
 Prezentační web ve `showcase/` je marketing, ne appka. Laťka výše (hranice dat, lint bez výjimek,
 100 % pokrytí, mutace, kontrakty) platí pro appku, frontend i hlavní proces. Showcase stačí, že
 se postaví a stránky vypadají správně; testy, typecheck ani přísnější lint se mu nepřidávají a jeho
-nedostatky nejdou do `docs/05-BACKLOG.md`.
+nedostatky nejdou do `docs/09-BACKLOG.md`.
 
 ## Prostředí
 
@@ -256,6 +256,7 @@ copyrighty přímých i tranzitivních balíčků dodávaných v aplikaci, včet
 zabalených z `devDependencies` do frontendu a hlavního procesu. Aktualizuj
 `THIRD-PARTY-NOTICES.txt` podle požadavků jejich licencí; ověř i případné
 `NOTICE` soubory a nativní závislosti. Build soupis automaticky nekontroluje.
+Zranitelnosti závislostí ověř příkazem `bun audit --audit-level=low`.
 
 Pracuje se přímo v této složce na aktuální větvi. Worktree jen na výslovné vyžádání. V hlavním
 repozitáři se do gitu nezapisuje (`add`, `commit`, `checkout`, `push` …) — hlídají to `deny`

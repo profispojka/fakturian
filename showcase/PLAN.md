@@ -97,5 +97,5 @@ obnova, ceník s limity, Fio, MCP, řešení potíží, klávesové zkratky.
 - žádné počty uživatelů, recenze, loga zákazníků,
 - žádný slib termínu vydání,
 - žádné „nejlepší" a „revoluční",
-- žádná funkce z oblasti `NAPAD` v `docs/05-BACKLOG.md`, která není hotová
+- žádná funkce z oblasti `NAPAD` v `docs/09-BACKLOG.md`, která není hotová
   (Windows, Toggl, další banky).

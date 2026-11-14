@@ -1,7 +1,7 @@
 # Fakturian — právní opora
 
 Podklad pro účetní a daňová pravidla appky a pro položky `UCT` v
-[05-BACKLOG](05-BACKLOG.md) a [13-ZNAME-OMEZENI](13-ZNAME-OMEZENI.md). Ověřeno
+[09-BACKLOG](09-BACKLOG.md) a [08-ZNAME-OMEZENI](08-ZNAME-OMEZENI.md). Ověřeno
 proti úplným zněním předpisů (ZDP účinný 1. 8.–31. 12. 2026, ZDPH od 1. 1. 2026,
 ZoÚ ve znění novely č. 316/2025 Sb.), materiálům Finanční správy, Pokynu GFŘ
 D-59 a specifikacím ČBA a ISDOC.

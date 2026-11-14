@@ -3,7 +3,7 @@
 Nálezy z revizí, které **nejsou vadou** ani úkolem k opravě — jsou to vědomě
 přijaté kompromisy nebo přímé důsledky architektury. Zapsané, aby v budoucí
 revizi znovu nepůsobily jako překvapení a nikdo se je nepokoušel „opravit".
-Co skutečně čeká na opravu, je v [05-BACKLOG](05-BACKLOG.md).
+Co skutečně čeká na opravu, je v [09-BACKLOG](09-BACKLOG.md).
 
 ## Jak se s tímhle souborem pracuje
 
@@ -115,7 +115,7 @@ Položka nese ID, pod kterým stála v backlogu, i když tam zbytek téhož ID
 zůstává.
 
 **Revize je nemá zakládat znovu.** Nález z tohoto seznamu se do
-[05-BACKLOG](05-BACKLOG.md) vrací jen s novým scénářem, ve kterém uživatel
+[09-BACKLOG](09-BACKLOG.md) vrací jen s novým scénářem, ve kterém uživatel
 přijde o data, dostane špatný doklad nebo číslo, nebo ho appka viditelně zdrží —
 a ten scénář musí jít dohledat v kódu. „Je to duplicitní", „šlo by to
 jednodušší" a „není to konzistentní" novým scénářem není.

@@ -56,6 +56,8 @@ export async function createNuxtProject() {
 				},
 			},
 			include: ['test/nuxt/**/*.spec.ts'],
+			// Virtuální vstup Nuxtu se z cache načte jako `/node_modules/...`; relativní importy pak nedohledá.
+			fsModuleCache: false,
 			globalSetup: ['./test/setup/timezone.ts'],
 			restoreMocks: true,
 			/**

@@ -221,7 +221,7 @@ Dropbox, Git, Time Machine, USB); vlastní cloud appka nemá.
       tamtéž a sdílejí číselnou řadu; typ se rozliší v ISDOC.
     - `prijate/` — **přijaté doklady** od subdodavatelů, uložené tak, jak přišly.
       `import_received` přijme jen PDF s čitelným ISDOC a částkou
-      `TaxInclusiveAmount` (`UCT-38` v [13-ZNAME-OMEZENI](13-ZNAME-OMEZENI.md)).
+      `TaxInclusiveAmount` (`UCT-38` v [08-ZNAME-OMEZENI](08-ZNAME-OMEZENI.md)).
       `list_broken_received` najde soubory, které tam přesto leží, a Přehled je
       ukáže spolu s vadnými fakturami z `list_invoices`.
     - `.fakturian/` — **skrytá** složka se vším, co zapisuje appka.
@@ -334,7 +334,7 @@ tím, co z odpovědi hlavní proces vrací:
 
 **Faktura se ukládá jako PDF/A-3 s vloženým ISDOC XML** — princip jako
 Factur-X/ZUGFeRD, jen s českým ISDOC. Model dokladu a jeho vrstvy popisuje
-[09-ISDOC-MODEL](09-ISDOC-MODEL.md).
+[06-ISDOC-MODEL](06-ISDOC-MODEL.md).
 
 - **Vizuál** sází typst přes nativní překladač
   `@myriaddreamin/typst-ts-node-compiler` (`desktop/pdf.ts`) z šablony pro A4.
@@ -371,7 +371,7 @@ a dobropisu počítá `settlementOf` nad `ledgerOf`.
 Karta na Přehledu sčítá obrat za kalendářní rok podle **data vystavení**
 a počítá i loňský rok (`vatLimit` v `utils/dashboard.ts`). Datum zdanitelného
 plnění appka nevede; proč, popisuje `UCT-37` v
-[13-ZNAME-OMEZENI](13-ZNAME-OMEZENI.md).
+[08-ZNAME-OMEZENI](08-ZNAME-OMEZENI.md).
 
 ### ISDOC — mapování polí
 
@@ -444,7 +444,7 @@ Connector (`desktop/mcp/connector.ts`) je tatáž appka spuštěná s `--mcp`
 `desktop/mcp/mod.ts`; v okně zprávy přijímá `useMcp.ts`, které zjistí i cesty
 pro stránku Integrace (`useMcpPaths`), a nástroje vykoná `useMcpTools.ts` nad
 schématy v `schemas/mcp.ts`. Zapisovatelem vaultu zůstává jen appka. Cestu
-volání a zabezpečení popisuje [06-MCP](06-MCP.md).
+volání a zabezpečení popisuje [04-MCP](04-MCP.md).
 
 ---
 
@@ -511,7 +511,7 @@ fakturian/
   v `desktop/` potřebuje nový start. `bun run dev:web` je jen dev server Nuxtu;
   stránka v prohlížeči nemá `window.fakturian`, takže jí nefunguje ani načtení
   dat (`utils/desktop.ts` to uživateli řekne).
-- Kontrola před commitem: `bun run check`, popsaná v [10-KVALITA](10-KVALITA.md).
+- Kontrola před commitem: `bun run check`, popsaná v [07-KVALITA](07-KVALITA.md).
 
 ### Externí validátory
 

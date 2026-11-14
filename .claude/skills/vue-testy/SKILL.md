@@ -6,7 +6,7 @@ description: Jak se ve Fakturianu testuje Vue vrstva — skutečný Nuxt runtime
 # Testy Vue vrstvy
 
 Hledání prvků a `data-testid` popisuje skill `test-ids`. Celý model kvality je v
-`docs/10-KVALITA.md`.
+`docs/07-KVALITA.md`.
 
 ## Jak je to poskládané
 

@@ -6,7 +6,7 @@ import { saveInvoice } from '../invoice/mod.ts';
 
 import type { Invoice } from '../invoice/model.ts';
 
-// Údaje musí sedět s `e2e/fixtures/vault/.fakturian/nastaveni.json`: specy hledají odběratele
+// Údaje musí sedět s `test/e2e/fixtures/vault/.fakturian/nastaveni.json`: specy hledají odběratele
 // i dodavatele podle jména a appka číslo řady odvozuje z formátu v nastavení.
 
 const USAGE = 'Použití: node desktop/examples/run.ts e2e-invoice <vault> <RRRR-MM-DD>';

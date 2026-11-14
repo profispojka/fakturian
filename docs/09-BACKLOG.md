@@ -4,9 +4,9 @@ Jediný seznam toho, co **zbývá udělat**: otevřené vady, chybějící testy
 v nástrojích a architektuře a nápady mimo současný rozsah. Nic jiného sem
 nepatří — co appka umí, je v [01-FUNKCE](01-FUNKCE.md); jak je postavená,
 v [02-TECHNOLOGIE](02-TECHNOLOGIE.md); model kvality a vydávací brány
-v [10-KVALITA](10-KVALITA.md); vědomě přijaté kompromisy, co se záměrně nemění
+v [07-KVALITA](07-KVALITA.md); vědomě přijaté kompromisy, co se záměrně nemění
 a nálezy, o kterých je rozhodnuto, že se neřeší, v
-[13-ZNAME-OMEZENI](13-ZNAME-OMEZENI.md); zamítnuté funkce v sekci „Mimo rozsah"
+[08-ZNAME-OMEZENI](08-ZNAME-OMEZENI.md); zamítnuté funkce v sekci „Mimo rozsah"
 v [01-FUNKCE](01-FUNKCE.md).
 
 Vyřešená položka se smaže, nepřeškrtává; důkazem opravy je kód a jeho test.
@@ -20,7 +20,7 @@ Závažnost je **BLOKUJE** (bez opravy se nesmí vydat), **VYSOKÁ** (špatný
 výsledek bez upozornění), **STŘEDNÍ** (viditelná vada nebo obejitelná ochrana)
 nebo **NÍZKÁ** (drobnost). Úklid kódu, duplicity, styl a „šlo by to
 jednodušší" sem nepatří. Před přidáním nálezu zkontroluj „Rozhodnuto neřešit"
-v [13-ZNAME-OMEZENI](13-ZNAME-OMEZENI.md); položku odtud nezakládej znovu bez
+v [08-ZNAME-OMEZENI](08-ZNAME-OMEZENI.md); položku odtud nezakládej znovu bez
 nového scénáře.
 
 Položky níže na sobě nezávisí.
@@ -31,7 +31,7 @@ Položky níže na sobě nezávisí.
   `desktop/test/pdfa.test.ts` do dočasné složky, kterou po sobě smaže. Vzorky
   uložit, importovat do Pohody nebo Money S3 a ověřit číslo, částku, odběratele,
   příznak neplátce a vazbu dobropisu. Program, verzi a výsledek zapsat do
-  [10-KVALITA](10-KVALITA.md) k vydávacím branám.
+  [07-KVALITA](07-KVALITA.md) k vydávacím branám.
 - **UCT-36 · Otázky pro účetního — NÍZKÁ.**
   - `crossingDay` a `stageOf` (`src/utils/dashboard.ts`): dobropis stáhne roční
     součet pod 2 536 500 Kč, hranice ale v průběhu roku padla — karta hlásí

@@ -121,7 +121,7 @@ a editovatelné v Nastavení. Novou fakturu jimi appka předvyplní.
 - Datum vystavení a datum splatnosti (předvyplní se podle výchozí splatnosti).
   U nové faktury se splatnost posouvá s datem vystavení, dokud ji uživatel
   nenastaví sám; u vystavené se nemění.
-- **Datum plnění appka nevede** (`UCT-37` v [13-ZNAME-OMEZENI](13-ZNAME-OMEZENI.md)).
+- **Datum plnění appka nevede** (`UCT-37` v [08-ZNAME-OMEZENI](08-ZNAME-OMEZENI.md)).
   Rok čerpání limitu ceníku se nastavuje zvlášť u hlídaného řádku (sekce 5).
 - Položky (sekce 4) a automaticky počítaná celková částka
 - **Měna je vždy CZK**, faktura je česky.
@@ -207,7 +207,7 @@ daňovou evidenci nenahrazují.
   originál se uloží do `prijate/` tak, jak přišel
     - **Jen čitelný doklad** s ISDOC a všemi povinnými údaji; ostatní import
       odmítne a nic nezkopíruje (`UCT-38` v
-      [13-ZNAME-OMEZENI](13-ZNAME-OMEZENI.md))
+      [08-ZNAME-OMEZENI](08-ZNAME-OMEZENI.md))
     - **Týž doklad podruhé:** bajt po bajtu stejné PDF, které už v `prijate/`
       leží, import odmítne. Doklad, který se s některým výdajem shoduje UUID
       z ISDOC nebo dodavatelem s číslem dokladu, se odmítne jako už zapsaný.
@@ -410,7 +410,7 @@ lepší používat v jednu chvíli z jednoho stroje.
 
 Fakturian vystavuje **MCP server**: AI agent umí číst faktury, odběratele,
 výdaje a ceník a vystavit fakturu, kterou potvrdíš v okně appky.
-Funguje jen s otevřeným Fakturianem. Podrobnosti v [06-MCP](06-MCP.md).
+Funguje jen s otevřeným Fakturianem. Podrobnosti v [04-MCP](04-MCP.md).
 
 ---
 

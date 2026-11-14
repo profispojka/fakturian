@@ -3,7 +3,7 @@
 Jediný popis toho, jak se ve Fakturianu ověřuje kvalita: pravidla testů, brány,
 prahy a co se před vydáním musí doložit. [AGENTS.md](../AGENTS.md) z něj drží
 jen krátká pravidla s odkazem sem. Chybějící testy a otevřenou práci na
-bránách vede [05-BACKLOG](05-BACKLOG.md) v oblastech `TEST` a `NAST`.
+bránách vede [09-BACKLOG](09-BACKLOG.md) v oblastech `TEST` a `NAST`.
 
 ## Proč 100 % pokrytí nestačí
 
@@ -56,7 +56,7 @@ v `package.json`. Každý krok musí projít, jinak řetěz skončí.
 | `bun run test -- --coverage` | Vitest projekty `unit`, `nuxt` a `desktop` a 100% prahy pro každý zahrnutý soubor                                                                               |
 | `generate`                   | statický Nuxt build                                                                                                                                             |
 | `desktop:build`              | esbuild hlavního procesu, validátoru ISDOC a preloadu do `.output/desktop/`                                                                                     |
-| `audit:js`                   | advisories JS závislostí                                                                                                                                        |
+| `bun audit --audit-level=low` | advisories JS závislostí                                                                                                                                       |
 
 Vitest používá `tools/testing/required-tests-reporter.ts`. Prázdná nebo
 přeskočená sada, skip/todo, neúspěšný hook, neošetřená chyba i úspěch až po
@@ -228,11 +228,11 @@ i `xmllint-wasm` a že vznikly DMG a ZIP. Tutéž `Fakturian.app`
 pak spustí přes `bun run test:release-smoke -- --prebuilt` a jeho hlášení
 (`.output-release-smoke/`) nahraje k artefaktům.
 
-`bun run test:release-smoke` (`tools/e2e/release-smoke.ts`) spustí
+`bun run test:release-smoke` (`test/smoke/release-smoke.ts`) spustí
 `Fakturian.app` z `.output/release/` v dočasném domově, počká na socket MCP
 a přes connector zavolá `list_invoices`. Bez `--prebuilt` si nepodepsaný balíček
 nejdřív sám postaví; tak se pouští ručně na macOS. Podpis balíčku neověřuje
-(`NAST-1` v [05-BACKLOG](05-BACKLOG.md)).
+(`NAST-1` v [09-BACKLOG](09-BACKLOG.md)).
 
 ## Co musí zůstat pravdou
 
