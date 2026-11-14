@@ -1,15 +1,14 @@
 const clean = (s: string | undefined) => (s ?? '').replace(/\s+/g, '');
 
-export function isValidIco(ico: string | undefined): boolean {
-	const v = clean(ico);
-	if (!/^\d{8}$/.test(v)) return false;
+export function isValidIco(ico = ''): boolean {
+	if (ico.length !== 8 || /\D/.test(ico)) return false;
 	const weights = [8, 7, 6, 5, 4, 3, 2];
-	const sum = weights.reduce((s, w, i) => s + w * Number(v[i]), 0);
+	const sum = weights.reduce((s, w, i) => s + w * Number(ico[i]), 0);
 	const mod = sum % 11;
 	let check = 11 - mod;
 	if (mod === 0) check = 1;
 	if (mod === 1) check = 0;
-	return check === Number(v[7]);
+	return check === Number(ico[7]);
 }
 
 export function isValidZip(zip: string | undefined): boolean {

@@ -239,9 +239,17 @@ describe('datum na hranici', () => {
 });
 
 describe('sdílené formáty', () => {
+	it.each(['270 82 440', ' 270\u00a082440\t', '27082440\n'])('IČO %s normalizuje před kontrolou', (ico) => {
+		expect(z.ico().safeParse(ico)).toEqual({
+			success: true,
+			data: '27082440',
+		});
+	});
 	it.each([
 		[z.ico(), '12345678', 'Neplatné IČO (8 číslic).'],
+		[z.ico(), '', 'Povinné pole.'],
 		[z.ico(), '  ', 'Povinné pole.'],
+		[z.ico(), '２７０８２４４０', 'Neplatné IČO (8 číslic).'],
 		[z.zip(), '123', 'PSČ má 5 číslic.'],
 		[z.zip(), '', 'Povinné pole.'],
 	])('%# pojmenuje vadnou hodnotu jedinou hláškou', (schema, value, message) => {
@@ -375,10 +383,25 @@ describe('supplierSchema', () => {
 		const s = goodSupplier();
 		s.ico = ico;
 
-		expect(supplierSchema.parse(s).ico).toBe('27082440');
+		const result = supplierSchema.safeParse(s);
+		expect(result).toMatchObject({
+			success: true,
+			data: {
+				ico: '27082440',
+			},
+		});
 	});
-	it('uložené IČO s mezerami odmítne místo tiché normalizace', () => {
-		expect(invalidFields(supplierStoredSchema, { ...goodSupplier(), ico: '270 82 440' })).toEqual(['ico']);
+	it('uložené IČO normalizuje společným schématem', () => {
+		const result = supplierStoredSchema.safeParse({
+			...goodSupplier(),
+			ico: '270 82 440',
+		});
+		expect(result).toMatchObject({
+			success: true,
+			data: {
+				ico: '27082440',
+			},
+		});
 	});
 	it('odmítne uloženého dodavatele s již nepodporovaným polem', () => {
 		expect(
@@ -427,6 +450,18 @@ describe('contactSchema', () => {
 	});
 	it('platný kontakt', () => {
 		expect(invalidFields(contactSchema, c())).toEqual([]);
+	});
+	it('IČO odběratele normalizuje společným schématem', () => {
+		const result = contactSchema.safeParse({
+			...c(),
+			ico: ' 270\u00a082440\t',
+		});
+		expect(result).toMatchObject({
+			success: true,
+			data: {
+				ico: '27082440',
+			},
+		});
 	});
 	it('chybějící jméno', () => {
 		const x = c();

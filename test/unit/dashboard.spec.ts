@@ -462,7 +462,11 @@ describe('vatLimit', () => {
 	it.each([false, true])('doklady stejného dne vyhodnotí společně, obrácené pořadí %s', (reverse) => {
 		const sameDay = [
 			sum('1', '2026-01-01', '2026-01-15', 2_600_000),
-			{ ...sum('2', '2026-01-01', '2026-01-01', -700_000), documentType: 2 as const, originalInvoice: '1' },
+			{
+				...sum('2', '2026-01-01', '2026-01-01', -700_000),
+				documentType: 2 as const,
+				originalInvoice: '1',
+			},
 		];
 		const items = reverse ? sameDay.toReversed() : sameDay;
 		const beforeCrossing = vatLimit(items, today);

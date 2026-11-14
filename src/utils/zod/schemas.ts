@@ -47,7 +47,8 @@ export function isdocDateOrBlank() {
 export function ico() {
 	return z
 		.string()
-		.refine((value) => value.trim() !== '', {
+		.overwrite((value) => value.replace(/\s+/g, ''))
+		.min(1, {
 			error: 'Povinné pole.',
 			abort: true,
 		})

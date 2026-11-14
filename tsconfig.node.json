@@ -26,6 +26,7 @@
 		"eslint.config.ts",
 		"stryker.config.ts",
 		"test/smoke/**/*.ts",
+		"scripts/**/*.ts",
 		"tools/**/*.ts"
 	]
 }

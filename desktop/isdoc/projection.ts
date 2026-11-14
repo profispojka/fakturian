@@ -1,6 +1,7 @@
 import { DocumentKind, type DocumentType } from '~/constants/invoice';
 import { errorText } from '~/utils/errors';
 import { lineCents } from '~/utils/money';
+import { isValidIco } from '~/utils/validators';
 
 import { amountCents, child, children, decimal, ISSUING_SYSTEM, lineUsageYear, text, toCents } from './mod.ts';
 
@@ -25,14 +26,15 @@ function documentKind(type: number): DocumentType {
 	throw new Error(`doklad typu ${type} (${UNSUPPORTED_KINDS[type]}) appka neumí — do vydaných faktur nepatří`);
 }
 
-function party(element: Element | undefined): InvoiceParty {
+function party(element: Element | undefined, role: string): InvoiceParty {
 	const address = child(element, 'PostalAddress');
 	const register = child(element, 'RegisterIdentification');
 	const record = [text(register, 'RegisterKeptAt').trim(), text(register, 'RegisterFileRef').trim()];
+	const ico = text(child(element, 'PartyIdentification'), 'ID').trim();
+	if (ico !== '' && !isValidIco(ico)) throw new Error(`doklad má neplatné IČO ${role} „${ico}“ (čekám 8 číslic)`);
 	return {
 		name: text(child(element, 'PartyName'), 'Name').trim(),
-		ico: text(child(element, 'PartyIdentification'), 'ID').trim(),
-		dic: text(child(element, 'PartyTaxScheme'), 'CompanyID').trim(),
+		ico,
 		address: {
 			street: [text(address, 'StreetName').trim(), text(address, 'BuildingNumber').trim()]
 				.filter((part) => part !== '')
@@ -182,8 +184,8 @@ export function intoInvoice(document: Document): Invoice {
 		originalUuid: text(original, 'UUID'),
 		issueDate: text(root, 'IssueDate'),
 		dueDate: text(payment, 'PaymentDueDate'),
-		supplier: party(child(child(root, 'AccountingSupplierParty'), 'Party')),
-		customer: party(child(child(root, 'AccountingCustomerParty'), 'Party')),
+		supplier: party(child(child(root, 'AccountingSupplierParty'), 'Party'), 'dodavatele'),
+		customer: party(child(child(root, 'AccountingCustomerParty'), 'Party'), 'odběratele'),
 		vatNote: text(
 			lineElements.find((line) => child(line, 'VATNote')),
 			'VATNote',

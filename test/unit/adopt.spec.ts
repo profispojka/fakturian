@@ -138,23 +138,23 @@ describe('čištění údajů z cizího dokladu', () => {
 		};
 	}
 
+	it('neplatné IČO odmítne už odpověď hlavního procesu', () => {
+		expect(
+			importedCustomerSchema.safeParse(customer({ ico: '123' })).error?.issues.map((issue) => ({
+				path: issue.path,
+				message: issue.message,
+			})),
+		).toEqual([
+			{
+				path: ['ico'],
+				message: 'Neplatné IČO (8 číslic).',
+			},
+		]);
+	});
+
 	it('odběratel s neplatným údajem se nezaloží a řekne proč', () => {
 		const refused = (over: Partial<ImportedCustomer>) =>
 			newContactsFromImport([], [importedCustomerSchema.parse(customer(over))]);
-
-		expect(
-			refused({
-				ico: '123',
-			}),
-		).toEqual({
-			contacts: [],
-			refused: [
-				{
-					name: 'Acme s.r.o.',
-					reason: 'ico: Neplatné IČO (8 číslic).',
-				},
-			],
-		});
 		expect(
 			refused({
 				address: {
@@ -223,7 +223,7 @@ describe('dodavatel z převzatých dokladů', () => {
 	function supplier(over: Record<string, unknown> = {}) {
 		return {
 			name: 'Jan Novák',
-			ico: '87654321',
+			ico: '27082440',
 			address: {
 				street: 'Krátká 2',
 				city: 'Brno',
