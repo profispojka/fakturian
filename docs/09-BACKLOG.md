@@ -1,30 +1,5 @@
 # Fakturian — Backlog
 
-Jediný seznam toho, co **zbývá udělat**: otevřené vady, chybějící testy, dluhy
-v nástrojích a architektuře a nápady mimo současný rozsah. Nic jiného sem
-nepatří — co appka umí, je v [01-FUNKCE](01-FUNKCE.md); jak je postavená,
-v [02-TECHNOLOGIE](02-TECHNOLOGIE.md); model kvality a vydávací brány
-v [07-KVALITA](07-KVALITA.md); vědomě přijaté kompromisy, co se záměrně nemění
-a nálezy, o kterých je rozhodnuto, že se neřeší, v
-[08-ZNAME-OMEZENI](08-ZNAME-OMEZENI.md); zamítnuté funkce v sekci „Mimo rozsah"
-v [01-FUNKCE](01-FUNKCE.md).
-
-Vyřešená položka se smaže, nepřeškrtává; důkazem opravy je kód a jeho test.
-Každá položka má stabilní ID, které se po smazání znovu nepoužije, místo v kódu
-(soubor a funkce, symbol nebo `data-testid`, bez čísla řádku) a konkrétní
-scénář, který uživatele poškodí nebo zdrží. Oblast určuje následek, ne vrstva:
-`DATA` integrita účetních dat, `UCT` účetnictví a legislativa, `BEZP` bezpečnost
-a soukromí, `LOG` aplikační logika, `UI` rozhraní, `TEST` testy, `NAST` nástroje
-a release, `DOC` dokumentace, `ARCH` architektura a `NAPAD` nápady mimo rozsah.
-Závažnost je **BLOKUJE** (bez opravy se nesmí vydat), **VYSOKÁ** (špatný
-výsledek bez upozornění), **STŘEDNÍ** (viditelná vada nebo obejitelná ochrana)
-nebo **NÍZKÁ** (drobnost). Úklid kódu, duplicity, styl a „šlo by to
-jednodušší" sem nepatří. Před přidáním nálezu zkontroluj „Rozhodnuto neřešit"
-v [08-ZNAME-OMEZENI](08-ZNAME-OMEZENI.md); položku odtud nezakládej znovu bez
-nového scénáře.
-
-Položky níže na sobě nezávisí.
-
 - **UCT-40 · Ruční import ISDOC do cizího programu není doložený — STŘEDNÍ.**
   Vzorky dokladů jsou `samples()` v `desktop/test/invoices.ts` (faktura,
   dobropis, faktura na zálohu, minimální doklad); PDF z nich staví jen

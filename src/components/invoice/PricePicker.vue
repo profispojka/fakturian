@@ -23,18 +23,10 @@ const search = {
 	'data-testid': 'pricelist-search',
 } as const;
 
-const lineCounts = computed(() => {
-	const counts = new Map<string, number>();
-
-	for (const l of props.lines) {
-		const key = normalizeSearchText(l.description);
-		if (key) counts.set(key, (counts.get(key) ?? 0) + 1);
-	}
-	return counts;
-});
+const linesByName = computed(() => Map.groupBy(props.lines, (l) => normalizeSearchText(l.description)));
 
 function timesOnInvoice(p: PriceItem): number {
-	return lineCounts.value.get(normalizeSearchText(p.name)) ?? 0;
+	return linesByName.value.get(normalizeSearchText(p.name))?.length ?? 0;
 }
 
 function onInvoiceLabel(p: PriceItem): string {

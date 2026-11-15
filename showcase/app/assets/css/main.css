@@ -50,6 +50,27 @@
 }
 
 /*
+ * Jen pro OG obrázky: Inter přibalený v nuxt-og-image má pouze základní latinku a č, ř, ž, ě kreslil
+ * jako „NO GLYPH". Web sám Inter nepoužívá. Bez `unicode-range` by tenhle řez přibalený nahradil,
+ * ne doplnil. Inter © The Inter Project Authors, SIL Open Font License 1.1.
+ */
+@font-face {
+	font-family: 'Inter';
+	font-weight: 400;
+	font-style: normal;
+	src: url('/fonts/inter-latin-ext-400.ttf') format('truetype');
+	unicode-range: U+0100-024F;
+}
+
+@font-face {
+	font-family: 'Inter';
+	font-weight: 700;
+	font-style: normal;
+	src: url('/fonts/inter-latin-ext-700.ttf') format('truetype');
+	unicode-range: U+0100-024F;
+}
+
+/*
  * Plochy a text. Nejsou v `@theme`, protože se v tmavém režimu přepínají naráz —
  * v markupu se na ně sahá přes `bg-(--surface)`, `text-(--ink-2)` a spol.
  *

@@ -26,7 +26,9 @@ export function fmtnum(value: number): string {
 
 const partySchema = z.strictObject({
 	name: z.string(),
-	ico: z.ico().or(z.literal('')).default(''),
+	// jednoduchá kontrola na string neznamená že ičo není kontrolováno, dále v programu proběhne korektní kontrola.
+	// Tato lehčí kontrola zajistí že se ukáže uživateli pěkná česká hláška
+	ico: z.string().default(''),
 	address: z
 		.strictObject({
 			street: z.string(),
