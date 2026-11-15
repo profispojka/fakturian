@@ -267,7 +267,7 @@ async function main() {
 
 			// --- akce uprostřed beatu ---------------------------------------
 			if (step.click && f === actionFrame && !clicked) {
-				await page.mouse.click(screen.x, screen.y);
+				await page.locator(step.click).click();
 				clicked = true;
 			}
 			if (step.hover && f === actionFrame) await page.mouse.move(screen.x, screen.y);

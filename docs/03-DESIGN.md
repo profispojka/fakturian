@@ -39,7 +39,7 @@ shrnuje tenhle dokument. Jak se vzhled píše v kódu (Tailwind, tokeny,
 - **Persistence okna** — velikost a pozici ukládá `desktop/window.ts` do
   `.window-state.json` v podpůrné složce appky.
 - **Nejmenší velikost okna** je `MIN_WINDOW_SIZE` v `desktop/window-size.ts`;
-  z jeho šířky bere `lint:scales` nejmenší zlom.
+  z jeho šířky bere `scripts/check-tailwind-scales.ts` nejmenší zlom.
 
 ---
 
@@ -171,8 +171,9 @@ dokument je neopisuje. Záměr za nimi:
 
 - **Výběr textu** vypnutý na UI chromu, povolený v datových polích a přes třídu
   `.selectable`.
-- **Kontextové menu prohlížeče** zakázané mimo datová pole
-  (`plugins/context-menu.client.ts`), `overscroll-behavior: none`.
+- **Nabídka pravého tlačítka** jen v datových polích (Vyjmout, Kopírovat,
+  Vložit, Vybrat vše) a nad označeným textem (Kopírovat); staví ji hlavní proces
+  (`contextMenu` v `desktop/menu.ts`). `overscroll-behavior: none`.
 - **Vzhled podle systému** s přepínačem v Nastavení; přepíná `useColorMode()`
   (třída `.dark` na `<html>`).
 - **Odezva na stisk** — ztlumení tlačítka na `:active`. Bez ní tlačítko „nic

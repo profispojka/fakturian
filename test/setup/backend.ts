@@ -69,7 +69,6 @@ class Ares {
 		this.companies.set(company.ico, {
 			obchodniJmeno: company.name,
 			ico: company.ico,
-			dic: company.dic,
 			sidlo: {
 				textovaAdresa: company.address.street,
 				nazevObce: company.address.city,
@@ -402,7 +401,6 @@ type Args = {
 const emptyParty = {
 	name: '',
 	ico: '',
-	dic: '',
 	address: {
 		street: '',
 		city: '',
@@ -482,7 +480,7 @@ const commands: Record<string, (a: Args) => unknown> = {
 		const json = folder.files.get(name);
 		folder.seen.set(name, json ?? null);
 		// Chybějící soubor je normální stav (nový vault), ne chyba.
-		if (json === undefined) return '{}';
+		if (json === undefined) return null;
 
 		let v: unknown;
 		try {
@@ -635,7 +633,7 @@ const commands: Record<string, (a: Args) => unknown> = {
 
 	// Hlášky jako `desktop/ares.ts`: síť a stav odpovědi obsluhuje hlavní proces.
 	ares_subject: ({ ico }) => {
-		if (/\s/.test(ico) || !isValidIco(ico)) throw new Error('Neplatné IČO (8 číslic).');
+		if (!isValidIco(ico)) throw new Error('Neplatné IČO (8 číslic).');
 		if (backend.ares.unavailable) throw new Error('Nepodařilo se spojit s ARES (jste offline?).');
 		const company = backend.ares.companies.get(ico);
 		if (company === undefined) throw new Error('Firma s tímto IČO nebyla v ARES nalezena.');
@@ -736,7 +734,6 @@ function documentFromVault(inv: Invoice): Invoice {
 		vatNote: rest.vatNote ?? '',
 		bankAccount: rest.bankAccount ?? '',
 		bankCode: rest.bankCode ?? '',
-		iban: rest.iban ?? '',
 		variableSymbol: rest.variableSymbol ?? '',
 		note: rest.note ?? '',
 		supplier: side(inv.supplier),

@@ -44,7 +44,6 @@ function document(sh: InvoiceSummary): WireInvoice {
 		supplier: {
 			name: 'Já',
 			ico: '',
-			dic: '',
 			address: {
 				street: '',
 				city: '',
@@ -56,7 +55,6 @@ function document(sh: InvoiceSummary): WireInvoice {
 		customer: {
 			name: sh.customer,
 			ico: '',
-			dic: '',
 			address: {
 				street: '',
 				city: '',
@@ -68,7 +66,6 @@ function document(sh: InvoiceSummary): WireInvoice {
 		vatNote: '',
 		bankAccount: '123',
 		bankCode: '0800',
-		iban: '',
 		variableSymbol: sh.variableSymbol,
 		note: '',
 		lines: [

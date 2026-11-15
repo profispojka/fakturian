@@ -47,9 +47,9 @@
 - **Zod** — jediný popis toho, jak má co vypadat. Formuláře ho dostávají přímo
   (`<UForm :schema>`, Nuxt UI umí Standard Schema) a stejná schémata hlídají
   i to, co do appky přiteče zvenčí (viz „Hranice s vnějškem" níž). Doménové
-  predikáty, které zod neumí — mod-11 u IČO, mod-97 u IBANu, kalendářní platnost
-  data — jsou čistými funkcemi v `utils/validators.ts` a `utils/date.ts` a zod je
-  jen volá. Pravidla psaní schémat jsou ve skillu `.claude/skills/zod-validace/`,
+  predikáty, které zod neumí — mod-11 u IČO a kalendářní platnost data — jsou
+  čistými funkcemi v `utils/validators.ts` a `utils/date.ts` a zod je jen volá.
+  Pravidla psaní schémat jsou ve skillu `.claude/skills/zod-validace/`,
   práce s datem v [AGENTS.md](../AGENTS.md).
 - **`useState`** (vestavěné v Nuxtu) pro sdílený stav — **bez Pinia**. Stav
   obalují composables (`useInvoices()`, `useContacts()`, `usePricelist()` …).
@@ -128,7 +128,8 @@ Zod tím **nekončí a končit nemá**: `load_invoice` vrací typ `Invoice`, ale
 hodnota vznikla naparsováním ISDOC z PDF, které mohlo projít rukama cizího
 softwaru — typ je slib o našem parseru, ne o těch datech. Dělba je:
 **TypeScript drží tvar, zod hodnoty.** JSON soubory ve vaultu nemají typ vůbec:
-`read_data_file` vrací holý řetězec, takže tam je zod jediná obrana.
+`read_data_file` vrací řetězec, nebo `null` pro chybějící soubor, takže tam je zod jediná obrana
+proti neúplnému existujícímu obsahu.
 
 Seznam nástrojů MCP posílá agentovi connector i se zavřenou appkou. Connector je
 hlavní proces bez okna a seznam skládá přímo z `mcpToolList()` ve
@@ -220,7 +221,7 @@ Dropbox, Git, Time Machine, USB); vlastní cloud appka nemá.
       tamtéž a sdílejí číselnou řadu; typ se rozliší v ISDOC.
     - `prijate/` — **přijaté doklady** od subdodavatelů, uložené tak, jak přišly.
       `import_received` přijme jen PDF s čitelným ISDOC a částkou
-      `TaxInclusiveAmount` (`UCT-38` v [13-ZNAME-OMEZENI](13-ZNAME-OMEZENI.md)).
+      `TaxInclusiveAmount` (`UCT-38` v [08-ZNAME-OMEZENI](08-ZNAME-OMEZENI.md)).
       `list_broken_received` najde soubory, které tam přesto leží, a Přehled je
       ukáže spolu s vadnými fakturami z `list_invoices`.
     - `.fakturian/` — **skrytá** složka se vším, co zapisuje appka.
@@ -283,7 +284,7 @@ Dropbox, Git, Time Machine, USB); vlastní cloud appka nemá.
 
 - Veřejné REST API
   `https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/{ICO}`;
-  vrací název, adresu, IČO, DIČ.
+  appka z odpovědi přebírá název, adresu, IČO a zápis do rejstříku.
 - Volá ho příkaz `ares_subject` (`desktop/ares.ts`) v hlavním procesu, stav
   dotazu drží `useAres()`. Hlavní proces vrátí syrový JSON a ověří ho až
   `parseAres` ve `services/ares.ts`.
@@ -333,7 +334,7 @@ tím, co z odpovědi hlavní proces vrací:
 
 **Faktura se ukládá jako PDF/A-3 s vloženým ISDOC XML** — princip jako
 Factur-X/ZUGFeRD, jen s českým ISDOC. Model dokladu a jeho vrstvy popisuje
-[09-ISDOC-MODEL](09-ISDOC-MODEL.md).
+[06-ISDOC-MODEL](06-ISDOC-MODEL.md).
 
 - **Vizuál** sází typst přes nativní překladač
   `@myriaddreamin/typst-ts-node-compiler` (`desktop/pdf.ts`) z šablony pro A4.
@@ -370,45 +371,45 @@ a dobropisu počítá `settlementOf` nad `ledgerOf`.
 Karta na Přehledu sčítá obrat za kalendářní rok podle **data vystavení**
 a počítá i loňský rok (`vatLimit` v `utils/dashboard.ts`). Datum zdanitelného
 plnění appka nevede; proč, popisuje `UCT-37` v
-[13-ZNAME-OMEZENI](13-ZNAME-OMEZENI.md).
+[08-ZNAME-OMEZENI](08-ZNAME-OMEZENI.md).
 První den překročení horního limitu hledá v průběžném součtu po jednotlivých
 dnech. Dobropis sníží součet ve svém dni, ale pozdější pokles nemaže již
 zjištěné překročení; doklady se stejným datem se posuzují společně. Právní
-podklad a omezení tohoto výpočtu jsou v [07-PRAVO](07-PRAVO.md#dobropis-a-vznik-plátcovství-dph).
+podklad a omezení tohoto výpočtu jsou v [05-PRAVO](05-PRAVO.md#dobropis-a-vznik-plátcovství-dph).
 
 ### ISDOC — mapování polí
 
 Editace faktury = naparsovat ISDOC z PDF → naplnit formulář → upravit →
 přegenerovat PDF. **Každé pole formuláře má své místo v ISDOC.**
 
-| Pole ve formuláři                 | ISDOC 6.0.2                                                                                                                  |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Číslo faktury                     | `Invoice/ID`                                                                                                                 |
-| GUID dokladu                      | `UUID` — odvozené deterministicky z IČO + typu + čísla, při editaci se nemění                                                |
-| Typ (faktura / dobropis)          | `DocumentType` (1 / opravný doklad) + reference                                                                              |
-| Datum vystavení                   | `IssueDate`                                                                                                                  |
-| Datum splatnosti                  | `PaymentMeans/Payment/Details/PaymentDueDate`                                                                                |
-| Dodavatel                         | `AccountingSupplierParty`                                                                                                    |
-| Zápis do rejstříku nebo evidence  | `Party/RegisterIdentification/Preformatted`                                                                                  |
-| Neplátce DPH                      | `VATApplicable=false` (text na PDF se z toho odvodí)                                                                         |
-| Odběratel (IČO/DIČ, adresa, mail) | `AccountingCustomerParty`: IČO v `PartyIdentification/ID`, DIČ v `PartyTaxScheme/CompanyID`, mail v `Contact/ElectronicMail` |
-| Položka: popis                    | `InvoiceLine/Item/Description`                                                                                               |
-| Položka: množství + jednotka      | `InvoicedQuantity` (+ `@unitCode`)                                                                                           |
-| Položka: cena za jednotku         | `UnitPrice`                                                                                                                  |
-| Řádkový / celkový součet          | `LineExtensionAmount` / `LegalMonetaryTotal`                                                                                 |
-| Měna                              | `LocalCurrencyCode` — vždy `CZK`                                                                                             |
-| Datum uskutečnění plnění          | `TaxPointDate` — **nezapisuje se** (`UCT-37`)                                                                                |
-| Číslo účtu / IBAN                 | `PaymentMeans/Payment/Details` (`ID`/`IBAN`/`BankCode`)                                                                      |
-| Variabilní symbol (= číslo)       | `PaymentMeans/.../VariableSymbol`                                                                                            |
-| Poznámka                          | `Note`                                                                                                                       |
-| Vazba řádku na položku ceníku     | `InvoiceLine/Item/SellersItemIdentification/ID`                                                                              |
-| Rok čerpání ročního limitu        | `InvoiceLine/Extensions/fakturian:UsageYear`                                                                                 |
-| Odesláno                          | `Extensions/fakturian:SentAt` + `fakturian:SentBy`                                                                           |
-| QR / SPAYD                        | **není v ISDOC** — sestaví se z účtu + částky + VS                                                                           |
-| Platby                            | **není v ISDOC** — `platby.json`                                                                                             |
-| Vykázané množství za rok          | **není v ISDOC ani v souboru** — počítá se z řádků archivu                                                                   |
-| Předchozí verze po editaci        | týdenní PDF zálohy v `.fakturian/snapshots/faktury/`                                                                         |
-| Logo                              | **není v ISDOC** — `logo.png` ve vaultu                                                                                      |
+| Pole ve formuláři                | ISDOC 6.0.2                                                                                                                        |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Číslo faktury                    | `Invoice/ID`                                                                                                                       |
+| GUID dokladu                     | `UUID` — odvozené deterministicky z IČO + typu + čísla, při editaci se nemění                                                      |
+| Typ (faktura / dobropis)         | `DocumentType` (1 / opravný doklad) + reference                                                                                    |
+| Datum vystavení                  | `IssueDate`                                                                                                                        |
+| Datum splatnosti                 | `PaymentMeans/Payment/Details/PaymentDueDate`                                                                                      |
+| Dodavatel                        | `AccountingSupplierParty`                                                                                                          |
+| Zápis do rejstříku nebo evidence | `Party/RegisterIdentification/Preformatted`                                                                                        |
+| Neplátce DPH                     | `VATApplicable=false` (text na PDF se z toho odvodí)                                                                               |
+| Odběratel (IČO, adresa, mail)    | `AccountingCustomerParty`: IČO v `PartyIdentification/ID`, mail v `Contact/ElectronicMail`                                         |
+| Položka: popis                   | `InvoiceLine/Item/Description`                                                                                                     |
+| Položka: množství + jednotka     | `InvoicedQuantity` (+ `@unitCode`)                                                                                                 |
+| Položka: cena za jednotku        | `UnitPrice`                                                                                                                        |
+| Řádkový / celkový součet         | `LineExtensionAmount` / `LegalMonetaryTotal`                                                                                       |
+| Měna                             | `LocalCurrencyCode` — vždy `CZK`                                                                                                   |
+| Datum uskutečnění plnění         | `TaxPointDate` — **nezapisuje se** (`UCT-37`)                                                                                      |
+| Číslo účtu                       | `PaymentMeans/Payment/Details` (`ID`/`BankCode`); povinný element `IBAN` se odvodí z českého účtu, importovaná hodnota se ignoruje |
+| Variabilní symbol (= číslo)      | `PaymentMeans/.../VariableSymbol`                                                                                                  |
+| Poznámka                         | `Note`                                                                                                                             |
+| Vazba řádku na položku ceníku    | `InvoiceLine/Item/SellersItemIdentification/ID`                                                                                    |
+| Rok čerpání ročního limitu       | `InvoiceLine/Extensions/fakturian:UsageYear`                                                                                       |
+| Odesláno                         | `Extensions/fakturian:SentAt` + `fakturian:SentBy`                                                                                 |
+| QR / SPAYD                       | **není v ISDOC** — sestaví se z účtu + částky + VS                                                                                 |
+| Platby                           | **není v ISDOC** — `platby.json`                                                                                                   |
+| Vykázané množství za rok         | **není v ISDOC ani v souboru** — počítá se z řádků archivu                                                                         |
+| Předchozí verze po editaci       | týdenní PDF zálohy v `.fakturian/snapshots/faktury/`                                                                               |
+| Logo                             | **není v ISDOC** — `logo.png` ve vaultu                                                                                            |
 
 Vlastní elementy `fakturian:*` jsou ve jmenném prostoru
 `https://fakturian.app/isdoc/extensions/1`; schéma ISDOC je přijímá přes
@@ -432,6 +433,7 @@ nemá standardní pole.
 
 - Řetězec **SPAYD**, např.
   `SPD*1.0*ACC:CZ6508000000192000145399*AM:12100.00*CC:CZK*X-VS:20260001*MSG:Faktura 20260001`.
+- `ACC` se interně odvodí z českého čísla účtu. IBAN se nezadává ani neukládá.
 - Vykreslí ho hlavní proces (`qrcode` → PNG přes `fast-png`, `qrPng`
   v `desktop/invoice/payment.ts`) a typst šablona ho vloží jako
   `#image("qr.png")`.
@@ -446,7 +448,7 @@ Connector (`desktop/mcp/connector.ts`) je tatáž appka spuštěná s `--mcp`
 `desktop/mcp/mod.ts`; v okně zprávy přijímá `useMcp.ts`, které zjistí i cesty
 pro stránku Integrace (`useMcpPaths`), a nástroje vykoná `useMcpTools.ts` nad
 schématy v `schemas/mcp.ts`. Zapisovatelem vaultu zůstává jen appka. Cestu
-volání a zabezpečení popisuje [06-MCP](06-MCP.md).
+volání a zabezpečení popisuje [04-MCP](04-MCP.md).
 
 ---
 
@@ -456,13 +458,19 @@ Obchodní model je **source available**, licence **FSL-1.1-MIT**. Způsob veřej
 distribuce není rozhodnutý.
 
 - `bun run build` → `nuxt generate` (`.output/public`), `desktop:build`
-  a `electron-builder` (`electron-builder.yml`). Výstup je v `.output/release`:
+  a `electron-builder` (`electron-builder.yml`). Výstup je v
+  `.output/release`:
   DMG a ZIP pro arm64, jen macOS, minimální systém `mac.minimumSystemVersion`.
 - `desktop:build` (`tools/desktop/build.ts`) zabalí esbuildem hlavní proces do
   `.output/desktop/main.mjs`, worker ISDOC do `validator.mjs` a preload do
   `preload.cjs` (preload v sandboxu nesmí být ES modul). Mimo bundl zůstávají
   jen `dependencies` — nativní addony a wasm; frontend a nástroje patří do
   `devDependencies`. Addony a worker leží v balíčku mimo archiv `asar`.
+- `THIRD-PARTY-NOTICES.txt` uvádí licence a copyrighty závislostí dodávaných
+  v aplikaci včetně balíčků zabalených do frontendu a hlavního procesu. Udržuje
+  se ručně a balíček jej nese v `Contents/Resources`.
+- Licence Electronu a souhrn licencí Chromia se přibalují z distribuce Electronu
+  do `Contents/Resources` jako `LICENSE.electron.txt` a `LICENSES.chromium.html`.
 - Balíček má hardened runtime s oprávněními z `desktop/entitlements.plist`.
 - **Code signing + notarizace je povinná** — nepodepsanou appku laik nespustí.
   Stav je v backlogu (`NAST-1`).
@@ -489,8 +497,11 @@ fakturian/
 ├── desktop/                  # hlavní proces: okno, soubory, doklady, PDF, MCP
 │   ├── templates/            # Typst šablony dokladů
 │   └── test/                 # testy hlavního procesu a formátů
-├── test/                     # Vitest projekty a testovací infrastruktura
-├── e2e/                      # E2E scénáře a vizuální baseline
+├── test/                     # testy a testovací infrastruktura
+│   ├── unit/                 # čistá logika bez Nuxt runtime
+│   ├── nuxt/                 # komponenty, composables, stránky a integrace
+│   ├── e2e/                  # Playwright smoke, workflows a vizuální scénáře
+│   └── smoke/                # kontrola zabalené aplikace
 └── tools/                    # build, kontrolní, testovací a mutační skripty
 ```
 
@@ -507,7 +518,7 @@ fakturian/
   v `desktop/` potřebuje nový start. `bun run dev:web` je jen dev server Nuxtu;
   stránka v prohlížeči nemá `window.fakturian`, takže jí nefunguje ani načtení
   dat (`utils/desktop.ts` to uživateli řekne).
-- Kontrola před commitem: `bun run check`, popsaná v [10-KVALITA](10-KVALITA.md).
+- Kontrola před commitem: `bun run check`, popsaná v [07-KVALITA](07-KVALITA.md).
 
 ### Externí validátory
 

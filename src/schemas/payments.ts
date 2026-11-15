@@ -16,7 +16,7 @@ export const paymentFormSchema = receivedPaymentSchema.extend({
 });
 
 export const paymentsFileSchema = z.looseObject({
-	payments: z.record(z.string(), z.array(receivedPaymentSchema)).default({}),
+	payments: z.record(z.string(), z.array(receivedPaymentSchema)),
 });
 
 export type ReceivedPayment = Zod.infer<typeof receivedPaymentSchema>;

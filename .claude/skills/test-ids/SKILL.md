@@ -1,6 +1,6 @@
 ---
 name: test-ids
-description: Jak se ve Fakturianu hledají prvky v testech Vue vrstvy — výhradně přes data-testid, psané napřímo bez pomocných funkcí, jak se značky pojmenovávají a kam se dávají. Použij při psaní nebo úpravě jakéhokoli testu, který sahá do DOM (test/nuxt/*.spec.ts), a při doplňování značek do komponent a stránek v src/.
+description: Jak se ve Fakturianu hledají prvky v testech Vue vrstvy — výhradně přes data-testid, psané napřímo bez pomocných funkcí, jak se značky pojmenovávají a kam se dávají. Použij při psaní nebo úpravě jakéhokoli testu, který sahá do DOM (test/nuxt/**/*.spec.ts), a při doplňování značek do komponent a stránek v src/.
 ---
 
 # Testovací značky

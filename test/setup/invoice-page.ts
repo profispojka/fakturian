@@ -1,5 +1,5 @@
 import { flushPromises } from '@vue/test-utils';
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { computed } from 'vue';
 
 import { useInvoices } from '~/composables/useInvoices';
@@ -70,6 +70,10 @@ export async function prepareInvoicePage(
 		usage?: { invoiceNumber: string; itemId: string; quantity: number }[];
 	} = {},
 ): Promise<void> {
+	// Čísla dokladů i čerpání v testech počítají s rokem 2026; `shouldAdvanceTime` nechá běžet časovače Nuxt UI.
+	vi.useFakeTimers({ shouldAdvanceTime: true });
+	vi.setSystemTime('2026-08-31T10:00');
+
 	await prepareVault({
 		'nastaveni.json': {
 			supplier: completeSupplier(),
@@ -142,7 +146,6 @@ export function invoiceInVault(number: string, over: Partial<WireInvoice> = {}):
 		supplier: {
 			name: 'Já',
 			ico: '',
-			dic: '',
 			address: {
 				street: '',
 				city: '',
@@ -154,7 +157,6 @@ export function invoiceInVault(number: string, over: Partial<WireInvoice> = {}):
 		customer: {
 			name: 'Acme s.r.o.',
 			ico: '27082440',
-			dic: '',
 			address: {
 				street: 'Dlouhá 1',
 				city: 'Praha',
@@ -166,7 +168,6 @@ export function invoiceInVault(number: string, over: Partial<WireInvoice> = {}):
 		vatNote: '',
 		bankAccount: '123',
 		bankCode: '0800',
-		iban: '',
 		variableSymbol: variableSymbolFor(number),
 		note: '',
 		lines: [

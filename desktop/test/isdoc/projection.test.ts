@@ -17,7 +17,7 @@ const PAYMENT_DETAILS = `      <Details>
         <ID>2000145399</ID>
         <BankCode>0800</BankCode>
         <Name>Česká spořitelna</Name>
-        <IBAN>CZ6508000000192000145399</IBAN>
+        <IBAN></IBAN>
         <BIC></BIC>
         <VariableSymbol>20260001</VariableSymbol>
       </Details>
@@ -160,7 +160,6 @@ describe('oficiální vzorky ISDOC', () => {
 		expect(invoice.supplier).toEqual({
 			name: 'ABRA Software a.s.',
 			ico: '25097563',
-			dic: 'CZ25097563',
 			address: {
 				street: 'Jeremiášova 1422',
 				city: 'Praha 13',
@@ -277,6 +276,78 @@ describe('cizí doklad', () => {
 });
 
 describe('částky řádku', () => {
+	it('výpočet z ceny s daní zachová zaokrouhlený základ celého řádku', async () => {
+		const invoice = await sample('gross-price.isdoc');
+
+		expect(invoice.lines).toEqual([
+			{
+				description: 'Školení (3 ks × 413,22 Kč)',
+				quantity: 1,
+				unit: '',
+				unitPriceCents: 123_967,
+				itemId: '',
+			},
+		]);
+		expect(invoiceTotalCents(invoice)).toBe(123_967);
+	});
+
+	it('zaokrouhlení z ceny s daní nepřijme bez shody množství, sazby, cen a daně', async () => {
+		const xml = await fixture('gross-price.isdoc');
+		for (const [from, to] of [
+			['<VATCalculationMethod>1</VATCalculationMethod>', '<VATCalculationMethod>0</VATCalculationMethod>'],
+			['<Percent>21</Percent>', '<Percent>12</Percent>'],
+			['<Percent>21</Percent>', '<Percent>-100</Percent>'],
+			['<Percent>21</Percent>', '<Percent>-101</Percent>'],
+			[
+				'<InvoicedQuantity unitCode="ks">3</InvoicedQuantity>',
+				'<InvoicedQuantity unitCode="ks">4</InvoicedQuantity>',
+			],
+			['<UnitPrice>413.22</UnitPrice>', '<UnitPrice>413.21</UnitPrice>'],
+			[
+				'<UnitPriceTaxInclusive>500.00</UnitPriceTaxInclusive>',
+				'<UnitPriceTaxInclusive>499.00</UnitPriceTaxInclusive>',
+			],
+			[
+				'<LineExtensionAmountTaxInclusive>1500.00</LineExtensionAmountTaxInclusive>',
+				'<LineExtensionAmountTaxInclusive>1500.01</LineExtensionAmountTaxInclusive>',
+			],
+			[
+				'<LineExtensionTaxAmount>260.33</LineExtensionTaxAmount>',
+				'<LineExtensionTaxAmount>260.32</LineExtensionTaxAmount>',
+			],
+		]) {
+			const wrong = xml.replace(from, to);
+			const expectedPrice = from === '<UnitPrice>413.22</UnitPrice>' ? '413.21' : '413.22';
+			const expectedQuantity = from.startsWith('<InvoicedQuantity') ? '4' : '3';
+
+			expect(await projectionError(wrong)).toEqual(
+				new Error(`řádek 1: ${expectedQuantity} × ${expectedPrice} Kč nedává částku řádku 1239.67 Kč`),
+			);
+		}
+	});
+
+	it('sazba musí doložit základ celého řádku i při shodné jednotkové ceně', async () => {
+		const source = await fixture('gross-price.isdoc');
+		const xml = source
+			.replace('<Percent>21</Percent>', '<Percent>20</Percent>')
+			.replace('<UnitPrice>413.22</UnitPrice>', '<UnitPrice>416.67</UnitPrice>');
+
+		expect(await projectionError(xml)).toEqual(new Error('řádek 1: 3 × 416.67 Kč nedává částku řádku 1239.67 Kč'));
+	});
+
+	it('neplatné IČO pojmenuje u dodavatele i odběratele', async () => {
+		for (const [ico, role] of [
+			['12345679', 'dodavatele'],
+			['87654326', 'odběratele'],
+		]) {
+			const xml = MINIMAL_ISDOC.replace(`<ID>${ico}</ID>`, '<ID>12345678</ID>');
+
+			expect(await projectionError(xml)).toEqual(
+				new Error(`doklad má neplatné IČO ${role} „12345678“ (čekám 8 číslic)`),
+			);
+		}
+	});
+
 	it('cenu, která dává částku řádku, vezme z dokladu', async () => {
 		const invoice = await project(minimalWith('4', '250.00'));
 
@@ -404,8 +475,7 @@ describe('platba a odběratel', () => {
 	it('doklad bez platebních údajů má bankovní pole prázdná', async () => {
 		const invoice = await project(MINIMAL_ISDOC.replace(/ {2}<PaymentMeans>[\s\S]*<\/PaymentMeans>\n/, ''));
 
-		expect([invoice.dueDate, invoice.bankAccount, invoice.bankCode, invoice.iban, invoice.variableSymbol]).toEqual([
-			'',
+		expect([invoice.dueDate, invoice.bankAccount, invoice.bankCode, invoice.variableSymbol]).toEqual([
 			'',
 			'',
 			'',
@@ -454,13 +524,13 @@ describe('platba a odběratel', () => {
 		for (const code of ['42', '042']) {
 			const invoice = await project(xml.replace('<PaymentMeansCode>42<', `<PaymentMeansCode>${code}<`));
 
-			expect([
-				invoice.bankAccount,
-				invoice.bankCode,
-				invoice.iban,
-				invoice.variableSymbol,
-				invoice.dueDate,
-			]).toEqual(['2000145399', '0800', 'CZ6508000000192000145399', '202600047', '2026-03-24']);
+			expect([invoice.bankAccount, invoice.bankCode, invoice.variableSymbol, invoice.dueDate]).toEqual([
+				'2000145399',
+				'0800',
+				'202600047',
+				'2026-03-24',
+			]);
+			expect(invoice).not.toHaveProperty('iban');
 		}
 	});
 
@@ -469,11 +539,18 @@ describe('platba a odběratel', () => {
 			MINIMAL_ISDOC.replace('<PaymentMeansCode>42</PaymentMeansCode>', '<PaymentMeansCode>31</PaymentMeansCode>'),
 		);
 
-		expect([invoice.bankAccount, invoice.iban, invoice.variableSymbol]).toEqual([
-			'2000145399',
-			'CZ6508000000192000145399',
-			'20260001',
-		]);
+		expect([invoice.bankAccount, invoice.variableSymbol]).toEqual(['2000145399', '20260001']);
+	});
+
+	it('vydaný ISDOC odvodí IBAN z českého účtu a bez účtu nechá element prázdný', () => {
+		expect(buildIsdoc(sampleInvoice())).toContain('<IBAN>CZ7908000000002000145399</IBAN>');
+		expect(
+			buildIsdoc({
+				...sampleInvoice(),
+				bankAccount: '',
+				bankCode: '',
+			}),
+		).toContain('<IBAN></IBAN>');
 	});
 
 	it('anonymní odběratel má pole odběratele prázdná', async () => {
@@ -491,7 +568,6 @@ describe('platba a odběratel', () => {
 		expect(invoice.customer).toEqual({
 			name: '',
 			ico: '',
-			dic: '',
 			address: {
 				street: '',
 				city: '',

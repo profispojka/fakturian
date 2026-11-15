@@ -1,6 +1,7 @@
 import { DocumentKind, type DocumentType } from '~/constants/invoice';
 import { errorText } from '~/utils/errors';
 import { lineCents } from '~/utils/money';
+import { isValidIco } from '~/utils/validators';
 
 import { amountCents, child, children, decimal, ISSUING_SYSTEM, lineUsageYear, text, toCents } from './mod.ts';
 
@@ -25,14 +26,15 @@ function documentKind(type: number): DocumentType {
 	throw new Error(`doklad typu ${type} (${UNSUPPORTED_KINDS[type]}) appka neumí — do vydaných faktur nepatří`);
 }
 
-function party(element: Element | undefined): InvoiceParty {
+function party(element: Element | undefined, role: string): InvoiceParty {
 	const address = child(element, 'PostalAddress');
 	const register = child(element, 'RegisterIdentification');
 	const record = [text(register, 'RegisterKeptAt').trim(), text(register, 'RegisterFileRef').trim()];
+	const ico = text(child(element, 'PartyIdentification'), 'ID').trim();
+	if (ico !== '' && !isValidIco(ico)) throw new Error(`doklad má neplatné IČO ${role} „${ico}“ (čekám 8 číslic)`);
 	return {
 		name: text(child(element, 'PartyName'), 'Name').trim(),
-		ico: text(child(element, 'PartyIdentification'), 'ID').trim(),
-		dic: text(child(element, 'PartyTaxScheme'), 'CompanyID').trim(),
+		ico,
 		address: {
 			street: [text(address, 'StreetName').trim(), text(address, 'BuildingNumber').trim()]
 				.filter((part) => part !== '')
@@ -88,7 +90,22 @@ function linePrice(line: Element, id: string, amount: number, description: strin
 			unitPriceCents,
 		};
 	}
-	if (amountCents(exact.times(price)) === amount) {
+	let matches = amountCents(exact.times(price)) === amount;
+	const category = child(line, 'ClassifiedTaxCategory');
+	if (!matches && Number(text(category, 'VATCalculationMethod')) === 1) {
+		// Při výpočtu shora se jednotkový základ a základ celého řádku zaokrouhlují samostatně.
+		// Shodu musí doložit ceny s daní, sazba i vyčíslená daň; obecná haléřová tolerance by pustila chybu.
+		const factor = decimal(text(category, 'Percent')).div(100).plus(1);
+		const grossPrice = decimal(text(line, 'UnitPriceTaxInclusive'));
+		const grossAmount = decimal(text(line, 'LineExtensionAmountTaxInclusive'));
+		matches =
+			factor.gt(0) &&
+			amountCents(grossAmount.div(factor)) === amount &&
+			amountCents(grossPrice.div(factor)) === unitPriceCents &&
+			amountCents(exact.times(grossPrice).minus(grossAmount)) === 0 &&
+			amountCents(grossAmount.minus(decimal(text(line, 'LineExtensionTaxAmount')))) === amount;
+	}
+	if (matches) {
 		return {
 			description: `${description} (${quantityText} ${unit} × ${priceText.replaceAll('.', ',')} Kč)`.trim(),
 			quantity: 1,
@@ -151,6 +168,7 @@ export function intoInvoice(document: Document): Invoice {
 	}
 	const lineElements = children(child(root, 'InvoiceLines'), 'InvoiceLine');
 	const lines = lineElements.map((line) => lineToItem(line, own));
+	const documentType = documentKind(Number(text(root, 'DocumentType')));
 	// Řádek je poctivější než skryté pole: uživatel zaokrouhlení vidí a součet položek se nerozejde
 	// s částkou k úhradě.
 	const totals = child(root, 'LegalMonetaryTotal');
@@ -166,27 +184,29 @@ export function intoInvoice(document: Document): Invoice {
 			});
 		}
 	}
+	if (documentType === DocumentKind.CreditNote) {
+		for (const line of lines) line.unitPriceCents = -line.unitPriceCents;
+	}
 	const payment = bankDetails(root);
 	const original = child(child(root, 'OriginalDocumentReferences'), 'OriginalDocumentReference');
 	return {
 		number: text(root, 'ID').trim(),
 		uuid: text(root, 'UUID'),
-		documentType: documentKind(Number(text(root, 'DocumentType'))),
+		documentType,
 		originalInvoice: text(original, 'ID').trim(),
 		// Data a UUID nesou v XSD vzor, takže mezery kolem neprojdou.
 		originalIssueDate: text(original, 'IssueDate'),
 		originalUuid: text(original, 'UUID'),
 		issueDate: text(root, 'IssueDate'),
 		dueDate: text(payment, 'PaymentDueDate'),
-		supplier: party(child(child(root, 'AccountingSupplierParty'), 'Party')),
-		customer: party(child(child(root, 'AccountingCustomerParty'), 'Party')),
+		supplier: party(child(child(root, 'AccountingSupplierParty'), 'Party'), 'dodavatele'),
+		customer: party(child(child(root, 'AccountingCustomerParty'), 'Party'), 'odběratele'),
 		vatNote: text(
 			lineElements.find((line) => child(line, 'VATNote')),
 			'VATNote',
 		).trim(),
 		bankAccount: text(payment, 'ID').trim(),
 		bankCode: text(payment, 'BankCode').trim(),
-		iban: text(payment, 'IBAN').trim(),
 		variableSymbol: text(payment, 'VariableSymbol').trim(),
 		note: text(root, 'Note').trim(),
 		lines,

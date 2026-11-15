@@ -22,7 +22,6 @@ interface DemoContact {
 	id?: string;
 	name: string;
 	ico: string;
-	dic?: string;
 	address: { street: string; city: string; zip: string };
 	email?: string;
 }
@@ -82,7 +81,6 @@ const sum = (lines: DemoLine[]): number =>
 const party = (contact: DemoContact) => ({
 	name: contact.name,
 	ico: contact.ico,
-	dic: contact.dic ?? '',
 	address: {
 		...contact.address,
 	},
@@ -99,8 +97,7 @@ const emptyImport = () =>
 (() => {
 	const VAULT = '/Users/demo/Documents/Fakturian';
 
-	// Účet i IBAN musí projít kontrolou mod 11 a mod 97: jinak `supplierReadyForInvoicing` neprojde
-	// a appka místo dat otevře průvodce.
+	// Účet musí projít kontrolou mod 11, jinak `supplierReadyForInvoicing` neprojde a appka místo dat otevře průvodce.
 	const supplier = {
 		name: 'Tomáš Havelka',
 		ico: '63014726',
@@ -112,7 +109,6 @@ const emptyImport = () =>
 		registration: 'Zapsáno v živnostenském rejstříku',
 		bankAccount: '2801937468',
 		bankCode: '2010',
-		iban: 'CZ2520100000002801937468',
 		email: 'faktury@havelka.priklad.cz',
 		defaultDueDays: 14,
 		invoiceNumberFormat: '{RRRR}{NNNN}',
@@ -123,7 +119,6 @@ const emptyImport = () =>
 			id: 'c-kolma',
 			name: 'Studio Kolmá s.r.o.',
 			ico: '28471954',
-			dic: 'CZ28471954',
 			address: {
 				street: 'Sochorova 34',
 				city: 'Brno',
@@ -148,7 +143,6 @@ const emptyImport = () =>
 			id: 'c-kovoservis',
 			name: 'Kovoservis Hrubý a.s.',
 			ico: '88025144',
-			dic: 'CZ88025144',
 			address: {
 				street: 'Průmyslová 88',
 				city: 'Ostrava',
@@ -382,7 +376,6 @@ const emptyImport = () =>
 			vatNote: 'Nejsem plátce DPH.',
 			bankAccount: supplier.bankAccount,
 			bankCode: supplier.bankCode,
-			iban: supplier.iban,
 			variableSymbol: i.number,
 			note: '',
 			lines: i.lines.map((l) => ({
@@ -533,7 +526,7 @@ const emptyImport = () =>
 			hasLogo = false;
 			return null;
 		},
-		read_data_file: ({ name }) => JSON.stringify((name && files[name]) ?? {}),
+		read_data_file: ({ name }) => (name && Object.hasOwn(files, name) ? JSON.stringify(files[name]) : null),
 		write_data_file: ({ name, json }) => {
 			if (!name || !json) throw new Error('Chybí název nebo obsah souboru.');
 			const parsed: unknown = JSON.parse(json);

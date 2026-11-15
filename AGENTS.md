@@ -1,6 +1,6 @@
 # Fakturian — pravidla pro agenty
 
-Co hlídá nástroj (oxlint, ESLint, `tsc`, `lint:scales`, `lint:dead-css`), tady stojí jednou větou
+Co hlídá nástroj (oxlint, ESLint, `tsc`), tady stojí jednou větou
 se jménem pravidla a důvodem. Postupy pro konkrétní práci jsou ve skillech v `.claude/skills/`:
 
 | skill          | kdy                                                                |
@@ -10,9 +10,9 @@ se jménem pravidla a důvodem. Postupy pro konkrétní práci jsou ve skillech 
 | `test-ids`     | hledání prvků v testu a `data-testid` v šabloně                    |
 | `styly`        | `class`, `<style>` blok, `main.css`, `app.config.ts`               |
 
-Model kvality (pokrytí, mutace, E2E) popisuje `docs/10-KVALITA.md`, úkoly vede
-`docs/05-BACKLOG.md`. Nálezy, o kterých je rozhodnuto, že se neřeší, vede sekce „Rozhodnuto
-neřešit" v `docs/13-ZNAME-OMEZENI.md` — při revizi kódu ji přečti dřív, než něco nahlásíš, a co
+Model kvality (pokrytí, mutace, E2E) popisuje `docs/07-KVALITA.md`, úkoly vede
+`docs/09-BACKLOG.md`. Nálezy, o kterých je rozhodnuto, že se neřeší, vede sekce „Rozhodnuto
+neřešit" v `docs/08-ZNAME-OMEZENI.md` — při revizi kódu ji přečti dřív, než něco nahlásíš, a co
 v ní stojí, znovu nezakládej bez nového scénáře, který uživatele poškodí.
 
 ## Dovnitř jen kvalitní data
@@ -36,14 +36,14 @@ ARES, argumenty od agenta přes MCP a formuláře.
   `?? []` nad povinnou hodnotou). Obranná větev uvnitř znamená, že kontrola na hranici chybí —
   patří tam.
 - Ruční zadání bez dokladu je platný vstup, pokud ho validuje formulář. Neplatí to jako výmluva pro
-  doklad, ze kterého nejde přečíst povinný údaj (`UCT-38` v `docs/13-ZNAME-OMEZENI.md`).
+  doklad, ze kterého nejde přečíst povinný údaj (`UCT-38` v `docs/08-ZNAME-OMEZENI.md`).
 
 ## Žádné migrace dat
 
 Fakturian nemá uživatele ani produkční data. Kód nikde neřeší data zapsaná jiným tvarem: žádné
 migrace, verze schématu, čtení starého pole vedle nového (`raw.newKey ?? raw.oldKey`) ani
 `transform` starého klíče. Když se tvar dat změní, změní se schéma a generátory ukázkových dat
-(`desktop/examples/demo-vault.ts`, `showcase/harness/demo-data.ts`, `e2e/fixtures/vault/`).
+(`desktop/examples/demo-vault.ts`, `showcase/harness/demo-data.ts`, `test/e2e/fixtures/vault/`).
 Soubor v jiném tvaru spadne na validaci a to je v pořádku. Migraci nenavrhuj ani se na ni neptej.
 
 ## Názvy
@@ -54,7 +54,7 @@ texty v UI a hlášky. Česky zůstávají i jména, která jsou data nebo veře
 
 - složky a soubory vaultu na disku (`faktury/`, `prijate/`, `platby.json`, `vydaje.json` …);
 - adresy a média prezentačního webu (`showcase/content/**`, `/napoveda/…`, `showcase/public/media/`);
-- doménové zkratky `ico`, `dic`, `vs`.
+- doménové zkratky `ico`, `vs`.
 
 ## Lint, typy a formát
 
@@ -71,6 +71,9 @@ texty v UI a hlášky. Česky zůstávají i jména, která jsou data nebo veře
   `desktop/tsconfig.json`) a u změny v `desktop/` testy projektu `desktop`, které na ni dosáhnou
   (`.claude/hooks/`). Codex hooky nespouští — ověř to výslovně: `bun run lint:check`,
   `bun run typecheck`, `bun run test`.
+- **Před dokončením práce** spusť z kořene projektu `node scripts/check-tailwind-scales.ts`
+  a `node scripts/check-dead-css.ts` a oprav jejich nálezy. Tyto samostatné skripty kontrolují
+  projektové škály Tailwindu a použití CSS.
 
 ## Kód
 
@@ -146,7 +149,7 @@ a banery hlídá `fakturian/comment-style`.
 „bývalo to ve službě". Důvod opřený o minulost jde vždycky přepsat na tvrzení o současnosti
 („Selhání se zaloguje a vrátí nenulový kód, ne panika"). „Dřív" ve smyslu pořadí kroků je
 v pořádku, stejně jako zákaz do budoucna („`test/setup/ui-stubs.ts` se nemá vracet"). Platí to
-i na `docs/05-BACKLOG.md`: položka popisuje, co je v kódu teď, vyřešená se maže.
+i na `docs/09-BACKLOG.md`: položka popisuje, co je v kódu teď, vyřešená se maže.
 
 ## Kde co bydlí
 
@@ -203,7 +206,7 @@ by jinak otevřel cizí doklad.
 
 ## Testy
 
-Postup je ve skillech `vue-testy` a `test-ids`, celý model v `docs/10-KVALITA.md`. Vždy:
+Postup je ve skillech `vue-testy` a `test-ids`, celý model v `docs/07-KVALITA.md`. Vždy:
 
 - Vue vrstva se testuje proti skutečnému Nuxt UI, routeru a potvrzovacímu dialogu — žádné stuby.
 - **Vitest testy se netypují a jejich matchery se nezakazují** (rozhodnutí z 17. 10. 2026).
@@ -223,7 +226,7 @@ Postup je ve skillech `vue-testy` a `test-ids`, celý model v `docs/10-KVALITA.m
 Prezentační web ve `showcase/` je marketing, ne appka. Laťka výše (hranice dat, lint bez výjimek,
 100 % pokrytí, mutace, kontrakty) platí pro appku, frontend i hlavní proces. Showcase stačí, že
 se postaví a stránky vypadají správně; testy, typecheck ani přísnější lint se mu nepřidávají a jeho
-nedostatky nejdou do `docs/05-BACKLOG.md`.
+nedostatky nejdou do `docs/09-BACKLOG.md`.
 
 ## Prostředí
 
@@ -237,19 +240,26 @@ běh testů nebo změnu v indexu gitu, kterou jsi neudělal, neruš a zmiň ji.
 
 V sandboxu Claude Code tohle potřebuje `dangerouslyDisableSandbox: true` (není to chyba testu):
 
-| co                                              | proč                                                                                                     |
-| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `bun run test` (projekt `nuxt`)                 | v sandboxu se překlad zasekne na desítky minut a testy padnou na `Hook timed out`; mimo něj běží sekundy |
-| `desktop/test/pdfa.test.ts`                     | veraPDF (Java) si zakládá temp mimo povolené cesty                                                       |
-| `desktop/test/fio.test.ts`, `ares.test.ts`      | mock HTTP server binduje port                                                                            |
-| `desktop/test/mcp/*.test.ts`                    | unixový socket                                                                                           |
-| `desktop/test/keyring.test.ts`                  | skutečná klíčenka macOS                                                                                  |
-| `bun run test:desktop`, `bun run test:coverage` | pouští všechno výše                                                                                      |
-| `bun run mutants:ts`                            | Stryker otvírá lokální server (`listen EPERM`) a pouští i testy `desktop`                                |
-| `bun run dev`, `bun start`                      | spouští okno Electronu                                                                                   |
-| `bun install`, `bun add …`                      | zápis do globální cache Bunu (`~/.bun/install/cache`)                                                    |
+| co                                                                                                   | proč                                                                                                     |
+| ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `bun run test` (projekt `nuxt`)                                                                      | v sandboxu se překlad zasekne na desítky minut a testy padnou na `Hook timed out`; mimo něj běží sekundy |
+| `desktop/test/pdfa.test.ts`                                                                          | veraPDF (Java) si zakládá temp mimo povolené cesty                                                       |
+| `desktop/test/fio.test.ts`, `ares.test.ts`                                                           | mock HTTP server binduje port                                                                            |
+| `desktop/test/mcp/*.test.ts`                                                                         | unixový socket                                                                                           |
+| `desktop/test/keyring.test.ts`                                                                       | skutečná klíčenka macOS                                                                                  |
+| `bun run test -- --config vitest.mutation.config.ts --project desktop`, `bun run test -- --coverage` | pouští všechno výše                                                                                      |
+| `bun run mutants:ts`                                                                                 | Stryker otvírá lokální server (`listen EPERM`) a pouští i testy `desktop`                                |
+| `bun run dev`, `bun start`                                                                           | spouští okno Electronu                                                                                   |
+| `bun install`, `bun add …`                                                                           | zápis do globální cache Bunu (`~/.bun/install/cache`)                                                    |
 
 ## Git a spolupráce s Codexem
+
+Při každé změně `package.json`, `bun.lock` nebo použití závislostí zkontroluj licence a
+copyrighty přímých i tranzitivních balíčků dodávaných v aplikaci, včetně těch
+zabalených z `devDependencies` do frontendu a hlavního procesu. Aktualizuj
+`THIRD-PARTY-NOTICES.txt` podle požadavků jejich licencí; ověř i případné
+`NOTICE` soubory a nativní závislosti. Build soupis automaticky nekontroluje.
+Zranitelnosti závislostí ověř příkazem `bun audit --audit-level=low`.
 
 Pracuje se přímo v této složce na aktuální větvi. Worktree jen na výslovné vyžádání. V hlavním
 repozitáři se do gitu nezapisuje (`add`, `commit`, `checkout`, `push` …) — hlídají to `deny`

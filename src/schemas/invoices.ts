@@ -5,7 +5,7 @@ import { czechList } from '~/utils/locales';
 import { czkFromCents } from '~/utils/money';
 import { fitsTemplate, validateNumber } from '~/utils/numbering';
 import { formatAmount, type LimitOverflow, type UsageLine } from '~/utils/pricelist';
-import { isValidDic, isValidIco, isValidZip } from '~/utils/validators';
+import { isValidIco, isValidZip } from '~/utils/validators';
 import { z, type Zod } from '~/utils/zod';
 
 import type {
@@ -67,7 +67,6 @@ export function emptyParty(): InvoiceParty {
 	return {
 		name: '',
 		ico: '',
-		dic: '',
 		address: {
 			street: '',
 			city: '',
@@ -106,7 +105,6 @@ export function newInvoice(supplier: Supplier | null, number: string): Invoice {
 		vatNote: NON_VAT_PAYER_NOTE,
 		bankAccount: supplier?.bankAccount ?? '',
 		bankCode: supplier?.bankCode ?? '',
-		iban: supplier?.iban ?? '',
 		variableSymbol: variableSymbolFor(number),
 		note: '',
 		lines: [emptyLine()],
@@ -118,8 +116,7 @@ export function newInvoice(supplier: Supplier | null, number: string): Invoice {
 // Stryker disable all: Deklarativní IPC schémata hlídají kontrakt přes přesné validní a chybné odpovědi.
 const invoicePartySchema = z.strictObject({
 	name: z.string(),
-	ico: z.string(),
-	dic: z.string(),
+	ico: z.ico().or(z.literal('')),
 	address: z.strictObject({
 		street: z.string(),
 		city: z.string(),
@@ -143,7 +140,6 @@ export const invoiceFromVaultSchema = z.strictObject({
 	vatNote: z.string(),
 	bankAccount: z.string(),
 	bankCode: z.string(),
-	iban: z.string(),
 	variableSymbol: z.string(),
 	note: z.string(),
 	lines: z.array(
@@ -258,7 +254,6 @@ const invoiceHeaderSchema = z.object({
 		.object({
 			name: z.string().trim().min(1, 'Vyber nebo zadej odběratele.'),
 			ico: z.string(),
-			dic: z.string(),
 			address: z.object({
 				street: z.string(),
 				city: z.string(),
@@ -270,8 +265,6 @@ const invoiceHeaderSchema = z.object({
 			// Hlášky musí pole pojmenovat samy: odběratel se upravuje v dialogu, takže se vypisují ve
 			// stavové liště. Bez vybraného odběratele stačí jediná.
 			if (!customer.name.trim()) return;
-			// DIČ ani e-mail povinné nejsou: DIČ nemá neplátce DPH ani fyzická osoba a fakturu jde předat
-			// i papírem.
 			const missing = [
 				!customer.ico.trim() && 'IČO',
 				!customer.address.street.trim() && 'ulice',
@@ -291,13 +284,6 @@ const invoiceHeaderSchema = z.object({
 					message: 'Neplatné IČO odběratele.',
 				});
 			}
-			if (customer.dic.trim() && !isValidDic(customer.dic)) {
-				checks.addIssue({
-					code: 'custom',
-					path: ['dic'],
-					message: 'Neplatné DIČ odběratele.',
-				});
-			}
 			if (customer.address.zip.trim() && !isValidZip(customer.address.zip)) {
 				checks.addIssue({
 					code: 'custom',
@@ -315,7 +301,6 @@ const invoiceHeaderSchema = z.object({
 		}),
 	bankAccount: z.string(),
 	bankCode: z.string(),
-	iban: z.string(),
 	// Jiný než číselný VS banka odmítne.
 	variableSymbol: z.string().trim().max(10, 'Nejvýš 10 znaků.').regex(/^\d*$/, 'Jen číslice.'),
 });

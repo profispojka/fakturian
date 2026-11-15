@@ -1,5 +1,5 @@
 import { lstat, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { basename, extname, join } from 'node:path';
+import { basename, extname, join, parse as parsePath } from 'node:path';
 
 import { DocumentKind } from '~/constants/invoice';
 import { parseIsdocDate } from '~/utils/date';
@@ -26,7 +26,7 @@ const PDF_HEADER = Buffer.from('%PDF-');
 // z vaultu sice neutekl, ale smazal by jiný soubor, než na který uživatel ukázal.
 function safeFileName(name: string): string {
 	const base = name.trim();
-	if (base === '' || base.startsWith('.') || /[/\\]/.test(base)) {
+	if (base === '' || base.startsWith('.') || base.includes('/') || base.includes('\\')) {
 		throw new Error(`Nepoužitelný název souboru: ${name}`);
 	}
 	return base;
@@ -35,7 +35,9 @@ function safeFileName(name: string): string {
 // Pod očištěným jménem: na macOS je `\` v názvu legální, ale `safeFileName` ho odmítá, takže by takový
 // doklad nešlo z vaultu odstranit ani otevřít.
 function sourceFileName(source: string): string {
-	const cleaned = basename(source).trim().replace(/[\\:]/g, '-').replace(/^\.+/, '').trim();
+	let cleaned = basename(source).trim().replaceAll('\\', '-').replaceAll(':', '-').trim();
+	while (cleaned.startsWith('.')) cleaned = cleaned.slice(1);
+	cleaned = cleaned.trim();
 	if (cleaned === '') throw new Error(`Nepoužitelný název souboru: ${source}`);
 	return safeFileName(cleaned);
 }
@@ -43,8 +45,7 @@ function sourceFileName(source: string): string {
 // Doklady subdodavatelů se běžně jmenují `faktura.pdf`. Jméno se zabírá atomicky: mezi dotazem
 // „existuje?“ a kopií by soubor mohl založit souběžný import nebo synchronizace.
 async function createFreeTarget(dir: string, name: string): Promise<string> {
-	const extension = extname(name);
-	const stem = name.slice(0, -extension.length);
+	const { name: stem, ext: extension } = parsePath(name);
 	// Stryker disable next-line BlockStatement: mutant smyčku zacyklí, skončí jen timeoutem.
 	for (let attempt = 1; ; attempt += 1) {
 		// Stryker disable next-line ConditionalExpression,StringLiteral: mutant smyčku zacyklí, skončí jen timeoutem.
@@ -63,7 +64,7 @@ async function createFreeTarget(dir: string, name: string): Promise<string> {
 }
 
 async function readPdf(source: string, name: string): Promise<Uint8Array> {
-	if (!/\.pdf$/i.test(name)) throw new Error(`Přijatý doklad musí být PDF: ${name}`);
+	if (extname(name).toLowerCase() !== '.pdf') throw new Error(`Přijatý doklad musí být PDF: ${name}`);
 	let content: Uint8Array;
 	try {
 		content = await readDocument(source);
@@ -113,6 +114,8 @@ async function readReceived(content: Uint8Array, name: string): Promise<Omit<Rec
 	} catch (error) {
 		throw new Error(`${name}: částka s daní v <TaxInclusiveAmount>: ${errorText(error)}.`, { cause: error });
 	}
+	if (amountCents < 0) throw new Error(`${name}: doklad má zápornou celkovou částku.`);
+	if (invoice.documentType === DocumentKind.CreditNote) amountCents = -amountCents;
 	const kind = invoice.documentType === DocumentKind.CreditNote ? 'Dobropis' : 'Faktura';
 	return {
 		supplier: invoice.supplier.name,

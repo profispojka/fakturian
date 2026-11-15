@@ -1,0 +1,373 @@
+[
+	{
+		"file": "fakturoid-aurora.pdf",
+		"software": "fakturoid",
+		"url": "https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-aurora.pdf",
+		"sha256": "f4344e4355540b7b9e894e37a805069884ad4cc666edb7281f0570f73c706c3e",
+		"issued": null,
+		"issuedError": "doklad má neplatné IČO dodavatele „87654321“ (čekám 8 číslic)",
+		"issuedIco": "12345679",
+		"received": null,
+		"receivedError": "fakturoid-aurora.pdf: vložený ISDOC nejde přečíst (doklad má neplatné IČO dodavatele „87654321“ (čekám 8 číslic))."
+	},
+	{
+		"file": "fakturoid-lyra.pdf",
+		"software": "fakturoid",
+		"url": "https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-lyra.pdf",
+		"sha256": "cdc2fd8f626c9694f9f2196203d8a72d0805866c27c3837aa461dc1cb89394a8",
+		"issued": null,
+		"issuedError": "PDF neobsahuje přílohu ISDOC",
+		"issuedIco": "12345679",
+		"received": null,
+		"receivedError": "fakturoid-lyra.pdf: PDF neobsahuje přílohu ISDOC — Fakturian přijímá jen doklady s ISDOC, ze kterých přečte údaje i částku."
+	},
+	{
+		"file": "fakturoid-orion.pdf",
+		"software": "fakturoid",
+		"url": "https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-orion.pdf",
+		"sha256": "5448aeb5ee3b10dae94d6f3afb7877501029b388ac98333826c6526d66ffe5bf",
+		"issued": null,
+		"issuedError": "PDF neobsahuje přílohu ISDOC",
+		"issuedIco": "12345679",
+		"received": null,
+		"receivedError": "fakturoid-orion.pdf: PDF neobsahuje přílohu ISDOC — Fakturian přijímá jen doklady s ISDOC, ze kterých přečte údaje i částku."
+	},
+	{
+		"file": "fakturoid-phoenix.pdf",
+		"software": "fakturoid",
+		"url": "https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-phoenix.pdf",
+		"sha256": "cfa7ff644cd50b27a3166d29e5f61e01a30f896401000e9d519e91f62bcedf66",
+		"issued": null,
+		"issuedError": "PDF neobsahuje přílohu ISDOC",
+		"issuedIco": "12345679",
+		"received": null,
+		"receivedError": "fakturoid-phoenix.pdf: PDF neobsahuje přílohu ISDOC — Fakturian přijímá jen doklady s ISDOC, ze kterých přečte údaje i částku."
+	},
+	{
+		"file": "fakturoid-public-2023.pdf",
+		"software": "fakturoid",
+		"url": "https://smlouvy.gov.cz/smlouva/soubor/29054049/anonymiz%20faktura%20Mgr%20Jarusek%20Miroslav.pdf",
+		"sha256": "028ffc84f3b110335d1fc522f1ffc8283f465215b0fbd5af0f9884b90425558e",
+		"issued": null,
+		"issuedError": "PDF neobsahuje přílohu ISDOC",
+		"issuedIco": "12345679",
+		"received": null,
+		"receivedError": "fakturoid-public-2023.pdf: PDF neobsahuje přílohu ISDOC — Fakturian přijímá jen doklady s ISDOC, ze kterých přečte údaje i částku."
+	},
+	{
+		"file": "fakturoid-public-2024.pdf",
+		"software": "fakturoid",
+		"url": "https://zpravy.udh.gov.cz/zprava/s2024/umdirkvapid/4097-janajanurova-24-09-03.pdf",
+		"sha256": "36c57d7e535946ef7fde652d44f9bff29e951aa1c6f51749313f112efb4dfc93",
+		"issued": {
+			"supplierIco": "19087209",
+			"supplier": "Jana Janurová",
+			"number": "24-09-03",
+			"customer": "David Rumpík",
+			"customerIco": "",
+			"year": 2024,
+			"total": "40 000,00 Kč",
+			"lines": [
+				{
+					"description": "Zajištění marketingových služeb pro volební kampaň na sociálních sítích (září 2024)",
+					"quantity": 1,
+					"unitPriceCents": 4000000
+				}
+			],
+			"addedContacts": 0
+		},
+		"issuedError": null,
+		"issuedIco": "19087209",
+		"received": {
+			"supplier": "Jana Janurová",
+			"supplierIco": "19087209",
+			"number": "24-09-03",
+			"uuid": "58C2003B-0928-17D2-AADD-D9FAD8F620E7",
+			"description": "Faktura 24-09-03",
+			"amountCents": 4000000,
+			"date": "2024-09-23",
+			"recipientIco": "",
+			"file": "fakturoid-public-2024.pdf"
+		},
+		"receivedError": null
+	},
+	{
+		"file": "fakturoid-public-fractional.pdf",
+		"software": "fakturoid",
+		"url": "https://piroplaceni.pirati.cz/zadost/file/34228/",
+		"sha256": "1764176ecc13b880c873a7ba910f933c4df759c4eed78162b0dd32466aa334fa",
+		"issued": {
+			"supplierIco": "09060081",
+			"supplier": "Zuzana Petrůvová",
+			"number": "2024-20",
+			"customer": "Česká pirátská strana",
+			"customerIco": "71339698",
+			"year": 2024,
+			"total": "44 387,50 Kč",
+			"lines": [
+				{
+					"description": "Na základě rámcové smlouvy z 1. 1. 2022 (dodatek ze dne 1. 3. 2023) vám fakturujeme odměnu za koordinační služby za měsíc květen 2024.",
+					"quantity": 167.5,
+					"unitPriceCents": 26500
+				}
+			],
+			"addedContacts": 1
+		},
+		"issuedError": null,
+		"issuedIco": "09060081",
+		"received": {
+			"supplier": "Zuzana Petrůvová",
+			"supplierIco": "09060081",
+			"number": "2024-20",
+			"uuid": "75A594ED-025B-A87F-FC27-DAF24D3B76F8",
+			"description": "Faktura 2024-20",
+			"amountCents": 4438750,
+			"date": "2024-06-06",
+			"recipientIco": "71339698",
+			"file": "fakturoid-public-fractional.pdf"
+		},
+		"receivedError": null
+	},
+	{
+		"file": "fakturoid-public-hours.pdf",
+		"software": "fakturoid",
+		"url": "https://zpravy.udh.gov.cz/zprava/s2024/umdirkvapid/4096-janajanurova-24-09-02.pdf",
+		"sha256": "3a1ebf7bf1b7f5b2a8d1d63cc15bee0ce60e01f58fb97ef83d7185f5ea38e691",
+		"issued": {
+			"supplierIco": "19087209",
+			"supplier": "Jana Janurová",
+			"number": "24-09-02",
+			"customer": "David Rumpík",
+			"customerIco": "",
+			"year": 2024,
+			"total": "4 000,00 Kč",
+			"lines": [
+				{
+					"description": "Zajištění marketingových služeb pro volební kampaň na sociálních sítích (srpen 2024)",
+					"quantity": 5,
+					"unitPriceCents": 80000
+				}
+			],
+			"addedContacts": 0
+		},
+		"issuedError": null,
+		"issuedIco": "19087209",
+		"received": {
+			"supplier": "Jana Janurová",
+			"supplierIco": "19087209",
+			"number": "24-09-02",
+			"uuid": "BE4200EB-AF1E-99F7-384A-B9DBAB7B7F00",
+			"description": "Faktura 24-09-02",
+			"amountCents": 400000,
+			"date": "2024-09-01",
+			"recipientIco": "",
+			"file": "fakturoid-public-hours.pdf"
+		},
+		"receivedError": null
+	},
+	{
+		"file": "fakturoid-public-nonvat.pdf",
+		"software": "fakturoid",
+		"url": "https://smlouvy.gov.cz/smlouva/soubor/21301047/michaelajerabkova-2021-0001%20%281%29.pdf",
+		"sha256": "bf2dea0244db36d5ac6b49b2afad34f6c06b21bcd8fa235514233fc0b034ae6d",
+		"issued": null,
+		"issuedError": "PDF neobsahuje přílohu ISDOC",
+		"issuedIco": "12345679",
+		"received": null,
+		"receivedError": "fakturoid-public-nonvat.pdf: PDF neobsahuje přílohu ISDOC — Fakturian přijímá jen doklady s ISDOC, ze kterých přečte údaje i částku."
+	},
+	{
+		"file": "fakturoid-solaris.pdf",
+		"software": "fakturoid",
+		"url": "https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-solaris.pdf",
+		"sha256": "cc2055ebdfccd1cc642cfdb636e386bfcbf955461f02ec8a953d3c40ad6d8402",
+		"issued": null,
+		"issuedError": "PDF neobsahuje přílohu ISDOC",
+		"issuedIco": "12345679",
+		"received": null,
+		"receivedError": "fakturoid-solaris.pdf: PDF neobsahuje přílohu ISDOC — Fakturian přijímá jen doklady s ISDOC, ze kterých přečte údaje i částku."
+	},
+	{
+		"file": "fakturoid-vega.pdf",
+		"software": "fakturoid",
+		"url": "https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-vega.pdf",
+		"sha256": "9dfef4fe6743bc77bd4804a8931a1788e6d86ba59a2d084ed2ecf5081c5d9b59",
+		"issued": null,
+		"issuedError": "PDF neobsahuje přílohu ISDOC",
+		"issuedIco": "12345679",
+		"received": null,
+		"receivedError": "fakturoid-vega.pdf: PDF neobsahuje přílohu ISDOC — Fakturian přijímá jen doklady s ISDOC, ze kterých přečte údaje i částku."
+	},
+	{
+		"file": "idoklad-nonvat.pdf",
+		"software": "idoklad",
+		"url": "https://www.idoklad.cz/wp-content/uploads/2025/05/vzor-faktury-neplatce-dph.pdf",
+		"sha256": "60e8fa6977ca861358bf4e6d0ac3f7d8f4c20cbdaa9d8d3dc1816b5bb9367a2c",
+		"issued": null,
+		"issuedError": "doklad má neplatné IČO odběratele „12345678“ (čekám 8 číslic)",
+		"issuedIco": "12345679",
+		"received": null,
+		"receivedError": "idoklad-nonvat.pdf: vložený ISDOC nejde přečíst (doklad má neplatné IČO odběratele „12345678“ (čekám 8 číslic))."
+	},
+	{
+		"file": "idoklad-public-nonvat.pdf",
+		"software": "idoklad",
+		"url": "https://smlouvy.gov.cz/smlouva/soubor/38451204/Faktura%20instalace.pdf",
+		"sha256": "394ddeb537c88e97851f246b7eef13dc242ffddc42f321f060d5a45acc2c3239",
+		"issued": null,
+		"issuedError": "PDF neobsahuje přílohu ISDOC",
+		"issuedIco": "12345679",
+		"received": null,
+		"receivedError": "idoklad-public-nonvat.pdf: PDF neobsahuje přílohu ISDOC — Fakturian přijímá jen doklady s ISDOC, ze kterých přečte údaje i částku."
+	},
+	{
+		"file": "idoklad-public-printed.pdf",
+		"software": "idoklad",
+		"url": "https://smlouvy.gov.cz/smlouva/soubor/35915084/Redek%20-%20tir%C3%A1%C5%BE.pdf",
+		"sha256": "18387cb1dd1ae91e72bc098a4eff764a8b31127e8b3a39eb2bfdfdbdf0938590",
+		"issued": null,
+		"issuedError": "PDF neobsahuje přílohu ISDOC",
+		"issuedIco": "12345679",
+		"received": null,
+		"receivedError": "idoklad-public-printed.pdf: PDF neobsahuje přílohu ISDOC — Fakturian přijímá jen doklady s ISDOC, ze kterých přečte údaje i částku."
+	},
+	{
+		"file": "idoklad-public-services.pdf",
+		"software": "idoklad",
+		"url": "https://smlouvy.gov.cz/smlouva/soubor/36388136/Fakturace%20kve%CC%8Cten%20_Rudolfova%CC%81%20ADV.pdf",
+		"sha256": "70e5fe7818c5414e713a514943e53834e7920e1e6bc25fea6d557334b7546552",
+		"issued": {
+			"supplierIco": "21194581",
+			"supplier": "JUDr. Veronika Rudolfová, advokátka",
+			"number": "20240006",
+			"customer": "Antidopingový výbor ČR",
+			"customerIco": "70101884",
+			"year": 2024,
+			"total": "95 400,00 Kč",
+			"lines": [
+				{
+					"description": "právní služby květen 2024",
+					"quantity": 53,
+					"unitPriceCents": 180000
+				}
+			],
+			"addedContacts": 1
+		},
+		"issuedError": null,
+		"issuedIco": "21194581",
+		"received": {
+			"supplier": "JUDr. Veronika Rudolfová, advokátka",
+			"supplierIco": "21194581",
+			"number": "20240006",
+			"uuid": "02c1628a-0000-0000-0000-000000000000",
+			"description": "Faktura 20240006",
+			"amountCents": 9540000,
+			"date": "2024-06-03",
+			"recipientIco": "70101884",
+			"file": "idoklad-public-services.pdf"
+		},
+		"receivedError": null
+	},
+	{
+		"file": "idoklad-public-vat.pdf",
+		"software": "idoklad",
+		"url": "https://www.mesto-chlumec.cz/e_download.php?file=data%2Furedni_deska%2Fobsah5230_7.pdf&original=Fa+2024000289.pdf",
+		"sha256": "c764514ac8e753d2bfa41110019a725e49b6658e734a38c3a33404987bd29cf5",
+		"issued": null,
+		"issuedError": "PDF neobsahuje přílohu ISDOC",
+		"issuedIco": "12345679",
+		"received": null,
+		"receivedError": "idoklad-public-vat.pdf: PDF neobsahuje přílohu ISDOC — Fakturian přijímá jen doklady s ISDOC, ze kterých přečte údaje i částku."
+	},
+	{
+		"file": "pohoda-proforma.pdf",
+		"software": "pohoda",
+		"url": "https://www.stormware.cz/dnload/zalohova-faktura-vzor-PDF.pdf",
+		"sha256": "9c0cae199a63ce6e51374bc528c1ddbad25337020fe49e3599267902caa0128f",
+		"issued": null,
+		"issuedError": "PDF neobsahuje přílohu ISDOC",
+		"issuedIco": "12345679",
+		"received": null,
+		"receivedError": "pohoda-proforma.pdf: PDF neobsahuje přílohu ISDOC — Fakturian přijímá jen doklady s ISDOC, ze kterých přečte údaje i částku."
+	},
+	{
+		"file": "pohoda-public-2024.pdf",
+		"software": "pohoda",
+		"url": "https://piroplaceni.pirati.cz/zadost/file/36730/",
+		"sha256": "ba90c23646aee5da1470d33fd5748639034c3c7b251379e576f624b6b1842bcb",
+		"issued": null,
+		"issuedError": "PDF neobsahuje přílohu ISDOC",
+		"issuedIco": "12345679",
+		"received": null,
+		"receivedError": "pohoda-public-2024.pdf: PDF neobsahuje přílohu ISDOC — Fakturian přijímá jen doklady s ISDOC, ze kterých přečte údaje i částku."
+	},
+	{
+		"file": "pohoda-public-nonvat.pdf",
+		"software": "pohoda",
+		"url": "https://piroplaceni.pirati.cz/zadost/file/17464/",
+		"sha256": "82c2dfcdd9e271ca02882f387fed7b70602d819be08d2d7dfec286e769d5f22a",
+		"issued": null,
+		"issuedError": "PDF neobsahuje přílohu ISDOC",
+		"issuedIco": "12345679",
+		"received": null,
+		"receivedError": "pohoda-public-nonvat.pdf: PDF neobsahuje přílohu ISDOC — Fakturian přijímá jen doklady s ISDOC, ze kterých přečte údaje i částku."
+	},
+	{
+		"file": "pohoda-public.pdf",
+		"software": "pohoda",
+		"url": "https://smlouvy.gov.cz/smlouva/soubor/31625187/Faktura.pdf",
+		"sha256": "b74acff28a5d32a64973ed78e723359e11aed851ccbd816e9d623c0ecab2e7da",
+		"issued": null,
+		"issuedError": "doklad je od plátce DPH; Fakturian umí jen neplátce",
+		"issuedIco": "61972452",
+		"received": {
+			"supplier": "VAE informační systémy, s.r.o.",
+			"supplierIco": "61972452",
+			"number": "230100375",
+			"uuid": "42DFD54D-1E64-490C-A920-CF230F87AF6F",
+			"description": "Faktura 230100375",
+			"amountCents": 27689640,
+			"date": "2023-08-30",
+			"recipientIco": "70234001",
+			"file": "pohoda-public.pdf"
+		},
+		"receivedError": null
+	},
+	{
+		"file": "pohoda-mas-2025.pdf",
+		"software": "pohoda",
+		"url": "https://jiznislovacko.cz/component/firedrive/?format=raw&id=1172&view=document",
+		"sha256": "144a7982d1793ca24241cf5e4b1f605dcf52855c4a46bc6df55faa3d28037970",
+		"issued": {
+			"supplierIco": "26667401",
+			"supplier": "Místní akční skupina Jižní Slovácko, z.s.",
+			"number": "2520070",
+			"customer": "Jaromír Rajchman",
+			"customerIco": "41515391",
+			"year": 2025,
+			"total": "1 000,00 Kč",
+			"lines": [
+				{
+					"description": "",
+					"quantity": 1,
+					"unitPriceCents": 100000
+				}
+			],
+			"addedContacts": 1
+		},
+		"issuedError": null,
+		"issuedIco": "26667401",
+		"received": {
+			"supplier": "Místní akční skupina Jižní Slovácko, z.s.",
+			"supplierIco": "26667401",
+			"number": "2520070",
+			"uuid": "F2E80583-EA5D-4947-B683-2D5633115EB1",
+			"description": "Faktura 2520070",
+			"amountCents": 100000,
+			"date": "2025-11-25",
+			"recipientIco": "41515391",
+			"file": "pohoda-mas-2025.pdf"
+		},
+		"receivedError": null
+	}
+]

@@ -1,5 +1,5 @@
 import { mkdir, readdir, readFile, stat } from 'node:fs/promises';
-import { basename, dirname, join } from 'node:path';
+import { basename, dirname, join, parse as parsePath } from 'node:path';
 
 import { DocumentKind } from '~/constants/invoice';
 import { parseIsdocDate } from '~/utils/date';
@@ -13,7 +13,15 @@ import { checkSource, sourceFromPdf } from '../import.ts';
 import { asciiLower, compareNumbers } from '../numbering.ts';
 import { loadPdf } from '../pdf.ts';
 import { cacheDir } from '../store.ts';
-import { compareText, conflictOriginalName, errorCode, icloudOriginalName, writeAtomic } from '../util.ts';
+import {
+	compareText,
+	conflictOriginalName,
+	errorCode,
+	icloudOriginalName,
+	MAX_DOCUMENT_BYTES,
+	readDocument,
+	writeAtomic,
+} from '../util.ts';
 import { overVault } from '../vault.ts';
 
 import type { Invoice } from './model.ts';
@@ -21,9 +29,13 @@ import type { Stats } from 'node:fs';
 import type { PDFDocument } from 'pdf-lib';
 import type { BrokenInvoice } from '~/bindings';
 
-const PDF_NAME = /(.+)\.pdf$/is;
-
 const INDEX_FILE = 'index.json';
+
+function pdfStem(name: string): string | undefined {
+	const { name: stem, ext: extension } = parsePath(name);
+	if (extension.toLowerCase() !== '.pdf') return undefined;
+	return stem;
+}
 
 // Stejně přísné jako `invoiceSummarySchema` ve frontendu: podvržená cache se postaví znovu, místo aby
 // rozbila přehled. Data zůstávají tak, jak je doklad nese.
@@ -60,7 +72,8 @@ const indexSchema = z.object({
 		z.string(),
 		z.object({
 			mtime_ms: z.number(),
-			size: z.number(),
+			// Větší soubor `readDocument` odmítne; záznam o něm by doklad pustil do výpisu bez čtení.
+			size: z.number().max(MAX_DOCUMENT_BYTES),
 			summary: summarySchema,
 		}),
 	),
@@ -82,10 +95,8 @@ interface Candidate {
 // Konfliktní kopie `20260001 2.pdf` nebo `20260001 (conflicted copy).pdf` patří k dokladu `20260001`.
 function conflictStem(fileName: string): string | undefined {
 	const original = conflictOriginalName(fileName);
-	// Stryker disable next-line ConditionalExpression: ekvivalentní mutant, `exec(undefined)` hledá v textu „undefined“ a příponu .pdf nenajde.
 	if (original === undefined) return undefined;
-	// Stryker disable next-line OptionalChaining: ekvivalentní mutant, volá se jen se jménem PDF a jeho konfliktní kopie příponu nese taky.
-	return PDF_NAME.exec(original)?.[1];
+	return pdfStem(original);
 }
 
 // Skutečná PDF i iCloud zástupci. Složka jménem `20260001.pdf` vznikne po rozbalení zálohy nebo po
@@ -103,7 +114,7 @@ async function documentCandidates(dir: string): Promise<Candidate[]> {
 		names.map(async (name): Promise<Candidate[]> => {
 			const original = icloudOriginalName(name);
 			const available = original ?? name;
-			const stem = PDF_NAME.exec(available)?.[1];
+			const stem = pdfStem(available);
 			if (stem === undefined) return [];
 			const path = join(dir, name);
 			let info: Stats;
@@ -157,14 +168,14 @@ export function summarize(invoice: Invoice, path: string): InvoiceSummary {
 async function summarizePdf(path: string): Promise<InvoiceSummary> {
 	let pdf: PDFDocument;
 	try {
-		const bytes = await readFile(path);
+		const bytes = await readDocument(path);
 		pdf = await loadPdf(bytes);
 	} catch (error) {
 		// Stryker disable next-line ObjectLiteral: ekvivalentní mutant, chyba skončí jen jako text důvodu vadného dokladu.
 		throw new Error(`PDF nejde přečíst: ${errorText(error)}`, { cause: error });
 	}
 	const source = await sourceFromPdf(pdf);
-	checkSource(source, '');
+	checkSource(source, null);
 	return {
 		...summarize(source.invoice, path),
 		sentAt: source.sentAt ?? null,

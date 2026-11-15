@@ -212,10 +212,9 @@ describe('doklad, který označit nejde', () => {
 	});
 
 	it('PDF bez ISDOC ani s neplatným ISDOC se nezmění', async () => {
-		await mkdir(join(base, 'faktury'));
+		const invalid = await saveNumbered('20260011');
 		const bare = join(base, 'faktury', '20260010.pdf');
 		await writeFile(bare, await savePdf(await samplePdf()));
-		const invalid = await saveNumbered('20260011');
 		await rewriteIsdoc(invalid, () => '<Invoice/>');
 		const originals = [await readFile(bare), await readFile(invalid)];
 

@@ -1,12 +1,11 @@
 import { randomBytes } from 'node:crypto';
 import { open, rename, rm, writeFile } from 'node:fs/promises';
-import { basename, dirname } from 'node:path';
+import { basename, dirname, parse as parsePath } from 'node:path';
+import { buffer } from 'node:stream/consumers';
 
 import { errorText } from '~/utils/errors';
 
 import { VERSION } from './version.ts';
-
-const ICLOUD_PLACEHOLDER = /^\.(.*)\.icloud$/is;
 
 export const MIB = 1024 * 1024;
 
@@ -22,17 +21,19 @@ export function compareText(a: string, b: string): number {
 }
 
 export function icloudOriginalName(fileName: string): string | undefined {
-	return ICLOUD_PLACEHOLDER.exec(fileName)?.[1];
+	if (fileName.length < 8 || !fileName.startsWith('.') || !fileName.toLowerCase().endsWith('.icloud'))
+		return undefined;
+	return fileName.slice(1, -'.icloud'.length);
 }
 
 export function conflictOriginalName(fileName: string): string | undefined {
-	const dot = fileName.lastIndexOf('.');
-	// Stryker disable next-line EqualityOperator: ekvivalentní mutant, jméno s jedinou tečkou na začátku nemá kmen a vyjde `undefined` i bez návratu.
-	if (dot < 0) return undefined;
-	const stem = fileName.slice(0, dot);
-	const extension = fileName.slice(dot);
+	const { name: stem, ext: extension } = parsePath(fileName);
+	if (extension === '') return undefined;
 	const space = stem.lastIndexOf(' ');
-	if (space >= 0 && /^\d+$/.test(stem.slice(space + 1))) return `${stem.slice(0, space)}${extension}`;
+	const copyNumber = stem.slice(space + 1);
+	if (space >= 0 && copyNumber.length > 0 && !/\D/.test(copyNumber)) {
+		return `${stem.slice(0, space)}${extension}`;
+	}
 	const paren = stem.lastIndexOf(' (');
 	if (paren < 0 || !stem.endsWith(')')) return undefined;
 	const description = stem.slice(paren + 2, -1).toLowerCase();
@@ -99,12 +100,7 @@ export async function readDocument(path: string): Promise<Uint8Array> {
 		if (size > MAX_DOCUMENT_BYTES) {
 			throw new Error(`soubor má víc než ${MAX_DOCUMENT_BYTES / MIB} MB — takhle doklad nevypadá`);
 		}
-		const chunks: Buffer[] = [];
-		const stream = file.createReadStream({ end: MAX_DOCUMENT_BYTES - 1 });
-		for await (const chunk of stream) {
-			chunks.push(chunk);
-		}
-		const content = Buffer.concat(chunks);
+		const content = await buffer(file.createReadStream({ end: MAX_DOCUMENT_BYTES - 1 }));
 		return new Uint8Array(content.buffer, content.byteOffset, content.byteLength);
 	} finally {
 		await file.close();

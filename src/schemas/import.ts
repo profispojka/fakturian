@@ -13,8 +13,7 @@ import type {
 // `newContactsFromImport` stejným schématem jako formulář.
 export const importedCustomerSchema = z.strictObject({
 	name: z.string(),
-	ico: z.string(),
-	dic: z.string(),
+	ico: z.ico().or(z.literal('')),
 	address: z.strictObject({
 		street: z.string(),
 		city: z.string(),
@@ -27,7 +26,7 @@ export type ImportedCustomer = Zod.infer<typeof importedCustomerSchema>;
 
 export const adoptedSupplierSchema = z.strictObject({
 	name: z.string(),
-	ico: z.string(),
+	ico: z.ico().or(z.literal('')),
 	address: z.strictObject({
 		street: z.string(),
 		city: z.string(),
@@ -37,7 +36,6 @@ export const adoptedSupplierSchema = z.strictObject({
 	registration: z.string(),
 	bankAccount: z.string(),
 	bankCode: z.string(),
-	iban: z.string(),
 	invoiceNumberFormat: z.string(),
 	defaultDueDays: defaultDueDaysSchema.nullable(),
 }) satisfies Zod.ZodType<WireAdoptedSupplier>;

@@ -78,15 +78,9 @@ async function onDesignPreview() {
 
 async function onSubmit(event: FormSubmitEvent<ValidSupplier>) {
 	if (templateError.value) return;
-	// IČO a IBAN se ukládají v tvaru ze schématu, ne tak, jak je uživatel napsal nebo vložil z banky.
-	const typed = {
-		...structuredClone(toRaw(form.value)),
-		ico: event.data.ico,
-		iban: event.data.iban,
-	};
 	let next: Supplier;
 	try {
-		next = await continueSeries(typed);
+		next = await continueSeries(event.data);
 		await setSupplier(next);
 	} catch (e) {
 		// Bez odchycení by tlačítko tiše nic neudělalo a chyba skončila v konzoli.
@@ -223,7 +217,7 @@ useAsyncState(refreshLogo, undefined, {
 									<UInput v-model="form.name" placeholder="Jan Dodavatel" data-testid="field-name" />
 								</UFormField>
 								<UFormField name="ico" label="IČO">
-									<UInput v-model="form.ico" data-testid="field-ico" />
+									<UInput v-model.trim="form.ico" data-testid="field-ico" />
 								</UFormField>
 								<UFormField name="registration" label="Zápis do rejstříku nebo evidence">
 									<UInput v-model="form.registration" data-testid="field-registration" />
@@ -265,12 +259,6 @@ useAsyncState(refreshLogo, undefined, {
 											data-testid="field-bankCode" />
 									</UFormField>
 								</div>
-								<UFormField name="iban" label="IBAN (nepovinné)">
-									<UInput
-										v-model.optional="form.iban"
-										placeholder="CZ6508000000192000145399"
-										data-testid="field-iban" />
-								</UFormField>
 							</div>
 						</div>
 
@@ -407,7 +395,7 @@ useAsyncState(refreshLogo, undefined, {
 						{{ vaultMsg }}
 					</p>
 					<ul v-if="importDetail.length" class="mt-2 list-disc pl-5 text-meta leading-normal text-ink-2">
-						<li v-for="d in importDetail" :key="d">
+						<li v-for="d in importDetail" :key="d" data-testid="import-skipped">
 							{{ d }}
 						</li>
 					</ul>

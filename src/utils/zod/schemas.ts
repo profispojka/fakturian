@@ -3,6 +3,13 @@ import { z } from 'zod';
 import { parseDate, parseIsdocDate } from '~/utils/date';
 import { isValidBankAccount, isValidBankCode, isValidIco, isValidZip } from '~/utils/validators';
 
+export function asciiAlphaNumeric(message: string) {
+	return z.string().refine((value) => value.length > 0 && !/[^a-zA-Z0-9]/.test(value), {
+		error: message,
+		abort: true,
+	});
+}
+
 export function dateString() {
 	return z.string('Povinné pole.').transform((text, ctx) => {
 		const date = parseDate(text);
@@ -40,7 +47,8 @@ export function isdocDateOrBlank() {
 export function ico() {
 	return z
 		.string()
-		.regex(/\S/, {
+		.overwrite((value) => value.replace(/\s+/g, ''))
+		.min(1, {
 			error: 'Povinné pole.',
 			abort: true,
 		})
@@ -50,7 +58,8 @@ export function ico() {
 export function zip() {
 	return z
 		.string()
-		.regex(/\S/, {
+		.overwrite((value) => value.replace(/\s+/g, ''))
+		.min(1, {
 			error: 'Povinné pole.',
 			abort: true,
 		})
@@ -60,7 +69,8 @@ export function zip() {
 export function bankAccount() {
 	return z
 		.string()
-		.regex(/\S/, {
+		.overwrite((value) => value.replace(/\s+/g, ''))
+		.min(1, {
 			error: 'Povinné pole.',
 			abort: true,
 		})
@@ -70,7 +80,8 @@ export function bankAccount() {
 export function bankCode() {
 	return z
 		.string()
-		.regex(/\S/, {
+		.overwrite((value) => value.replace(/\s+/g, ''))
+		.min(1, {
 			error: 'Povinné pole.',
 			abort: true,
 		})

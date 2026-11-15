@@ -23,6 +23,6 @@
 			"~/*": ["../src/*"]
 		}
 	},
-	"include": ["**/*.ts", "../vitest.desktop.config.ts"],
+	"include": ["**/*.ts"],
 	"exclude": ["test/**"]
 }

@@ -28,11 +28,7 @@ export function matchPayments(movements: FioPayment[], invoices: InvoiceSummary[
 	for (const movement of movements) {
 		if (recorded.has(movement.id)) continue;
 		const invoice = invoiceFor(movement, invoices);
-		if (!invoice || !movement.id) {
-			unmatched.push(movement);
-			continue;
-		}
-		if (settlementOf(invoice, ledger).outstandingCents === 0) {
+		if (!invoice || !movement.id || settlementOf(invoice, ledger).outstandingCents === 0) {
 			unmatched.push(movement);
 			continue;
 		}

@@ -5,20 +5,12 @@ const CZECH_PLURAL = new Intl.PluralRules(LOCALE);
 export const czechList = new Intl.ListFormat(LOCALE);
 
 export const czechPercent = new Intl.NumberFormat(LOCALE, {
-	// Stryker disable next-line StringLiteral: Neplatný `style` hodí RangeError už při importu, takže se nespustí žádný test a runner nemá co započítat; hodnotu hlídá aserce v `test/plural.spec.ts`.
+	// Stryker disable next-line StringLiteral: Neplatný `style` hodí RangeError už při importu, takže se nespustí žádný test a runner nemá co započítat; hodnotu hlídá aserce v `test/unit/plural.spec.ts`.
 	style: 'percent',
 	maximumFractionDigits: 0,
 });
 
 const COUNT = new Intl.NumberFormat(LOCALE);
-
-export function zeroPadded(value: number, width: number): string {
-	const formatter = new Intl.NumberFormat(LOCALE, {
-		minimumIntegerDigits: width,
-		useGrouping: false,
-	});
-	return formatter.format(value);
-}
 
 export function czechPlural(value: number, forms: CzechPluralForms): string {
 	// `select()` je typovaný na všechny kategorie CLDR, čeština ale `zero` ani `two` nemá.

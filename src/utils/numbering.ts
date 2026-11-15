@@ -1,5 +1,4 @@
 import { DEFAULT_TEMPLATE } from '~/constants/numbering';
-import { zeroPadded } from '~/utils/locales';
 
 import type { Supplier } from '~/schemas/suppliers';
 
@@ -49,7 +48,9 @@ export function validateTemplate(template: string): string | null {
 }
 
 export function formatNumber(template: string, year: number, seq: number): string {
-	return template.replace(YEAR_MARK, String(year)).replace(SEQUENCE_MARK, (mark) => zeroPadded(seq, mark.length - 2));
+	return template
+		.replace(YEAR_MARK, String(year))
+		.replace(SEQUENCE_MARK, (mark) => String(seq).padStart(mark.length - 2, '0'));
 }
 
 export function parseSeq(template: string, year: number, number: string): number | null {

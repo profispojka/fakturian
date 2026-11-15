@@ -34,18 +34,15 @@ jobs:
       - run: bun install --frozen-lockfile
       # Showcase je samostatný projekt; `bun run typecheck` kontroluje jeho skripty proti typům z `playwright`.
       - run: bun install --cwd showcase --frozen-lockfile
-      - run: bun run test:gates
       - run: bun run lint:check
-      - run: bun run lint:scales
-      - run: bun run lint:dead-css
       - run: bun run format:check
       # Obsahuje i `tsc -p desktop/tsconfig.json` nad hlavním procesem.
       - run: bun run typecheck
       # Projekty `unit`, `nuxt` a `desktop` se 100% pokrytím na soubor.
-      - run: bun run test:coverage
+      - run: bun run test -- --coverage
       - run: bun run generate
       - run: bun run desktop:build
-      - run: bun run audit:js
+      - run: bun audit --audit-level=low
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
@@ -78,6 +75,10 @@ jobs:
         run: |
           app=.output/release/mac-arm64/Fakturian.app
           test -f "$app/Contents/Resources/app.asar"
+          test -f "$app/Contents/Resources/THIRD-PARTY-NOTICES.txt"
+          test -f "$app/Contents/Resources/LICENSE"
+          test -f "$app/Contents/Resources/LICENSE.electron.txt"
+          test -f "$app/Contents/Resources/LICENSES.chromium.html"
           test -f "$app/Contents/Resources/app.asar.unpacked/.output/desktop/validator.mjs"
           test -d "$app/Contents/Resources/app.asar.unpacked/node_modules/xmllint-wasm"
           ls .output/release/*.dmg .output/release/*.zip

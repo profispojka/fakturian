@@ -2,6 +2,10 @@ import { z, type Zod } from '~/utils/zod';
 
 import type { FioPayment as WireFioPayment } from '~/bindings';
 
+export const fioTokenSchema = z
+	.asciiAlphaNumeric('Fio token má být 64 znaků A–Z, a–z, 0–9 (zkopíruj ho z internetového bankovnictví celý).')
+	.length(64, 'Fio token má být 64 znaků A–Z, a–z, 0–9 (zkopíruj ho z internetového bankovnictví celý).');
+
 const fioPaymentSchemaDefinition = z.strictObject({
 	id: z.string(),
 	amountCents: z.number().int(),

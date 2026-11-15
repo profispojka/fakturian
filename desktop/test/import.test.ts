@@ -11,7 +11,7 @@ import { fixture } from './isdoc.ts';
 import { invoicePdf, pdfWithIsdoc, samplePdf } from './pdfs.ts';
 import { thrownBy } from './support.ts';
 
-import { alreadyThere, checkSource, isCreditNote, normIco, readSource, sourceFromPdf, type Source } from '../import.ts';
+import { alreadyThere, checkSource, isCreditNote, readSource, sourceFromPdf, type Source } from '../import.ts';
 import { setSent, toXml } from '../isdoc/mod.ts';
 import { loadPdf, readIsdoc, replaceIsdoc } from '../pdf.ts';
 
@@ -45,7 +45,7 @@ function importable(changes: Partial<Invoice> = {}, payableCents = 100): Source 
 	};
 }
 
-function refusal(checked: Source, ourIco = ''): unknown {
+function refusal(checked: Source, ourIco: string | null = null): unknown {
 	return thrownBy(() => checkSource(checked, ourIco));
 }
 
@@ -232,7 +232,7 @@ describe('kontrola vydaného dokladu', () => {
 				importable({
 					supplier: {
 						...supplier(),
-						ico: ' 012345679 ',
+						ico: ours,
 					},
 				}),
 				ours,
@@ -256,7 +256,7 @@ describe('kontrola vydaného dokladu', () => {
 					supplier: {
 						...supplier(),
 						name: ' ',
-						ico: ' ',
+						ico: '',
 					},
 				}),
 				ours,
@@ -266,7 +266,7 @@ describe('kontrola vydaného dokladu', () => {
 				'doklad neuvádí IČO dodavatele (neznámý dodavatel), takže nejde poznat, že je tvůj — přijaté doklady patří do Výdajů',
 			),
 		);
-		expect(refusal(importable({ supplier: supplier() }), '')).toBe(undefined);
+		expect(refusal(importable({ supplier: supplier() }), null)).toBe(undefined);
 	});
 
 	it('doklad plátce DPH ani v cizí měně neprojde', () => {
@@ -349,11 +349,6 @@ describe('kontrola vydaného dokladu', () => {
 });
 
 describe('druh a stav dokladu', () => {
-	it('IČO bez mezer a úvodních nul, nuly uvnitř zůstanou', () => {
-		expect(normIco(' 001 234 567 ')).toBe('1234567');
-		expect(normIco('10 203 040')).toBe('10203040');
-	});
-
 	it('hláška o existujícím dokladu jmenuje jeho číslo', () => {
 		expect(alreadyThere('F2025-840')).toBe('faktura F2025-840 už ve vaultu existuje');
 	});

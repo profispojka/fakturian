@@ -8,7 +8,7 @@ import { keepTokenInMemory } from './fio.ts';
 import { log } from './log.ts';
 import { runConnector } from './mcp/connector.ts';
 import { MCP_ARG, mcpSocketPath, serveMcp } from './mcp/mod.ts';
-import { applicationMenu } from './menu.ts';
+import { applicationMenu, contextMenu } from './menu.ts';
 import { appSupportDir } from './preferences.ts';
 import { APP_ORIGIN, APP_SCHEME, appHandler, developmentPolicy } from './protocol.ts';
 import { originOf, startShell, windowOptions } from './window.ts';
@@ -80,6 +80,10 @@ async function start(): Promise<void> {
 			}),
 		),
 	);
+	win.webContents.on('context-menu', (_event, params) => {
+		const items = contextMenu(params);
+		if (items.length > 0) Menu.buildFromTemplate(items).popup({ window: win });
+	});
 	app.on('before-quit', shell.guardQuit);
 	app.on('window-all-closed', () => app.quit());
 	app.on('second-instance', () => {

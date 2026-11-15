@@ -239,12 +239,19 @@ export interface VatLimitStats extends VatYear {
 function vatYear(items: InvoiceSummary[], day: DateString): VatYear {
 	const year = yearOf(day);
 	const inYear = items.filter((i) => yearOf(i.issueDate) === year);
-	const turnoverCents = inYear.reduce((sum, i) => sum + i.totalCents, 0);
-	const crossed = crossingDay(inYear);
-	const stage = stageOf(turnoverCents, crossed);
+	const days = Map.groupBy(inYear, (item) => item.issueDate);
+	let running = 0;
+	let highest = 0;
+	let crossed: DateString | undefined;
+	for (const [date, dayItems] of [...days.entries()].toSorted(([a], [b]) => a.localeCompare(b))) {
+		running += dayItems.reduce((sum, item) => sum + item.totalCents, 0);
+		highest = Math.max(highest, running);
+		if (crossed === undefined && running > VAT_LIMIT_IMMEDIATE_CENTS) crossed = addDays(date, 1);
+	}
+	const stage = stageOf(highest);
 	return {
 		year,
-		turnoverCents,
+		turnoverCents: running,
 		stage,
 		payerFrom: payerFrom(stage, crossed, endOfYear(day)),
 	};
@@ -265,8 +272,8 @@ export function vatLimit(items: InvoiceSummary[], today: DateString): VatLimitSt
 	};
 }
 
-function stageOf(turnoverCents: number, crossed: DateString | undefined): VatStage {
-	if (crossed !== undefined) return 'immediate';
+function stageOf(turnoverCents: number): VatStage {
+	if (turnoverCents > VAT_LIMIT_IMMEDIATE_CENTS) return 'immediate';
 	if (turnoverCents > VAT_LIMIT_CENTS) return 'next-year';
 	return 'below';
 }
@@ -279,19 +286,6 @@ function payerFrom(
 	if (stage === 'below') return undefined;
 	if (stage === 'immediate') return crossed;
 	return addDays(lastDayOfYear, 1);
-}
-
-// Obrat se řadí podle data vystavení, jako v iDokladu a Fakturoidu
-// (docs/02-TECHNOLOGIE.md, „Limit plátcovství DPH").
-function crossingDay(inYear: InvoiceSummary[]): DateString | undefined {
-	let running = 0;
-	const days = new Map<DateString, number>();
-	for (const i of inYear) days.set(i.issueDate, (days.get(i.issueDate) ?? 0) + i.totalCents);
-	for (const [day, amount] of [...days].toSorted(([a], [b]) => a.localeCompare(b))) {
-		running += amount;
-		if (running > VAT_LIMIT_IMMEDIATE_CENTS) return addDays(day, 1);
-	}
-	return undefined;
 }
 
 export type VatLevel = 'ok' | 'warn' | 'danger';

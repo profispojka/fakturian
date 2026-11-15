@@ -16,7 +16,7 @@ export function mailtoUrl(to: string, subject: string, body: string): string {
 	if (body) parts.push(`body=${encodeURIComponent(body)}`);
 	let query = '';
 	if (parts.length) query = `?${parts.join('&')}`;
-	return `mailto:${encodeURIComponent(to.trim()).replace(/%40/g, '@')}${query}`;
+	return `mailto:${encodeURIComponent(to.trim()).replaceAll('%40', '@')}${query}`;
 }
 
 export function defaultInvoiceMail(number: string, totalCents: number): { subject: string; body: string } {

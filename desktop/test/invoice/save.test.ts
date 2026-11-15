@@ -67,12 +67,10 @@ function sample(): Invoice {
 		...invoice(),
 		supplier: {
 			...supplier(),
-			dic: 'CZ12345679',
 			registration: 'Fyzická osoba zapsaná v živnostenském rejstříku',
 		},
 		customer: {
 			...customer(),
-			dic: '',
 		},
 		lines: [
 			{
@@ -143,7 +141,6 @@ describe('doklad z webview', () => {
 			supplier: {
 				name: 'Jan Dodavatel',
 				ico: '',
-				dic: '',
 				address: {
 					street: '',
 					city: '',
@@ -155,7 +152,6 @@ describe('doklad z webview', () => {
 			customer: {
 				name: 'Odběratel s.r.o.',
 				ico: '',
-				dic: '',
 				address: {
 					street: '',
 					city: '',
@@ -167,7 +163,6 @@ describe('doklad z webview', () => {
 			vatNote: '',
 			bankAccount: '',
 			bankCode: '',
-			iban: '',
 			variableSymbol: '',
 			note: '',
 			lines: [
@@ -296,6 +291,86 @@ describe('doklad z webview', () => {
 });
 
 describe('uložení a načtení', () => {
+	it('nepřekročí roční limit a dovolí přesně dva miliony', async () => {
+		const first = {
+			...invoice(),
+			lines: [
+				{
+					...invoice().lines[0],
+					quantity: 1,
+					unitPriceCents: 199_999_900,
+				},
+			],
+		};
+		await saveNew(first);
+		const last = {
+			...first,
+			number: '20260002',
+			lines: [
+				{
+					...first.lines[0],
+					unitPriceCents: 100,
+				},
+			],
+		};
+		await saveNew(last);
+		await expect(
+			saveNew({
+				...last,
+				number: '20260003',
+				lines: [
+					{
+						...last.lines[0],
+						unitPriceCents: 1,
+					},
+				],
+			}),
+		).rejects.toThrow('Doklad nejde uložit, protože by obrat za kalendářní rok překročil 2 000 000 Kč.');
+		await expect(
+			saveEdit({
+				...last,
+				lines: [
+					{
+						...last.lines[0],
+						unitPriceCents: 101,
+					},
+				],
+			}),
+		).rejects.toThrow('Doklad nejde uložit, protože by obrat za kalendářní rok překročil 2 000 000 Kč.');
+	});
+
+	it('nedovolí vystavení, pokud kvůli vadnému dokladu nelze ověřit obrat', async () => {
+		await mkdir(join(base, 'faktury'));
+		await writeFile(join(base, 'faktury', 'vadny.pdf'), 'nečitelné');
+		await expect(saveNew(invoice())).rejects.toThrow(
+			'Limit obratu nejde ověřit, protože některé faktury nejdou přečíst.',
+		);
+	});
+
+	it('zpětně vystavená faktura nesmí překročit limit před pozdějším dobropisem', async () => {
+		const original = {
+			...invoice(),
+			lines: [
+				{
+					...invoice().lines[0],
+					quantity: 1,
+					unitPriceCents: 200_000_000,
+				},
+			],
+		};
+		await saveNew(original);
+		await saveNew({
+			...creditNote(),
+			issueDate: '2026-06-01',
+		});
+		await expect(
+			saveNew({
+				...invoice(),
+				number: '20260003',
+				issueDate: '2026-05-01',
+			}),
+		).rejects.toThrow('Doklad nejde uložit, protože by obrat za kalendářní rok překročil 2 000 000 Kč.');
+	});
 	it('uložený doklad se načte zpátky se zhmotněným UUID', async () => {
 		const path = await saveNew(sample());
 
@@ -451,7 +526,6 @@ describe('uložení a načtení', () => {
 				customer: {
 					...customer(),
 					ico: '87654321',
-					dic: 'xx',
 					address: {
 						street: 'Odběratelská 2',
 						city: 'Brno',
@@ -460,11 +534,7 @@ describe('uložení a načtení', () => {
 					email: 'kdosi',
 				},
 			}),
-		).rejects.toThrow(
-			new Error(
-				'Doklad nejde uložit (Neplatné IČO odběratele., Neplatné DIČ odběratele. a Neplatné PSČ odběratele.).',
-			),
-		);
+		).rejects.toThrow(new Error('Doklad nejde uložit (Neplatné IČO odběratele., Neplatné PSČ odběratele. a Neplatný e-mail odběratele.).'));
 		expect(await names(base)).toEqual([]);
 	});
 
@@ -497,19 +567,18 @@ describe('uložení a načtení', () => {
 		expect(await names(base)).toEqual([]);
 	});
 
-	it('odběratel bez DIČ a e-mailu se uloží', async () => {
+	it('odběratel bez e-mailu se uloží', async () => {
 		await saveNew({
 			...invoice(),
 			customer: {
 				...customer(),
-				dic: '',
 				email: '',
 			},
 		});
 
 		const { customer: back } = await load('20260001');
 
-		expect([back.ico, back.dic, back.email]).toEqual(['87654326', '', '']);
+		expect([back.ico, back.email]).toEqual(['87654326', '']);
 	});
 
 	it('složka jménem dokladu číslo nezabere, ale zápis nového dokladu na její místo selže', async () => {
@@ -862,30 +931,21 @@ describe('vykreslení a logo', () => {
 		]);
 	});
 
-	it('holý doklad bez IBAN, poznámky, DIČ a e-mailu se načte s prázdnými poli', async () => {
+	it('holý doklad bez poznámky a e-mailu se načte s prázdnými poli', async () => {
 		await saveNew({
 			...invoice(),
-			iban: '',
 			note: '',
 			supplier: {
 				...supplier(),
-				dic: '',
 				email: '',
 			},
 			customer: {
 				...customer(),
-				dic: '',
 			},
 		});
 
 		const back = await load('20260001');
-		expect([back.iban, back.note, back.supplier.dic, back.customer.dic, back.supplier.email]).toEqual([
-			'',
-			'',
-			'',
-			'',
-			'',
-		]);
+		expect([back.note, back.supplier.email]).toEqual(['', '']);
 	});
 
 	it('logo z vaultu přidá do dokladu právě jeden obrázek', async () => {

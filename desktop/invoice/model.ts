@@ -1,3 +1,5 @@
+import BigDecimal from 'big.js';
+
 import { DocumentKind, type DocumentType } from '~/constants/invoice';
 import { issuesText } from '~/utils/errors';
 import { z, type Zod } from '~/utils/zod';
@@ -18,27 +20,15 @@ export interface Invoice extends Omit<Invoice_Serialize, 'documentType' | 'suppl
 	lines: InvoiceLine[];
 }
 
-// Stryker disable next-line Regex: ekvivalentní mutant, `String(číslo)` s exponentem má tvar celý, takže kotvy nic nezmění.
-const EXPONENT = /^(-?)(\d)\.?(\d*)e([+-]\d+)$/;
-
-// Nejkratší zápis, který se přečte zpátky na totéž číslo, ale bez exponentu: `String(1e21)` ho
-// napíše a `xs:decimal` ho nepovoluje.
 export function fmtnum(value: number): string {
-	const shortest = String(value);
-	const match = EXPONENT.exec(shortest);
-	if (!match) return shortest;
-	const [, sign, lead, fraction, exponent] = match;
-	const digits = `${lead}${fraction}`;
-	const point = 1 + Number(exponent);
-	// Stryker disable next-line EqualityOperator: ekvivalentní mutant, `String()` píše exponent až od 1e21 nebo pod 1e-6, takže `point` nulu nevyjde.
-	if (point <= 0) return `${sign}0.${'0'.repeat(-point)}${digits}`;
-	return `${sign}${digits.padEnd(point, '0')}`;
+	return BigDecimal(value).toFixed();
 }
 
 const partySchema = z.strictObject({
 	name: z.string(),
+	// jednoduchá kontrola na string neznamená že ičo není kontrolováno, dále v programu proběhne korektní kontrola.
+	// Tato lehčí kontrola zajistí že se ukáže uživateli pěkná česká hláška
 	ico: z.string().default(''),
-	dic: z.string().default(''),
 	address: z
 		.strictObject({
 			street: z.string(),
@@ -77,7 +67,6 @@ const invoiceSchema = z.strictObject({
 	vatNote: z.string().default(''),
 	bankAccount: z.string().default(''),
 	bankCode: z.string().default(''),
-	iban: z.string().default(''),
 	variableSymbol: z.string().default(''),
 	note: z.string().default(''),
 	lines: z.array(

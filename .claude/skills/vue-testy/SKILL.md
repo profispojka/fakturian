@@ -6,17 +6,19 @@ description: Jak se ve Fakturianu testuje Vue vrstva — skutečný Nuxt runtime
 # Testy Vue vrstvy
 
 Hledání prvků a `data-testid` popisuje skill `test-ids`. Celý model kvality je v
-`docs/10-KVALITA.md`.
+`docs/07-KVALITA.md`.
 
 ## Jak je to poskládané
 
-`vitest.config.ts` má dva projekty: `unit` (`vitest.unit.config.ts`, `test/*.spec.ts`, prostředí
-`node`, čistá logika) a `nuxt` (`vitest.nuxt.config.ts`, `test/nuxt/*.spec.ts`, skutečný Nuxt
-runtime přes `@nuxt/test-utils`). Nuxt runtime žije
+`vitest.config.ts` skládá projekty `unit`, `nuxt` a `desktop`; jejich definice jsou
+v `vitest.projects.ts`. Projekt `unit` (`test/unit/**/*.spec.ts`, prostředí `node`) testuje
+čistou logiku, `nuxt` (`test/nuxt/**/*.spec.ts`) používá skutečný Nuxt runtime přes
+`@nuxt/test-utils`, `desktop` spouští testy hlavního procesu. Samostatné běhy bez Nuxtu
+(`desktop`, fuzz a mutace) používají `vitest.mutation.config.ts`. Nuxt runtime žije
 po celý soubor; `test/setup/nuxt-state.ts` před každým testem uklidí stav, `document.body`
 i adresu a odmountuje komponenty.
 
-Spouštění: `bunx vitest run test/nuxt/page-invoice.spec.ts`. Projekt `nuxt` staví do `.nuxt`
+Spouštění: `bunx vitest run test/nuxt/pages/page-invoice.spec.ts`. Projekt `nuxt` staví do `.nuxt`
 stejně jako dev server — při běžícím serveru (port 1420) pusť jen `--project unit`.
 
 ## Žádné stuby

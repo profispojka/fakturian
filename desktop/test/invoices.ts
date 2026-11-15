@@ -6,7 +6,6 @@ export function supplier(): InvoiceParty {
 	return {
 		name: 'Jan Dodavatel',
 		ico: '12345679',
-		dic: '',
 		address: {
 			street: 'Dodavatelská 1',
 			city: 'Praha',
@@ -21,7 +20,6 @@ export function customer(): InvoiceParty {
 	return {
 		name: 'Odběratel s.r.o.',
 		ico: '87654326',
-		dic: 'CZ87654326',
 		address: {
 			street: 'Odběratelská 2',
 			city: 'Brno',
@@ -48,7 +46,6 @@ export function invoice(): Invoice {
 		vatNote: '',
 		bankAccount: '2000145399',
 		bankCode: '0800',
-		iban: 'CZ6508000000192000145399',
 		variableSymbol: '20260001',
 		note: 'Děkujeme za spolupráci.',
 		lines: [
@@ -109,7 +106,7 @@ export function backup(): Invoice {
 	};
 }
 
-// Odběratel bez DIČ a doklad bez bankovních údajů.
+// Doklad bez bankovních údajů.
 export function minimal(): Invoice {
 	return {
 		...invoice(),
@@ -118,7 +115,6 @@ export function minimal(): Invoice {
 		customer: {
 			name: 'Petra Nováková',
 			ico: '71048294',
-			dic: '',
 			address: {
 				street: 'Horní náměstí 1',
 				city: 'Olomouc',
@@ -129,7 +125,6 @@ export function minimal(): Invoice {
 		},
 		bankAccount: '',
 		bankCode: '',
-		iban: '',
 		note: '',
 	};
 }
@@ -152,7 +147,6 @@ export function numbered(number: string, customerName: string, unitPriceCents: n
 			name: customerName,
 		},
 		bankAccount: '123',
-		iban: '',
 		variableSymbol: '',
 		note: '',
 		lines: [
@@ -171,7 +165,6 @@ function party(name: string, ico: string): InvoiceParty {
 	return {
 		name,
 		ico,
-		dic: `CZ${ico}`,
 		address: {
 			street: 'Ulice 1',
 			city: 'Praha',
@@ -182,7 +175,7 @@ function party(name: string, ico: string): InvoiceParty {
 	};
 }
 
-// 3 h × 1 200 Kč + 3 ks × 19,99 Kč = 3 659,97 Kč, bez IBAN.
+// 3 h × 1 200 Kč + 3 ks × 19,99 Kč = 3 659,97 Kč.
 export function sampleInvoice(): Invoice {
 	return {
 		number: '20260007',
@@ -198,7 +191,6 @@ export function sampleInvoice(): Invoice {
 		vatNote: '',
 		bankAccount: '2000145399',
 		bankCode: '0800',
-		iban: '',
 		variableSymbol: '20260007',
 		note: 'Děkuji za spolupráci.',
 		lines: [
@@ -305,7 +297,7 @@ export const MINIMAL_ISDOC = `<?xml version="1.0" encoding="UTF-8"?>
         <ID>2000145399</ID>
         <BankCode>0800</BankCode>
         <Name>Česká spořitelna</Name>
-        <IBAN>CZ6508000000192000145399</IBAN>
+        <IBAN></IBAN>
         <BIC></BIC>
         <VariableSymbol>20260001</VariableSymbol>
       </Details>

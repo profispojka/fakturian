@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readdir, readFile, rm } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, parse as parsePath } from 'node:path';
 
 import pLimit from 'p-limit';
 
@@ -18,11 +18,6 @@ export const DATA_FILES = ['nastaveni.json', 'platby.json', 'vydaje.json'];
 
 // 29. 12. 1969 je pondělí, takže dělení sedmi rozřízne kalendář na týdny od pondělí.
 const FIRST_MONDAY = dateIn(1969, 12, 29);
-
-// `klíč.datum.přípona`, čteno zprava: klíč smí mít tečky (`platby.json`, doklad `2026.1`) a úklid
-// záloh dokladu `2026` nesmí smazat zálohy dokladu `2026.1`.
-// Stryker disable next-line Regex: ekvivalentní mutant, hladové `(.*)` začne na začátku jména a `[^.]*` dojde na konec i bez kotev.
-const SNAPSHOT_NAME = /^(.*)\.([^.]*)\.[^.]*$/s;
 
 // Stryker disable next-line StringLiteral: neplatné kódování hodí RangeError už při importu, takže se nespustí žádný test.
 const UTF8 = new TextDecoder('utf-8', { fatal: true });
@@ -99,7 +94,7 @@ function revisionOf(content: Uint8Array): string {
 	return createHash('sha256').update(content).digest('hex');
 }
 
-export function readDataFile({ vaultPath, name }: { vaultPath: string; name: string }): Promise<string> {
+export function readDataFile({ vaultPath, name }: { vaultPath: string; name: string }): Promise<string | null> {
 	return exclusive(async () => {
 		checkName(name);
 		// Chybějící soubor je normální stav, chybějící kořen ne: bez toho rozdílu by odpojený disk
@@ -120,7 +115,7 @@ export function readDataFile({ vaultPath, name }: { vaultPath: string; name: str
 				throw new Error(`Soubor ${name} nejde přečíst: ${errorText(error)}`, { cause: error });
 			}
 			KNOWN.set(key, null);
-			return '{}';
+			return null;
 		}
 		const json = canonicalJson(name, text);
 		KNOWN.set(key, revisionOf(raw));
@@ -217,10 +212,11 @@ export async function saveSnapshot(dir: string, key: string, extension: string, 
 	const entries = listed.status === 'fulfilled' ? listed.value : [];
 	const mine = entries
 		.flatMap((name) => {
-			// Stryker disable next-line ArrayDeclaration: ekvivalentní mutant, bez shody zůstane vlastník `undefined` tak jako tak.
-			const [, owner, stamp] = SNAPSHOT_NAME.exec(name) ?? [];
-			const taken = parseDate(stamp);
-			if (owner !== key || !taken) return [];
+			const { name: nameWithoutExtension } = parsePath(name);
+			const prefix = `${key}.`;
+			if (!nameWithoutExtension.startsWith(prefix)) return [];
+			const taken = parseDate(nameWithoutExtension.slice(prefix.length));
+			if (!taken) return [];
 			return [
 				{
 					taken,

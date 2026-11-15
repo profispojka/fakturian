@@ -11,7 +11,7 @@
   <RefCurrRate>1</RefCurrRate>
   <AccountingSupplierParty>
     <Party>
-      <PartyIdentification><ID>12345678</ID></PartyIdentification>
+      <PartyIdentification><ID>27082440</ID></PartyIdentification>
       <PartyName><Name>Cizí Dodavatel s.r.o.</Name></PartyName>
       <PostalAddress>
         <StreetName>Nádražní</StreetName>
@@ -25,7 +25,7 @@
   </AccountingSupplierParty>
   <AccountingCustomerParty>
     <Party>
-      <PartyIdentification><ID>87654321</ID></PartyIdentification>
+      <PartyIdentification><ID>25596641</ID></PartyIdentification>
       <PartyName><Name>Odběratel s.r.o.</Name></PartyName>
       <PostalAddress>
         <StreetName>Odběratelská</StreetName>

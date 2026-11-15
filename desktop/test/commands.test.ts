@@ -532,12 +532,13 @@ describe('seznam příkazů', () => {
 			files
 				.safeParse({
 					filterName: ' ',
-					extensions: ['.pdf', 'pdf;'],
+					extensions: ['.pdf', 'pdf;', 'pdf\n'],
 					multiple: false,
 				})
 				.error.issues.map((i) => i.message),
 		).toEqual([
 			'Filtr dialogu potřebuje název.',
+			'Přípona smí mít jen písmena a číslice, bez tečky.',
 			'Přípona smí mít jen písmena a číslice, bez tečky.',
 			'Přípona smí mít jen písmena a číslice, bez tečky.',
 		]);
@@ -656,7 +657,7 @@ describe('seznam příkazů', () => {
 				'read_data_file',
 				{
 					ok: true,
-					value: '{}',
+					value: null,
 				},
 			],
 			[

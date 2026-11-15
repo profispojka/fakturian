@@ -43,14 +43,13 @@ schémat. Datum se neověřuje vlastním `regex`em.
 ## Co umí zod, nepíše se znovu
 
 Před vlastní kontrolou formátu ověř ve zdrojáku (`node_modules/zod/v4/core/schemas.js`), co zod
-umí. `z.iban()` hlídá i kontrolní součet mod-97, takže vlastní `isValidIban` by byla duplicita.
-Vlastní validátor v `src/utils/validators.ts` má místo jen tam, kde zod formát nemá.
+umí. Vlastní validátor v `src/utils/validators.ts` má místo jen tam, kde zod formát nemá.
 
 ## Schéma na hranici
 
-- **Povinná hodnota nemá `.default()`, `.catch()` ani `.prefault()`.** Výjimka je `.default()`
-  nad celým souborem evidence — chybějící soubor vrací hlavní proces jako `{}` a prázdná evidence je
-  platný stav.
+- **Povinná hodnota nemá `.default()`, `.catch()` ani `.prefault()`.** Chybějící soubor evidence
+  vrací `read_data_file` jako `null`; prázdnou evidenci pro něj vytvoří `empty*()` v `useVaultFile`.
+  Chybějící klíč v existujícím souboru je chyba.
 - **Nepovinné je `undefined`, prázdný řetězec je vadná hodnota.** Schéma nepovinného pole je
   holé `z.email('Neplatný e-mail.').optional()`, žádné „…nebo prázdné". Prázdné pole převádí na
   `undefined` ten, kdo hodnotu přinesl: formulář přes `<UInput v-model.trim.optional>`, import

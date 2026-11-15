@@ -149,12 +149,11 @@ describe('import vydaných dokladů', () => {
 
 		const report = await importInto([source]);
 
-		const { name, ico, dic, address, email } = customer();
+		const { name, ico, address, email } = customer();
 		expect(report.customers).toEqual([
 			{
 				name,
 				ico,
-				dic,
 				address,
 				email,
 			},
@@ -263,7 +262,7 @@ describe('import vydaných dokladů', () => {
 			['Jana Novak', ''],
 			['Petr Novak', ''],
 			['Firma A', '87654326'],
-			['Firma B', '11223344'],
+			['Firma B', '11223341'],
 			['Firma A přejmenovaná', '87654326'],
 		];
 		const paths = [];
@@ -285,9 +284,9 @@ describe('import vydaných dokladů', () => {
 		expect(report.customers.map(({ name }) => name)).toEqual(['Jana Novak', 'Petr Novak', 'Firma A', 'Firma B']);
 	});
 
-	it('odběratele nezdvojí úvodní nuly v IČO', async () => {
+	it('doklad s IČO jinak než osmi číslicemi se nepřevezme', async () => {
 		const paths = [];
-		for (const [i, ico] of ['87654326', '0087654326'].entries()) {
+		for (const [i, ico] of ['0087654326', '8765432', '876 54 326'].entries()) {
 			paths.push(
 				await document(`doklad-${i}`, {
 					...numbered(`F2025-82${i}`),
@@ -301,8 +300,12 @@ describe('import vydaných dokladů', () => {
 
 		const report = await importInto(paths);
 
-		expect(report.imported.length).toBe(2);
-		expect(report.customers.map(({ ico }) => ico)).toEqual(['87654326']);
+		expect(report.imported).toEqual([]);
+		expect(report.skipped.map(({ reason }) => reason)).toEqual([
+			'doklad má neplatné IČO odběratele „0087654326“ (čekám 8 číslic)',
+			'doklad má neplatné IČO odběratele „8765432“ (čekám 8 číslic)',
+			'doklad má neplatné IČO odběratele „876 54 326“ (čekám 8 číslic)',
+		]);
 	});
 
 	it('prázdná dávka projde bez chyby', async () => {

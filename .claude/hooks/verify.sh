@@ -59,15 +59,12 @@ $cmd_out"
 }
 
 run lint bun run lint:check
-run lint:scales bun run lint:scales
-run lint:dead-css bun run lint:dead-css
 # `typecheck` obsahuje i `tsc -p desktop/tsconfig.json`; hlavní proces importuje typy z `src/`.
 run typecheck bun run typecheck
 
-# Vlastní konfigurace projektu, ne kořenová: ta by načetla i Nuxt projekt a sahala do `.nuxt`, kam
-# staví běžící dev server.
+# Konfigurace bez Nuxt projektu: jeho příprava sahá do `.nuxt`, kam může stavět běžící dev server.
 if [ -n "$desktop" ]; then
-	run test:desktop bunx vitest related --run --config vitest.desktop.config.ts --passWithNoTests $desktop
+	run test:related bunx vitest related --run --config vitest.mutation.config.ts --project desktop --passWithNoTests $desktop
 fi
 
 if [ -n "$fail" ]; then

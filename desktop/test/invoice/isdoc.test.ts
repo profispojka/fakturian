@@ -104,6 +104,17 @@ describe('zápis vlastního ISDOC', () => {
 		}
 	});
 
+	it('množství zapíše bez exponentu a zápornou nulu jako nulu', () => {
+		const document = sampleInvoice();
+		document.lines[0].quantity = -0;
+		document.lines[1].quantity = 1e-7;
+
+		const xml = buildIsdoc(document);
+
+		expect(xml).toContain('<InvoicedQuantity unitCode="hod">0</InvoicedQuantity>');
+		expect(xml).toContain('<InvoicedQuantity unitCode="ks">0.0000001</InvoicedQuantity>');
+	});
+
 	it('dobropis s odkazem na původní doklad přežije cestu tam a zpět', async () => {
 		const note: Invoice = {
 			...sampleInvoice(),
@@ -119,8 +130,10 @@ describe('zápis vlastního ISDOC', () => {
 			})),
 		};
 
-		const parsed = await parseIsdoc(buildIsdoc(note));
+		const xml = buildIsdoc(note);
+		const parsed = await parseIsdoc(xml);
 
+		expect(xml).toContain('<TaxInclusiveAmount>3659.97</TaxInclusiveAmount>');
 		expect(parsed).toEqual(await afterWrite(note));
 	});
 
@@ -237,10 +250,9 @@ describe('zápis vlastního ISDOC', () => {
 		expect(xml).toBe(sample.replace(SAMPLE_CUSTOMER_REGISTRATION, ''));
 	});
 
-	it('prázdné DIČ, e-mail ani poznámku nevypíše', () => {
+	it('prázdný e-mail ani poznámku nevypíše', () => {
 		const document = sampleInvoice();
 		for (const party of [document.supplier, document.customer]) {
-			party.dic = '';
 			party.email = '';
 		}
 		document.note = '';
@@ -253,7 +265,7 @@ describe('zápis vlastního ISDOC', () => {
 			false,
 		]);
 		expect(['<PartyTaxScheme>', '<Contact>', '<Note>'].map((tag) => sample.includes(tag))).toEqual([
-			true,
+			false,
 			true,
 			true,
 		]);
@@ -415,7 +427,6 @@ describe('vlastní ISDOC proti XSD', () => {
 			...invoice(),
 			supplier: {
 				...invoice().supplier,
-				dic: '',
 				address: {
 					street: '',
 					city: '',
@@ -427,7 +438,6 @@ describe('vlastní ISDOC proti XSD', () => {
 			customer: {
 				name: '',
 				ico: '',
-				dic: '',
 				address: {
 					street: '',
 					city: '',

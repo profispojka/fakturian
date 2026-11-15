@@ -14,7 +14,6 @@ export const SAMPLE_INVOICE: Invoice = {
 	supplier: {
 		name: 'Jan Dodavatel',
 		ico: '12345678',
-		dic: '',
 		address: {
 			street: 'Dlouhá 1',
 			city: 'Praha 1',
@@ -25,8 +24,7 @@ export const SAMPLE_INVOICE: Invoice = {
 	},
 	customer: {
 		name: 'Ukázkový odběratel s.r.o.',
-		ico: '27154893',
-		dic: 'CZ27154893',
+		ico: '27154891',
 		address: {
 			street: 'Sokolovská 651/136a',
 			city: 'Praha 8',
@@ -38,7 +36,6 @@ export const SAMPLE_INVOICE: Invoice = {
 	vatNote: 'Nejsem plátce DPH.',
 	bankAccount: '2000145399',
 	bankCode: '0800',
-	iban: 'CZ6508000000192000145399',
 	variableSymbol: '20260142',
 	note: 'Takhle bude vypadat poznámka pod položkami.',
 	lines: [

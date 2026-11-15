@@ -3,10 +3,11 @@ import { createHash } from 'node:crypto';
 
 import { DOMImplementation, type Element } from '@xmldom/xmldom';
 
+import { DocumentKind } from '~/constants/invoice';
 import { invoiceTotalCents, lineTotalCents } from '~/utils/invoice';
 
 import { fmtnum, type Invoice, type InvoiceLine, type InvoiceParty } from './model.ts';
-import { paymentSymbol } from './payment.ts';
+import { czechIban, paymentSymbol } from './payment.ts';
 
 import {
 	extensionElement,
@@ -52,8 +53,10 @@ export function invoiceUuid(invoice: Invoice): string {
 // Prvky jdou v pořadí sekvence z XSD; doklad bez položek XSD neprojde.
 export function buildIsdoc(invoice: Invoice): string {
 	const uuid = invoiceUuid(invoice);
-	const total = fromCents(invoiceTotalCents(invoice));
+	const sign = invoice.documentType === DocumentKind.CreditNote ? -1 : 1;
+	const total = fromCents(invoiceTotalCents(invoice) * sign);
 	const vatNote = invoice.vatNote.trim();
+	const iban = czechIban(invoice.bankAccount, invoice.bankCode) ?? '';
 	const document = IMPLEMENTATION.createDocument(ISDOC_NAMESPACE, '', null);
 
 	// Prázdná hodnota dá `<X></X>`, ne `<X/>`.
@@ -78,11 +81,6 @@ export function buildIsdoc(invoice: Invoice): string {
 		const country = add(address, 'Country');
 		add(country, 'IdentificationCode', 'CZ');
 		add(country, 'Name', 'Česko');
-		if (party.dic) {
-			const scheme = add(element, 'PartyTaxScheme');
-			add(scheme, 'CompanyID', party.dic);
-			add(scheme, 'TaxScheme', 'VAT');
-		}
 		const registration = party.registration.trim();
 		if (registration) add(add(element, 'RegisterIdentification'), 'Preformatted', registration);
 		if (party.email) add(add(element, 'Contact'), 'ElectronicMail', party.email);
@@ -90,8 +88,8 @@ export function buildIsdoc(invoice: Invoice): string {
 
 	function addLine(lines: Element, id: number, line: InvoiceLine): void {
 		const element = add(lines, 'InvoiceLine');
-		const amount = fromCents(lineTotalCents(line));
-		const price = fromCents(line.unitPriceCents);
+		const amount = fromCents(lineTotalCents(line) * sign);
+		const price = fromCents(line.unitPriceCents * sign);
 		add(element, 'ID', String(id));
 		add(element, 'InvoicedQuantity', fmtnum(line.quantity)).setAttribute('unitCode', line.unit);
 		add(element, 'LineExtensionAmount', amount);
@@ -177,7 +175,7 @@ export function buildIsdoc(invoice: Invoice): string {
 	add(details, 'ID', invoice.bankAccount);
 	add(details, 'BankCode', invoice.bankCode);
 	add(details, 'Name', '');
-	add(details, 'IBAN', invoice.iban);
+	add(details, 'IBAN', iban);
 	add(details, 'BIC', '');
 	add(details, 'VariableSymbol', paymentSymbol(invoice));
 	return toXml(document);

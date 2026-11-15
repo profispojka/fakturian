@@ -6,7 +6,8 @@ description: Jak se ve Fakturianu píše vzhled — Tailwind utility v class, kd
 # Vzhled
 
 Vzhled se píše utilitami přímo do `class`. Co z pravidel níž hlídá nástroj, je u pravidla
-napsané; `bun run lint:scales` a `bun run lint:dead-css` pouští i Stop hook.
+napsané. Před dokončením práce spusť z kořene projektu `node scripts/check-tailwind-scales.ts`
+a `node scripts/check-dead-css.ts` podle `AGENTS.md`.
 
 ## Kam tvar patří
 
@@ -14,17 +15,17 @@ Když utilita nestačí (kombinátor, pseudoelement, `:not()`), rozhoduje **koli
 
 - **víc než jeden** → `src/assets/css/main.css`, slovník designu (`.page`, `.ftable`,
   `.form-grid`, `.state`);
-- **právě jeden** → `<style>` blok v tom souboru (`lint:dead-css` hlásí tvar z `main.css`, který
+- **právě jeden** → `<style>` blok v tom souboru (`check-dead-css.ts` hlásí tvar z `main.css`, který
   nosí jediný soubor, i tvar, který nenosí nikdo).
 
 Blok v SFC je **nescoped** a začíná `@reference '~/assets/css/main.css';`. Scoped styl dá atribut
 jen kořeni dítěte, takže na `<input>` uvnitř `UInput` nedosáhne; bez `@reference` `@apply`
-nezná tokeny appky a překlad spadne. Hlídá `vue/enforce-style-attribute` a `lint:dead-css`.
+nezná tokeny appky a překlad spadne. Hlídá `vue/enforce-style-attribute` a `check-dead-css.ts`.
 
 **Tvar, který přebíjí jiný pořadím, se nestěhuje.** `.figures--compact > *` vyhrává nad
 `.figures > *` jen tím, že v `main.css` stojí níž; v SFC by se pořadí ztratilo. Stejně
 `.state--overdue` nad `.state`. Tvar, který vyhrává specificitou (`.cell-input.invalid`), se
-stěhovat může. Výjimky drží `STAYS` v `tools/lint/check-dead-css.ts` i s důvodem.
+stěhovat může. Výjimky drží `STAYS` v `scripts/check-dead-css.ts` i s důvodem.
 
 **Než tvar dostane jméno, musí být co pojmenovat.** Třída, jejíž tělo je jedna utilita, je
 přezdívka (`.overdue` za `text-danger`) a nezakládá se. Výjimka: jméno skládané za běhu
@@ -38,14 +39,14 @@ kde utilita neexistuje (`@keyframes`, data-URI šipka v `@utility chevron`).
 
 - **Role jménem, ne proměnnou:** `text-ink-2`, `bg-card`, `border-line-soft`. Ztlumení nese
   modifikátor krytí (`text-ink-2/80`), ne `color-mix`. `bg-(--bg)` zbyl jen v `main.css`.
-- **Arbitrary hodnota tam, kde je token, je chyba** (`lint:scales` čte stupně z `@theme`). Nová
+- **Arbitrary hodnota tam, kde je token, je chyba** (`check-tailwind-scales.ts` čte stupně z `@theme`). Nová
   hodnota mimo škálu znamená, že chybí stupeň.
 - **Zlomy jsou dva: `split:` (820 px) a `wide:` (960 px).** Okno se nezmenší pod 760 px
   (`MIN_WINDOW_SIZE` v `desktop/window-size.ts`), takže `min-[561px]:` je mrtvý kód. `sm:`, `md:` …
-  zůstávají zapnuté kvůli Nuxt UI, v našem markupu se nepíšou. Hlídá `lint:scales`.
+  zůstávají zapnuté kvůli Nuxt UI, v našem markupu se nepíšou. Hlídá `check-tailwind-scales.ts`.
 - **Preflight už nuluje `margin`, `padding`, `border` a odrážky.** `m-0`, `py-0`, `border-0`,
   `list-none` na obyčejném elementu nic nedělají; smysl mají jen s `!` proti Nuxt UI nebo tvaru ze
-  slovníku (`m-0!`). Hlídá `lint:scales`.
+  slovníku (`m-0!`). Hlídá `check-tailwind-scales.ts`.
 - **Pravidla v `main.css` stojí mimo `@layer`**, takže přebijí každou utilitu z markupu — jinak by
   třídy Nuxt UI přerazily metriku ovládacích prvků. Přebít tvar ze slovníku na jednom místě jde
   jen utilitou s vykřičníkem (`grid-cols-1!`).
@@ -68,7 +69,6 @@ kvůli schování `:ui`.
 
 ## Kanonické třídy
 
-Tailwind IntelliSense hlásí `suggestCanonicalClasses`; v repu na to lint není a `lint:scales` je
+Tailwind IntelliSense hlásí `suggestCanonicalClasses`; v repu na to lint není a `check-tailwind-scales.ts` je
 v jednom přísnější — chce roli jménem (`stroke-line`) tam, kde kanonizace skončí u
-`stroke-(--line)`. Fixtures v `tools/lint/check-tailwind-scales.ts` a
-`test/check-tailwind-scales.spec.ts` jsou nekanonické schválně.
+`stroke-(--line)`.

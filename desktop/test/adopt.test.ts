@@ -209,7 +209,6 @@ describe('sken složky', () => {
 			registration,
 			bankAccount: '2000145399',
 			bankCode: '0800',
-			iban: 'CZ6508000000192000145399',
 			invoiceNumberFormat: '{RRRR}{NNNN}',
 			defaultDueDays: 14,
 		});
@@ -242,7 +241,7 @@ describe('sken složky', () => {
 			supplier: {
 				...supplier(),
 				name: 'Dodavatel hostingu s.r.o.',
-				ico: '99887766',
+				ico: '99887762',
 			},
 		});
 		await pdfInto(base, 'moje', invoice());
@@ -253,7 +252,7 @@ describe('sken složky', () => {
 		expect(offer.skipped).toEqual([
 			{
 				file: 'hosting.pdf',
-				reason: 'doklad vystavil Dodavatel hostingu s.r.o. (IČO 99887766), ne ty — přijaté doklady patří do Výdajů',
+				reason: 'doklad vystavil Dodavatel hostingu s.r.o. (IČO 99887762), ne ty — přijaté doklady patří do Výdajů',
 			},
 		]);
 		expect(await exists(source)).toBe(true);
@@ -267,7 +266,7 @@ describe('sken složky', () => {
 			...numbered('20260099'),
 			supplier: {
 				...supplier(),
-				ico: '99887766',
+				ico: '99887762',
 			},
 		});
 
@@ -644,7 +643,7 @@ describe('odvození z dokladů', () => {
 
 	it('zadané IČO vyhraje nad prázdným skenem a splatnost zůstane uvěřitelná', async () => {
 		expect(deriveOurIco([], '12345679')).toBe('12345679');
-		expect(deriveOurIco([], '')).toBe('');
+		expect(deriveOurIco([], null)).toBe(null);
 		const fromIco = (ico: string) => ({
 			...invoice(),
 			supplier: {
@@ -652,7 +651,7 @@ describe('odvození z dokladů', () => {
 				ico,
 			},
 		});
-		expect(deriveOurIco([fromIco(''), fromIco(''), fromIco('12345679')], '')).toBe('12345679');
+		expect(deriveOurIco([fromIco(''), fromIco(''), fromIco('12345679')], null)).toBe('12345679');
 		const withoutIco = await parseIsdoc(await fixture('foreign-document.isdoc'));
 		expect(
 			deriveOurIco(
@@ -665,9 +664,9 @@ describe('odvození z dokladů', () => {
 						},
 					},
 				],
-				'',
+				null,
 			),
-		).toBe('');
+		).toBe(null);
 
 		expect(deriveDueDays('2026-05-01', '2026-05-31')).toBe(30);
 		expect(deriveDueDays('2026-05-01', '2026-05-01')).toBe(0);
@@ -705,7 +704,7 @@ describe('odvození z dokladů', () => {
 			bankAccount: '123456',
 		};
 
-		expect(deriveOurIco([older, newer], '')).toBe('1');
+		expect(deriveOurIco([older, newer], null)).toBe('00000001');
 		expect(
 			deriveOurIco(
 				[
@@ -716,9 +715,9 @@ describe('odvození z dokladů', () => {
 						number: '20260003',
 					},
 				],
-				'',
+				null,
 			),
-		).toBe('2');
+		).toBe('00000002');
 
 		expect(deriveSupplier([newer, older])).toEqual({
 			name: 'Aktuální dodavatel',
@@ -728,7 +727,6 @@ describe('odvození z dokladů', () => {
 			registration: read.supplier.registration,
 			bankAccount: '123456',
 			bankCode: read.bankCode,
-			iban: read.iban,
 			invoiceNumberFormat: '{RRRR}{NNNN}',
 			defaultDueDays: 30,
 		});
@@ -755,5 +753,38 @@ describe('odvození z dokladů', () => {
 		};
 
 		expect(deriveSupplier([tenth, ninth])?.name).toBe('Dodavatel z desítky');
+	});
+
+	it('při shodném datu řadí oddělovače česky a shodná čísla ponechá v pořadí vstupu', async () => {
+		const source = await fixture('foreign-document.isdoc');
+		const read = await parseIsdoc(source.replace('27082440', '27074358').replace('25596641', '27074358'));
+		const first = {
+			...read,
+			number: 'F-1',
+			supplier: {
+				...read.supplier,
+				name: 'První',
+			},
+		};
+		const second = {
+			...first,
+			number: 'F1',
+			supplier: {
+				...read.supplier,
+				name: 'Druhý',
+			},
+		};
+		expect(deriveSupplier([second, first])?.name).toBe('Druhý');
+
+		const padded = {
+			...first,
+			number: '007',
+		};
+		const plain = {
+			...second,
+			number: '7',
+		};
+		expect(deriveSupplier([padded, plain])?.name).toBe('Druhý');
+		expect(deriveSupplier([plain, padded])?.name).toBe('První');
 	});
 });

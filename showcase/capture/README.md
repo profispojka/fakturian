@@ -25,9 +25,6 @@ node capture/record.ts --scene showcase/scenes/quick-start.ts
 
 # 3. mp4 + webm + poster (+ volitelně gif a podkres)
 node capture/encode.ts --frames showcase/media/raw/quick-start --gif
-
-# na závěr kontrola hotového webu
-node capture/audit.ts --dist showcase/.output/public
 ```
 
 Užitečné přepínače: `--headed` (dívat se na to, když něco nesedí),

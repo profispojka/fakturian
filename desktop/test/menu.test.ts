@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { applicationMenu } from '../menu.ts';
+import { applicationMenu, contextMenu } from '../menu.ts';
 
 // Menu jako text: popisek, role a zkratka každé položky po sekcích.
 function outline(menu: ReturnType<typeof applicationMenu>): string[][] {
@@ -76,5 +76,65 @@ describe('menu appky', () => {
 			'Celá obrazovka · togglefullscreen',
 			'Vývojářské nástroje · toggleDevTools',
 		]);
+	});
+});
+
+describe('nabídka pravého tlačítka', () => {
+	it('v poli nabídne úpravy textu, i když je v něm text označený', () => {
+		const fields = [
+			contextMenu({
+				isEditable: true,
+				selectionText: '',
+			}),
+			contextMenu({
+				isEditable: true,
+				selectionText: 'Acme',
+			}),
+		];
+
+		for (const menu of fields) {
+			expect(menu).toEqual([
+				{
+					role: 'cut',
+					label: 'Vyjmout',
+				},
+				{
+					role: 'copy',
+					label: 'Kopírovat',
+				},
+				{
+					role: 'paste',
+					label: 'Vložit',
+				},
+				{ type: 'separator' },
+				{
+					role: 'selectAll',
+					label: 'Vybrat vše',
+				},
+			]);
+		}
+	});
+
+	it('nad označeným textem mimo pole nabídne jen kopírování', () => {
+		expect(
+			contextMenu({
+				isEditable: false,
+				selectionText: 'CZ6508000000192000145399',
+			}),
+		).toEqual([
+			{
+				role: 'copy',
+				label: 'Kopírovat',
+			},
+		]);
+	});
+
+	it('jinde nenabídne nic', () => {
+		expect(
+			contextMenu({
+				isEditable: false,
+				selectionText: '',
+			}),
+		).toEqual([]);
 	});
 });

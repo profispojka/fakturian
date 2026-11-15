@@ -345,7 +345,7 @@
 			}
 		},
 		{
-			"files": ["tools/**/*.ts"],
+			"files": ["tools/**/*.ts", "test/smoke/**/*.ts"],
 			"rules": {
 				"fakturian/no-alias-function": "error",
 				"fakturian/comment-style": "error"
@@ -354,12 +354,19 @@
 		{
 			// Playwright čte závislosti fixture z destrukturalizace prvního parametru; fixture bez
 			// závislostí ji má prázdnou (`async ({}, use) => …`).
-			"files": ["e2e/**/*.ts"],
+			"files": ["test/e2e/**/*.ts"],
 			"rules": { "fakturian/exact-text": "error", "no-empty-pattern": "off" }
 		},
 		{
 			// Testy se netypují (AGENTS.md, „Testy“), takže ani pravidla o typových zápisech na ně nedopadají.
-			"files": ["test/**/*.{js,jsx,ts,tsx,vue}", "desktop/test/**/*.ts"],
+			"files": [
+				"test/unit/**/*.spec.ts",
+				"test/nuxt/**/*.ts",
+				"test/setup/**/*.ts",
+				"test/fixtures/**/*.ts",
+				"test/tooling/**/*.ts",
+				"desktop/test/**/*.ts"
+			],
 			"rules": {
 				// Aserci PDF/A nese pomocník, test ji nemá napsanou sám.
 				"vitest/expect-expect": [

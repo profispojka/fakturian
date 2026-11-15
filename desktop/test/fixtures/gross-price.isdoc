@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="http://isdoc.cz/namespace/2013" version="6.0.2">
+  <DocumentType>1</DocumentType>
+  <ID>20260001</ID>
+  <UUID>7B4C5BE0-288C-11D2-8E62-004095452B84</UUID>
+  <IssuingSystem>Testovací fakturační systém</IssuingSystem>
+  <IssueDate>2026-05-28</IssueDate>
+  <TaxPointDate>2026-05-28</TaxPointDate>
+  <VATApplicable>true</VATApplicable>
+  <ElectronicPossibilityAgreementReference/>
+  <LocalCurrencyCode>CZK</LocalCurrencyCode>
+  <CurrRate>1</CurrRate>
+  <RefCurrRate>1</RefCurrRate>
+  <AccountingSupplierParty>
+    <Party>
+      <PartyIdentification><ID>12345679</ID></PartyIdentification>
+      <PartyName><Name>Ukázkový dodavatel</Name></PartyName>
+      <PostalAddress>
+        <StreetName>Ukázková</StreetName>
+        <BuildingNumber>1</BuildingNumber>
+        <CityName>Praha</CityName>
+        <PostalZone>11000</PostalZone>
+        <Country><IdentificationCode>CZ</IdentificationCode><Name>Česká republika</Name></Country>
+      </PostalAddress>
+    </Party>
+  </AccountingSupplierParty>
+  <AccountingCustomerParty>
+    <Party>
+      <PartyIdentification><ID>87654326</ID></PartyIdentification>
+      <PartyName><Name>Ukázkový odběratel</Name></PartyName>
+      <PostalAddress>
+        <StreetName>Modelová</StreetName>
+        <BuildingNumber>2</BuildingNumber>
+        <CityName>Brno</CityName>
+        <PostalZone>60200</PostalZone>
+        <Country><IdentificationCode>CZ</IdentificationCode><Name>Česká republika</Name></Country>
+      </PostalAddress>
+    </Party>
+  </AccountingCustomerParty>
+  <InvoiceLines>
+    <InvoiceLine>
+      <ID>1</ID>
+      <InvoicedQuantity unitCode="ks">3</InvoicedQuantity>
+      <LineExtensionAmount>1239.67</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>1500.00</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>260.33</LineExtensionTaxAmount>
+      <UnitPrice>413.22</UnitPrice>
+      <UnitPriceTaxInclusive>500.00</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>21</Percent>
+        <VATCalculationMethod>1</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item><Description>Školení</Description></Item>
+    </InvoiceLine>
+  </InvoiceLines>
+  <TaxTotal>
+    <TaxSubTotal>
+      <TaxableAmount>1239.67</TaxableAmount>
+      <TaxAmount>260.33</TaxAmount>
+      <TaxInclusiveAmount>1500.00</TaxInclusiveAmount>
+      <AlreadyClaimedTaxableAmount>0</AlreadyClaimedTaxableAmount>
+      <AlreadyClaimedTaxAmount>0</AlreadyClaimedTaxAmount>
+      <AlreadyClaimedTaxInclusiveAmount>0</AlreadyClaimedTaxInclusiveAmount>
+      <DifferenceTaxableAmount>1239.67</DifferenceTaxableAmount>
+      <DifferenceTaxAmount>260.33</DifferenceTaxAmount>
+      <DifferenceTaxInclusiveAmount>1500.00</DifferenceTaxInclusiveAmount>
+      <TaxCategory><Percent>21</Percent></TaxCategory>
+    </TaxSubTotal>
+    <TaxAmount>260.33</TaxAmount>
+  </TaxTotal>
+  <LegalMonetaryTotal>
+    <TaxExclusiveAmount>1239.67</TaxExclusiveAmount>
+    <TaxInclusiveAmount>1500.00</TaxInclusiveAmount>
+    <AlreadyClaimedTaxExclusiveAmount>0</AlreadyClaimedTaxExclusiveAmount>
+    <AlreadyClaimedTaxInclusiveAmount>0</AlreadyClaimedTaxInclusiveAmount>
+    <DifferenceTaxExclusiveAmount>1239.67</DifferenceTaxExclusiveAmount>
+    <DifferenceTaxInclusiveAmount>1500.00</DifferenceTaxInclusiveAmount>
+    <PaidDepositsAmount>0</PaidDepositsAmount>
+    <PayableAmount>1500.00</PayableAmount>
+  </LegalMonetaryTotal>
+</Invoice>

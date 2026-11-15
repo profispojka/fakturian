@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { contactSchema, emptyContact, type Contact } from '~/schemas/customers';
+import { contactStoredSchema, emptyContact, type Contact } from '~/schemas/customers';
+
+import type { FormSubmitEvent } from '@nuxt/ui';
 
 definePageMeta({ alias: ['/customers/new'] });
 
@@ -45,16 +47,13 @@ async function fillFromAres() {
 		ico: company.ico,
 		address: company.address,
 	};
-	// Neplátce DIČ nemá; to z předchozího IČO nesmí zůstat.
-	if (company.dic) next.dic = company.dic;
-	else delete next.dic;
 	contact.value = next;
 }
 
-async function save() {
+async function save(event: FormSubmitEvent<Contact>) {
 	status.clear();
 	try {
-		await upsert(structuredClone(toRaw(contact.value)));
+		await upsert(event.data);
 	} catch (e) {
 		status.error('Odběratele se nepodařilo uložit', e);
 		return;
@@ -65,7 +64,7 @@ async function save() {
 </script>
 
 <template>
-	<UForm v-slot="{ loading }" class="page detail-page" :state="contact" :schema="contactSchema" @submit="save">
+	<UForm v-slot="{ loading }" class="page detail-page" :state="contact" :schema="contactStoredSchema" @submit="save">
 		<header class="detail-header" data-drag-region>
 			<span
 				class="flex size-10 shrink-0 items-center justify-center rounded-xl border border-line-soft bg-card text-ink-2">
@@ -91,31 +90,26 @@ async function save() {
 								<UFormField name="name" label="Název / jméno">
 									<UInput v-model="contact.name" data-testid="field-name" autofocus />
 								</UFormField>
-								<div class="form-grid form-grid--wide-first">
-									<UFormField name="ico" label="IČO">
-										<UInput
-											v-model="contact.ico"
-											data-testid="field-ico"
-											:disabled="aresLoading"
-											:ui="id ? {} : { trailing: 'pe-0', base: 'pe-16' }">
-											<!-- Jen při zakládání: u uloženého odběratele by dotaz přepsal údaje, které si uživatel upravil. -->
-											<template v-if="!id" #trailing>
-												<!-- Šířka je pevná: popisek se při dotahování střídá se spinnerem a poskakující hrana
+								<UFormField name="ico" label="IČO">
+									<UInput
+										v-model.trim="contact.ico"
+										data-testid="field-ico"
+										:disabled="aresLoading"
+										:ui="id ? {} : { trailing: 'pe-0', base: 'pe-16' }">
+										<!-- Jen při zakládání: u uloženého odběratele by dotaz přepsal údaje, které si uživatel upravil. -->
+										<template v-if="!id" #trailing>
+											<!-- Šířka je pevná: popisek se při dotahování střídá se spinnerem a poskakující hrana
 												     by z pole udělala živý obrázek. -->
-												<UButton
-													class="w-14 justify-center rounded-s-none rounded-e-ctl border-s border-s-line-soft text-meta text-ink-2"
-													data-testid="ares"
-													variant="ghost"
-													:loading="aresLoading"
-													:label="aresLoading ? '' : 'ARES'"
-													@click="fillFromAres" />
-											</template>
-										</UInput>
-									</UFormField>
-									<UFormField name="dic" label="DIČ">
-										<UInput v-model.trim.optional="contact.dic" data-testid="field-dic" />
-									</UFormField>
-								</div>
+											<UButton
+												class="w-14 justify-center rounded-s-none rounded-e-ctl border-s border-s-line-soft text-meta text-ink-2"
+												data-testid="ares"
+												variant="ghost"
+												:loading="aresLoading"
+												:label="aresLoading ? '' : 'ARES'"
+												@click="fillFromAres" />
+										</template>
+									</UInput>
+								</UFormField>
 								<FieldError :error="aresError" data-testid="ares-error" />
 								<UFormField name="email" label="E-mail">
 									<UInput v-model.trim.optional="contact.email" data-testid="field-email" />

@@ -92,20 +92,22 @@ bun install
 
 ## Skripty
 
-| Příkaz                    | Co dělá                                                                                             |
-| ------------------------- | --------------------------------------------------------------------------------------------------- |
-| `bun run dev`             | appka v okně Electronu nad dev serverem Nuxtu s HMR; `bun run dev:web` je jen frontend v prohlížeči |
-| `bun run build`           | frontend, hlavní proces a balíček `.app`/DMG přes electron-builder do `.output/release/`            |
-| `bun run check`           | **celá kontrolní brána** — pouští se před commitem, viz níž                                         |
-| `bun run test`            | vitest nad změněnými soubory; `test:all` celá sada (`unit`, `nuxt`, `desktop`)                      |
-| `bun run test:coverage`   | celá sada + pokrytí s prahy 100 % na soubor                                                         |
-| `bun run test:desktop`    | jen testy hlavního procesu (`desktop/test/`)                                                        |
-| `bun run mutants:ts`      | mutační testování ze seznamu `mutate` ve `stryker.config.ts`; `--mutate <soubor>` na jeden soubor   |
-| `bun run lint` / `format` | oxlint / oxfmt **se zápisem**; `lint:check` a `format:check` jen kontrolují                         |
-| `bun run typecheck`       | typy appky, hlavního procesu, nástrojů a skriptů showcase                                           |
+| Příkaz                                                                                                                       | Co dělá                                                                                             |
+| ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `bun run dev`                                                                                                                | appka v okně Electronu nad dev serverem Nuxtu s HMR; `bun run dev:web` je jen frontend v prohlížeči |
+| `bun run build`                                                                                                              | frontend, hlavní proces a balíček `.app`/DMG přes electron-builder do `.output/release/`            |
+| `bun run check`                                                                                                              | **celá kontrolní brána** — pouští se před commitem, viz níž                                         |
+| `bun run test`                                                                                                               | celá Vitest sada (`unit`, `nuxt`, `desktop`)                                                        |
+| `bun run test -- --changed --passWithNoTests --reporter=default`                                                             | jen testy související se změnami                                                                    |
+| `bun run test -- --coverage`                                                                                                 | celá sada + pokrytí s prahy 100 % na soubor                                                         |
+| `bun run test -- --config vitest.mutation.config.ts --project desktop`                                                       | jen testy hlavního procesu (`desktop/test/`)                                                        |
+| `FUZZ_CASES=2000 bun run test -- --config vitest.mutation.config.ts --project desktop desktop/test/input-robustness.test.ts` | hlubší fuzz běh                                                                                     |
+| `bun run mutants:ts`                                                                                                         | mutační testování ze seznamu `mutate` ve `stryker.config.ts`; `--mutate <soubor>` na jeden soubor   |
+| `bun run lint` / `format`                                                                                                    | oxlint / oxfmt **se zápisem**; `lint:check` a `format:check` jen kontrolují                         |
+| `bun run typecheck`                                                                                                          | typy appky, hlavního procesu, nástrojů a skriptů showcase                                           |
 
 Co přesně která brána měří, jaké jsou prahy a jak se čtou mutační reporty, je
-v [`docs/10-KVALITA.md`](docs/10-KVALITA.md).
+v [`docs/07-KVALITA.md`](docs/07-KVALITA.md).
 
 ## Dokumentace
 
@@ -114,11 +116,11 @@ v [`docs/10-KVALITA.md`](docs/10-KVALITA.md).
 | [`docs/01-FUNKCE.md`](docs/01-FUNKCE.md)               | co appka umí, po funkcích, a co je vědomě mimo rozsah |
 | [`docs/02-TECHNOLOGIE.md`](docs/02-TECHNOLOGIE.md)     | zvolený stack, hranice s vnějškem, formát dat a proč  |
 | [`docs/03-DESIGN.md`](docs/03-DESIGN.md)               | vzhled, rozvržení, zkratky a chování UI               |
-| [`docs/05-BACKLOG.md`](docs/05-BACKLOG.md)             | co zbývá udělat — vady, dluhy a nápady po oblastech   |
-| [`docs/06-MCP.md`](docs/06-MCP.md)                     | MCP server nad vaultem                                |
-| [`docs/07-PRAVO.md`](docs/07-PRAVO.md)                 | právní opora účetních pravidel                        |
-| [`docs/09-ISDOC-MODEL.md`](docs/09-ISDOC-MODEL.md)     | model dokladu a ISDOC                                 |
-| [`docs/10-KVALITA.md`](docs/10-KVALITA.md)             | model kvality — pravidla testů, brány, prahy, vydání  |
-| [`docs/13-ZNAME-OMEZENI.md`](docs/13-ZNAME-OMEZENI.md) | vědomě přijaté kompromisy a co se záměrně nemění      |
+| [`docs/04-MCP.md`](docs/04-MCP.md)                     | MCP server nad vaultem                                |
+| [`docs/05-PRAVO.md`](docs/05-PRAVO.md)                 | právní opora účetních pravidel                        |
+| [`docs/06-ISDOC-MODEL.md`](docs/06-ISDOC-MODEL.md)     | model dokladu a ISDOC                                 |
+| [`docs/07-KVALITA.md`](docs/07-KVALITA.md)             | model kvality — pravidla testů, brány, prahy, vydání  |
+| [`docs/08-ZNAME-OMEZENI.md`](docs/08-ZNAME-OMEZENI.md) | vědomě přijaté kompromisy a co se záměrně nemění      |
+| [`docs/09-BACKLOG.md`](docs/09-BACKLOG.md)             | co zbývá udělat — vady, dluhy a nápady po oblastech   |
 
 Pravidla pro psaní kódu a testů jsou v [`AGENTS.md`](AGENTS.md).

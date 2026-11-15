@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { DocumentKind, NON_VAT_PAYER_NOTE } from '~/constants/invoice';
-import moneyParity from '~/utils/fixtures/money-parity.json' with { type: 'json' };
 import { z } from '~/utils/zod';
 
+import moneyParity from '../../../test/fixtures/money-parity.json' with { type: 'json' };
 import { qrPng } from '../../invoice/payment.ts';
 import { czDate, czkCents, invoiceData, invoiceTypst } from '../../invoice/template.ts';
 import { compileTypst, renderTypstPdf, renderTypstSvg } from '../../pdf.ts';
@@ -71,7 +71,6 @@ describe('data pro šablonu', () => {
 			due_date: '12. 6. 2026',
 			variable_symbol: '20260001',
 			bank_account: '2000145399/0800',
-			iban: 'CZ6508000000192000145399',
 			currency: 'Kč',
 			total: '51 750,00',
 			due_total: '51 750,00',
@@ -112,7 +111,6 @@ describe('data pro šablonu', () => {
 			due_date: '12. 6. 2026',
 			variable_symbol: '20260002',
 			bank_account: '2000145399/0800',
-			iban: 'CZ6508000000192000145399',
 			currency: 'Kč',
 			total: '-6 000,00',
 			due_total: '6 000,00',
@@ -155,6 +153,16 @@ describe('data pro šablonu', () => {
 			['6,5', '7 800,00'],
 			['72', '86 400,00'],
 		]);
+	});
+
+	it('množství bez exponentu a zápornou nulu vytiskne i v PDF', () => {
+		const document = invoice();
+		document.lines[0].quantity = -0;
+		document.lines[1].quantity = 1e-7;
+		const text = printedOn(document).join(' ');
+
+		expect(text).toContain('0 hod');
+		expect(text).toContain('0,0000001');
 	});
 
 	it('zápis v rejstříku nese obě strany bez okrajových mezer', () => {
@@ -251,24 +259,21 @@ describe('co je na papíře', () => {
 		).toEqual(expected);
 	});
 
-	it('holý doklad bez IBAN, poznámky, DIČ a e-mailu nese aspoň číslo účtu', () => {
+	it('holý doklad bez poznámky a e-mailu nese aspoň číslo účtu', () => {
 		const runs = printedOn({
 			...invoice(),
-			iban: '',
 			note: '',
 			supplier: {
 				...supplier(),
-				dic: '',
 				email: '',
 			},
 			customer: {
 				...customer(),
-				dic: '',
 			},
 		});
 
 		expect(runs.filter((run) => run.includes('2000145399/0800')).length).toBe(1);
-		expect(runs.filter((run) => run.includes('IBAN') || run.includes('DIČ') || run.includes('@'))).toEqual([]);
+		expect(runs.filter((run) => run.includes('IBAN') || run.includes('@'))).toEqual([]);
 	});
 
 	it('vloží jen písma, která nese překladač, ne písma systému', () => {

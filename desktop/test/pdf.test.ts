@@ -5,7 +5,7 @@ import { thrownBy } from './support.ts';
 import { imageCount, printedText } from './typst.ts';
 
 import { qrPng } from '../invoice/payment.ts';
-import { compileTypst, pdfModDate, renderTypstPdf, renderTypstSvg } from '../pdf.ts';
+import { compileTypst, renderTypstPdf, renderTypstSvg } from '../pdf.ts';
 
 const INSTANT = '2026-09-30T12:34:56.789Z';
 
@@ -119,25 +119,5 @@ describe('SVG z typstu', () => {
 		const [page, ...rest] = renderTypstSvg('Jediná strana', {});
 
 		expect([page?.slice(0, 4), rest]).toEqual(['<svg', []]);
-	});
-});
-
-describe('datum změny přílohy', () => {
-	function modDateAt(time: number | string): string {
-		vi.useFakeTimers({ toFake: ['Date'] });
-		vi.setSystemTime(time);
-		try {
-			return pdfModDate();
-		} finally {
-			vi.useRealTimers();
-		}
-	}
-
-	it('píše UTC ve tvaru PDF', () => {
-		expect([modDateAt(0), modDateAt(INSTANT)]).toEqual(['D:19700101000000Z', 'D:20260930123456Z']);
-	});
-
-	it('čas před rokem 1970 zaokrouhlí dolů, ne k epoše', () => {
-		expect(modDateAt(-500)).toBe('D:19691231235959Z');
 	});
 });

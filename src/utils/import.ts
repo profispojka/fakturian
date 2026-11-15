@@ -1,18 +1,15 @@
-import { contactSchema, type Contact } from '~/schemas/customers';
+import { contactStoredSchema, type Contact } from '~/schemas/customers';
 import { emptySupplier, type Supplier } from '~/schemas/suppliers';
 import { normalizeSearchText } from '~/utils/crud';
 import { issuesText } from '~/utils/errors';
-import { ibanMatchesAccount } from '~/utils/validators';
 
 import type { AdoptedSupplier, ImportedCustomer } from '~/schemas/import';
 
-// IČO a DIČ bez mezer, jinak na nich neuspěje deduplikace odběratelů.
 export function contactFromImported(c: ImportedCustomer): Contact {
 	return {
 		id: crypto.randomUUID(),
 		name: c.name.trim(),
 		ico: c.ico.replace(/\s/g, ''),
-		dic: c.dic.replace(/\s/g, '') || undefined,
 		address: {
 			street: c.address.street.trim(),
 			city: c.address.city.trim(),
@@ -28,12 +25,13 @@ export function supplierFromAdopted(d: AdoptedSupplier): Supplier {
 		...defaultValue,
 		name: d.name,
 		ico: d.ico,
-		address: d.address,
+		address: {
+			...d.address,
+			zip: d.address.zip.replace(/\s/g, ''),
+		},
 		registration: d.registration,
-		bankAccount: d.bankAccount,
-		bankCode: d.bankCode,
-		// IBAN z převzatých dokladů jen tehdy, když patří k jejich účtu; jinak si ho QR platba dopočítá.
-		iban: ibanMatchesAccount(d.iban, d.bankAccount, d.bankCode) ? d.iban : undefined,
+		bankAccount: d.bankAccount.replace(/\s/g, ''),
+		bankCode: d.bankCode.replace(/\s/g, ''),
 		email: d.email || undefined,
 		defaultDueDays: d.defaultDueDays ?? defaultValue.defaultDueDays,
 		// Bez toho by řada uprostřed roku změnila tvar: po `2026022` z iDokladu by výchozí šablona
@@ -63,8 +61,8 @@ export function newContactsFromImport(existing: Contact[], imported: ImportedCus
 			return normalizeSearchText(contact.name) === normalizeSearchText(candidate.name);
 		});
 		if (known) continue;
-		const checked = contactSchema.safeParse(candidate);
-		if (checked.success) contacts.push(candidate);
+		const checked = contactStoredSchema.safeParse(candidate);
+		if (checked.success) contacts.push(checked.data);
 		else
 			refused.push({
 				name: candidate.name || 'odběratel bez jména',

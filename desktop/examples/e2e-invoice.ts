@@ -6,7 +6,7 @@ import { saveInvoice } from '../invoice/mod.ts';
 
 import type { Invoice } from '../invoice/model.ts';
 
-// Údaje musí sedět s `e2e/fixtures/vault/.fakturian/nastaveni.json`: specy hledají odběratele
+// Údaje musí sedět s `test/e2e/fixtures/vault/.fakturian/nastaveni.json`: specy hledají odběratele
 // i dodavatele podle jména a appka číslo řady odvozuje z formátu v nastavení.
 
 const USAGE = 'Použití: node desktop/examples/run.ts e2e-invoice <vault> <RRRR-MM-DD>';
@@ -35,7 +35,6 @@ const invoice: Invoice = {
 	supplier: {
 		name: 'E2E dodavatel',
 		ico: '12345679',
-		dic: '',
 		address: {
 			street: 'Testovací 1',
 			city: 'Praha',
@@ -47,7 +46,6 @@ const invoice: Invoice = {
 	customer: {
 		name: 'E2E odběratel',
 		ico: '25596641',
-		dic: '',
 		address: {
 			street: 'Kontrolní 2',
 			city: 'Brno',
@@ -59,7 +57,6 @@ const invoice: Invoice = {
 	vatNote: NON_VAT_PAYER_NOTE,
 	bankAccount: '2000145399',
 	bankCode: '0800',
-	iban: '',
 	variableSymbol: number,
 	note: '',
 	lines: [

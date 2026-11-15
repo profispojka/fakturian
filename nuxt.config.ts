@@ -4,7 +4,7 @@ import { defineNuxtConfig } from 'nuxt/config';
 
 import pkg from './package.json';
 
-const e2eFile = (name: string) => fileURLToPath(new URL(`./e2e/${name}`, import.meta.url));
+const e2eFile = (name: string) => fileURLToPath(new URL(`./test/e2e/${name}`, import.meta.url));
 
 export default defineNuxtConfig({
 	// Verze appky se čísluje na jednom místě — v `package.json`, protože podle něj se pojmenuje i

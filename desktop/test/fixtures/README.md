@@ -16,14 +16,15 @@ smysl vzorků je v tom, že projdou čtením bez ztráty a bez vymyšlených č�
 
 Ručně psané cizí doklady, každý na jeden nález:
 
-| soubor                   | co hlídá                                                    |
-| ------------------------ | ----------------------------------------------------------- |
-| `foreign-document.isdoc` | cizí doklad bez `IssuingSystem` s adresou a e-mailem        |
-| `bez-mnozstvi.isdoc`     | řádek bez `InvoicedQuantity` (`minOccurs="0"`)              |
-| `bez-castky.isdoc`       | chybějící povinný `LineExtensionAmount` → doklad se odmítne |
-| `zaokrouhleni.isdoc`     | `PayableRoundingAmount` → součet sedí s papírem             |
-| `zalohova.isdoc`         | `DocumentType` 4 nepatří mezi vydané faktury                |
-| `two-payments.isdoc`     | účet se bere z platby převodem, ne z první v pořadí         |
+| soubor                   | co hlídá                                                              |
+| ------------------------ | --------------------------------------------------------------------- |
+| `foreign-document.isdoc` | cizí doklad bez `IssuingSystem` s adresou a e-mailem                  |
+| `bez-mnozstvi.isdoc`     | řádek bez `InvoicedQuantity` (`minOccurs="0"`)                        |
+| `bez-castky.isdoc`       | chybějící povinný `LineExtensionAmount` → doklad se odmítne           |
+| `zaokrouhleni.isdoc`     | `PayableRoundingAmount` → součet sedí s papírem                       |
+| `zalohova.isdoc`         | `DocumentType` 4 nepatří mezi vydané faktury                          |
+| `two-payments.isdoc`     | účet se bere z platby převodem, ne z první v pořadí                   |
+| `gross-price.isdoc`      | výpočet z ceny s DPH, samostatné zaokrouhlení jednotky a celého řádku |
 
 `bez-castky.isdoc` schválně neprojde XSD. Ostatní vzorky XSD projdou:
 
@@ -39,7 +40,7 @@ pro `sampleInvoice()` z `desktop/test/invoices.ts`.
 Tři smyšlené faktury, které se tváří jako vystavené cizím softwarem: `IssuingSystem` „Testovací
 fakturační systém 1.0“, jeho pojmenování souborů („Vydaná faktura - 2026017.pdf“) a sedmimístná řada.
 Na nich stojí celý průchod převzetí (`adopt-folder.test.ts`) proti sdílenému kontraktu
-`src/utils/fixtures/adopt-folder.json`, který čte i vitest.
+`test/fixtures/adopt-folder.json`, který čte i vitest.
 
 Vizuál vysázela appka, vložený ISDOC je ručně psané cizí XML beze změny: dodavatel s IČO 12345679,
 dva odběratelé a bankovní spojení ze vzorového účtu ČNB, hodnoty jako v kontraktu. Nový vzorek se

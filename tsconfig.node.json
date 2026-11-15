@@ -21,12 +21,12 @@
 		".nuxt/nuxt.node.d.ts",
 		"nuxt.config.ts",
 		"vitest.config.ts",
-		"vitest.unit.config.ts",
-		"vitest.nuxt.config.ts",
-		"vitest.desktop.config.ts",
+		"vitest.projects.ts",
 		"vitest.mutation.config.ts",
 		"eslint.config.ts",
 		"stryker.config.ts",
+		"test/smoke/**/*.ts",
+		"scripts/**/*.ts",
 		"tools/**/*.ts"
 	]
 }

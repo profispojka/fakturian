@@ -52,7 +52,7 @@ export interface CommandResults {
 	vault_logo_state: LogoState;
 	set_vault_logo: null;
 	remove_vault_logo: null;
-	read_data_file: string;
+	read_data_file: string | null;
 	write_data_file: DataFileWrite;
 	snapshots_path: string | null;
 	import_documents: ImportReport;
@@ -137,7 +137,7 @@ export const commands = {
 			source,
 		}),
 	removeVaultLogo: (vaultPath: string) => invoke('remove_vault_logo', { vaultPath }),
-	// Chybějící soubor je normální stav (nový vault), ne chyba.
+	// Chybějící soubor vrací null; neúplný existující obsah musí odmítnout schéma volajícího.
 	readDataFile: (vaultPath: string, name: string) =>
 		invoke('read_data_file', {
 			vaultPath,
@@ -341,7 +341,6 @@ export type AdoptedSupplier = {
 	registration: string;
 	bankAccount: string;
 	bankCode: string;
-	iban: string;
 	invoiceNumberFormat: string;
 	defaultDueDays: number | null;
 };
@@ -381,7 +380,6 @@ export type ImportReport = {
 export type ImportedCustomer = {
 	name: string;
 	ico: string;
-	dic: string;
 	address: Address;
 	email: string;
 };
@@ -446,7 +444,6 @@ export type InvoiceList_Serialize = {
 export type InvoiceParty = {
 	name: string;
 	ico?: string;
-	dic?: string;
 	address?: Address;
 	email?: string;
 	/**  Zápis do obchodního rejstříku nebo jiné evidence, jak ho žádá § 435 odst. 1 OZ. */
@@ -514,7 +511,6 @@ export type Invoice_Deserialize = {
 	vatNote?: string;
 	bankAccount?: string;
 	bankCode?: string;
-	iban?: string;
 	variableSymbol?: string;
 	note?: string;
 	lines: InvoiceLine_Deserialize[];
@@ -539,7 +535,6 @@ export type Invoice_Serialize = {
 	vatNote: string;
 	bankAccount: string;
 	bankCode: string;
-	iban: string;
 	variableSymbol: string;
 	note: string;
 	lines: InvoiceLine_Serialize[];

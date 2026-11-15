@@ -5,8 +5,8 @@ import type { BrokenReceived, ReceivedDocument as WireReceivedDocument } from '~
 
 const expenseShape = {
 	id: z.string(),
-	supplier: z.string(),
-	supplierIco: z.string().optional(),
+	supplier: z.string().trim().min(1),
+	supplierIco: z.ico().optional(),
 	description: z.string(),
 	amountCents: z.number().int(),
 	date: z.dateString(),
@@ -16,7 +16,7 @@ const expenseShape = {
 	documentUuid: z.string().optional(),
 };
 
-export const expensesFileSchema = z.looseObject({ expenses: z.array(z.looseObject(expenseShape)).default([]) });
+export const expensesFileSchema = z.looseObject({ expenses: z.array(z.looseObject(expenseShape)) });
 
 // Typ bez indexové signatury `looseObject`: s ní by formulář výdaje četl každé pole jako `unknown`.
 export type Expense = Zod.infer<Zod.ZodObject<typeof expenseShape>>;
@@ -31,13 +31,13 @@ export function emptyExpenses(): ExpensesFile {
 export const receivedDocumentSchema = z.strictObject({
 	file: z.string(),
 	supplier: z.string(),
-	supplierIco: z.string(),
+	supplierIco: z.ico().or(z.literal('')),
 	number: z.string(),
 	uuid: z.string(),
 	description: z.string(),
 	amountCents: z.number().int(),
 	date: z.isdocDate(),
-	recipientIco: z.string(),
+	recipientIco: z.ico().or(z.literal('')),
 }) satisfies Zod.ZodType<unknown, WireReceivedDocument>;
 
 export type ReceivedDocument = Zod.infer<typeof receivedDocumentSchema>;

@@ -25,7 +25,6 @@ export function supplierToParty(s: Supplier): InvoiceParty {
 	return {
 		name: s.name,
 		ico: s.ico,
-		dic: '',
 		address: {
 			street: s.address.street,
 			city: s.address.city,
@@ -40,7 +39,6 @@ export function contactToParty(c: Contact): InvoiceParty {
 	return {
 		name: c.name,
 		ico: c.ico,
-		dic: c.dic ?? '',
 		address: {
 			street: c.address.street,
 			city: c.address.city,
@@ -56,7 +54,6 @@ export function partyToContact(party: InvoiceParty): Contact {
 		id: crypto.randomUUID(),
 		name: party.name,
 		ico: party.ico,
-		...(party.dic && { dic: party.dic }),
 		address: {
 			...party.address,
 		},

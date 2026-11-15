@@ -2,10 +2,10 @@ import { z, type Zod } from '~/utils/zod';
 
 export const priceItemStoredSchema = z.looseObject({
 	id: z.string(),
-	name: z.string(),
+	name: z.string().trim().min(1),
 	note: z.string().optional(),
-	priceCents: z.number().int(),
-	unit: z.string(),
+	priceCents: z.number().int().min(0),
+	unit: z.string().trim().min(1),
 	icon: z.string().optional(),
 	annualLimit: z.number().positive().optional(),
 });

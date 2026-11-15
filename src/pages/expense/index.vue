@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useDropZone } from '@vueuse/core';
+
 import { systemServices } from '~/services/system';
 import { formatDate } from '~/utils/date';
 import { errorText } from '~/utils/errors';
@@ -32,9 +34,21 @@ const {
 	compare: (a, b) => b.date.localeCompare(a.date),
 });
 
-const dropActive = ref(false);
+const dropZoneElement = ref<HTMLDivElement | null>(null);
 const status = usePageStatus();
 const selected = computed(() => filtered.value.find((e) => e.id === selectedId.value) ?? filtered.value[0]);
+
+const { isOverDropZone: dropActive } = useDropZone(dropZoneElement, {
+	checkValidity: (items) => Array.from(items).some((item) => item.kind === 'file'),
+	preventDefaultForUnhandled: true,
+	onDrop(files) {
+		if (!files) return;
+		const paths = files.map((file) => systemServices.pathForFile(file));
+		const pdf = paths.filter((path) => path.toLowerCase().endsWith('.pdf'));
+		if (pdf.length) void importFiles(pdf);
+		else status.error('Přetáhni PDF s přijatou fakturou.');
+	},
+});
 
 function selectExpense(event: Event, row: TableRow<Expense>) {
 	selectedId.value = row.original.id;
@@ -149,39 +163,6 @@ async function openDocument(e: Expense) {
 	}
 }
 
-// `dragleave` přijde i při přechodu na potomka, takže zónu zhasne až odchod z posledního prvku.
-let dragDepth = 0;
-
-// Tažený text nebo odkaz soubory nenese a importovat nemá co.
-function draggedFiles(event: DragEvent): DataTransfer | null {
-	const transfer = event.dataTransfer;
-	if (transfer?.types.includes('Files')) return transfer;
-	return null;
-}
-
-function dragEnter(event: DragEvent) {
-	if (!draggedFiles(event)) return;
-	dragDepth += 1;
-	dropActive.value = true;
-}
-
-function dragLeave(event: DragEvent) {
-	if (!draggedFiles(event)) return;
-	dragDepth -= 1;
-	if (dragDepth === 0) dropActive.value = false;
-}
-
-function drop(event: DragEvent) {
-	const transfer = draggedFiles(event);
-	if (!transfer) return;
-	dragDepth = 0;
-	dropActive.value = false;
-	const paths = [...transfer.files].map((file) => systemServices.pathForFile(file));
-	const pdf = paths.filter((p) => p.toLowerCase().endsWith('.pdf'));
-	if (pdf.length) void importFiles(pdf);
-	else status.error('Přetáhni PDF s přijatou fakturou.');
-}
-
 const columns: TableColumn<Expense>[] = [
 	{
 		id: 'supplier',
@@ -221,12 +202,7 @@ const columns: TableColumn<Expense>[] = [
 </script>
 
 <template>
-	<div
-		class="flex h-full min-h-0 flex-col bg-pane"
-		@dragenter="dragEnter"
-		@dragleave="dragLeave"
-		@dragover.prevent
-		@drop.prevent="drop">
+	<div ref="dropZoneElement" class="flex h-full min-h-0 flex-col bg-pane">
 		<header class="flex h-15 shrink-0 items-center gap-3 border-b border-line-soft px-5" data-drag-region>
 			<UInput
 				v-model="search"
