@@ -1,4 +1,35 @@
-import type { MenuItemConstructorOptions } from 'electron';
+import type { ContextMenuParams, MenuItemConstructorOptions } from 'electron';
+
+// Electron sám nabídku pravého tlačítka nemá. Role si na macOS řídí dostupnost samy (Vyjmout bez výběru šedne).
+export function contextMenu({
+	isEditable,
+	selectionText,
+}: Pick<ContextMenuParams, 'isEditable' | 'selectionText'>): MenuItemConstructorOptions[] {
+	const copy: MenuItemConstructorOptions = {
+		role: 'copy',
+		label: 'Kopírovat',
+	};
+	if (isEditable) {
+		return [
+			{
+				role: 'cut',
+				label: 'Vyjmout',
+			},
+			copy,
+			{
+				role: 'paste',
+				label: 'Vložit',
+			},
+			{ type: 'separator' },
+			{
+				role: 'selectAll',
+				label: 'Vybrat vše',
+			},
+		];
+	}
+	if (selectionText !== '') return [copy];
+	return [];
+}
 
 // Ukončit je vlastní položka, ne role: role by appku ukončila bez otázky na rozepsaný doklad.
 // Zavřít okno smí být role, protože `close` okna hlídá `startShell`.

@@ -106,7 +106,7 @@ Změny, které vypadají jako dobrý nápad, ale riziko regrese je vyšší než
 
 ## Rozhodnuto neřešit
 
-Nálezy z revizí, u kterých majitel mezi 10. a 12. 11. 2026 rozhodl, že se
+Nálezy z revizí, u kterých majitel mezi 10. a 15. 11. 2026 rozhodl, že se
 neřeší. Měřítkem byla otázka „co se stane uživateli, když se to nikdy neopraví"
 a odpověď nad kódem: nic, co by ho poškodilo. Je to úklid kódu, hygiena
 nástrojů, obrana proti cestě, která v appce není, nebo produktový vkus. Seznam
@@ -157,6 +157,13 @@ jednodušší" a „není to konzistentní" novým scénářem není.
   nerozlišují podle skutečného času vystavení; tento rozdíl nepovažujeme za podstatný.
 - **UI-37 · `get_invoice` čte celý archiv, částky jdou agentovi jako číslo.**
   `src/composables/useMcpTools.ts`: archiv je potřeba kvůli stavu platby.
+- **NAPAD-1 · MCP se zavřenou appkou.** Agent čte vault jen přes běžící appku
+  (`desktop/mcp/connector.ts`). Čtení přímo ze souborů by potřebovalo zámkový
+  soubor respektovaný appkou i connectorem (`desktop/store.ts`).
+- **NAPAD-2 · Výpočty v hlavním procesu.** Překlad Typstu (`compileTypst` v
+  `desktop/pdf.ts`) a `inflateSync` ve `streamBytes` běží synchronně a fronta
+  `exclusive` v `desktop/store.ts` je jedna pro všechny datové soubory. Worker
+  a fronta po souborech se zavedou, až uložení nebo náhled okno znatelně zdrží.
 
 ### Rozhraní
 

@@ -44,12 +44,3 @@ Položky níže na sobě nezávisí.
   s podpisem, takže přílohu mailu přes Mail.app je potřeba ověřit na podepsaném
   buildu. Job `package` podpis balíčku neověřuje; s certifikátem do něj patří
   `codesign --verify` a `spctl`.
-- **NAPAD-1 · MCP se zavřenou appkou.** Agent čte vault jen přes běžící appku.
-  Čtení přímo ze souborů by potřebovalo zámkový soubor respektovaný appkou
-  i connectorem (`desktop/mcp/connector.ts`, `desktop/store.ts`). Má smysl, jen
-  když nutnost mít appku otevřenou začne vadit.
-- **NAPAD-2 · Výpočty mimo hlavní proces.** Překlad Typstu (`compileTypst` v
-  `desktop/pdf.ts`) a `inflateSync` ve `streamBytes` běží synchronně v hlavním
-  procesu a fronta `exclusive` v `desktop/store.ts` je jedna pro všechny datové
-  soubory. Worker a fronta po souborech mají smysl, jen když uložení nebo náhled
-  začnou okno znatelně zdržovat.

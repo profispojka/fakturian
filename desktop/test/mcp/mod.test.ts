@@ -730,7 +730,9 @@ describe('most na unixovém socketu', () => {
 	});
 
 	it('dočasný soubor klíče, který už existuje, se nepřepíše', async () => {
-		vi.mocked(randomBytes).mockImplementation((size: number) => Buffer.alloc(size, 0xab));
+		vi.mocked(randomBytes)
+			.mockImplementationOnce((size: number) => Buffer.alloc(size, 0xab))
+			.mockImplementationOnce((size: number) => Buffer.alloc(size, 0xab));
 		await mkdir(dir, { recursive: true });
 		await writeFile(join(dir, `.mcp.token-${'ab'.repeat(8)}`), 'cizí');
 

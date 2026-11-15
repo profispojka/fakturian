@@ -102,6 +102,8 @@ export const desktopProject = defineConfig({
 		include: ['desktop/test/**/*.test.ts'],
 		globalSetup: ['./test/setup/timezone.ts'],
 		restoreMocks: true,
+		// `restoreMocks` vrací jen špehy z `vi.spyOn`; volání `vi.fn()` z továren `vi.mock` by jinak přetékala mezi testy.
+		clearMocks: true,
 		// veraPDF startuje JVM a generativní testy sázejí desítky PDF; souběh s projektem `nuxt`
 		// je zdrží přes výchozích 5 s.
 		testTimeout: 30_000,
