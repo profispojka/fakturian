@@ -488,6 +488,27 @@ describe('vatLimit', () => {
 		expect(v.payerFrom).toBe('2026-03-02');
 		expect(vatLimit([...items, sum('3', '2026-04-01', '2026-04-15', 700_000)], today).payerFrom).toBe('2026-03-02');
 	});
+
+	it('dobropis před překročením snižuje průběžný obrat', () => {
+		const items = [
+			sum('1', '2026-03-01', '2026-03-15', 2_000_000),
+			sum('2', '2026-03-02', '2026-03-02', -500_000),
+			sum('3', '2026-03-03', '2026-03-15', 900_000),
+		];
+		const v = vatLimit(items, today);
+		expect(v.stage).toBe('next-year');
+		expect(v.payerFrom).toBe('2027-01-01');
+	});
+
+	it('zachová loňské překročení i po pozdějším dobropisu', () => {
+		const items = [sum('1', '2025-03-01', '2025-03-15', 2_600_000), sum('2', '2025-03-20', '2025-03-20', -700_000)];
+		expect(vatLimit(items, today).previous).toEqual({
+			year: 2025,
+			turnoverCents: 190_000_000,
+			stage: 'immediate',
+			payerFrom: '2025-03-02',
+		});
+	});
 });
 
 describe('obrat vs. marže (přefakturace)', () => {
