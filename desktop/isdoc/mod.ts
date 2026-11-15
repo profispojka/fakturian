@@ -1,6 +1,5 @@
 import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Worker } from 'node:worker_threads';
 
 import {
 	DOMParser,
@@ -14,10 +13,13 @@ import {
 } from '@xmldom/xmldom';
 import BigDecimal from 'big.js';
 import pLimit from 'p-limit';
+import { Tinypool } from 'tinypool';
 
 import { MAX_CENTS } from '~/bindings';
 
 import SCHEMA from './isdoc-invoice-6.0.2.xsd';
+
+import type { Validation } from './validator.ts';
 
 export const ISDOC_NAMESPACE = 'http://isdoc.cz/namespace/2013';
 
@@ -79,14 +81,15 @@ const PARSER = new DOMParser({
 });
 const SERIALIZER = new XMLSerializer();
 
-interface Validation {
-	code: number;
-	stderr: string;
-}
-
-// Jeden worker na proces, založený až první kontrolou: modul xmllint se v něm přeloží jednou.
-let validator: Worker | undefined;
-// Kontroly jdou po jedné, takže odpověď workeru patří vždy té, která zrovna čeká.
+// Jeden worker na proces, založený až první kontrolou: modul xmllint se v něm přeloží jednou za jeho
+// život. Spadlý nebo zabitý nahradí pool novým.
+const validator = new Tinypool({
+	filename: VALIDATOR,
+	minThreads: 0,
+	maxThreads: 1,
+	idleTimeout: 60_000,
+});
+// Po jedné, aby limit začal běžet až se začátkem kontroly, ne zařazením do fronty.
 const validations = pLimit(1);
 
 // Hloubka se měří plochým průchodem dřív, než doklad dostane libxml2. Syntaktickou chybu, na které
@@ -122,40 +125,21 @@ function checkDepth(xml: string): void {
 	}
 }
 
-function startValidator(): Worker {
-	// XSD dostane worker od nás: ze zdrojů ho Node jako text nenačte, v bundlu vedle workeru neleží.
-	const worker = new Worker(VALIDATOR, { workerData: SCHEMA });
-	// Proces naživu drží čekající kontrola se svým časovačem, ne worker.
-	// Stryker disable next-line CallExpression: ekvivalentní mutant, proces drží naživu čekající kontrola, test pozdější konec procesu nevidí.
-	worker.unref();
-	// Stryker disable next-line BlockStatement,StringLiteral: další kontrola by čekala na mrtvý worker celý limit.
-	worker.once('exit', () => {
-		validator = undefined;
-	});
-	validator = worker;
-	return worker;
-}
-
-// Spadlý nebo zaseknutý worker je chyba téhle kontroly; další kontrola založí nový.
-async function ask(xml: string): Promise<Validation> {
-	const worker = validator ?? startValidator();
-	const answer = Promise.withResolvers<Validation>();
-	const stopped = () => answer.reject(new Error('kontrola proti XSD nedoběhla'));
-	const timer = setTimeout(() => void worker.terminate(), VALIDATION_TIMEOUT);
-	worker.once('message', answer.resolve);
-	worker.once('error', answer.reject);
-	worker.once('exit', stopped);
+// Zaseknutou kontrolu pool ukončí i s workerem; worker, který se nespustí, je vada appky, ne dokladu.
+async function validate(xml: string): Promise<Validation> {
+	const signal = AbortSignal.timeout(VALIDATION_TIMEOUT);
 	try {
-		// Prázdný seznam přenášených bufferů: bez něj lint plete `postMessage` s tím z `window`.
-		worker.postMessage(xml, []);
-		const result = await answer.promise;
-		return result;
-	} finally {
-		clearTimeout(timer);
-		// Stryker disable next-line StringLiteral,CallExpression: ekvivalentní mutant, posluchač `once` po odpovědi zmizí sám a bez odpovědi worker skončil.
-		worker.off('message', answer.resolve);
-		worker.off('error', answer.reject);
-		worker.off('exit', stopped);
+		const validation: Validation = await validator.run(
+			{
+				xml,
+				schema: SCHEMA,
+			},
+			{ signal },
+		);
+		return validation;
+	} catch (error) {
+		if (signal.aborted) throw new Error('ISDOC nejde přečíst: kontrola dokladu nedoběhla', { cause: error });
+		throw new Error('Fakturian nedokázal spustit kontrolu ISDOC — zkus ho restartovat', { cause: error });
 	}
 }
 
@@ -174,12 +158,7 @@ export async function parse(xml: string): Promise<Document> {
 		throw new Error(`ISDOC je nepřiměřeně velký (${Math.floor(size / MIB)} MB) — takhle doklad nevypadá.`);
 	}
 	checkDepth(xml);
-	let validation: Validation;
-	try {
-		validation = await validations(() => ask(xml));
-	} catch (error) {
-		throw new Error('ISDOC nejde přečíst: kontrola dokladu nedoběhla', { cause: error });
-	}
+	const validation = await validations(() => validate(xml));
 	// Nenulový kód je vadný doklad, i když libxml2 vyčerpá paměť: stderr říká proč.
 	if (validation.code !== 0) throw new Error(`ISDOC nejde přečíst: ${xmllintReason(validation.stderr)}`);
 	try {
@@ -296,6 +275,18 @@ export function setSent(document: Document, at: string, by: string): void {
 	const extensions = headerExtensions(document);
 	extensions.appendChild(extensionElement(document, SENT_AT, at));
 	extensions.appendChild(extensionElement(document, SENT_BY, by));
+}
+
+// Prázdné `Extensions` se odstraní, aby doklad vyšel stejný jako před označením.
+export function clearSent(document: Document): void {
+	const extensions = child(document.documentElement, 'Extensions');
+	if (!extensions) return;
+	for (const node of Array.from(extensions.childNodes)) {
+		if (isFakturianElement(node, SENT_AT) || isFakturianElement(node, SENT_BY)) extensions.removeChild(node);
+	}
+	if (!Array.from(extensions.childNodes).some((node) => node instanceof Element)) {
+		document.documentElement.removeChild(extensions);
+	}
 }
 
 // Údaje o odeslání se přenesou tak, jak v dokladu leží: přepis by z nich dělal nový záznam o odeslání.

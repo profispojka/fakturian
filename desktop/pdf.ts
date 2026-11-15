@@ -9,7 +9,7 @@ import { Tinypool } from 'tinypool';
 import { errorText } from '~/utils/errors';
 
 import { MAX_ISDOC_BYTES, parse } from './isdoc/mod.ts';
-import { errorCode, MIB } from './util.ts';
+import { MIB } from './util.ts';
 
 import type { PdfContent, PdfRequest } from './pdf-document.ts';
 import type { Document } from '@xmldom/xmldom';
@@ -85,10 +85,8 @@ export function renderTypstSvg(source: string, files: TypstFiles): string[] {
 const PDF_WORKER = new URL(`./worker${extname(fileURLToPath(import.meta.url))}`, import.meta.url);
 // Doklad trvá zlomek sekundy; limit ukončí práci, která se zacyklí bez růstu paměti.
 const PDF_TIMEOUT = 10_000;
-// Skutečný doklad má stovky objektů. Přetečení haldy workeru ale umí V8 ohlásit jako pád celého procesu.
-const PDF_HEAP_MB = 256;
-// Rozbalené proudy leží v `ArrayBuffer` mimo haldu, kam `resourceLimits` nedosáhne; pdf-lib jich rozbalí
-// stovky MB za sekundu. Hlídá se proto přírůstek paměti celého procesu.
+// Strop haldy workeru (`resourceLimits`) nechrání: rozbalené proudy leží mimo haldu a přetečení haldy V8
+// ohlásí jako pád celého procesu. Hlídá se proto přírůstek paměti procesu, hluboko pod výchozí haldou.
 const PDF_MEMORY_BYTES = 1024 * MIB;
 const PDF_MEMORY_CHECK = 50;
 
@@ -99,9 +97,6 @@ const pdfPool = new Tinypool({
 	minThreads: 0,
 	maxThreads: 1,
 	idleTimeout: 60_000,
-	resourceLimits: {
-		maxOldGenerationSizeMb: PDF_HEAP_MB,
-	},
 });
 // Po jedné, aby limity začaly běžet až se začátkem práce, ne zařazením do fronty.
 const pdfJobs = pLimit(1);
@@ -111,6 +106,7 @@ function ask<T>(request: PdfRequest): Promise<T> {
 		const memory = new AbortController();
 		const baseline = process.memoryUsage.rss();
 		const watch = setInterval(() => {
+			// Stryker disable next-line EqualityOperator: ekvivalentní mutant, přírůstek přesně na bajt strop netrefí.
 			if (process.memoryUsage.rss() - baseline > PDF_MEMORY_BYTES) memory.abort();
 		}, PDF_MEMORY_CHECK);
 		const signal = AbortSignal.any([AbortSignal.timeout(PDF_TIMEOUT), memory.signal]);
@@ -118,7 +114,7 @@ function ask<T>(request: PdfRequest): Promise<T> {
 		try {
 			reply = await pdfPool.run(request, { signal });
 		} catch (error) {
-			if (signal.aborted || errorCode(error) === 'ERR_WORKER_OUT_OF_MEMORY') {
+			if (signal.aborted) {
 				throw new Error('PDF nejde rozbalit v rozumném čase ani paměti — takhle doklad nevypadá', {
 					cause: error,
 				});

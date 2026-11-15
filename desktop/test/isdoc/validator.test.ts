@@ -8,9 +8,8 @@ import { fixture } from '../isdoc.ts';
 
 import type { Validation } from '../../isdoc/validator.ts';
 
-// Worker běží mimo dosah pokrytí, takže se kontrola pouští ve vlákně testu. Lepidlo xmllint si při
-// načtení registruje posluchače na `parentPort`, který ve vlákně testu není; podvrhne se v `worker_threads`,
-// kam si ho bere přes `require` a kam `vi.mock` nesahá.
+// Worker běží mimo dosah pokrytí, takže se kontrola pouští ve vlákně testu. Lepidlo xmllint při načtení
+// sahá na `parentPort` přes `require`, kam `vi.mock` nedosáhne — podvrhne se přímo ve `worker_threads`.
 const threads: { parentPort: unknown } = createRequire(import.meta.url)('node:worker_threads');
 
 let validate: (task: { xml: string; schema: string }) => Promise<Validation>;
@@ -28,11 +27,23 @@ afterAll(() => {
 
 describe('validátor ISDOC ve workeru', () => {
 	it('platný doklad ohlásí nulovým kódem a vadný s hláškou libxml2', async () => {
-		expect(await validate({ xml: await fixture('foreign-document.isdoc'), schema: SCHEMA })).toEqual({
+		const xml = await fixture('foreign-document.isdoc');
+
+		expect(
+			await validate({
+				xml,
+				schema: SCHEMA,
+			}),
+		).toEqual({
 			code: 0,
 			stderr: 'invoice.isdoc validates\n',
 		});
-		expect(await validate({ xml: '<Invoice/>', schema: SCHEMA })).toEqual({
+		expect(
+			await validate({
+				xml: '<Invoice/>',
+				schema: SCHEMA,
+			}),
+		).toEqual({
 			code: 3,
 			stderr: expect.stringMatching(
 				/^invoice\.isdoc:1: Schemas validity error : Element 'Invoice': No matching global declaration available for the validation root\.\n/,

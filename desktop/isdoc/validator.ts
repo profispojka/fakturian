@@ -1,5 +1,11 @@
 import { readFile } from 'node:fs/promises';
-import { parentPort, workerData } from 'node:worker_threads';
+
+import xmllint from 'xmllint-wasm/xmllint-node.js';
+
+export interface Validation {
+	code: number;
+	stderr: string;
+}
 
 // Modul se přeloží jednou za život workeru. Instance je na každou kontrolu nová: xmllint po doběhnutí
 // `main` skončí a znovu spustit nejde.
@@ -8,17 +14,11 @@ async function compile(): Promise<WebAssembly.Module> {
 	return WebAssembly.compile(bytes);
 }
 
-if (!parentPort || typeof workerData !== 'string')
-	throw new Error('Validátor ISDOC běží jen jako worker se schématem.');
-const port = parentPort;
-const schema = workerData;
 const compiled = compile();
-// Dynamický import se vyhodnotí až za registrací našeho posluchače. `xmllint-node.js` přidá vlastní,
-// který zprávy bez své značky zahodí; zpráva doručená před tím naším by se ztratila.
-const glue = import('xmllint-wasm/xmllint-node.js');
 
-async function validate(xml: string): Promise<void> {
-	const [{ default: xmllint }, module] = await Promise.all([glue, compiled]);
+// XSD jde s každou kontrolou: ze zdrojů ho Node jako text nenačte, v bundlu vedle workeru neleží.
+export default async function validate({ xml, schema }: { xml: string; schema: string }): Promise<Validation> {
+	const module = await compiled;
 	let code = -1;
 	let stderr = '';
 	await xmllint({
@@ -53,17 +53,8 @@ async function validate(xml: string): Promise<void> {
 			return instance.exports;
 		},
 	});
-	// Prázdný seznam přenášených bufferů: bez něj lint plete `postMessage` s tím z `window`.
-	port.postMessage(
-		{
-			code,
-			stderr,
-		},
-		[],
-	);
+	return {
+		code,
+		stderr,
+	};
 }
-
-// Posluchač zpráv je synchronní; kontrolu, která vyhodí, ohlásí hlavnímu vláknu událost `error` workeru.
-port.on('message', (xml: string) => {
-	void validate(xml);
-});

@@ -16,7 +16,7 @@ import {
 	MIN_YEAR,
 	MAX_YEAR,
 } from '~/utils/date';
-import { contactToParty, creditTargetOf, invoiceTotalCents, lineTotalCents, variableSymbolFor } from '~/utils/invoice';
+import { contactToParty, creditNotesOf, creditTargetOf,invoiceTotalCents, lineTotalCents, variableSymbolFor } from '~/utils/invoice';
 import { formatCount } from '~/utils/locales';
 import { defaultInvoiceMail } from '~/utils/mail';
 import { templateOf } from '~/utils/numbering';
@@ -115,6 +115,8 @@ const invoiceContext = computed(() => ({
 }));
 
 const schema = computed(() => invoiceSchema(invoiceContext.value));
+
+const credits = computed(() => creditNotesOf(number.value, archive.value));
 
 async function initNew() {
 	savedPath.value = '';
@@ -454,7 +456,11 @@ async function sendEmail() {
 	const { subject, body } = defaultInvoiceMail(inv.value.number, total.value);
 	try {
 		await emailWithAttachment(inv.value.customer.email, subject, body, savedPath.value);
-		sentAt.value = await markSent(inv.value.number);
+		if (!sentAt.value) {
+			sentAt.value = await markSent(inv.value.number, () => {
+				sentAt.value = null;
+			});
+		}
 	} catch (e) {
 		status.error('E-mail se nepodařilo připravit', e);
 	}
@@ -981,7 +987,8 @@ const lineColumns: TableColumn<InvoiceLineRow>[] = [
 					trailing-icon="i-lucide-save"
 					type="submit"
 					:loading="loading"
-					:disabled="missing"
+					:disabled="missing || credits.length > 0"
+					:title="credits.length ? `Faktura má dobropis ${credits.join(', ')}, proto ji nejde upravit.` : undefined"
 					:aria-busy="loading"
 					data-save
 					data-testid="action-save">

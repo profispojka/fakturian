@@ -1,5 +1,5 @@
 import { DOMImplementation, DOMParser, type Element } from '@xmldom/xmldom';
-import Tinypool from 'tinypool';
+import { Tinypool } from 'tinypool';
 import { describe, expect, it, vi } from 'vitest';
 
 import { MAX_CENTS } from '~/bindings';
