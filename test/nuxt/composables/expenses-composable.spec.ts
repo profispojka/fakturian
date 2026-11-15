@@ -295,14 +295,14 @@ describe('import přetaženého dokladu', () => {
 		);
 		const pending = [
 			expense('v9', {
-				supplier: '',
+				supplier: 'Server s.r.o.',
 				supplierIco: '25596641',
 				documentNumber: 'F2026-7',
 			}),
 		];
 
 		await expect(useNuxtApp().vueApp.runWithContext(useExpenses).importDocument('/x.pdf', pending)).rejects.toThrow(
-			new Error('Doklad F2026-7 už ve výdajích je (bez dodavatele).'),
+			new Error('Doklad F2026-7 už ve výdajích je (Server s.r.o.).'),
 		);
 	});
 

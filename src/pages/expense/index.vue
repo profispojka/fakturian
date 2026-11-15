@@ -114,7 +114,7 @@ async function importFiles(paths: string[]) {
 			const { expense, file, warning } = await importDocument(path, newItems);
 			newItems.push(expense);
 			copies.push(file);
-			done.push(expense.supplier || 'doklad');
+			done.push(expense.supplier);
 			if (warning && !warnings.includes(warning)) warnings.push(warning);
 		} catch (e) {
 			errors.push(errorText(e));
@@ -252,7 +252,7 @@ const columns: TableColumn<Expense>[] = [
 						:ui="{ label: 'min-w-0 text-left' }">
 						<span class="min-w-0">
 							<span class="block truncate text-meta font-medium">
-								{{ e.supplier || 'Doplnit údaje' }}
+								{{ e.supplier }}
 							</span>
 							<span v-if="e.description" class="mt-1 block truncate text-micro font-normal text-ink-3">
 								{{ e.description }}
@@ -281,7 +281,7 @@ const columns: TableColumn<Expense>[] = [
 						@click="selectedId = e.id" />
 					<template #content-top>
 						<p class="truncate px-3 pt-2 pb-2.5 text-meta text-ink-3" data-testid="expense-actions-heading">
-							{{ e.supplier || 'Doplnit údaje' }}
+							{{ e.supplier }}
 						</p>
 					</template>
 				</UDropdownMenu>

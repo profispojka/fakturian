@@ -30,7 +30,7 @@ export function emptyExpenses(): ExpensesFile {
 // doklad vystavený na nás, takže chybět nesmí ani jako klíč.
 export const receivedDocumentSchema = z.strictObject({
 	file: z.string(),
-	supplier: z.string(),
+	supplier: z.string().trim().min(1),
 	supplierIco: z.ico().or(z.literal('')),
 	number: z.string(),
 	uuid: z.string(),

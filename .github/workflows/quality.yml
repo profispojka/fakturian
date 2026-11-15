@@ -80,7 +80,16 @@ jobs:
           test -f "$app/Contents/Resources/LICENSE.electron.txt"
           test -f "$app/Contents/Resources/LICENSES.chromium.html"
           test -f "$app/Contents/Resources/app.asar.unpacked/.output/desktop/validator.mjs"
+          test -f "$app/Contents/Resources/app.asar.unpacked/.output/desktop/pdf-probe.mjs"
           test -d "$app/Contents/Resources/app.asar.unpacked/node_modules/xmllint-wasm"
+          fuses=$(node node_modules/@electron/fuses/dist/bin.js read --app "$app")
+          echo "$fuses"
+          for fuse in RunAsNode EnableNodeOptionsEnvironmentVariable EnableNodeCliInspectArguments; do
+            grep -q "$fuse is Disabled" <<< "$fuses"
+          done
+          for fuse in EnableEmbeddedAsarIntegrityValidation OnlyLoadAppFromAsar; do
+            grep -q "$fuse is Enabled" <<< "$fuses"
+          done
           ls .output/release/*.dmg .output/release/*.zip
       # Spustí `.app`, ze které vznikly DMG a ZIP, a zeptá se jí přes MCP connector.
       - name: Launch packaged app

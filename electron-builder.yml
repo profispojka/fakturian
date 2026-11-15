@@ -23,15 +23,27 @@ extraResources:
 # Electron z `node_modules`, ne druhé stažení z GitHubu.
 electronDist: node_modules/electron/dist
 asar: true
-# Nativní addony (Typst, obrázky, klíčenka) se z archivu nenačtou; worker ISDOC (`validator.mjs`)
-# a `xmllint-wasm`, které spouští, Node v `Worker` z archivu nenačte.
+# Nativní addony (Typst, obrázky, klíčenka) se z archivu nenačtou; workery (`validator.mjs`,
+# `pdf-probe.mjs`) a `xmllint-wasm`, které validátor spouští, Node v `Worker` z archivu nenačte.
 asarUnpack:
   - '**/*.node'
   - '**/*.wasm'
   - .output/desktop/validator.mjs
+  - .output/desktop/pdf-probe.mjs
   - node_modules/xmllint-wasm/**
 # Addony jsou N-API s hotovými binárkami, přestavba proti hlavičkám Electronu je zbytečná.
 npmRebuild: false
+# Bez fuses spustí kdokoli binárku jako Node (`ELECTRON_RUN_AS_NODE`, `NODE_OPTIONS`, `--inspect`)
+# a jeho kód zdědí oprávnění appky i její položku v klíčence s Fio tokenem.
+electronFuses:
+  runAsNode: false
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+  grantFileProtocolExtraPrivileges: false
+  # Přepnutí mění binárku; bez nového ad-hoc podpisu ji macOS na arm64 zabije hned po spuštění.
+  resetAdHocDarwinSignature: true
 mac:
   category: public.app-category.business
   icon: desktop/icons/icon.icns

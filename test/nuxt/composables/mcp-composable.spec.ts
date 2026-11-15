@@ -6,7 +6,15 @@ import { useVault } from '~/composables/useVault';
 import { useVaultData } from '~/composables/useVaultData';
 
 import { backend, outsideDesktop } from '../../setup/backend';
-import { McpHost, completeContact, connectAgent, replyTo, sentTo, toasts, vaultWithContent } from '../../setup/mcp-client';
+import {
+	McpHost,
+	completeContact,
+	connectAgent,
+	replyTo,
+	sentTo,
+	toasts,
+	vaultWithContent,
+} from '../../setup/mcp-client';
 import { mountUi } from '../../setup/mount';
 import { prepareVault } from '../../setup/vault';
 

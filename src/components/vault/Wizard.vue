@@ -100,8 +100,7 @@ const stage = computed(() => {
 
 function pretty(path: string | null): string {
 	if (!path) return '';
-	const h = home.value.endsWith('/') ? home.value.slice(0, -1) : home.value;
-	if (h && path.startsWith(h)) return `~${path.slice(h.length)}`;
+	if (home.value && path.startsWith(home.value)) return `~${path.slice(home.value.length)}`;
 	return path;
 }
 

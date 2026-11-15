@@ -534,7 +534,11 @@ describe('uložení a načtení', () => {
 					email: 'kdosi',
 				},
 			}),
-		).rejects.toThrow(new Error('Doklad nejde uložit (Neplatné IČO odběratele., Neplatné PSČ odběratele. a Neplatný e-mail odběratele.).'));
+		).rejects.toThrow(
+			new Error(
+				'Doklad nejde uložit (Neplatné IČO odběratele., Neplatné PSČ odběratele. a Neplatný e-mail odběratele.).',
+			),
+		);
 		expect(await names(base)).toEqual([]);
 	});
 

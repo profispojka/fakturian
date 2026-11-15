@@ -72,7 +72,7 @@ export function useExpenses() {
 		const duplicate = [...data.value.expenses, ...pending].find((e) => sameReceivedDocument(e, doc));
 		if (duplicate) {
 			await discardReceived(vault, doc.file);
-			throw new Error(`Doklad ${doc.number} už ve výdajích je (${duplicate.supplier || 'bez dodavatele'}).`);
+			throw new Error(`Doklad ${doc.number} už ve výdajích je (${duplicate.supplier}).`);
 		}
 
 		const check = checkRecipient(supplier.value?.ico ?? '', doc.recipientIco);

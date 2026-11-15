@@ -40,12 +40,10 @@ export async function pickFolder(win: BaseWindow, { defaultPath }: { defaultPath
 	// Neexistující výchozí složku panel přejde a otevře se jinde. Přesunutá datová složka nebo nový
 	// `~/Documents/Fakturian` proto dialog otevřou v nejbližší existující nadřazené složce.
 	let start = defaultPath;
-	while (true) {
+	while (start !== dirname(start)) {
 		const [info] = await Promise.allSettled([stat(start)]);
 		if (info.status === 'fulfilled' && info.value.isDirectory()) break;
-		const parent = dirname(start);
-		if (parent === start) break;
-		start = parent;
+		start = dirname(start);
 	}
 	const { canceled, filePaths } = await dialog.showOpenDialog(win, {
 		defaultPath: start,

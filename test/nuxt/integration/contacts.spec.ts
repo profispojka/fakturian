@@ -71,7 +71,11 @@ describe('useContacts', () => {
 	});
 
 	it('nenačtenou konfiguraci nelze přepsat přes odběratelskou službu', async () => {
-		backend.writeFile('/vault', 'nastaveni.json', { contacts: 'poškozeno' });
+		backend.writeFile('/vault', 'nastaveni.json', {
+			supplier: emptySupplier(),
+			contacts: 'poškozeno',
+			pricelist: [],
+		});
 		const original = saved('nastaveni.json');
 		await expect(useNuxtApp().vueApp.runWithContext(useVaultData).load()).rejects.toThrow(
 			new Error(
