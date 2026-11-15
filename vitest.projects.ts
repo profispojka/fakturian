@@ -13,7 +13,7 @@ export const unitProject = defineConfig({
 	test: {
 		name: 'unit',
 		environment: 'node',
-		include: ['test/unit/**/*.spec.ts'],
+		include: ['test/unit/**/*.spec.ts', 'test/tooling/**/*.spec.ts'],
 		globalSetup: ['./test/setup/timezone.ts'],
 		setupFiles: ['./test/setup/properties.ts'],
 		restoreMocks: true,

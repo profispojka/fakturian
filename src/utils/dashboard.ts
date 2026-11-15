@@ -239,20 +239,21 @@ export interface VatLimitStats extends VatYear {
 function vatYear(items: InvoiceSummary[], day: DateString): VatYear {
 	const year = yearOf(day);
 	const inYear = items.filter((i) => yearOf(i.issueDate) === year);
-	const turnoverCents = inYear.reduce((sum, i) => sum + i.totalCents, 0);
 	const days = Map.groupBy(inYear, (item) => item.issueDate);
 	let running = 0;
 	let highest = 0;
-	for (const [, dayItems] of [...days.entries()].toSorted(([a], [b]) => a.localeCompare(b))) {
+	let crossed: DateString | undefined;
+	for (const [date, dayItems] of [...days.entries()].toSorted(([a], [b]) => a.localeCompare(b))) {
 		running += dayItems.reduce((sum, item) => sum + item.totalCents, 0);
 		highest = Math.max(highest, running);
+		if (crossed === undefined && running > VAT_LIMIT_IMMEDIATE_CENTS) crossed = addDays(date, 1);
 	}
 	const stage = stageOf(highest);
 	return {
 		year,
-		turnoverCents,
+		turnoverCents: running,
 		stage,
-		payerFrom: payerFrom(stage, crossingDay(inYear), endOfYear(day)),
+		payerFrom: payerFrom(stage, crossed, endOfYear(day)),
 	};
 }
 
@@ -285,17 +286,6 @@ function payerFrom(
 	if (stage === 'below') return undefined;
 	if (stage === 'immediate') return crossed;
 	return addDays(lastDayOfYear, 1);
-}
-
-// Obrat se řadí podle data vystavení, jako v iDokladu a Fakturoidu
-// (docs/02-TECHNOLOGIE.md, „Limit plátcovství DPH").
-function crossingDay(inYear: InvoiceSummary[]): DateString | undefined {
-	let running = 0;
-	for (const i of inYear.toSorted((a, b) => a.issueDate.localeCompare(b.issueDate))) {
-		running += i.totalCents;
-		if (running > VAT_LIMIT_IMMEDIATE_CENTS) return addDays(i.issueDate, 1);
-	}
-	return undefined;
 }
 
 export type VatLevel = 'ok' | 'warn' | 'danger';

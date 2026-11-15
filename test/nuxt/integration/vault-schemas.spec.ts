@@ -212,7 +212,21 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 		);
 	});
 
-	it('rozpracovaný dodavatel s neplatným IČO se načíst dá', async () => {
+	it('rozpracovaný dodavatel bez IČO se načíst dá, s neplatným ne', async () => {
+		await vaultFiles({
+			'nastaveni.json': {
+				...EMPTY_SETTINGS,
+				supplier: {
+					...SUPPLIER,
+					ico: '',
+				},
+			},
+		});
+		const v = useNuxtApp().vueApp.runWithContext(useVaultData);
+
+		await v.load();
+		expect(v.data.value.supplier?.ico).toBe('');
+
 		await vaultFiles({
 			'nastaveni.json': {
 				...EMPTY_SETTINGS,
@@ -222,10 +236,9 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 				},
 			},
 		});
-		const v = useNuxtApp().vueApp.runWithContext(useVaultData);
-
-		await v.load();
-		expect(v.data.value.supplier?.ico).toBe('123');
+		await expect(v.load()).rejects.toThrow(
+			new Error('Soubor nastaveni.json má poškozený obsah (supplier.ico: Neplatné IČO (8 číslic).).'),
+		);
 	});
 
 	it.each([

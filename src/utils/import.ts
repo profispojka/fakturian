@@ -9,7 +9,7 @@ export function contactFromImported(c: ImportedCustomer): Contact {
 	return {
 		id: crypto.randomUUID(),
 		name: c.name.trim(),
-		ico: c.ico,
+		ico: c.ico.replace(/\s/g, ''),
 		address: {
 			street: c.address.street.trim(),
 			city: c.address.city.trim(),
@@ -27,11 +27,11 @@ export function supplierFromAdopted(d: AdoptedSupplier): Supplier {
 		ico: d.ico,
 		address: {
 			...d.address,
-			zip: d.address.zip.replace(/\s+/g, ''),
+			zip: d.address.zip.replace(/\s/g, ''),
 		},
 		registration: d.registration,
-		bankAccount: d.bankAccount.replace(/\s+/g, ''),
-		bankCode: d.bankCode.replace(/\s+/g, ''),
+		bankAccount: d.bankAccount.replace(/\s/g, ''),
+		bankCode: d.bankCode.replace(/\s/g, ''),
 		email: d.email || undefined,
 		defaultDueDays: d.defaultDueDays ?? defaultValue.defaultDueDays,
 		// Bez toho by řada uprostřed roku změnila tvar: po `2026022` z iDokladu by výchozí šablona

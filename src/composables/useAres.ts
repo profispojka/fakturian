@@ -8,7 +8,8 @@ export function useAres() {
 	const loading = ref(false);
 	const error = ref('');
 
-	async function lookup(ico: string): Promise<AresParty | null> {
+	async function lookup(input: string): Promise<AresParty | null> {
+		const ico = input.replace(/\s+/g, '');
 		error.value = '';
 		if (!ico) {
 			error.value = 'Zadej nejdřív IČO.';

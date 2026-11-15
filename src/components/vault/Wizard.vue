@@ -72,7 +72,7 @@ const ADOPT_PREVIEW = 5;
 const adoptCandidates = computed(() => adoptScan.value?.candidates ?? []);
 const adoptCount = computed(() => adoptCandidates.value.length);
 
-const typedIco = computed(() => ico.value.trim());
+const typedIco = computed(() => ico.value.replace(/\s+/g, ''));
 const icoReady = computed(() => isValidIco(typedIco.value) && !ares.loading.value);
 
 function updateIco(value: string) {

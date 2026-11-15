@@ -34,7 +34,6 @@ jobs:
       - run: bun install --frozen-lockfile
       # Showcase je samostatný projekt; `bun run typecheck` kontroluje jeho skripty proti typům z `playwright`.
       - run: bun install --cwd showcase --frozen-lockfile
-      - run: bun run test:gates
       - run: bun run lint:check
       - run: bun run format:check
       # Obsahuje i `tsc -p desktop/tsconfig.json` nad hlavním procesem.

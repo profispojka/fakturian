@@ -210,7 +210,7 @@ jednodušší" a „není to konzistentní" novým scénářem není.
   lišila, synchronizace nic nespáruje a platba se zapíše ručně; špatnou platbu
   nezapíše.
 - **NAST-21 · Poruchové vzorky pro vadný typ, pokles pokrytí a chybějící
-  validátor.** `test/tooling/quality-gate.test.ts`.
+  validátor.** `test/tooling/quality-gate.spec.ts`.
 - **NAST-26 · Kontrolní skripty.** `requireTsMutations`
   (`tools/mutation/mutation-result.ts`) pustí mutanta `Ignored` s jakýmkoli
   důvodem; `errorTextRule` (`tools/lint/oxlint-fakturian.ts`) hlásí falešně při

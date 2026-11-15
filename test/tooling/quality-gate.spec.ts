@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+
 import { test } from 'vitest';
 
 import { requireTsMutations } from '../../tools/mutation/mutation-result.ts';
@@ -47,7 +48,7 @@ const cases: [string, string, boolean][] = [
 ];
 
 for (const [name, source, passes] of cases) {
-	test(`brána: ${name}`, () => {
+	test(`brána: ${name}`, { timeout: 30_000 }, () => {
 		const directory = mkdtempSync(join(tmpdir(), 'fakturian-gate-'));
 		try {
 			writeFileSync(

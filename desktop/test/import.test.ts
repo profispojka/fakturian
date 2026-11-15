@@ -232,7 +232,7 @@ describe('kontrola vydaného dokladu', () => {
 				importable({
 					supplier: {
 						...supplier(),
-						ico: ' 012345679 ',
+						ico: ours,
 					},
 				}),
 				ours,
@@ -256,7 +256,7 @@ describe('kontrola vydaného dokladu', () => {
 					supplier: {
 						...supplier(),
 						name: ' ',
-						ico: ' ',
+						ico: '',
 					},
 				}),
 				ours,
@@ -266,7 +266,7 @@ describe('kontrola vydaného dokladu', () => {
 				'doklad neuvádí IČO dodavatele (neznámý dodavatel), takže nejde poznat, že je tvůj — přijaté doklady patří do Výdajů',
 			),
 		);
-		expect(refusal(importable({ supplier: supplier() }), '')).toBe(undefined);
+		expect(refusal(importable({ supplier: supplier() }), null)).toBe(undefined);
 	});
 
 	it('doklad plátce DPH ani v cizí měně neprojde', () => {

@@ -289,7 +289,7 @@ const EXPENSES = [
 	{
 		id: 'e-0005',
 		supplier: 'Ing. Marie Kučerová',
-		supplierIco: '74125896',
+		supplierIco: '74125893',
 		description: 'Vedení účetnictví',
 		czk: 2_800,
 		date: '2026-01-20',
@@ -328,7 +328,7 @@ const EXPENSES = [
 	{
 		id: 'e-0103',
 		supplier: 'Petr Horák — grafika',
-		supplierIco: '88991122',
+		supplierIco: '88991121',
 		description: 'Grafický návrh e-shopu',
 		czk: 38_000,
 		date: '2026-02-24',
@@ -336,7 +336,7 @@ const EXPENSES = [
 	{
 		id: 'e-0104',
 		supplier: 'Petr Horák — grafika',
-		supplierIco: '88991122',
+		supplierIco: '88991121',
 		description: 'Ikonografie a ilustrace',
 		czk: 12_500,
 		date: '2026-04-14',
@@ -344,7 +344,7 @@ const EXPENSES = [
 	{
 		id: 'e-0105',
 		supplier: 'Tomáš Řehák — vývoj',
-		supplierIco: '77553311',
+		supplierIco: '77553314',
 		description: 'Subdodávka backend API',
 		czk: 96_000,
 		date: '2026-03-31',
@@ -352,7 +352,7 @@ const EXPENSES = [
 	{
 		id: 'e-0106',
 		supplier: 'Tomáš Řehák — vývoj',
-		supplierIco: '77553311',
+		supplierIco: '77553314',
 		description: 'Subdodávka — integrace ERP',
 		czk: 84_000,
 		date: '2026-06-30',
@@ -360,7 +360,7 @@ const EXPENSES = [
 	{
 		id: 'e-0107',
 		supplier: 'Testovací zařízení s.r.o.',
-		supplierIco: '29012345',
+		supplierIco: '29012341',
 		description: 'Zapůjčení testovacích telefonů',
 		czk: 9_800,
 		date: '2026-05-12',
@@ -368,7 +368,7 @@ const EXPENSES = [
 	{
 		id: 'e-0108',
 		supplier: 'Czechitas z.s.',
-		supplierIco: '22833571',
+		supplierIco: '22833579',
 		description: 'Školení — přístupnost',
 		czk: 8_900,
 		date: '2026-03-06',
@@ -376,7 +376,7 @@ const EXPENSES = [
 	{
 		id: 'e-0109',
 		supplier: 'WebExpo s.r.o.',
-		supplierIco: '27654321',
+		supplierIco: '27654320',
 		description: 'Konference WebExpo 2026',
 		czk: 6_500,
 		date: '2026-05-28',
@@ -391,7 +391,7 @@ const EXPENSES = [
 	{
 		id: 'e-0111',
 		supplier: 'Fotky&Foto s.r.o.',
-		supplierIco: '27918967',
+		supplierIco: '27918963',
 		description: 'Licence fotobanky',
 		czk: 4_290,
 		date: '2026-02-11',
@@ -422,7 +422,7 @@ const EXPENSES = [
 	{
 		id: 'e-0115',
 		supplier: 'Petr Horák — grafika',
-		supplierIco: '88991122',
+		supplierIco: '88991121',
 		description: 'Logo a vizuální styl',
 		czk: 9_500,
 		date: '2025-10-22',

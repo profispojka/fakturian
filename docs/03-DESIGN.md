@@ -39,7 +39,7 @@ shrnuje tenhle dokument. Jak se vzhled píše v kódu (Tailwind, tokeny,
 - **Persistence okna** — velikost a pozici ukládá `desktop/window.ts` do
   `.window-state.json` v podpůrné složce appky.
 - **Nejmenší velikost okna** je `MIN_WINDOW_SIZE` v `desktop/window-size.ts`;
-  z jeho šířky bere `lint:scales` nejmenší zlom.
+  z jeho šířky bere `scripts/check-tailwind-scales.ts` nejmenší zlom.
 
 ---
 

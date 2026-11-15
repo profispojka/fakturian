@@ -166,7 +166,7 @@ async function summarizePdf(path: string): Promise<InvoiceSummary> {
 		throw new Error(`PDF nejde přečíst: ${errorText(error)}`, { cause: error });
 	}
 	const source = await sourceFromPdf(pdf);
-	checkSource(source, '');
+	checkSource(source, null);
 	return {
 		...summarize(source.invoice, path),
 		sentAt: source.sentAt ?? null,

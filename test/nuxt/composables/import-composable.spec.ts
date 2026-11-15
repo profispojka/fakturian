@@ -290,13 +290,13 @@ describe('zakládání odběratelů z importu', () => {
 
 describe('převzetí složky', () => {
 	it('použije adopt_documents a IČO zvenčí', async () => {
-		await useNuxtApp().vueApp.runWithContext(useImport).adoptFiles(['/vault/stare/a.pdf'], '87654321');
+		await useNuxtApp().vueApp.runWithContext(useImport).adoptFiles(['/vault/stare/a.pdf'], '87654326');
 
 		expect(backend.args('adopt_documents')).toEqual([
 			{
 				vaultPath: '/vault',
 				paths: ['/vault/stare/a.pdf'],
-				ourIco: '87654321',
+				ourIco: '87654326',
 			},
 		]);
 	});
@@ -323,7 +323,7 @@ describe('převzetí složky', () => {
 	});
 
 	it('prázdný seznam se backendu vůbec neposílá', async () => {
-		const v = await useNuxtApp().vueApp.runWithContext(useImport).adoptFiles([], '87654321');
+		const v = await useNuxtApp().vueApp.runWithContext(useImport).adoptFiles([], '87654326');
 
 		expect(backend.args('adopt_documents')).toEqual([]);
 		expect(v.report).toEqual({
@@ -354,7 +354,7 @@ describe('převzetí složky', () => {
 			}),
 		);
 
-		const v = await useNuxtApp().vueApp.runWithContext(useImport).adoptFiles(['/vault/stare/a.pdf'], '87654321');
+		const v = await useNuxtApp().vueApp.runWithContext(useImport).adoptFiles(['/vault/stare/a.pdf'], '87654326');
 
 		expect(v.addedContacts).toBe(1);
 		expect(savingCustomer()).toHaveLength(2);
@@ -411,7 +411,7 @@ describe('platby k naimportovaným číslům', () => {
 	it('převzetí složky je zapomene taky', async () => {
 		backend.keepsReturning('adopt_documents', report({ imported: [imported] }));
 
-		await useNuxtApp().vueApp.runWithContext(useImport).adoptFiles(['/vault/stare/a.pdf'], '87654321');
+		await useNuxtApp().vueApp.runWithContext(useImport).adoptFiles(['/vault/stare/a.pdf'], '87654326');
 
 		expect(saved('platby.json').payments).toEqual({
 			'20250002': [

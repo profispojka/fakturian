@@ -241,7 +241,7 @@ describe('sken složky', () => {
 			supplier: {
 				...supplier(),
 				name: 'Dodavatel hostingu s.r.o.',
-				ico: '99887766',
+				ico: '99887762',
 			},
 		});
 		await pdfInto(base, 'moje', invoice());
@@ -252,7 +252,7 @@ describe('sken složky', () => {
 		expect(offer.skipped).toEqual([
 			{
 				file: 'hosting.pdf',
-				reason: 'doklad vystavil Dodavatel hostingu s.r.o. (IČO 99887766), ne ty — přijaté doklady patří do Výdajů',
+				reason: 'doklad vystavil Dodavatel hostingu s.r.o. (IČO 99887762), ne ty — přijaté doklady patří do Výdajů',
 			},
 		]);
 		expect(await exists(source)).toBe(true);
@@ -266,7 +266,7 @@ describe('sken složky', () => {
 			...numbered('20260099'),
 			supplier: {
 				...supplier(),
-				ico: '99887766',
+				ico: '99887762',
 			},
 		});
 
@@ -757,7 +757,7 @@ describe('odvození z dokladů', () => {
 
 	it('při shodném datu řadí oddělovače česky a shodná čísla ponechá v pořadí vstupu', async () => {
 		const source = await fixture('foreign-document.isdoc');
-		const read = await parseIsdoc(source.replace('12345678', '27074358').replace('87654321', '27074358'));
+		const read = await parseIsdoc(source.replace('27082440', '27074358').replace('25596641', '27074358'));
 		const first = {
 			...read,
 			number: 'F-1',

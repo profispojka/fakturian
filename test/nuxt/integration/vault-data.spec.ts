@@ -149,7 +149,7 @@ describe('načtení všech domén', () => {
 
 		await expect(useNuxtApp().vueApp.runWithContext(useVaultData).load()).rejects.toThrow(
 			new Error(
-				'Soubor nastaveni.json má poškozený obsah (supplier.ico: Neplatný vstup: očekáváno řetězec, obdrženo undefined, supplier.address: Neplatný vstup: očekáváno object, obdrženo undefined a supplier.registration: Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
+				'Soubor nastaveni.json má poškozený obsah (supplier.ico: Neplatný vstup, supplier.address: Neplatný vstup: očekáváno object, obdrženo undefined a supplier.registration: Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
 			),
 		);
 		expect(useNuxtApp().vueApp.runWithContext(useVaultData).loaded.value).toBe(false);

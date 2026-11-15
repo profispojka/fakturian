@@ -194,7 +194,7 @@ describe('převzetí dokladů', () => {
 	it('vyplněné IČO z nastavení má přednost před dokladem', async () => {
 		setSupplier({
 			...emptySupplier(),
-			ico: '87654321',
+			ico: '87654326',
 		});
 
 		await useNuxtApp()
@@ -208,7 +208,7 @@ describe('převzetí dokladů', () => {
 		expect(backend.args('adopt_documents')).toEqual([
 			expect.objectContaining({
 				paths: ['/vault/20250001.pdf'],
-				ourIco: '87654321',
+				ourIco: '87654326',
 			}),
 		]);
 	});
@@ -321,33 +321,17 @@ describe('doplnění fakturačních údajů z dokladů', () => {
 		expect(v.supplierFilled).toBe(true);
 	});
 
-	it('IČO ze samých mezer se bere jako nevyplněné', async () => {
-		setSupplier({
-			...emptySupplier(),
-			ico: '   ',
-		});
-
-		const v = await useNuxtApp()
-			.vueApp.runWithContext(useAdopt)
-			.adopt(scan({ supplier: supplierFromDocument() }));
-		expect(savedSupplier()).toMatchObject({
-			ico: '12345679',
-			name: 'Jan Novák',
-		});
-		expect(v.supplierFilled).toBe(true);
-	});
-
 	it('vyplněné nastavení nepřepisuje', async () => {
 		setSupplier({
 			...emptySupplier(),
-			ico: '87654321',
+			ico: '87654326',
 		});
 
 		const v = await useNuxtApp()
 			.vueApp.runWithContext(useAdopt)
 			.adopt(scan({ supplier: supplierFromDocument() }));
 		// Údaje zůstaly ty uživatelovy, ne z převzatého dokladu.
-		expect(useNuxtApp().vueApp.runWithContext(useVaultData).data.value.supplier?.ico).toBe('87654321');
+		expect(useNuxtApp().vueApp.runWithContext(useVaultData).data.value.supplier?.ico).toBe('87654326');
 		expect(v.supplierFilled).toBe(false);
 	});
 

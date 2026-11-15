@@ -24,7 +24,7 @@ export const SAMPLE_INVOICE: Invoice = {
 	},
 	customer: {
 		name: 'Ukázkový odběratel s.r.o.',
-		ico: '27154893',
+		ico: '27154891',
 		address: {
 			street: 'Sokolovská 651/136a',
 			city: 'Praha 8',

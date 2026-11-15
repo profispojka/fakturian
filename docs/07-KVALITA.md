@@ -59,10 +59,10 @@ v `package.json`. Každý krok musí projít, jinak řetěz skončí.
 Vitest používá `tools/testing/required-tests-reporter.ts`. Prázdná nebo
 přeskočená sada, skip/todo, neúspěšný hook, neošetřená chyba i úspěch až po
 retry znamenají selhání. `allowOnly: false` zakazuje `.only`.
-Pravidla Oxlintu jsou pokrytá `RuleTester` testy.
 Čisté unit testy jsou v `test/unit/` a jejich soubory jsou
-pojmenované podle testovaného tématu. Testy bran kvality tamtéž ověřují selhání
-Vitestu při úmyslných poruchách v oddělených procesech.
+pojmenované podle testovaného tématu. V `test/tooling/` jsou `RuleTester` testy
+pravidel Oxlintu a testy bran kvality, které ověřují selhání Vitestu při
+úmyslných poruchách v oddělených procesech; obojí běží v projektu `unit`.
 
 ### Mimo `check`
 

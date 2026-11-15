@@ -172,10 +172,10 @@ describe('import přetaženého dokladu', () => {
 	});
 
 	it('doklad vystavený na někoho jiného odmítne a uklidí po sobě', async () => {
-		backend.returns('import_received', document({ recipientIco: '99999999' }));
+		backend.returns('import_received', document({ recipientIco: '99999994' }));
 
 		await expect(useNuxtApp().vueApp.runWithContext(useExpenses).importDocument('/x.pdf')).rejects.toThrow(
-			new Error('Doklad je vystavený na IČO 99999999, ne na tvoje 12345679.'),
+			new Error('Doklad je vystavený na IČO 99999994, ne na tvoje 12345679.'),
 		);
 		expect(backend.args('remove_received')).toEqual([
 			{
@@ -186,13 +186,13 @@ describe('import přetaženého dokladu', () => {
 	});
 
 	it('selhání úklidu ohlásí toastem a nepřebije důvod odmítnutí', async () => {
-		backend.returns('import_received', document({ recipientIco: '99999999' }));
+		backend.returns('import_received', document({ recipientIco: '99999994' }));
 		backend.breaks('remove_received', 'soubor je zamčený');
 
 		// Kladně, ne přes `rejects.not.toThrow` — ten projde i tehdy, když `importDocument` nevyhodí
 		// vůbec nic.
 		await expect(useNuxtApp().vueApp.runWithContext(useExpenses).importDocument('/x.pdf')).rejects.toThrow(
-			new Error('Doklad je vystavený na IČO 99999999, ne na tvoje 12345679.'),
+			new Error('Doklad je vystavený na IČO 99999994, ne na tvoje 12345679.'),
 		);
 
 		await nextTick();
@@ -224,7 +224,7 @@ describe('import přetaženého dokladu', () => {
 
 		await expect(useNuxtApp().vueApp.runWithContext(useExpenses).importDocument('/x.pdf')).rejects.toThrow(
 			new Error(
-				'Přijatý doklad se nepodařilo přečíst: supplier: Neplatný vstup: očekáváno řetězec, obdrženo undefined, supplierIco: Neplatný vstup: očekáváno řetězec, obdrženo undefined a number: Neplatný vstup: očekáváno řetězec, obdrženo undefined',
+				'Přijatý doklad se nepodařilo přečíst: supplier: Neplatný vstup: očekáváno řetězec, obdrženo undefined, supplierIco: Neplatný vstup a number: Neplatný vstup: očekáváno řetězec, obdrženo undefined',
 			),
 		);
 		expect(backend.args('remove_received')).toEqual([
@@ -290,7 +290,7 @@ describe('import přetaženého dokladu', () => {
 			'import_received',
 			document({
 				number: 'F2026-7',
-				supplierIco: '025596641',
+				supplierIco: '25596641',
 			}),
 		);
 		const pending = [
@@ -311,7 +311,7 @@ describe('import přetaženého dokladu', () => {
 			.vueApp.runWithContext(useExpenses)
 			.upsertMany([
 				expense('v1', {
-					supplierIco: '11111111',
+					supplierIco: '11111119',
 					documentNumber: 'F2026-7',
 				}),
 				expense('v2', { documentNumber: 'F2026-7' }),
@@ -325,7 +325,7 @@ describe('import přetaženého dokladu', () => {
 			}),
 			document({
 				number: '',
-				supplierIco: '11111111',
+				supplierIco: '11111119',
 			}),
 		);
 

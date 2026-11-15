@@ -3,33 +3,23 @@ import { encode } from 'fast-png';
 import { create } from 'qrcode';
 
 import { invoiceTotalCents, variableSymbolFor } from '~/utils/invoice';
+import { isValidBankAccount, isValidBankCode } from '~/utils/validators';
+
+import { fromCents } from '../isdoc/mod.ts';
 
 import type { Invoice } from './model.ts';
-
-const PREFIX_WEIGHTS = [10, 5, 8, 4, 2, 1];
-const NUMBER_WEIGHTS = [6, 3, 7, 9, 10, 5, 8, 4, 2, 1];
 
 const MODULE_PIXELS = 8;
 const QUIET_ZONE = 4;
 const MODULE_ROWS = [...Array.from({ length: MODULE_PIXELS }).keys()];
 
-// Vážený součet čísla účtu podle vyhlášky ČNB. Musí sedět s `isValidBankAccount`
-// v `src/utils/validators.ts`: formulář faktury podle něj hlásí, že doklad odejde bez QR.
-function weightedMod11(digits: string, weights: readonly number[]): boolean {
-	const padded = digits.padStart(weights.length, '0');
-	// Stryker disable next-line ArithmeticOperator: ekvivalentní mutant, záporný součet je dělitelný jedenácti právě tehdy, když kladný.
-	return weights.reduce((sum, weight, i) => sum + weight * Number(padded[i]), 0) % 11 === 0;
-}
-
 export function czechIban(account: string, bankCode: string): string | undefined {
-	const bank = bankCode.replace(/\D/g, '');
-	if (bank.length !== 4) return undefined;
-	const dash = account.indexOf('-');
-	const prefix = account.slice(0, Math.max(dash, 0)).replace(/\D/g, '');
-	const number = account.slice(dash + 1).replace(/\D/g, '');
-	// Nula projde váženým součtem, takže účet z nul by dostal platný IBAN.
-	if (number.length < 2 || prefix.length > 6 || number.length > 10 || /^0+$/.test(number)) return undefined;
-	if (!weightedMod11(prefix, PREFIX_WEIGHTS) || !weightedMod11(number, NUMBER_WEIGHTS)) return undefined;
+	if (!isValidBankAccount(account) || !isValidBankCode(bankCode)) return undefined;
+	const bank = bankCode.replace(/\s/g, '');
+	const normalized = account.replace(/\s/g, '');
+	const dash = normalized.indexOf('-');
+	const prefix = dash === -1 ? '' : normalized.slice(0, dash);
+	const number = normalized.slice(dash + 1);
 	const bban = `${bank}${prefix.padStart(6, '0')}${number.padStart(10, '0')}`;
 	// BBAN s kódem země má 26 číslic; tolik jich `number` přesně neunese.
 	const check = 98n - (BigInt(`${bban}123500`) % 97n);
@@ -40,7 +30,7 @@ export function czechIban(account: string, bankCode: string): string | undefined
 // Syrový řetězec by rozbil kód (`2026*007`) nebo by ho banka odmítla (`F2026-007`).
 export function paymentSymbol(invoice: Invoice): string {
 	const given = invoice.variableSymbol.trim();
-	if (/^\d{1,10}$/.test(given)) return given;
+	if (given.length >= 1 && given.length <= 10 && !/\D/.test(given)) return given;
 	// Z čísla dokladu, ne z číslic vyplněného VS: ty by u `20260007*ACC:CZ00…9999999999` propašovaly
 	// podstrčený účet.
 	return variableSymbolFor(invoice.number);
@@ -50,7 +40,7 @@ export function paymentSymbol(invoice: Invoice): string {
 // části; jinak by banka celý kód odmítla.
 export function spaydAmount(cents: number): string | undefined {
 	const whole = Math.trunc(cents / 100);
-	const amount = `${whole}.${String(cents % 100).padStart(2, '0')}`;
+	const amount = fromCents(cents);
 	if (amount.length <= 10) return amount;
 	if (cents % 100 !== 0 || String(whole).length > 10) return undefined;
 	return String(whole);
