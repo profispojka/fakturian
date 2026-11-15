@@ -110,7 +110,7 @@ async function startNew() {
 // protiřečily při editaci už vystaveného dokladu.
 const invoiceContext = computed(() => ({
 	limitOverflows: limitOverflows(inv.value),
-	...(!number.value && { numberTemplate: templateOf(supplier.value) }),
+	numberTemplate: number.value ? undefined : templateOf(supplier.value),
 	creditTarget: creditTargetOf(inv.value, archive.value),
 }));
 
@@ -353,8 +353,8 @@ function removeLine(i: number) {
 // kontrolou kolize a mohl zapsat useknuté PDF.
 const saving = ref(false);
 
-// Náhled bez validace a ukládání, aby šel vidět dřív než vystavení. Klon modelu proto, že dopočtený
-// variabilní symbol by jinak zůstal ve formuláři a doklad by vypadal jako uložený.
+// Klon modelu proto, že dopočtený variabilní symbol by jinak zůstal ve formuláři
+// a doklad by vypadal jako uložený.
 async function showPreview() {
 	if (previewing.value) return;
 	status.clear();
@@ -386,7 +386,12 @@ function onValidationError(event: FormErrorEvent) {
 	else status.error('Zkontroluj zvýrazněná pole formuláře.');
 }
 
-async function onSubmit() {
+async function onSubmit(event: SubmitEvent) {
+	// Náhled se nečeká: `loading` formuláře by jinak po dobu renderu točil i „Uložit".
+	if (event.submitter?.hasAttribute('data-preview')) {
+		void showPreview();
+		return;
+	}
 	if (saving.value) return;
 	saving.value = true;
 	try {
@@ -594,11 +599,7 @@ const lineColumns: TableColumn<InvoiceLineRow>[] = [
 							class="flex min-w-0 flex-col gap-1 text-ink-2 [&_strong]:text-title [&_strong]:font-medium [&_strong]:text-ink">
 							<template v-if="inv.supplier.name">
 								<strong>{{ inv.supplier.name }}</strong>
-								<div v-if="inv.supplier.ico || inv.supplier.dic" class="hint">
-									<template v-if="inv.supplier.ico">IČO: {{ inv.supplier.ico }}</template>
-									<template v-if="inv.supplier.ico && inv.supplier.dic">·</template>
-									<template v-if="inv.supplier.dic">DIČ: {{ inv.supplier.dic }}</template>
-								</div>
+								<div v-if="inv.supplier.ico" class="hint">IČO: {{ inv.supplier.ico }}</div>
 								<div v-if="inv.supplier.address.street || inv.supplier.address.city" class="hint">
 									{{ addressLine(inv.supplier.address) }}
 								</div>
@@ -627,11 +628,7 @@ const lineColumns: TableColumn<InvoiceLineRow>[] = [
 							<div v-else class="flex items-start justify-between gap-3" data-testid="customer-summary">
 								<div class="flex min-w-0 flex-col gap-1">
 									<strong class="text-title font-medium text-ink">{{ inv.customer.name }}</strong>
-									<div v-if="inv.customer.ico || inv.customer.dic" class="hint">
-										<template v-if="inv.customer.ico">IČO: {{ inv.customer.ico }}</template>
-										<template v-if="inv.customer.ico && inv.customer.dic">·</template>
-										<template v-if="inv.customer.dic">DIČ: {{ inv.customer.dic }}</template>
-									</div>
+									<div v-if="inv.customer.ico" class="hint">IČO: {{ inv.customer.ico }}</div>
 									<div class="hint">
 										{{ addressLine(inv.customer.address) }}
 									</div>
@@ -977,19 +974,8 @@ const lineColumns: TableColumn<InvoiceLineRow>[] = [
 					@click="startNew">
 					Nová
 				</UButton>
-				<UButton
-					variant="ghost"
-					trailing-icon="i-lucide-eye"
-					:loading="previewing"
-					:disabled="missing"
-					data-testid="action-show"
-					color="neutral"
-					class="rounded-full px-3 text-meta!"
-					@click="showPreview">
-					Náhled
-				</UButton>
-				<!-- Loading si bere formulář, ne `saving`: `UForm` ho zvedá už před validací, takže tlačítko
-			     i ⌘S, která ho mačká, se zamknou hned. -->
+				<!-- Loading si bere formulář, ne `saving`: `UForm` ho zvedá už před validací, takže se hned zamkne i ⌘S.
+			     Stojí před „Náhledem", protože Enter v poli mačká první submit tlačítko formuláře. -->
 				<UButton
 					variant="create"
 					trailing-icon="i-lucide-save"
@@ -1000,6 +986,18 @@ const lineColumns: TableColumn<InvoiceLineRow>[] = [
 					data-save
 					data-testid="action-save">
 					Uložit
+				</UButton>
+				<UButton
+					variant="ghost"
+					trailing-icon="i-lucide-eye"
+					type="submit"
+					:loading="previewing"
+					:disabled="missing"
+					data-preview
+					data-testid="action-show"
+					color="neutral"
+					class="rounded-full px-3 text-meta!">
+					Náhled
 				</UButton>
 			</div>
 		</footer>
