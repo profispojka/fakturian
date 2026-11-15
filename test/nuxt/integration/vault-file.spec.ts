@@ -79,7 +79,10 @@ describe('načtení souboru domény', () => {
 	});
 
 	it('poškozený obsah se ohlásí a soubor zůstane nenačtený', async () => {
-		vaultHas({ items: 'tohle není pole' });
+		vaultHas({
+			items: 'tohle není pole',
+			name: 'Ceník',
+		});
 		const f = file();
 
 		await expect(f.load()).rejects.toThrow(
@@ -99,7 +102,10 @@ describe('načtení souboru domény', () => {
 	});
 
 	it('hláška o poškození pojmenuje konkrétní pole', async () => {
-		vaultHas({ items: 'tohle není pole' });
+		vaultHas({
+			items: 'tohle není pole',
+			name: 'Ceník',
+		});
 
 		await expect(file().load()).rejects.toThrow(
 			new Error(
@@ -117,7 +123,10 @@ describe('načtení souboru domény', () => {
 		await f.load();
 		expect(f.data.value.items).toEqual(['stare']);
 
-		vaultHas({ items: 'rozbito' });
+		vaultHas({
+			items: 'rozbito',
+			name: 'Stará složka',
+		});
 		await expect(f.load()).rejects.toThrow(
 			new Error(
 				'Soubor cenik.json má poškozený obsah (items: Neplatný vstup: očekáváno pole, obdrženo řetězec).',
@@ -584,7 +593,10 @@ describe('soubor, který mezitím změnil někdo jiný', () => {
 
 describe('chyba načtení', () => {
 	it('poškozený soubor zůstane vidět jako chyba, dokud se nenačte znovu', async () => {
-		vaultHas({ items: 'rozbito' });
+		vaultHas({
+			items: 'rozbito',
+			name: 'Ceník',
+		});
 		const f = file();
 
 		await expect(f.load()).rejects.toThrow(
