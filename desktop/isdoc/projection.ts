@@ -90,7 +90,22 @@ function linePrice(line: Element, id: string, amount: number, description: strin
 			unitPriceCents,
 		};
 	}
-	if (amountCents(exact.times(price)) === amount) {
+	let matches = amountCents(exact.times(price)) === amount;
+	const category = child(line, 'ClassifiedTaxCategory');
+	if (!matches && Number(text(category, 'VATCalculationMethod')) === 1) {
+		// Při výpočtu shora se jednotkový základ a základ celého řádku zaokrouhlují samostatně.
+		// Shodu musí doložit ceny s daní, sazba i vyčíslená daň; obecná haléřová tolerance by pustila chybu.
+		const factor = decimal(text(category, 'Percent')).div(100).plus(1);
+		const grossPrice = decimal(text(line, 'UnitPriceTaxInclusive'));
+		const grossAmount = decimal(text(line, 'LineExtensionAmountTaxInclusive'));
+		matches =
+			factor.gt(0) &&
+			amountCents(grossAmount.div(factor)) === amount &&
+			amountCents(grossPrice.div(factor)) === unitPriceCents &&
+			amountCents(exact.times(grossPrice).minus(grossAmount)) === 0 &&
+			amountCents(grossAmount.minus(decimal(text(line, 'LineExtensionTaxAmount')))) === amount;
+	}
+	if (matches) {
 		return {
 			description: `${description} (${quantityText} ${unit} × ${priceText.replaceAll('.', ',')} Kč)`.trim(),
 			quantity: 1,

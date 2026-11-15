@@ -276,6 +276,78 @@ describe('cizí doklad', () => {
 });
 
 describe('částky řádku', () => {
+	it('výpočet z ceny s daní zachová zaokrouhlený základ celého řádku', async () => {
+		const invoice = await sample('gross-price.isdoc');
+
+		expect(invoice.lines).toEqual([
+			{
+				description: 'Školení (3 ks × 413,22 Kč)',
+				quantity: 1,
+				unit: '',
+				unitPriceCents: 123_967,
+				itemId: '',
+			},
+		]);
+		expect(invoiceTotalCents(invoice)).toBe(123_967);
+	});
+
+	it('zaokrouhlení z ceny s daní nepřijme bez shody množství, sazby, cen a daně', async () => {
+		const xml = await fixture('gross-price.isdoc');
+		for (const [from, to] of [
+			['<VATCalculationMethod>1</VATCalculationMethod>', '<VATCalculationMethod>0</VATCalculationMethod>'],
+			['<Percent>21</Percent>', '<Percent>12</Percent>'],
+			['<Percent>21</Percent>', '<Percent>-100</Percent>'],
+			['<Percent>21</Percent>', '<Percent>-101</Percent>'],
+			[
+				'<InvoicedQuantity unitCode="ks">3</InvoicedQuantity>',
+				'<InvoicedQuantity unitCode="ks">4</InvoicedQuantity>',
+			],
+			['<UnitPrice>413.22</UnitPrice>', '<UnitPrice>413.21</UnitPrice>'],
+			[
+				'<UnitPriceTaxInclusive>500.00</UnitPriceTaxInclusive>',
+				'<UnitPriceTaxInclusive>499.00</UnitPriceTaxInclusive>',
+			],
+			[
+				'<LineExtensionAmountTaxInclusive>1500.00</LineExtensionAmountTaxInclusive>',
+				'<LineExtensionAmountTaxInclusive>1500.01</LineExtensionAmountTaxInclusive>',
+			],
+			[
+				'<LineExtensionTaxAmount>260.33</LineExtensionTaxAmount>',
+				'<LineExtensionTaxAmount>260.32</LineExtensionTaxAmount>',
+			],
+		]) {
+			const wrong = xml.replace(from, to);
+			const expectedPrice = from === '<UnitPrice>413.22</UnitPrice>' ? '413.21' : '413.22';
+			const expectedQuantity = from.startsWith('<InvoicedQuantity') ? '4' : '3';
+
+			expect(await projectionError(wrong)).toEqual(
+				new Error(`řádek 1: ${expectedQuantity} × ${expectedPrice} Kč nedává částku řádku 1239.67 Kč`),
+			);
+		}
+	});
+
+	it('sazba musí doložit základ celého řádku i při shodné jednotkové ceně', async () => {
+		const source = await fixture('gross-price.isdoc');
+		const xml = source
+			.replace('<Percent>21</Percent>', '<Percent>20</Percent>')
+			.replace('<UnitPrice>413.22</UnitPrice>', '<UnitPrice>416.67</UnitPrice>');
+
+		expect(await projectionError(xml)).toEqual(new Error('řádek 1: 3 × 416.67 Kč nedává částku řádku 1239.67 Kč'));
+	});
+
+	it('neplatné IČO pojmenuje u dodavatele i odběratele', async () => {
+		for (const [ico, role] of [
+			['12345679', 'dodavatele'],
+			['87654326', 'odběratele'],
+		]) {
+			const xml = MINIMAL_ISDOC.replace(`<ID>${ico}</ID>`, '<ID>12345678</ID>');
+
+			expect(await projectionError(xml)).toEqual(
+				new Error(`doklad má neplatné IČO ${role} „12345678“ (čekám 8 číslic)`),
+			);
+		}
+	});
+
 	it('cenu, která dává částku řádku, vezme z dokladu', async () => {
 		const invoice = await project(minimalWith('4', '250.00'));
 

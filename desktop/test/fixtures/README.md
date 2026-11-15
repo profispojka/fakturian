@@ -16,14 +16,15 @@ smysl vzorků je v tom, že projdou čtením bez ztráty a bez vymyšlených č�
 
 Ručně psané cizí doklady, každý na jeden nález:
 
-| soubor                   | co hlídá                                                    |
-| ------------------------ | ----------------------------------------------------------- |
-| `foreign-document.isdoc` | cizí doklad bez `IssuingSystem` s adresou a e-mailem        |
-| `bez-mnozstvi.isdoc`     | řádek bez `InvoicedQuantity` (`minOccurs="0"`)              |
-| `bez-castky.isdoc`       | chybějící povinný `LineExtensionAmount` → doklad se odmítne |
-| `zaokrouhleni.isdoc`     | `PayableRoundingAmount` → součet sedí s papírem             |
-| `zalohova.isdoc`         | `DocumentType` 4 nepatří mezi vydané faktury                |
-| `two-payments.isdoc`     | účet se bere z platby převodem, ne z první v pořadí         |
+| soubor                   | co hlídá                                                              |
+| ------------------------ | --------------------------------------------------------------------- |
+| `foreign-document.isdoc` | cizí doklad bez `IssuingSystem` s adresou a e-mailem                  |
+| `bez-mnozstvi.isdoc`     | řádek bez `InvoicedQuantity` (`minOccurs="0"`)                        |
+| `bez-castky.isdoc`       | chybějící povinný `LineExtensionAmount` → doklad se odmítne           |
+| `zaokrouhleni.isdoc`     | `PayableRoundingAmount` → součet sedí s papírem                       |
+| `zalohova.isdoc`         | `DocumentType` 4 nepatří mezi vydané faktury                          |
+| `two-payments.isdoc`     | účet se bere z platby převodem, ne z první v pořadí                   |
+| `gross-price.isdoc`      | výpočet z ceny s DPH, samostatné zaokrouhlení jednotky a celého řádku |
 
 `bez-castky.isdoc` schválně neprojde XSD. Ostatní vzorky XSD projdou:
 

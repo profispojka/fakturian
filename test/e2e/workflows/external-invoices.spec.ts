@@ -68,6 +68,14 @@ async function openImported(page: Page, invoice: IssuedSample): Promise<void> {
 	await expect(page.getByTestId('item-label')).toHaveCount(invoice.lines.length);
 	for (const [index, line] of invoice.lines.entries()) {
 		await expect(page.getByTestId('item-label').nth(index)).toHaveValue(line.description);
+		await expect(page.getByTestId('item-quantity').nth(index)).toHaveAttribute(
+			'aria-valuenow',
+			String(line.quantity),
+		);
+		await expect(page.getByTestId('item-price').nth(index)).toHaveAttribute(
+			'aria-valuenow',
+			String(line.unitPriceCents / 100),
+		);
 	}
 }
 
@@ -138,7 +146,7 @@ for (const sample of samples) {
 			const { page } = await launch(vault);
 			await page.getByTestId('menu-section/invoice').click();
 			await expect(page.getByTestId('adopt-candidate')).toHaveText(
-				`${invoice.number} · ${invoice.customer} · ${invoice.total}\n${sample.file}`,
+				`${invoice.number} · ${invoice.customer} · ${invoice.total}${sample.file}`,
 			);
 			await page.getByTestId('adopt-accept').click();
 			await expect(page.getByTestId('adopt-message')).toHaveText(
@@ -199,7 +207,7 @@ for (const sample of samples) {
 			const target = join(vault, 'prijate', sample.file);
 			expect(readFileSync(target).equals(original)).toBe(true);
 			await page.getByTestId('expense-import').click();
-			await expect(page.getByTestId('status-message')).toHaveText(
+			await expect(page.locator('li[data-slot="base"] [data-slot="title"]')).toHaveText(
 				`${sample.file} už v prijate/ leží jako ${sample.file} — tentýž soubor podruhé.`,
 			);
 			expect(JSON.parse(readFileSync(expensesPath, 'utf8'))).toEqual(stored);
@@ -222,7 +230,7 @@ for (const sample of samples) {
 			}, path);
 			await page.getByTestId('menu-section/expense').click();
 			await page.getByTestId('expense-import').click();
-			await expect(page.getByTestId('status-message')).toHaveText(receivedError);
+			await expect(page.locator('li[data-slot="base"] [data-slot="title"]')).toHaveText(receivedError);
 			expect(existsSync(join(vault, 'prijate', sample.file))).toBe(false);
 			await expect(page.getByTestId('expense-edit')).toHaveCount(0);
 		});

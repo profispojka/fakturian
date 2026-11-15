@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { customer, invoice, MINIMAL_ISDOC, supplier } from './invoices.ts';
+import { fixture } from './isdoc.ts';
 import { invoicePdf, pdfWithIsdoc, samplePdf } from './pdfs.ts';
 import { names, rejection } from './support.ts';
 
@@ -84,6 +85,18 @@ function subcontractors(): Promise<Uint8Array> {
 }
 
 describe('import přijatého dokladu', () => {
+	it('plátcův doklad počítaný z cen s daní uloží s celou částkou', async () => {
+		const xml = await fixture('gross-price.isdoc');
+		const path = await source('s-dani-shora.pdf', pdfWithIsdoc(xml));
+
+		const document = await importFrom(path);
+
+		expect(document.amountCents).toBe(150_000);
+		expect(document.supplierIco).toBe('12345679');
+		expect(document.recipientIco).toBe('87654326');
+		expect(await readFile(received(document.file))).toEqual(await readFile(path));
+	});
+
 	it('doklad s ISDOC se vyplní sám', async () => {
 		const path = await source('F2026007.pdf', subcontractors());
 

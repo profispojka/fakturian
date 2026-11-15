@@ -1,16 +1,14 @@
 # Import a převzetí veřejných PDF z jiných fakturačních systémů
 
-Ověřeno 15. 11. 2026 nad kódem `25f1d64`, bez úpravy aplikačního kódu.
-
-Import i převzetí vydaných faktur fungují na čtyřech nezměněných veřejných PDF:
-třech z Fakturoidu a jednom z iDokladu. U Pohody je doložené načtení a uložení
-přijaté faktury; úspěšné převzetí vydané faktury neplátce z Pohody tato sada
-nedokládá. Jediný nalezený vzorek Pohody s ISDOC je od plátce DPH.
+Ověřeno 15. 11. 2026. Trvalá sada **36 E2E testů prošla** nad 21 nezměněnými
+veřejnými PDF. Import i převzetí vydaných faktur jsou doložené u všech tří
+systémů: třemi doklady z Fakturoidu, jedním z iDokladu a jedním z Pohody.
+Šest přijatých dokladů prošlo až po vytvoření výdaje a uložení přílohy.
 
 ## Rozsah a způsob ověření
 
-Staženo 20 různých PDF: 11 z Fakturoidu, 5 z iDokladu a 4 z Pohody/mPohody.
-Osm souborů jsou oficiální marketingové vzory, dvanáct jsou veřejně zveřejněné
+Staženo 21 různých PDF: 11 z Fakturoidu, 5 z iDokladu a 5 z Pohody/mPohody.
+Osm souborů jsou oficiální marketingové vzory, třináct jsou veřejně zveřejněné
 doklady. Výběr není reprezentativní statistikou kompatibility těchto produktů.
 
 Každý originál prošel skutečnými funkcemi hlavního procesu bez mocků:
@@ -21,23 +19,28 @@ Každý originál prošel skutečnými funkcemi hlavního procesu bez mocků:
 - `listInvoices`: opětovné načtení uloženého dokladu z evidence;
 - `importReceived`: samostatná zkouška uložení přijatého dokladu do `prijate/`.
 
-Výsledky prošly skutečnými frontendovými schématy `importReportSchema`,
-`adoptScanSchema` a u přijatých dokladů `receivedDocumentSchema`.
-Nejde o ovládání Electronu, klikání v UI ani o ověření vytvoření záznamu ve
-`vydaje.json`; test přijatých dokladů končí uložením PDF a odpovědí pro formulář výdaje.
-U přijatých vzorků se zde neověřuje, zda odběratel odpovídá konkrétnímu uživateli.
+Na těchto podkladech běží také
+[`external-invoices.spec.ts`](../test/e2e/workflows/external-invoices.spec.ts):
+skutečné okno Electronu, renderer, IPC a zápis na disk. Nahrazený je pouze
+nativní dialog výběru souborů. Každý test má vlastní domov a kopii vaultu.
+
+Všech 21 originálů se importuje tlačítkem v Nastavení. Pět platných vydaných
+faktur se navíc přebírá přes nabídku ve složce a otevírá v editoru; porovnává se
+číslo, částka, popisy položek, množství a ceny. Šest platných přijatých PDF
+prochází tlačítkem ve Výdajích až po záznam v `vydaje.json`, včetně kontroly
+odběratele. Oba vadné demonstrační doklady mají odmítací E2E test.
 
 U úspěchu se ověřuje shoda uloženého PDF s originálem po bajtech, načtení
 z evidence a odmítnutí opakovaného importu. U převzetí se navíc ověřuje přesun
 zdroje; u odmítnutí jeho zachování a prázdná evidence.
-U čtyř úspěšných vydaných faktur jsou číslo, částka, datum vystavení, splatnost,
+U úspěšných vydaných faktur jsou číslo, částka, datum vystavení, splatnost,
 množství a jednotková cena porovnané s hodnotami z původního PDF.
 Vybrané stránky jsou také vyrenderované Popplerem a vizuálně zkontrolované.
 
-Smíšená dávka dvou skutečných faktur stejného dodavatele z Fakturoidu a jednoho
-PDF bez ISDOC ověřuje pokračování po odmítnutí souboru, jediného společného
-odběratele, odvození dodavatele, účtu a splatnosti ze skenu složky, odmítnutí
-cizího IČO a opakovaného importu. Platné doklady se převezmou a odmítnuté PDF zůstane.
+E2E smíšená dávka dvou skutečných faktur stejného dodavatele z Fakturoidu a
+všech šestnácti odmítaných PDF porovnává úplný seznam důvodů ve skenu složky.
+Platné doklady se převezmou a odmítnuté PDF zůstane. Přímý backendový test
+navíc kontroluje odvození dodavatele, účtu a splatnosti a odmítnutí cizího IČO.
 
 ## Výsledek
 
@@ -45,10 +48,10 @@ cizího IČO a opakovaného importu. Platné doklady se převezmou a odmítnuté
 | -------------- | --: | ------------------------: | --------------: | ----------------: | --------------------: |
 | Fakturoid      |  11 |                         4 |               3 |                 3 |                     3 |
 | iDoklad        |   5 |                         2 |               1 |                 1 |                     1 |
-| Pohoda/mPohoda |   4 |                         1 |               0 |                 0 |                     1 |
-| Celkem         |  20 |                         7 |               4 |                 4 |                     5 |
+| Pohoda/mPohoda |   5 |                         2 |               1 |                 1 |                     2 |
+| Celkem         |  21 |                         8 |               5 |                 5 |                     6 |
 
-Sedm platných XML neznamená sedm přijatelných dokladů: nad XSD běží ještě
+Osm platných XML neznamená osm přijatelných dokladů: nad XSD běží ještě
 doménové kontroly položek, IČO, měny a plátcovství. Třináct PDF vložený ISDOC
 nemá a všechny tři vstupní cesty je odmítají. To odpovídá současnému kontraktu,
 včetně `UCT-38` v [08-ZNAME-OMEZENI.md](08-ZNAME-OMEZENI.md).
@@ -58,49 +61,55 @@ včetně `UCT-38` v [08-ZNAME-OMEZENI.md](08-ZNAME-OMEZENI.md).
 „Bez ISDOC“ znamená odmítnutí importem, skenem, přímým převzetím i příjmem.
 „Prošlo“ u importu/převzetí zahrnuje také opětovné načtení z evidence.
 
-| Lokální název a původní zdroj                                                                                                               | Import a převzetí vydaných                                | Přijaté PDF                        |
-| ------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ---------------------------------- |
-| [fakturoid-public-2024.pdf](https://zpravy.udh.gov.cz/zprava/s2024/umdirkvapid/4097-janajanurova-24-09-03.pdf)                              | Prošlo: `24-09-03`, 40 000 Kč                             | Prošlo                             |
-| [fakturoid-public-hours.pdf](https://zpravy.udh.gov.cz/zprava/s2024/umdirkvapid/4096-janajanurova-24-09-02.pdf)                             | Prošlo: `24-09-02`, 4 000 Kč, 5 × 800 Kč                  | Prošlo                             |
-| [fakturoid-public-fractional.pdf](https://piroplaceni.pirati.cz/zadost/file/34228/)                                                         | Prošlo: `2024-20`, 44 387,50 Kč, 167,5 × 265 Kč           | Prošlo                             |
-| [fakturoid-aurora.pdf](https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-aurora.pdf)                                       | Odmítnut rozdíl zaokrouhlení řádku; jde také o plátce DPH | Odmítnut rozdíl zaokrouhlení řádku |
-| [fakturoid-solaris.pdf](https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-solaris.pdf)                                     | Bez ISDOC                                                 | Bez ISDOC                          |
-| [fakturoid-phoenix.pdf](https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-phoenix.pdf)                                     | Bez ISDOC                                                 | Bez ISDOC                          |
-| [fakturoid-orion.pdf](https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-orion.pdf)                                         | Bez ISDOC                                                 | Bez ISDOC                          |
-| [fakturoid-lyra.pdf](https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-lyra.pdf)                                           | Bez ISDOC                                                 | Bez ISDOC                          |
-| [fakturoid-vega.pdf](https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-vega.pdf)                                           | Bez ISDOC                                                 | Bez ISDOC                          |
-| [fakturoid-public-nonvat.pdf](https://smlouvy.gov.cz/smlouva/soubor/21301047/michaelajerabkova-2021-0001%20%281%29.pdf)                     | Bez ISDOC                                                 | Bez ISDOC                          |
-| [fakturoid-public-2023.pdf](https://smlouvy.gov.cz/smlouva/soubor/29054049/anonymiz%20faktura%20Mgr%20Jarusek%20Miroslav.pdf)               | Bez ISDOC                                                 | Bez ISDOC                          |
-| [idoklad-public-services.pdf](https://smlouvy.gov.cz/smlouva/soubor/36388136/Fakturace%20kve%CC%8Cten%20_Rudolfova%CC%81%20ADV.pdf)         | Prošlo: `20240006`, 95 400 Kč, 53 × 1 800 Kč              | Prošlo                             |
-| [idoklad-nonvat.pdf](https://www.idoklad.cz/wp-content/uploads/2025/05/vzor-faktury-neplatce-dph.pdf)                                       | Neplatné demonstrační IČO odběratele `12345678`           | Stejné odmítnutí                   |
-| [idoklad-public-nonvat.pdf](https://smlouvy.gov.cz/smlouva/soubor/38451204/Faktura%20instalace.pdf)                                         | Bez ISDOC                                                 | Bez ISDOC                          |
-| [idoklad-public-printed.pdf](https://smlouvy.gov.cz/smlouva/soubor/35915084/Redek%20-%20tir%C3%A1%C5%BE.pdf)                                | Bez ISDOC                                                 | Bez ISDOC                          |
-| [idoklad-public-vat.pdf](https://www.mesto-chlumec.cz/e_download.php?file=data%2Furedni_deska%2Fobsah5230_7.pdf&original=Fa+2024000289.pdf) | Bez ISDOC                                                 | Bez ISDOC                          |
-| [pohoda-public.pdf](https://smlouvy.gov.cz/smlouva/soubor/31625187/Faktura.pdf)                                                             | Správně odmítnut plátce DPH                               | Prošlo: `230100375`, 276 896,40 Kč |
-| [pohoda-public-nonvat.pdf](https://piroplaceni.pirati.cz/zadost/file/17464/)                                                                | Bez ISDOC                                                 | Bez ISDOC                          |
-| [pohoda-public-2024.pdf](https://piroplaceni.pirati.cz/zadost/file/36730/)                                                                  | Bez ISDOC                                                 | Bez ISDOC                          |
-| [pohoda-proforma.pdf](https://www.stormware.cz/dnload/zalohova-faktura-vzor-PDF.pdf)                                                        | Bez ISDOC; jde o zálohovou fakturu                        | Bez ISDOC                          |
+| Lokální název a původní zdroj                                                                                                               | Import a převzetí vydaných                      | Přijaté PDF                        |
+| ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ---------------------------------- |
+| [fakturoid-public-2024.pdf](https://zpravy.udh.gov.cz/zprava/s2024/umdirkvapid/4097-janajanurova-24-09-03.pdf)                              | Prošlo: `24-09-03`, 40 000 Kč                   | Prošlo                             |
+| [fakturoid-public-hours.pdf](https://zpravy.udh.gov.cz/zprava/s2024/umdirkvapid/4096-janajanurova-24-09-02.pdf)                             | Prošlo: `24-09-02`, 4 000 Kč, 5 × 800 Kč        | Prošlo                             |
+| [fakturoid-public-fractional.pdf](https://piroplaceni.pirati.cz/zadost/file/34228/)                                                         | Prošlo: `2024-20`, 44 387,50 Kč, 167,5 × 265 Kč | Prošlo                             |
+| [fakturoid-aurora.pdf](https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-aurora.pdf)                                       | Neplatné demonstrační IČO dodavatele `87654321` | Stejné odmítnutí                   |
+| [fakturoid-solaris.pdf](https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-solaris.pdf)                                     | Bez ISDOC                                       | Bez ISDOC                          |
+| [fakturoid-phoenix.pdf](https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-phoenix.pdf)                                     | Bez ISDOC                                       | Bez ISDOC                          |
+| [fakturoid-orion.pdf](https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-orion.pdf)                                         | Bez ISDOC                                       | Bez ISDOC                          |
+| [fakturoid-lyra.pdf](https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-lyra.pdf)                                           | Bez ISDOC                                       | Bez ISDOC                          |
+| [fakturoid-vega.pdf](https://cdnweb.fakturoid.cz/images/screenshots/invoice-template/fa-vega.pdf)                                           | Bez ISDOC                                       | Bez ISDOC                          |
+| [fakturoid-public-nonvat.pdf](https://smlouvy.gov.cz/smlouva/soubor/21301047/michaelajerabkova-2021-0001%20%281%29.pdf)                     | Bez ISDOC                                       | Bez ISDOC                          |
+| [fakturoid-public-2023.pdf](https://smlouvy.gov.cz/smlouva/soubor/29054049/anonymiz%20faktura%20Mgr%20Jarusek%20Miroslav.pdf)               | Bez ISDOC                                       | Bez ISDOC                          |
+| [idoklad-public-services.pdf](https://smlouvy.gov.cz/smlouva/soubor/36388136/Fakturace%20kve%CC%8Cten%20_Rudolfova%CC%81%20ADV.pdf)         | Prošlo: `20240006`, 95 400 Kč, 53 × 1 800 Kč    | Prošlo                             |
+| [idoklad-nonvat.pdf](https://www.idoklad.cz/wp-content/uploads/2025/05/vzor-faktury-neplatce-dph.pdf)                                       | Neplatné demonstrační IČO odběratele `12345678` | Stejné odmítnutí                   |
+| [idoklad-public-nonvat.pdf](https://smlouvy.gov.cz/smlouva/soubor/38451204/Faktura%20instalace.pdf)                                         | Bez ISDOC                                       | Bez ISDOC                          |
+| [idoklad-public-printed.pdf](https://smlouvy.gov.cz/smlouva/soubor/35915084/Redek%20-%20tir%C3%A1%C5%BE.pdf)                                | Bez ISDOC                                       | Bez ISDOC                          |
+| [idoklad-public-vat.pdf](https://www.mesto-chlumec.cz/e_download.php?file=data%2Furedni_deska%2Fobsah5230_7.pdf&original=Fa+2024000289.pdf) | Bez ISDOC                                       | Bez ISDOC                          |
+| [pohoda-public.pdf](https://smlouvy.gov.cz/smlouva/soubor/31625187/Faktura.pdf)                                                             | Správně odmítnut plátce DPH                     | Prošlo: `230100375`, 276 896,40 Kč |
+| [pohoda-mas-2025.pdf](https://jiznislovacko.cz/component/firedrive/?format=raw&id=1172&view=document)                                       | Prošlo: `2520070`, 1 000 Kč, neplátce DPH       | Prošlo                             |
+| [pohoda-public-nonvat.pdf](https://piroplaceni.pirati.cz/zadost/file/17464/)                                                                | Bez ISDOC                                       | Bez ISDOC                          |
+| [pohoda-public-2024.pdf](https://piroplaceni.pirati.cz/zadost/file/36730/)                                                                  | Bez ISDOC                                       | Bez ISDOC                          |
+| [pohoda-proforma.pdf](https://www.stormware.cz/dnload/zalohova-faktura-vzor-PDF.pdf)                                                        | Bez ISDOC; jde o zálohovou fakturu              | Bez ISDOC                          |
 
 ## Překážky a meze výsledku
 
-### Fakturoid: výpočet z ceny s DPH naráží na kontrolu jednotkové ceny bez DPH
+### Výpočet z ceny s DPH a demonstrační údaje Aurory
 
 Oficiální vzor Aurora má platný ISDOC. První řádek nese množství `3.0`,
 jednotkovou cenu bez DPH `413.22`, základ řádku `1239.67`, cenu s DPH `500.0`
 a celkovou cenu řádku s DPH `1500.0`. `VATCalculationMethod` je `1`.
 
-`desktop/isdoc/projection.ts`, funkce `linePrice`, požaduje přesnou shodu
-množství a ceny bez DPH s částkou řádku: `3 × 413,22 = 1 239,66 Kč`.
-Výsledkem ve všech cestách je:
+`3 × 413,22 = 1 239,66 Kč`, zatímco při výpočtu ze zadané ceny s DPH platí
+`1 500 / 1,21 = 1 239,6694… → 1 239,67 Kč`. Podle
+[standardu ISDOC](https://isdoc.cz/6.0.2/doc-en/isdoc-invoice-6_0_2_xsd)
+znamená metoda `1` výpočet shora.
 
-> řádek 1: 3.0 × 413.22 Kč nedává částku řádku 1239.67 Kč
+`desktop/isdoc/projection.ts`, funkce `linePrice`, pro tento případ ověřuje
+množství proti cenám s daní, samostatně zaokrouhlený základ jednotky i celého
+řádku proti sazbě a shodu vyčíslené daně. Částku řádku zachová a původní
+množství s jednotkovou cenou ponechá v popisu. Nesoulad bez doloženého
+výpočtu odmítá. Regresní fixture `gross-price.isdoc` má platné smyšlené IČO;
+testy zahrnují příjem celých 1 500 Kč i odmítnutí chybných cen, sazby, daně
+a množství.
 
-Rozdíl odpovídá zaokrouhlení při výpočtu ze zadané ceny s DPH:
-`1 500 / 1,21 = 1 239,6694… → 1 239,67 Kč`. To je konkrétní překážka
-kompatibility projekce s tímto způsobem výpočtu, zejména pro přijaté doklady.
-Mezi vydané faktury by tento doklad stejně neměl projít, protože je od plátce.
-Vzor obsahuje také demonstrační IČO; odstranění první překážky samo o sobě
-nezaručuje přijetí celého vzoru. Test nemění data ani neuvolňuje validaci.
+Původní Aurora se odmítá kvůli neplatnému demonstračnímu IČO `87654321`.
+Je to očekávaná odmítací E2E cesta; pozitivní kompatibilitu Fakturoidu
+dokládají skutečné platné neplátcovské faktury. Převzetí plátce mezi vydané
+faktury zůstává mimo podporovaný rozsah.
 
 ### iDoklad: datová vrstva může mít jiné údaje než viditelné PDF
 
@@ -114,48 +123,48 @@ Oficiální marketingový vzor neplátce má naproti tomu neplatné IČO odběra
 `12345678`. Jeho odmítnutí odpovídá projektovým pravidlům; není to důkaz
 nekompatibility formátu iDokladu.
 
-### Pohoda: chybí pozitivní vzorek vydané faktury neplátce s ISDOC
+### Pohoda: původní export neplátce s vloženým ISDOC
 
-Čtení nativního ISDOC, částka s daní a uložení přijatého PDF jsou doložené
-skutečným exportem Pohody. Oba veřejné neplátcovské vzorky vložený ISDOC
-nemají. Z této sady proto nelze tvrdit, že je úspěšné převzetí vydaných faktur
-z Pohody ověřené. K jeho doložení je potřeba nezměněný export neplátce v CZK
-s vloženým ISDOC. Není nahrazen dokumentem vygenerovaným Fakturianem.
+Doklad `2520070` zveřejněný přímo na webu dodavatele má v metadatech
+`POHODA Komplet` a v ISDOC `VATApplicable=false`, `LocalCurrencyCode=CZK`
+a `IssuingSystem=Ekonomický a informační systém POHODA`.
+Částka je 1 000 Kč, vystavení 25. 11. 2025 a splatnost 15. 12. 2025.
+Čtení, import, adopt, otevření v editoru i příjem do výdajů jsou ověřené
+nad nezměněným souborem a souhlasí s vizuálně zkontrolovanou stránkou PDF.
 
 ## Lokální podklady a opakování
 
-Originály jsou v ignorované složce `.data/external-pdf-20261115/sources/`,
-nikoli mezi verzovanými fixtures. Dále tam jsou:
-
-- `sources.json`: původní URL každého staženého PDF;
-- `results.json`: všech 20 výsledků, hlášky, SHA-256, metadata, přečtené údaje a opakované importy;
-- `batch-results.json`: smíšená dávka, sken, kontrola IČO a duplicity;
-- `*.pdf.isdoc`: beze změny vytažené přílohy těch PDF, která projdou XSD;
-- `verify.ts`, `build.mjs` a `run.log`: ověřovací skript a jeho výstup.
+Originály jsou ve verzované složce
+[`test/e2e/fixtures/external-invoices/`](../test/e2e/fixtures/external-invoices/README.md).
+[`manifest.json`](../test/e2e/fixtures/external-invoices/manifest.json)
+drží pro každý soubor URL, SHA-256 a pevná očekávání. Sada hash všech PDF
+kontroluje. Běh E2E nic nestahuje a podklady zůstávají stejné i při změně
+veřejného webu. Pomocné backendové zkoušky a výstupy jsou navíc v ignorované
+složce `.data/external-pdf-20261115/`.
 
 Z kořene repozitáře:
 
 ```sh
-node .data/external-pdf-20261115/build.mjs
-node .data/external-pdf-20261115/runtime/verify.mjs
+bun run test:e2e -- test/e2e/workflows/external-invoices.spec.ts --workers=2
 ```
 
-Skript překládá stejné produkční moduly esbuildem stejně jako desktopový build,
-včetně samostatného workeru XSD. Dočasné vaulty po zkoušce maže, zdrojová PDF
-ponechává. Bez těchto lokálních souborů je potřeba podklady znovu stáhnout;
-protokol sám nepřidává síťové testy do běžné testovací sady.
+Sada postaví frontend i stejný hlavní proces, jaký jde do aplikace,
+včetně samostatného workeru XSD. Dočasné vaulty po zkoušce maže,
+zdrojová PDF ponechává.
 
 ## Kontroly projektu
 
-- Cílená sada `adopt-folder`, `adopt`, `import`, `invoice/import` a `received`: **141/141 testů prošlo**.
+- E2E sada `external-invoices.spec.ts`: **36/36 testů prošlo**.
+- Cílená sada `isdoc/projection` a `received`: **73/73 testů prošlo**.
+- Celá desktopová sada: **877/877 testů prošlo**, pokrytí změněné projekce **100 %** příkazů, větví, funkcí i řádků.
+- Mutace `desktop/isdoc/projection.ts`: **259/259 zabito, 100 %**, žádný přeživší ani timeout.
 - `bun run lint:check`: prošlo.
 - `bun run typecheck`: prošlo.
 - `node scripts/check-tailwind-scales.ts`: prošlo.
 - `node scripts/check-dead-css.ts`: prošlo.
-- Úplné `bun run test`: **3041 prošlo, 10 selhalo, 1 neošetřená chyba**, celkem 153 souborů.
+- `bun run typecheck:e2e`: prošlo.
 
-Selhání úplné sady jsou v `test/nuxt/integration/contacts.spec.ts`,
-`vault-file.spec.ts`, `vault-schemas.spec.ts` a `test/nuxt/pages/page-expenses.spec.ts`,
-`page-settings.spec.ts`. Aplikační kód ani tyto testy tato zkouška neupravuje.
-Úplnou sadu proto nelze označit za zelenou. Mutace se nepouštěly, protože se
-aplikační zdrojové soubory nemění.
+Úplné `bun run test` má **3046 úspěšných testů, 10 selhání a 1 neošetřenou chybu**.
+Jde o stejných deset selhání z pěti souborů Nuxt vrstvy jako před úpravou projekce
+(`contacts`, `vault-file`, `vault-schemas`, `page-expenses`, `page-settings`).
+Tyto testy nejsou součástí opravy kompatibility; úplná sada není zelená.
