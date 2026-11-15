@@ -3,6 +3,7 @@ import { cs } from '@nuxt/ui/locale';
 import { useActiveElement } from '@vueuse/core';
 
 import { supplierReadyForInvoicing } from '~/schemas/suppliers';
+import { systemServices } from '~/services/system';
 import { NOT_DESKTOP_MESSAGE, isDesktop } from '~/utils/desktop';
 import { errorText } from '~/utils/errors';
 
@@ -10,6 +11,7 @@ const { vaultPath, init, pickVault, defaultVaultPath, setVault } = useVault();
 const { load } = useVaultData();
 const { refresh: refreshMenuStats } = useMenuStats();
 const { supplier } = useSettings();
+const toast = useToast();
 
 const paletteOpen = useState<boolean>('paletteOpen', () => false);
 const wizardOpen = useState<boolean>('vaultWizardOpen', () => false);
@@ -30,7 +32,7 @@ const startErrorTitle = computed(() =>
 // znovu. Text k tomu vede i u nečitelného nastavení appky, protože cesta ven je z něj stejná.
 const startErrorMessage = computed(() => {
 	if (vaultFound.value) {
-		return `${initError.value}\n\nSložka i doklady v ní jsou na místě. Oprav soubor, nebo ho nahraď zálohou ze složky .fakturian/snapshots, a zkus to znovu.`;
+		return `${initError.value}\n\nSložka i doklady v ní jsou na místě. Tlačítkem „Ukázat ve Finderu“ otevřeš skrytou složku .fakturian — oprav v ní soubor nebo ho nahraď zálohou ze snapshots a zkus to znovu.`;
 	}
 	return `${initError.value}\n\nPokud jsi složku přesunul nebo přejmenoval, vyber ji tam, kde teď leží — data v ní zůstala.`;
 });
@@ -96,6 +98,14 @@ async function start() {
 	if (!vaultPath.value || !supplierReadyForInvoicing(supplier.value)) wizardOpen.value = true;
 }
 
+async function revealData() {
+	try {
+		await systemServices.revealPath(`${vaultPath.value}/.fakturian`);
+	} catch (e) {
+		toast.add({ title: 'Složku se nepodařilo ukázat ve Finderu', description: errorText(e), color: 'error' });
+	}
+}
+
 async function recover(pick: () => Promise<boolean>) {
 	try {
 		const opened = await pick();
@@ -151,6 +161,12 @@ useMcp();
 			<template #links>
 				<template v-if="vaultFound">
 					<UButton label="Zkusit znovu" data-testid="start-error-retry" @click="start" />
+					<UButton
+						variant="outline"
+						color="neutral"
+						label="Ukázat ve Finderu"
+						data-testid="start-error-reveal"
+						@click="revealData" />
 					<UButton
 						variant="ghost"
 						color="neutral"

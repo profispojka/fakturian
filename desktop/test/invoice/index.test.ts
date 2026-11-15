@@ -188,9 +188,19 @@ describe('výpis faktur', () => {
 		await saveNew(credit);
 
 		await expect(
-			saveInvoice({ vaultPath: base, invoice: numbered('20260001', 'Alfa', 5_000), isNew: false }),
+			saveInvoice({
+				vaultPath: base,
+				invoice: numbered('20260001', 'Alfa', 5_000),
+				isNew: false,
+			}),
 		).rejects.toThrow('Faktura 20260001 má dobropis 20260002, proto ji nejde upravit. Nejdřív smaž dobropis.');
-		await expect(saveInvoice({ vaultPath: base, invoice: credit, isNew: false })).resolves.toBe(
+		await expect(
+			saveInvoice({
+				vaultPath: base,
+				invoice: credit,
+				isNew: false,
+			}),
+		).resolves.toBe(
 			invoices('20260002.pdf'),
 		);
 	});
@@ -266,7 +276,8 @@ describe('vadné doklady ve výpisu', () => {
 
 	it('PDF bez přílohy ISDOC má vlastní důvod', async () => {
 		await mkdir(invoices());
-		await writeFile(invoices('20260001.pdf'), await (await samplePdf()).save());
+		const sample = await samplePdf();
+		await writeFile(invoices('20260001.pdf'), await sample.save());
 
 		const listed = await listInvoices({ vaultPath: base });
 

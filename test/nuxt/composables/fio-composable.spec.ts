@@ -134,7 +134,7 @@ describe('useFio — stažení plateb', () => {
 
 		await expect(useFio().fetchPayments(date('2026-03-01'), date('2026-03-31'))).rejects.toThrow(
 			new Error(
-				'Výpis z Fia má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo undefined a 0.amountCents: Neplatný vstup: očekáváno číslo, obdrženo undefined).',
+				'Výpis z Fia má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo undefined a Neplatný vstup: očekáváno číslo, obdrženo undefined).',
 			),
 		);
 	});

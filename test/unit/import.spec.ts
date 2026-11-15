@@ -35,7 +35,7 @@ describe('IČO z cizího dokladu', () => {
 			refused: [
 				{
 					name: 'Acme s.r.o.',
-					reason: 'ico: Neplatné IČO (8 číslic).',
+					reason: 'Neplatné IČO (8 číslic).',
 				},
 			],
 		});

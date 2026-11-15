@@ -179,7 +179,7 @@ describe('velikost a poloha okna', () => {
 
 		expect(await loggedLines(home)).toEqual([
 			`Stav okna ${stateFile} je poškozený (Unexpected end of JSON input), okno má výchozí velikost.`,
-			`Stav okna ${stateFile} je poškozený (width: Hodnota je příliš malá: number musí být >=760), okno má výchozí velikost.`,
+			`Stav okna ${stateFile} je poškozený (Hodnota je příliš malá: number musí být >=760), okno má výchozí velikost.`,
 			'Stav okna nejde přečíst: EISDIR: illegal operation on a directory, read',
 		]);
 	});

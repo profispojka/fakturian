@@ -345,7 +345,7 @@ describe('invoiceServices', () => {
 		invoke.mockResolvedValue([42]);
 		await expect(invoiceServices.usedNumbers('/x')).rejects.toThrow(
 			new Error(
-				'Seznam použitých čísel má poškozený obsah (0: Neplatný vstup: očekáváno řetězec, obdrženo číslo).',
+				'Seznam použitých čísel má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo číslo).',
 			),
 		);
 	});
@@ -360,7 +360,7 @@ describe('invoiceServices', () => {
 		});
 		await expect(invoiceServices.load('/x', '20260001')).rejects.toThrow(
 			new Error(
-				'Doklad má poškozený obsah (number: Neplatný vstup: očekáváno řetězec, obdrženo číslo, uuid: Neplatný vstup: očekáváno řetězec, obdrženo číslo a documentType: Neplatná možnost: očekávána jedna z hodnot 1|2).',
+				'Doklad má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo číslo, Neplatný vstup: očekáváno řetězec, obdrženo číslo a Neplatná možnost: očekávána jedna z hodnot 1|2).',
 			),
 		);
 		invoke.mockResolvedValue({
@@ -373,7 +373,7 @@ describe('invoiceServices', () => {
 			broken: [],
 		});
 		await expect(invoiceServices.list('/x')).rejects.toThrow(
-			new Error('Seznam faktur má poškozený obsah (items.0.issueDate: Datum musí být ve tvaru RRRR-MM-DD.).'),
+			new Error('Seznam faktur má poškozený obsah (Datum musí být ve tvaru RRRR-MM-DD.).'),
 		);
 		invoke.mockResolvedValue({
 			items: [],
@@ -387,7 +387,7 @@ describe('invoiceServices', () => {
 		});
 		await expect(invoiceServices.list('/x')).rejects.toThrow(
 			new Error(
-				'Seznam faktur má poškozený obsah (broken.0.reason: Neplatný vstup: očekáváno řetězec, obdrženo číslo).',
+				'Seznam faktur má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo číslo).',
 			),
 		);
 	});
@@ -408,7 +408,7 @@ describe('invoiceServices', () => {
 					extra: true,
 				},
 			},
-			'supplier: Neznámé klíče: "extra"',
+			'Neznámé klíče: "extra"',
 		],
 		[
 			{
@@ -422,7 +422,7 @@ describe('invoiceServices', () => {
 					},
 				],
 			},
-			'lines.0.itemId: Neplatný vstup: očekáváno řetězec, obdrženo undefined',
+			'Neplatný vstup: očekáváno řetězec, obdrženo undefined',
 		],
 		[
 			{
@@ -434,14 +434,14 @@ describe('invoiceServices', () => {
 					},
 				],
 			},
-			'lines.0: Neznámé klíče: "extra"',
+			'Neznámé klíče: "extra"',
 		],
 		[
 			{
 				...wireInvoice(),
 				issueDate: '2026-02-30',
 			},
-			'issueDate: Datum musí být ve tvaru RRRR-MM-DD.',
+			'Datum musí být ve tvaru RRRR-MM-DD.',
 		],
 	])('odmítá rozejití kontraktu %j', async (raw, issue) => {
 		invoke.mockResolvedValue(raw);

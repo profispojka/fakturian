@@ -208,7 +208,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 		});
 
 		await expect(useNuxtApp().vueApp.runWithContext(useVaultData).load()).rejects.toThrow(
-			new Error(`Soubor nastaveni.json má poškozený obsah (supplier.${key}: ${message}).`),
+			new Error(`Soubor nastaveni.json má poškozený obsah (${message}).`),
 		);
 	});
 
@@ -302,7 +302,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 		});
 
 		await expect(useNuxtApp().vueApp.runWithContext(useVaultData).load()).rejects.toThrow(
-			new Error(`Soubor nastaveni.json má poškozený obsah (pricelist.0.${key}: ${message}).`),
+			new Error(`Soubor nastaveni.json má poškozený obsah (${message}).`),
 		);
 	});
 
@@ -397,7 +397,7 @@ describe('platby.json', () => {
 				date: '2026-03-20',
 				amountCents: 100,
 			},
-			/payments\.20260001\.0\.id/,
+			'Neplatný vstup: očekáváno řetězec, obdrženo undefined',
 		],
 		[
 			{
@@ -405,7 +405,7 @@ describe('platby.json', () => {
 				date: '2026-03-20',
 				amountCents: 100,
 			},
-			/payments\.20260001\.0\.id/,
+			'Hodnota je příliš malá: string musí mít >=1 znaků',
 		],
 		[
 			{
@@ -413,7 +413,7 @@ describe('platby.json', () => {
 				date: '2026-03-20',
 				amountCents: 0,
 			},
-			/payments\.20260001\.0\.amountCents/,
+			'Zadej číslo > 0.',
 		],
 		[
 			{
@@ -421,7 +421,7 @@ describe('platby.json', () => {
 				date: '2026-03-20',
 				amountCents: 10.5,
 			},
-			/payments\.20260001\.0\.amountCents/,
+			'Zadej celé číslo.',
 		],
 		[
 			{
@@ -429,7 +429,7 @@ describe('platby.json', () => {
 				date: '2026-02-30',
 				amountCents: 100,
 			},
-			/payments\.20260001\.0\.date/,
+			'Datum musí být ve tvaru RRRR-MM-DD.',
 		],
 		[
 			{
@@ -438,9 +438,9 @@ describe('platby.json', () => {
 				amountCents: 100,
 				fioId: '',
 			},
-			/payments\.20260001\.0\.fioId/,
+			'Hodnota je příliš malá: string musí mít >=1 znaků',
 		],
-	])('neplatnou platbu %o odmítne se jménem pole', async (payment, field) => {
+	])('neplatnou platbu %o odmítne s důvodem', async (payment, issue) => {
 		await vaultFiles({
 			'platby.json': {
 				payments: {
@@ -450,7 +450,7 @@ describe('platby.json', () => {
 		});
 		const f = useNuxtApp().vueApp.runWithContext(usePaymentsFile);
 
-		await expect(f.load()).rejects.toThrow(field);
+		await expect(f.load()).rejects.toThrow(issue);
 		expect(f.loaded.value).toBe(false);
 	});
 
@@ -542,7 +542,7 @@ describe('vydaje.json', () => {
 
 		await expect(useNuxtApp().vueApp.runWithContext(useExpensesFile).load()).rejects.toThrow(
 			new Error(
-				`Soubor vydaje.json má poškozený obsah (expenses.0.${key}: Neplatný vstup: očekáváno řetězec, obdrženo undefined).`,
+				`Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo undefined).`,
 			),
 		);
 	});

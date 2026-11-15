@@ -61,7 +61,10 @@ Tlačítkem **Otevřít ve Finderu** se do aktuální složky dostaneš kdykoli.
 
 Když se některý soubor nepodaří načíst (poškozený obsah, ruční editace), appka
 to řekne a **do té domény nic nezapíše**. Radši nezapsat než přepsat skutečná
-data oříznutou verzí. Ostatní části appky fungují dál.
+data oříznutou verzí. Do opravy souboru appka nespustí: místo ní zobrazí hlášku
+s tlačítky **Zkusit znovu**, **Ukázat ve Finderu** (otevře skrytou složku
+`.fakturian`) a **Vybrat jinou složku…**. Totéž udělá konfliktní kopie souboru
+od synchronizace, třeba `vydaje 2.json`.
 
 Obnovu najdeš ve složce `.fakturian/snapshots/` nebo ve své kopii složky — viz
 [Zálohování a obnova](/napoveda/zalohovani).

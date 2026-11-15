@@ -54,14 +54,6 @@
   vynechá. Faktura pak postrádá údaj podle § 435 OZ (`docs/05-PRAVO.md`). Zápis patří do
   `supplierSchema`, pole do průvodce.
 
-- **DATA-26 · Vadný nebo konfliktní datový soubor zastaví celou appku bez cesty k němu — VYSOKÁ.**
-  `start` a `startErrorMessage` v `src/app.vue`, `useVaultData.load`, `checkSyncVariants`
-  (`desktop/store.ts`). Konfliktní kopie `vydaje 2.json` od synchronizace nebo poškozený JSON
-  ukáže místo appky jen `UError` s „Zkusit znovu" a „Vybrat jinou složku…". Hláška posílá do
-  `.fakturian/` a `.fakturian/snapshots`, které Finder skrývá, a tlačítko na ně obrazovka nemá.
-  Nápověda (`showcase/content/napoveda/datova-slozka.md`) přitom slibuje, že ostatní části appky
-  fungují dál. Přidat „Ukázat ve Finderu" (`revealPath`) a srovnat text nápovědy.
-
 - **UI-43 · Neúspěšné otevření faktury nechá ve formuláři předchozí — STŘEDNÍ.**
   `openFromRoute` v `src/pages/invoice/[id].vue`: když `load` dokladu B selže (PDF mezitím
   zmizelo nebo se přejmenovalo), zůstane formulář s dokladem A i se změnami, které uživatel právě

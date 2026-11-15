@@ -203,8 +203,9 @@ describe('příloha ISDOC v dokladu vysázeném typstem', () => {
 			const bytes = await readFile(path);
 
 			const { xml } = await readIsdoc(await loadPdf(bytes));
+			const document = await PDFDocument.load(bytes);
 
-			expect([(await PDFDocument.load(bytes)).getPageCount(), xml]).toEqual([1, MINIMAL_ISDOC]);
+			expect([document.getPageCount(), xml]).toEqual([1, MINIMAL_ISDOC]);
 		} finally {
 			await rm(dir, { recursive: true });
 		}
@@ -224,17 +225,17 @@ describe('příloha ISDOC v dokladu vysázeném typstem', () => {
 			xml: MINIMAL_ISDOC,
 		});
 
-		expect([
-			raw.includes('/ObjStm'),
-			pdf.getProducer(),
-			(await PDFDocument.load(rewritten)).getPageCount(),
-		]).toEqual([false, undefined, 0]);
+		const reloaded = await PDFDocument.load(rewritten);
+
+		expect([raw.includes('/ObjStm'), pdf.getProducer(), reloaded.getPageCount()]).toEqual([false, undefined, 0]);
 	});
 
 	it('podpis nemá', async () => {
 		const { pdf } = await savedInvoice();
 
-		expect((await loaded(pdf)).signed).toBe(false);
+		const content = await loaded(pdf);
+
+		expect(content.signed).toBe(false);
 	});
 });
 
@@ -677,8 +678,9 @@ describe('obsah přílohy', () => {
 
 		expect(await embeddedXml(sixteen)).toBe(new TextDecoder().decode(xml));
 		expect(await reason(seventeen)).toEqual(new Error('PDF má víc než 16 příloh'));
+		const content = await loaded(seventeen);
 		await expect(
-			rewritePdf((await loaded(seventeen)).bytes, MAX_ISDOC_BYTES, {
+			rewritePdf(content.bytes, MAX_ISDOC_BYTES, {
 				index: 16,
 				xml: 'new',
 			}),
@@ -750,7 +752,12 @@ describe('náhrada ISDOC přílohy', () => {
 		await expect(replaceIsdoc(content, xml)).rejects.toEqual(
 			new Error('ISDOC přílohu v PDF nejde bezpečně nahradit — nemá samostatný datový stream.'),
 		);
-		await expect(rewritePdf(content.bytes, MAX_ISDOC_BYTES, { index: 0, xml })).rejects.toEqual(
+		await expect(
+			rewritePdf(content.bytes, MAX_ISDOC_BYTES, {
+				index: 0,
+				xml,
+			}),
+		).rejects.toEqual(
 			new Error('Příloha k nahrazení v PDF není.'),
 		);
 	});

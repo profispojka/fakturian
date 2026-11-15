@@ -83,6 +83,6 @@ describe('náhled dokladu', () => {
 				...invoice(),
 				documentType: 4,
 			}),
-		).rejects.toThrow(new Error('Doklad má neplatný tvar (documentType: Neznámý typ dokladu 4.).'));
+		).rejects.toThrow(new Error('Doklad má neplatný tvar (Neznámý typ dokladu 4.).'));
 	});
 });

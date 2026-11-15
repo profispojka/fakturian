@@ -77,7 +77,7 @@ describe('fioServices', () => {
 			},
 		]);
 		await expect(fioServices.fetchPayments(date('2026-03-01'), date('2026-03-31'))).rejects.toThrow(
-			new Error('Výpis z Fia má poškozený obsah (0.date: Datum musí být ve tvaru RRRR-MM-DD.).'),
+			new Error('Výpis z Fia má poškozený obsah (Datum musí být ve tvaru RRRR-MM-DD.).'),
 		);
 	});
 });

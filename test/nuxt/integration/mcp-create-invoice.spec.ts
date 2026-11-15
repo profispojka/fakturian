@@ -339,7 +339,7 @@ describe('obsah a kontroly vystavené faktury', () => {
 			],
 		});
 
-		expect(reply.error).toBe('Neplatné argumenty (lines.0.description: Bez konců řádků a řídicích znaků.).');
+		expect(reply.error).toBe('Neplatné argumenty (Bez konců řádků a řídicích znaků.).');
 	});
 
 	it('řídicí znak v jednotce odmítne', async () => {
@@ -353,7 +353,7 @@ describe('obsah a kontroly vystavené faktury', () => {
 			],
 		});
 
-		expect(reply.error).toBe('Neplatné argumenty (lines.0.unit: Bez konců řádků a řídicích znaků.).');
+		expect(reply.error).toBe('Neplatné argumenty (Bez konců řádků a řídicích znaků.).');
 	});
 
 	it('množství z nepřesného součtu v plovoucí čárce odmítne', async () => {

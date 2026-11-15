@@ -198,7 +198,8 @@ describe('vrácení odeslání', () => {
 		const listed = await listInvoices({ vaultPath: base });
 		expect(listed.items.map((item) => item.sentAt)).toEqual([null]);
 		await markSent('20260021');
-		expect((await listInvoices({ vaultPath: base })).items.map((item) => item.sentAt)).not.toEqual([null]);
+		const marked = await listInvoices({ vaultPath: base });
+		expect(marked.items.map((item) => item.sentAt)).not.toEqual([null]);
 	});
 
 	it('neodeslaný doklad nechá beze změny, i když je podepsaný', async () => {
@@ -281,7 +282,8 @@ describe('doklad, který označit nejde', () => {
 	it('PDF bez ISDOC ani s neplatným ISDOC se nezmění', async () => {
 		const invalid = await saveNumbered('20260011');
 		const bare = join(base, 'faktury', '20260010.pdf');
-		await writeFile(bare, await (await samplePdf()).save());
+		const sample = await samplePdf();
+		await writeFile(bare, await sample.save());
 		await rewriteIsdoc(invalid, () => '<Invoice/>');
 		const originals = [await readFile(bare), await readFile(invalid)];
 

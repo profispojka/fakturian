@@ -539,10 +539,27 @@ describe('seznam příkazů', () => {
 
 	it('mail_compose_with_attachment bere prázdného příjemce, ale ne přepínač', () => {
 		const args = entries.get('mail_compose_with_attachment').args;
-		const mail = { vaultPath: VAULT, subject: 'Faktura', body: 'Dobrý den', attachment: `${VAULT}/faktury/20260001.pdf` };
+		const mail = {
+			vaultPath: VAULT,
+			subject: 'Faktura',
+			body: 'Dobrý den',
+			attachment: `${VAULT}/faktury/20260001.pdf`,
+		};
 
-		expect(args.safeParse({ ...mail, to: '' }).success).toBe(true);
-		expect(args.safeParse({ ...mail, to: '-e' }).error.issues.map((i) => i.message)).toEqual(['Neplatný e-mail.']);
+		expect(
+			args.safeParse({
+				...mail,
+				to: '',
+			}).success,
+		).toBe(true);
+		expect(
+			args
+				.safeParse({
+					...mail,
+					to: '-e',
+				})
+				.error.issues.map((i) => i.message),
+		).toEqual(['Neplatný e-mail.']);
 	});
 
 	it('filtr dialogu potřebuje název a přípony bez tečky', () => {
