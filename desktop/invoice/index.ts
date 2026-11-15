@@ -13,7 +13,15 @@ import { checkSource, sourceFromPdf } from '../import.ts';
 import { asciiLower, compareNumbers } from '../numbering.ts';
 import { loadPdf } from '../pdf.ts';
 import { cacheDir } from '../store.ts';
-import { compareText, conflictOriginalName, errorCode, icloudOriginalName, writeAtomic } from '../util.ts';
+import {
+	compareText,
+	conflictOriginalName,
+	errorCode,
+	icloudOriginalName,
+	MAX_DOCUMENT_BYTES,
+	readDocument,
+	writeAtomic,
+} from '../util.ts';
 import { overVault } from '../vault.ts';
 
 import type { Invoice } from './model.ts';
@@ -64,7 +72,8 @@ const indexSchema = z.object({
 		z.string(),
 		z.object({
 			mtime_ms: z.number(),
-			size: z.number(),
+			// Větší soubor `readDocument` odmítne; záznam o něm by doklad pustil do výpisu bez čtení.
+			size: z.number().max(MAX_DOCUMENT_BYTES),
 			summary: summarySchema,
 		}),
 	),
@@ -159,7 +168,7 @@ export function summarize(invoice: Invoice, path: string): InvoiceSummary {
 async function summarizePdf(path: string): Promise<InvoiceSummary> {
 	let pdf: PDFDocument;
 	try {
-		const bytes = await readFile(path);
+		const bytes = await readDocument(path);
 		pdf = await loadPdf(bytes);
 	} catch (error) {
 		// Stryker disable next-line ObjectLiteral: ekvivalentní mutant, chyba skončí jen jako text důvodu vadného dokladu.

@@ -1,4 +1,3 @@
-import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { errorText } from '~/utils/errors';
@@ -9,6 +8,7 @@ import { writePdf } from './mod.ts';
 import { sentAt, setSent, toXml } from '../isdoc/mod.ts';
 import { intoInvoice } from '../isdoc/projection.ts';
 import { hasSignature, loadPdf, readIsdoc, replaceIsdoc, savePdf } from '../pdf.ts';
+import { readDocument } from '../util.ts';
 import { overVault } from '../vault.ts';
 
 import { documentNumberCount, findDocument } from './index.ts';
@@ -34,7 +34,7 @@ export async function markInvoiceSent({ vaultPath, number }: { vaultPath: string
 	if (path === undefined) throw new Error(`Fakturu ${number} se nepodařilo najít.`);
 	let pdf: PDFDocument;
 	try {
-		const bytes = await readFile(path);
+		const bytes = await readDocument(path);
 		pdf = await loadPdf(bytes);
 	} catch (error) {
 		throw new Error(`Doklad ${number} nejde přečíst, proto ho nelze označit jako odeslaný: ${errorText(error)}`, {

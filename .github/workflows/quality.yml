@@ -76,6 +76,7 @@ jobs:
           app=.output/release/mac-arm64/Fakturian.app
           test -f "$app/Contents/Resources/app.asar"
           test -f "$app/Contents/Resources/THIRD-PARTY-NOTICES.txt"
+          test -f "$app/Contents/Resources/LICENSE"
           test -f "$app/Contents/Resources/LICENSE.electron.txt"
           test -f "$app/Contents/Resources/LICENSES.chromium.html"
           test -f "$app/Contents/Resources/app.asar.unpacked/.output/desktop/validator.mjs"

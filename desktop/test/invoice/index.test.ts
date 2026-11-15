@@ -8,6 +8,7 @@ import {
 	rm,
 	stat,
 	symlink,
+	truncate,
 	utimes,
 	writeFile,
 } from 'node:fs/promises';
@@ -22,6 +23,7 @@ import { listInvoices, listUsedNumbers } from '../../invoice/index.ts';
 import { saveInvoice } from '../../invoice/mod.ts';
 import { savePdf } from '../../pdf.ts';
 import { cacheDir, dataDir } from '../../store.ts';
+import { MAX_DOCUMENT_BYTES } from '../../util.ts';
 import { numbered } from '../invoices.ts';
 import { invoicePdf, rewriteIsdoc, samplePdf } from '../pdfs.ts';
 import { names } from '../support.ts';
@@ -214,6 +216,33 @@ describe('vadné doklady ve výpisu', () => {
 				reason: 'PDF nejde přečíst: Failed to parse PDF document (line:0 col:18 offset=9): No PDF header found',
 			},
 		]);
+	});
+
+	it('překročenou velikost odmítne i při shodě se záznamem cache', async () => {
+		const path = await saveNew(numbered('20260001', 'Alfa', 10_000));
+		await listInvoices({ vaultPath: base });
+		await truncate(path, MAX_DOCUMENT_BYTES + 1);
+		const info = await stat(path);
+		const savedCache = await cache();
+		savedCache.entries['20260001.pdf'].mtime_ms = info.mtimeMs;
+		savedCache.entries['20260001.pdf'].size = info.size;
+		savedCache.entries['20260001.pdf'].summary.number = '20269999';
+		await writeFile(cacheFile(), JSON.stringify(savedCache));
+
+		const used = await listUsedNumbers({ vaultPath: base });
+		await writeFile(cacheFile(), JSON.stringify(savedCache));
+		const listed = await listInvoices({ vaultPath: base });
+
+		expect(listed.items).toEqual([]);
+		expect(listed.broken).toEqual([
+			{
+				fileName: '20260001.pdf',
+				path,
+				reason: 'PDF nejde přečíst: soubor má víc než 64 MB — takhle doklad nevypadá',
+			},
+		]);
+		expect(await cachedNames()).toEqual([]);
+		expect(used).toEqual(['20260001']);
 	});
 
 	it('PDF bez přílohy ISDOC má vlastní důvod', async () => {

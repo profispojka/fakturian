@@ -1,4 +1,4 @@
-import { mkdir, readFile } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { VAT_LIMIT_CENTS } from '~/constants/dashboard';
@@ -18,7 +18,7 @@ import { copySent, ISSUING_SYSTEM, parse, sentAt, text, toXml } from '../isdoc/m
 import { intoInvoice } from '../isdoc/projection.ts';
 import { ISDOC_ATTACHMENT, loadPdf, readIsdoc, renderTypstPdf, type TypstFiles } from '../pdf.ts';
 import { saveSnapshot, snapshotDir } from '../store.ts';
-import { writeAtomic, writeNew } from '../util.ts';
+import { readDocument, writeAtomic, writeNew } from '../util.ts';
 import { overVault, readLogo } from '../vault.ts';
 
 import { documentNumberCount, findDocument, removeIndexEntry, scanInvoices } from './index.ts';
@@ -56,7 +56,7 @@ export async function invoiceFiles(vaultPath: string, invoice: Invoice, previous
 
 // Záloha jen tehdy, když je co zálohovat. Nemožnost ji napsat nesmí zablokovat vystavení faktury.
 export async function writePdf(root: string, path: string, number: string, bytes: Uint8Array): Promise<void> {
-	const [original] = await Promise.allSettled([readFile(path)]);
+	const [original] = await Promise.allSettled([readDocument(path)]);
 	if (original.status === 'fulfilled') {
 		await saveSnapshot(join(snapshotDir(root), 'faktury'), number, 'pdf', original.value);
 	}
@@ -72,7 +72,7 @@ interface DocumentOnDisk {
 
 // Doklad na cestě, kam se chystá zápis.
 async function documentOnDisk(path: string): Promise<DocumentOnDisk> {
-	const bytes = await readFile(path);
+	const bytes = await readDocument(path);
 	const pdf = await loadPdf(bytes);
 	const { document } = await readIsdoc(pdf);
 	// Neplatný údaj o odeslání je poškozený doklad; přepsat ho by rozpor tiše zahladilo.
@@ -223,7 +223,7 @@ export async function loadInvoice({ vaultPath, number }: { vaultPath: string; nu
 	if (path === undefined) throw new Error(`Doklad ${number} ve složce faktury/ není.`);
 	let pdf: PDFDocument;
 	try {
-		const bytes = await readFile(path);
+		const bytes = await readDocument(path);
 		pdf = await loadPdf(bytes);
 	} catch (error) {
 		throw new Error(`Doklad ${number} nejde přečíst. Oprav nebo obnov PDF ze zálohy.`, { cause: error });
@@ -247,7 +247,7 @@ export async function exportInvoicePdf({
 	if (source === undefined) throw new Error(`Doklad ${number} ve složce faktury/ není.`);
 	// Přes dočasný soubor: export useknutý plným diskem by v cíli nechal půlku PDF.
 	try {
-		const bytes = await readFile(source);
+		const bytes = await readDocument(source);
 		await writeAtomic(target, bytes);
 	} catch (error) {
 		throw new Error(`PDF se nepodařilo uložit do ${target}.`, { cause: error });
