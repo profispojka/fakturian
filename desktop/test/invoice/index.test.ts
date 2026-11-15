@@ -19,9 +19,8 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { DocumentKind } from '~/constants/invoice';
 
-import { listInvoices, listUsedNumbers } from '../../invoice/index.ts';
+import { listInvoices, listUsedNumbers, scanInvoices } from '../../invoice/index.ts';
 import { saveInvoice } from '../../invoice/mod.ts';
-import { savePdf } from '../../pdf.ts';
 import { cacheDir, dataDir } from '../../store.ts';
 import { MAX_DOCUMENT_BYTES } from '../../util.ts';
 import { numbered } from '../invoices.ts';
@@ -176,6 +175,26 @@ describe('výpis faktur', () => {
 		]);
 	});
 
+	it('fakturu s dobropisem nejde upravit, dobropis ano', async () => {
+		await saveNew(numbered('20260001', 'Alfa', 10_000));
+		const [line] = numbered('20260002', 'Alfa', -10_000).lines;
+		const credit = {
+			...numbered('20260002', 'Alfa', -10_000),
+			documentType: DocumentKind.CreditNote,
+			originalInvoice: '20260001',
+			note: 'Oprava ceny.',
+			lines: [line!],
+		};
+		await saveNew(credit);
+
+		await expect(
+			saveInvoice({ vaultPath: base, invoice: numbered('20260001', 'Alfa', 5_000), isNew: false }),
+		).rejects.toThrow('Faktura 20260001 má dobropis 20260002, proto ji nejde upravit. Nejdřív smaž dobropis.');
+		await expect(saveInvoice({ vaultPath: base, invoice: credit, isNew: false })).resolves.toBe(
+			invoices('20260002.pdf'),
+		);
+	});
+
 	it('chybějící faktury/ je prázdný vault', async () => {
 		expect(await listInvoices({ vaultPath: base })).toEqual({
 			items: [],
@@ -247,7 +266,7 @@ describe('vadné doklady ve výpisu', () => {
 
 	it('PDF bez přílohy ISDOC má vlastní důvod', async () => {
 		await mkdir(invoices());
-		await writeFile(invoices('20260001.pdf'), await savePdf(await samplePdf()));
+		await writeFile(invoices('20260001.pdf'), await (await samplePdf()).save());
 
 		const listed = await listInvoices({ vaultPath: base });
 
@@ -290,6 +309,19 @@ describe('vadné doklady ve výpisu', () => {
 				},
 			],
 		});
+	});
+
+	it('přejmenovaný doklad zůstane mezi čitelnými, aby ho našla kontrola dobropisů i obratu', async () => {
+		const path = await saveNew(numbered('20260001', 'Alfa', 10_000));
+		await saveNew(numbered('20260002', 'Beta', 25_000));
+		await rename(path, invoices('faktura.pdf'));
+
+		const scan = await scanInvoices({ vaultPath: base });
+
+		expect([scan.readable.map(({ path: readable }) => readable), scan.unreadable]).toEqual([
+			[invoices('20260002.pdf'), invoices('faktura.pdf')],
+			[],
+		]);
 	});
 
 	it('přejmenovaný doklad drží dál číslo, které nese, a další faktura ho nedostane', async () => {
@@ -549,19 +581,15 @@ describe('cache výpisu', () => {
 	it('kontrola čísla si přečtený souhrn zapíše stejně jako výpis a starší záznamy nechá', async () => {
 		await saveNew(numbered('20260001', 'Alfa', 10_000));
 		await saveNew(numbered('20260002', 'Beta', 25_000));
-		expect(await cachedNames()).toEqual(['20260001.pdf']);
-		await saveNew(numbered('20260003', 'Gama', 5_000));
-		const written = await cache();
-		expect(await cachedNames()).toEqual(['20260001.pdf', '20260002.pdf']);
-
-		await rm(cacheFile());
 		await listInvoices({ vaultPath: base });
 		const listed = await cache();
+		const older = structuredClone(listed);
+		delete older.entries['20260002.pdf'];
+		await writeFile(cacheFile(), JSON.stringify(older));
 
-		expect([written.entries['20260001.pdf'], written.entries['20260002.pdf']]).toEqual([
-			listed.entries['20260001.pdf'],
-			listed.entries['20260002.pdf'],
-		]);
+		await listUsedNumbers({ vaultPath: base });
+
+		expect(await cache()).toEqual(listed);
 	});
 
 	it('obsazená čísla nad nezměněnou složkou cache nepřepisují', async () => {

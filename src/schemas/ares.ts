@@ -20,8 +20,8 @@ const seatSchema = z.looseObject({
 	// Písmeno čísla orientačního („14a") chodí zvlášť; bez něj vznikne adresa o dům vedle.
 	cisloOrientacniPismeno: z.string().optional(),
 	nazevObce: z.string().optional(),
+	nazevCastiObce: z.string().optional(),
 	psc: z.number().int().optional(),
-	textovaAdresa: z.string().optional(),
 });
 
 export const aresAnswerSchema = z.looseObject({

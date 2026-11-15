@@ -59,6 +59,9 @@ export const invoiceServices = {
 	markSent(vaultPath: string, number: string): Promise<string> {
 		return commands.markInvoiceSent(vaultPath, number);
 	},
+	async unmarkSent(vaultPath: string, number: string): Promise<void> {
+		await commands.unmarkInvoiceSent(vaultPath, number);
+	},
 	async remove(vaultPath: string, number: string): Promise<void> {
 		await commands.deleteInvoice(vaultPath, number);
 	},

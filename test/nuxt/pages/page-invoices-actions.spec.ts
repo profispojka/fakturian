@@ -231,6 +231,22 @@ describe('akce nad fakturou', () => {
 		expect(c.find('[data-testid="invoice-sent"]').exists()).toBe(true);
 	});
 
+	it('toast po odeslání nabídne vrácení a výpis zámek zase schová', async () => {
+		const c = await mount();
+		await openActions(c);
+		await layer().find('[data-testid="invoice-action-email-20260001"]').trigger('click');
+		await flushPromises();
+		const toast = useNuxtApp()
+			.vueApp.runWithContext(useToast)
+			.toasts.value.find((t) => t.title === 'Faktura 20260001 je označená jako odeslaná');
+
+		await toast!.actions![0]!.onClick!(new MouseEvent('click'));
+		await flushPromises();
+
+		expect(backend.folder('/vault').sent.has('20260001')).toBe(false);
+		expect(c.find('[data-testid="invoice-sent"]').exists()).toBe(false);
+	});
+
 	it('už odeslanou fakturu druhý e-mail znovu neoznačí', async () => {
 		await vaultS({
 			invoices: [

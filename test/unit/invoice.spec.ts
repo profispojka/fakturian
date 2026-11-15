@@ -248,6 +248,7 @@ describe('deletionQuestion', () => {
 	const invoice = {
 		number: '20260001',
 		documentType: DocumentKind.Invoice,
+		sentAt: null,
 	};
 
 	it('u samotné faktury řekne jen, kam PDF odejde', () => {
@@ -263,12 +264,27 @@ describe('deletionQuestion', () => {
 		);
 	});
 
+	it('u odeslaného dokladu varuje, že číslo už má odběratel', () => {
+		expect(
+			deletionQuestion(
+				{
+					...invoice,
+					sentAt: '2026-08-30T14:15:00Z',
+				},
+				1,
+			).message,
+		).toBe(
+			'Opravdu chceš smazat fakturu 20260001? PDF se přesune do Koše a číslo dokladu se uvolní. Doklad už je odeslaný, odběratel ho má pod tímhle číslem — další nový doklad dostane stejné číslo i variabilní symbol. Spolu s dokladem zmizí zapsané platby (1).',
+		);
+	});
+
 	it('dobropis nazve dobropisem', () => {
 		expect(
 			deletionQuestion(
 				{
 					number: '20260002',
 					documentType: DocumentKind.CreditNote,
+					sentAt: null,
 				},
 				0,
 			),

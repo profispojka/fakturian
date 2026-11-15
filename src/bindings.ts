@@ -17,6 +17,7 @@ export interface CommandArgs {
 	received_path: { vaultPath: string; file: string };
 	list_used_numbers: { vaultPath: string };
 	mark_invoice_sent: { vaultPath: string; number: string };
+	unmark_invoice_sent: { vaultPath: string; number: string };
 	delete_invoice: { vaultPath: string; number: string };
 	save_invoice: { vaultPath: string; invoice: Invoice_Deserialize; isNew: boolean };
 	preview_invoice: { vaultPath: string; invoice: Invoice_Deserialize };
@@ -65,6 +66,7 @@ export interface CommandResults {
 	received_path: string;
 	list_used_numbers: string[];
 	mark_invoice_sent: string;
+	unmark_invoice_sent: null;
 	delete_invoice: null;
 	save_invoice: string;
 	preview_invoice: string[];
@@ -197,9 +199,13 @@ export const commands = {
 		}),
 	// Smazaný doklad leží v Koši a své číslo uvolnil.
 	listUsedNumbers: (vaultPath: string) => invoke('list_used_numbers', { vaultPath }),
-	// Jednosměrné: zrušení příznaku by znovu dovolilo přepsat doklad, který už mohl dostat zákazník.
 	markInvoiceSent: (vaultPath: string, number: string) =>
 		invoke('mark_invoice_sent', {
+			vaultPath,
+			number,
+		}),
+	unmarkInvoiceSent: (vaultPath: string, number: string) =>
+		invoke('unmark_invoice_sent', {
 			vaultPath,
 			number,
 		}),

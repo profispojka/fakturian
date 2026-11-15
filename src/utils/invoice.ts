@@ -120,12 +120,15 @@ export interface DeletionQuestion {
 
 // Platby visí na čísle dokladu a zmizí s ním; bez zmínky by o ně uživatel přišel nevědomky.
 export function deletionQuestion(
-	invoice: Pick<InvoiceSummary, 'number' | 'documentType'>,
+	invoice: Pick<InvoiceSummary, 'number' | 'documentType' | 'sentAt'>,
 	paymentCount: number,
 ): DeletionQuestion {
 	let kind = 'fakturu';
 	if (invoice.documentType === DocumentKind.CreditNote) kind = 'dobropis';
 	let message = `Opravdu chceš smazat ${kind} ${invoice.number}? PDF se přesune do Koše a číslo dokladu se uvolní.`;
+	if (invoice.sentAt !== null) {
+		message += ` Doklad už je odeslaný, odběratel ho má pod tímhle číslem — další nový doklad dostane stejné číslo i variabilní symbol.`;
+	}
 	if (paymentCount > 0) message += ` Spolu s dokladem zmizí zapsané platby (${paymentCount}).`;
 	return {
 		title: `Smazat ${kind}?`,

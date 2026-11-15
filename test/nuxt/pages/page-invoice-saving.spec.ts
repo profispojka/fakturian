@@ -90,6 +90,18 @@ describe('uložení', () => {
 		expect(savedAsNew(0)).toBe(false);
 	});
 
+	it('faktura s dobropisem se uložit nedá, dobropis ano', async () => {
+		invoiceInVault('20260001');
+		invoiceInVault('20260002', { documentType: 2, originalInvoice: '20260001' });
+
+		const invoice = await mountInvoice('20260001');
+		expect(invoice.find('[data-testid="action-save"]').attributes('disabled')).toBeDefined();
+		expect(invoice.find('[data-testid="action-save"]').attributes('title')).toContain('20260002');
+
+		const credit = await mountInvoice('20260002');
+		expect(credit.find('[data-testid="action-save"]').attributes('disabled')).toBeUndefined();
+	});
+
 	it('dvojklik na uložení odešle jen jeden požadavek', async () => {
 		const { finish } = backend.postpone('save_invoice');
 		const c = await loadedInvoice();

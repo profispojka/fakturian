@@ -5,7 +5,7 @@ import { VAT_LIMIT_CENTS } from '~/constants/dashboard';
 import { DocumentKind } from '~/constants/invoice';
 import { invoiceSchema } from '~/schemas/invoices';
 import { parseIsdocDate, yearOf } from '~/utils/date';
-import { invoiceTotalCents } from '~/utils/invoice';
+import { creditNotesOf, invoiceTotalCents } from '~/utils/invoice';
 import { czechList } from '~/utils/locales';
 import { validateNumber } from '~/utils/numbering';
 
@@ -159,6 +159,12 @@ export async function saveInvoice({
 		throw new Error('Dobropis musí odkazovat na fakturu, kterou opravuje.');
 	}
 	const scan = await scanInvoices({ vaultPath });
+	const credits = creditNotesOf(number, scan.readable);
+	if (previous && credits.length) {
+		throw new Error(
+			`Faktura ${number} má dobropis ${czechList.format(credits)}, proto ji nejde upravit. Nejdřív smaž dobropis.`,
+		);
+	}
 	const prior = scan.readable.find((item) => item.path === previous?.path);
 	const amount = invoiceTotalCents(invoice);
 	const canIncrease =

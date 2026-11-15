@@ -632,6 +632,7 @@ describe('smazání s otázkou', () => {
 				{
 					number: '20260001',
 					documentType: 1,
+					sentAt: null,
 				},
 				2,
 			).message,

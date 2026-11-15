@@ -82,6 +82,20 @@ DPH" níže).
 **Co tím přijímáme:** kdo fakturuje do zahraničí, potřebuje na tyto doklady
 jiný nástroj.
 
+### UCT-46 · Fakturu soukromé osobě bez IČO vystavit nejde
+
+`src/schemas/invoices.ts` (`invoiceHeaderSchema`), `contactStoredSchema`.
+Odběratel musí mít IČO, takže fakturu fyzické osobě, která nepodniká, appka
+nevystaví ani ji nejde uložit mezi kontakty.
+
+**Proč:** appka je pro živnostníka, který fakturuje firmám a OSVČ. Údaje
+odběratele se ověřují na hranici a IČO je mezi povinnými; mezistav „odběratel
+bez IČO" neexistuje (viz „Dovnitř jen kvalitní data" v `AGENTS.md`).
+
+**Co tím přijímáme:** kdo fakturuje soukromým osobám, potřebuje na tyto doklady
+jiný nástroj. Ruční zadání odběratele (`docs/01-FUNKCE.md` § 2) platí jen pro
+odběratele s IČO.
+
 ---
 
 ## Záměrně neměnit

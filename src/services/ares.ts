@@ -18,13 +18,10 @@ export function parseAres(v: unknown): AresParty {
 
 	const orientation = `${sidlo.cisloOrientacni ?? ''}${sidlo.cisloOrientacniPismeno ?? ''}`;
 
-	let street = sidlo.textovaAdresa ?? '';
-	if (sidlo.nazevUlice) {
-		street = sidlo.nazevUlice;
-		if (sidlo.cisloDomovni) {
-			street += ` ${sidlo.cisloDomovni}`;
-			if (orientation) street += `/${orientation}`;
-		}
+	let street = sidlo.nazevUlice ?? sidlo.nazevCastiObce ?? '';
+	if (street && sidlo.cisloDomovni) {
+		street += ` ${sidlo.cisloDomovni}`;
+		if (orientation) street += `/${orientation}`;
 	}
 
 	return {

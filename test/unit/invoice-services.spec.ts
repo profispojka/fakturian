@@ -303,6 +303,16 @@ describe('invoiceServices', () => {
 		});
 	});
 
+	it('vrácení odeslání jde přes přesný doklad', async () => {
+		invoke.mockResolvedValue(null);
+
+		expect(await invoiceServices.unmarkSent('/vault', '20260001')).toBeUndefined();
+		expect(invoke).toHaveBeenCalledExactlyOnceWith('unmark_invoice_sent', {
+			vaultPath: '/vault',
+			number: '20260001',
+		});
+	});
+
 	it('uloží PDF dokladu do cíle, který zvolil uživatel', async () => {
 		invoke.mockResolvedValue(null);
 
@@ -447,6 +457,7 @@ describe('invoiceServices', () => {
 		['list', () => invoiceServices.list('/x')],
 		['usedNumbers', () => invoiceServices.usedNumbers('/x')],
 		['markSent', () => invoiceServices.markSent('/x', '1')],
+		['unmarkSent', () => invoiceServices.unmarkSent('/x', '1')],
 		['exportPdf', () => invoiceServices.exportPdf('/x', '1', '/cil.pdf')],
 		['remove', () => invoiceServices.remove('/x', '1')],
 	])('%s předá hlášku backendu beze změny', async (_name, call) => {

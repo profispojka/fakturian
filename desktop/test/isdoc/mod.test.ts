@@ -8,6 +8,7 @@ import { MAX_CENTS } from '~/bindings';
 import {
 	child,
 	children,
+	clearSent,
 	copySent,
 	extensionElement,
 	fromCents,
@@ -476,6 +477,30 @@ describe('údaje Fakturianu o odeslání', () => {
 				`<fakturian:SentAt ${OUR_NAMESPACE}>${TIMESTAMP}</fakturian:SentAt><fakturian:SentBy ${OUR_NAMESPACE}>test@example.cz</fakturian:SentBy></Extensions>`,
 			),
 		);
+	});
+
+	it('vrácení odeslání odebere údaje o odeslání a ISDOC je zase původní', async () => {
+		const document = await parse(await fixture('foreign-document.isdoc'));
+		const before = toXml(document);
+		setSent(document, TIMESTAMP, 'test@example.cz');
+
+		clearSent(document);
+
+		expect(toXml(document)).toBe(before);
+		expect(sentAt(document)).toBe(undefined);
+	});
+
+	it('vrácení odeslání nechá cizí rozšíření a bez Extensions nic nezmění', async () => {
+		const withForeign = await parse(await fixture('example1.isdoc'));
+		const before = toXml(withForeign);
+		setSent(withForeign, TIMESTAMP, 'test@example.cz');
+		clearSent(withForeign);
+		const bare = await parse(await fixture('foreign-document.isdoc'));
+		const bareBefore = toXml(bare);
+		clearSent(bare);
+
+		expect(toXml(withForeign)).toBe(before);
+		expect(toXml(bare)).toBe(bareBefore);
 	});
 
 	it('druhý údaj o odeslání je poškozený doklad', async () => {

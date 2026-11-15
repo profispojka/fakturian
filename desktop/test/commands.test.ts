@@ -18,7 +18,7 @@ import { importDocuments } from '../invoice/import.ts';
 import { listInvoices, listUsedNumbers } from '../invoice/index.ts';
 import { exportInvoicePdf, loadInvoice, saveInvoice } from '../invoice/mod.ts';
 import { previewInvoice } from '../invoice/preview.ts';
-import { markInvoiceSent } from '../invoice/status.ts';
+import { markInvoiceSent, unmarkInvoiceSent } from '../invoice/status.ts';
 import { mailComposeWithAttachment } from '../mail.ts';
 import { Bridge } from '../mcp/mod.ts';
 import { defaultVaultPath, homeDir, loadVaultPath, saveVaultPath } from '../preferences.ts';
@@ -349,6 +349,18 @@ const CASES: [string, unknown, unknown, string][] = [
 		`number: ${STRING_GOT} číslo`,
 	],
 	[
+		'unmark_invoice_sent',
+		{
+			vaultPath: VAULT,
+			number: '20260001',
+		},
+		{
+			vaultPath: VAULT,
+			number: 20260001,
+		},
+		`number: ${STRING_GOT} číslo`,
+	],
+	[
 		'delete_invoice',
 		{
 			vaultPath: VAULT,
@@ -578,6 +590,7 @@ describe('seznam příkazů', () => {
 			received_path: receivedPath,
 			list_used_numbers: listUsedNumbers,
 			mark_invoice_sent: markInvoiceSent,
+			unmark_invoice_sent: unmarkInvoiceSent,
 			delete_invoice: deleteInvoice,
 			save_invoice: saveInvoice,
 			preview_invoice: previewInvoice,

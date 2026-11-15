@@ -550,6 +550,12 @@ const commands: Record<string, (a: Args) => unknown> = {
 		folder.sent.set(number, sentAt);
 		return sentAt;
 	},
+	unmark_invoice_sent: ({ vaultPath, number }) => {
+		const folder = backend.folder(vaultPath);
+		if (!folder.invoices.has(number)) throw new Error(`Fakturu ${number} se nepodařilo najít.`);
+		folder.sent.delete(number);
+		return null;
+	},
 	delete_invoice: ({ vaultPath, number }) => {
 		checkNumber(number);
 		const folder = backend.folder(vaultPath);
@@ -762,6 +768,7 @@ const ASYNC_COMMANDS = new Set([
 	'preview_invoice',
 	'save_invoice',
 	'scan_vault',
+	'unmark_invoice_sent',
 ]);
 
 export async function invoke(command: string, raw: Partial<Args> = {}): Promise<unknown> {

@@ -2,15 +2,14 @@ import { chmod, copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:f
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { PDFName, type PDFDocument } from 'pdf-lib';
+import { PDFDocument, PDFName } from 'pdf-lib';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { invoiceTotalCents } from '~/utils/invoice';
 
 import { listInvoices } from '../../invoice/index.ts';
 import { loadInvoice, saveInvoice } from '../../invoice/mod.ts';
-import { markInvoiceSent } from '../../invoice/status.ts';
-import { loadPdf, savePdf } from '../../pdf.ts';
+import { markInvoiceSent, unmarkInvoiceSent } from '../../invoice/status.ts';
 import { invoice } from '../invoices.ts';
 import { schemaReport } from '../isdoc.ts';
 import { embeddedXml, rewriteIsdoc, samplePdf } from '../pdfs.ts';
@@ -48,12 +47,19 @@ function markSent(number: string): Promise<string> {
 	});
 }
 
+function unmarkSent(number: string): Promise<void> {
+	return unmarkInvoiceSent({
+		vaultPath: base,
+		number,
+	});
+}
+
 // Upraví PDF dokladu na disku tak, jak by ho upravil jiný software.
 // Vrátí bajty, jak leží na disku, aby šly porovnat s dalším čtením.
 async function changePdf(path: string, change: (pdf: PDFDocument) => void): Promise<Buffer> {
-	const pdf = await loadPdf(await readFile(path));
+	const pdf = await PDFDocument.load(await readFile(path), { updateMetadata: false });
 	change(pdf);
-	await writeFile(path, await savePdf(pdf));
+	await writeFile(path, await pdf.save({ useObjectStreams: false }));
 	return readFile(path);
 }
 
@@ -179,6 +185,67 @@ describe('označení jako odeslané', () => {
 	});
 });
 
+describe('vrácení odeslání', () => {
+	it('doklad vyjde z PDF jako před označením a jde znovu označit', async () => {
+		const path = await saveNumbered('20260021');
+		await markSent('20260021');
+
+		await unmarkSent('20260021');
+
+		const after = await embeddedXml(path);
+		expect(after).not.toMatch(/Extensions|fakturian/);
+		expect(await schemaReport(after)).toBe('- validates\n');
+		const listed = await listInvoices({ vaultPath: base });
+		expect(listed.items.map((item) => item.sentAt)).toEqual([null]);
+		await markSent('20260021');
+		expect((await listInvoices({ vaultPath: base })).items.map((item) => item.sentAt)).not.toEqual([null]);
+	});
+
+	it('neodeslaný doklad nechá beze změny, i když je podepsaný', async () => {
+		const path = await saveNumbered('20260022');
+		await rewriteIsdoc(path, (xml) =>
+			xml.replace('</Invoice>', '<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"/></Invoice>'),
+		);
+		const signed = await readFile(path);
+
+		await unmarkSent('20260022');
+
+		expect(await readFile(path)).toEqual(signed);
+	});
+
+	it('odeslaný podepsaný doklad nepřepíše', async () => {
+		const path = await saveNumbered('20260023');
+		await markSent('20260023');
+		await rewriteIsdoc(path, (xml) =>
+			xml.replace('</Invoice>', '<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#"/></Invoice>'),
+		);
+		const signed = await readFile(path);
+
+		await expect(unmarkSent('20260023')).rejects.toThrow(
+			new Error('ISDOC dokladu 20260023 obsahuje elektronický podpis. Zápis stavu odeslání by ho zneplatnil.'),
+		);
+
+		expect(await readFile(path)).toEqual(signed);
+	});
+
+	it('chybějící doklad se ohlásí', async () => {
+		await expect(unmarkSent('20269999')).rejects.toThrow(new Error('Fakturu 20269999 se nepodařilo najít.'));
+	});
+
+	it('nečitelné PDF se ohlásí s důvodem', async () => {
+		await mkdir(join(base, 'faktury'));
+		await writeFile(join(base, 'faktury', '20260024.pdf'), 'not a pdf');
+
+		await expect(unmarkSent('20260024')).rejects.toThrow(
+			expect.objectContaining({
+				message: expect.stringContaining(
+					'Doklad 20260024 nejde přečíst, proto ho nelze vrátit mezi neodeslané:',
+				),
+			}),
+		);
+	});
+});
+
 describe('doklad, který označit nejde', () => {
 	it('chybějící doklad se ohlásí a nic se nezaloží', async () => {
 		await expect(markSent('20269999')).rejects.toThrow(new Error('Fakturu 20269999 se nepodařilo najít.'));
@@ -214,7 +281,7 @@ describe('doklad, který označit nejde', () => {
 	it('PDF bez ISDOC ani s neplatným ISDOC se nezmění', async () => {
 		const invalid = await saveNumbered('20260011');
 		const bare = join(base, 'faktury', '20260010.pdf');
-		await writeFile(bare, await savePdf(await samplePdf()));
+		await writeFile(bare, await (await samplePdf()).save());
 		await rewriteIsdoc(invalid, () => '<Invoice/>');
 		const originals = [await readFile(bare), await readFile(invalid)];
 

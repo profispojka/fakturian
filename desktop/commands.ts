@@ -11,7 +11,7 @@ import { importDocuments } from './invoice/import.ts';
 import { listInvoices, listUsedNumbers } from './invoice/index.ts';
 import { exportInvoicePdf, loadInvoice, saveInvoice } from './invoice/mod.ts';
 import { previewInvoice } from './invoice/preview.ts';
-import { markInvoiceSent } from './invoice/status.ts';
+import { markInvoiceSent, unmarkInvoiceSent } from './invoice/status.ts';
 import { log } from './log.ts';
 import { mailComposeWithAttachment } from './mail.ts';
 import { type Bridge, mcpConnector } from './mcp/mod.ts';
@@ -176,6 +176,7 @@ export function commands(shell: Shell, bridge: Bridge) {
 		received_path: command(receivedFile, receivedPath),
 		list_used_numbers: command(vault, listUsedNumbers),
 		mark_invoice_sent: command(numbered, markInvoiceSent),
+		unmark_invoice_sent: command(numbered, unmarkInvoiceSent),
 		delete_invoice: command(numbered, deleteInvoice),
 		save_invoice: command(
 			z.strictObject({
