@@ -204,7 +204,7 @@ describe('čtecí nástroje', () => {
 		const id = backend.mcp.call('get_invoice', {});
 
 		const reply = await replyTo(id);
-		expect(reply.error).toBe('Neplatné argumenty (number: Neplatný vstup: očekáváno řetězec, obdrženo undefined).');
+		expect(reply.error).toBe('Neplatné argumenty (Neplatný vstup: očekáváno řetězec, obdrženo undefined).');
 	});
 
 	it('list_contacts vrací jen přehledové údaje odběratele', async () => {
@@ -320,7 +320,7 @@ describe('čtecí nástroje', () => {
 			const reply = await replyTo(id);
 			expect(reply).toEqual({
 				result: null,
-				error: 'Neplatné argumenty (year: Zadej rok jako RRRR.).',
+				error: 'Neplatné argumenty (Zadej rok jako RRRR.).',
 			});
 		},
 	);

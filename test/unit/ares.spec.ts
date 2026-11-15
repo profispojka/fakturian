@@ -144,14 +144,14 @@ describe('parseAres', () => {
 				obchodniJmeno: 'Acme',
 				ico: ['1'],
 			},
-			'ico: Neplatný vstup: očekáváno řetězec, obdrženo pole',
+			'Neplatný vstup: očekáváno řetězec, obdrženo pole',
 		],
 		[
 			{
 				obchodniJmeno: 'Acme',
 				sidlo: 'Praha',
 			},
-			'sidlo: Neplatný vstup: očekáváno object, obdrženo řetězec',
+			'Neplatný vstup: očekáváno object, obdrženo řetězec',
 		],
 		[
 			{
@@ -160,21 +160,21 @@ describe('parseAres', () => {
 					psc: '11000',
 				},
 			},
-			'sidlo.psc: Neplatný vstup: očekáváno číslo, obdrženo řetězec',
+			'Neplatný vstup: očekáváno číslo, obdrženo řetězec',
 		],
 		[
 			{
 				obchodniJmeno: 'Acme',
 				seznamRegistraci: 'AKTIVNI',
 			},
-			'seznamRegistraci: Neplatný vstup: očekáváno object, obdrženo řetězec',
+			'Neplatný vstup: očekáváno object, obdrženo řetězec',
 		],
 		[
 			{
 				ico: '27082440',
 				obchodniJmeno: ['Acme'],
 			},
-			'obchodniJmeno: Neplatný vstup: očekáváno řetězec, obdrženo pole',
+			'Neplatný vstup: očekáváno řetězec, obdrženo pole',
 		],
 		[null, 'Neplatný vstup: očekáváno object, obdrženo null'],
 		[[1, 2, 3], 'Neplatný vstup: očekáváno object, obdrženo pole'],

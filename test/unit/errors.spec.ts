@@ -20,7 +20,7 @@ describe('errorText', () => {
 		const result = z.object({ ico: z.string() }).safeParse({ ico: 7 });
 		expect(result.success).toBe(false);
 		if (result.success) return;
-		expect(errorText(result.error)).toBe(`ico: ${result.error.issues[0]?.message}`);
+		expect(errorText(result.error)).toBe(result.error.issues[0]?.message);
 	});
 
 	it('na čemkoli jiném skončí u jeho textové podoby', () => {
@@ -30,7 +30,7 @@ describe('errorText', () => {
 });
 
 describe('issuesText', () => {
-	it('problém bez cesty nechá bez dvojtečky', () => {
+	it('vypíše větu problému bez jména pole', () => {
 		const result = z.string().safeParse(7);
 		expect(result.success).toBe(false);
 		if (result.success) return;
@@ -53,10 +53,10 @@ describe('issuesText', () => {
 		expect(result.success).toBe(false);
 		if (result.success) return;
 		const [a, b, c] = result.error.issues.map((issue) => issue.message);
-		expect(issuesText(result.error)).toBe(`a: ${a}, b: ${b} a c: ${c}`);
+		expect(issuesText(result.error)).toBe(`${a}, ${b} a ${c}`);
 	});
 
-	it('vnořené pole nese celou cestu', () => {
+	it('u vnořeného pole nelepí cestu', () => {
 		const schema = z.object({
 			address: z.object({
 				zip: z.string(),
@@ -69,6 +69,6 @@ describe('issuesText', () => {
 		});
 		expect(result.success).toBe(false);
 		if (result.success) return;
-		expect(issuesText(result.error)).toBe(`address.zip: ${result.error.issues[0]?.message}`);
+		expect(issuesText(result.error)).toBe(result.error.issues[0]?.message);
 	});
 });

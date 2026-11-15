@@ -189,7 +189,7 @@ describe('doklad z webview', () => {
 				...invoice(),
 				documentType: 3,
 			}),
-		).toThrow(new Error('Doklad má neplatný tvar (documentType: Neznámý typ dokladu 3.).'));
+		).toThrow(new Error('Doklad má neplatný tvar (Neznámý typ dokladu 3.).'));
 	});
 
 	it('data vystavení a splatnosti jsou povinná, původní smí být prázdné, a každé je RRRR-MM-DD', () => {
@@ -217,7 +217,7 @@ describe('doklad z webview', () => {
 					...invoice(),
 					[field]: value,
 				}),
-			).toThrow(new Error(`Doklad má neplatný tvar (${field}: Datum musí být ve tvaru RRRR-MM-DD.).`));
+			).toThrow(new Error(`Doklad má neplatný tvar (Datum musí být ve tvaru RRRR-MM-DD.).`));
 		}
 	});
 
@@ -229,7 +229,7 @@ describe('doklad z webview', () => {
 					...invoice(),
 					number: undefined,
 				},
-				'number: Neplatný vstup: očekáváno řetězec, obdrženo undefined',
+				'Neplatný vstup: očekáváno řetězec, obdrženo undefined',
 			],
 			[
 				{
@@ -241,7 +241,7 @@ describe('doklad z webview', () => {
 						},
 					],
 				},
-				'lines.0.quantity: Neplatný vstup: očekáváno číslo, obdrženo NaN',
+				'Neplatný vstup: očekáváno číslo, obdrženo NaN',
 			],
 			[
 				{
@@ -253,7 +253,7 @@ describe('doklad z webview', () => {
 						},
 					],
 				},
-				'lines.0.unitPriceCents: Neplatný vstup: očekáváno int, obdrženo číslo',
+				'Neplatný vstup: očekáváno int, obdrženo číslo',
 			],
 			[
 				{
@@ -265,7 +265,7 @@ describe('doklad z webview', () => {
 						},
 					],
 				},
-				'lines.0.usageYear: Hodnota je příliš malá: number musí být >=1000',
+				'Hodnota je příliš malá: number musí být >=1000',
 			],
 			[
 				{
@@ -285,7 +285,7 @@ describe('doklad z webview', () => {
 				...invoice(),
 				documentType: 7,
 			}),
-		).rejects.toThrow(new Error('Doklad má neplatný tvar (documentType: Neznámý typ dokladu 7.).'));
+		).rejects.toThrow(new Error('Doklad má neplatný tvar (Neznámý typ dokladu 7.).'));
 		expect(await names(base)).toEqual([]);
 	});
 });

@@ -165,7 +165,7 @@ describe('kontakty z importu', () => {
 			refused: [
 				{
 					name: 'Gama',
-					reason: 'ico: Povinné pole.',
+					reason: 'Povinné pole.',
 				},
 			],
 		});

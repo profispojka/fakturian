@@ -62,7 +62,7 @@ async function emailInvoice(i: InvoiceSummary) {
 		const { subject, body } = defaultInvoiceMail(inv.number, i.totalCents);
 		await emailWithAttachment(inv.customer.email, subject, body, i.path);
 		if (i.sentAt) return;
-		await markSent(i.number);
+		await markSent(i.number, () => void refresh());
 		await refresh();
 	} catch (e) {
 		status.error('E-mail se nepodařilo připravit', e);

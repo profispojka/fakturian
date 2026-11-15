@@ -87,17 +87,6 @@
   tentýž doklad importovaný mezi faktury (`intoInvoice`) vyjde na 1 000 Kč. Fixture
   `desktop/test/fixtures/zaokrouhleni.isdoc` na částku výdaje žádný test nekontroluje.
 
-- **UI-46 · Průvodce při převzetí nepoužije zadané IČO — NÍZKÁ.**
-  `afterVaultPicked` (`components/vault/Wizard.vue`) volá `useAdopt.refresh()` se
-  `supplier.value?.ico`, který je ve složce bez nastavení `null`; `deriveOurIco`
-  (`desktop/adopt.ts`) pak rozhodne podle většiny dokladů. Složka s převahou dokladů od jednoho
-  neplátce-subdodavatele se nabídne jako vlastní vydané faktury.
-
-- **UI-47 · Hláška o poškozeném datovém souboru jmenuje pole z kódu — NÍZKÁ.**
-  `issuesText` (`src/utils/errors.ts`) lepí `issue.path.join('.')`, takže `useVaultFile.load`
-  a `save` hlásí „(supplier.bankAccount: …)" a import výdaje „Přijatý doklad se nepodařilo
-  přečíst: supplier: …".
-
 - **DATA-28 · Zálohy odeslaných faktur se neuklízejí — NÍZKÁ.**
   `saveSnapshot` (`desktop/store.ts`) maže kopie starší `SNAPSHOT_WEEKS` jen při dalším zápisu téhož
   čísla. `markInvoiceSent` (`desktop/invoice/status.ts`) uloží zálohu neodeslané verze, která pak

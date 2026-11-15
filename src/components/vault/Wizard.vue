@@ -115,7 +115,7 @@ function continueFromIco() {
 }
 
 async function afterVaultPicked() {
-	const scan = await refreshAdopt();
+	const scan = await refreshAdopt(typedIco.value);
 	if (scan?.candidates.length) {
 		error.value = '';
 		step.value = 'adopt';
@@ -130,7 +130,7 @@ async function onAdopt() {
 	busy.value = true;
 	error.value = '';
 	try {
-		await adopt(scan);
+		await adopt(scan, typedIco.value);
 		await load();
 		await refreshMenuStats();
 		afterVaultStep();

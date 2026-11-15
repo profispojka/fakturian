@@ -21,14 +21,14 @@ export function useAdopt() {
 	const scanError = useState<string>('adoptScanError', () => '');
 
 	// Nic nemění. Chyba se nepropaguje — je to nabídka navíc, kvůli které nemá výpis faktur zhasnout.
-	async function refresh(): Promise<AdoptScan | null> {
+	async function refresh(ico = supplier.value?.ico || null): Promise<AdoptScan | null> {
 		scanError.value = '';
 		if (!vaultPath.value) {
 			scan.value = null;
 			return null;
 		}
 		try {
-			scan.value = await importServices.scan(vaultPath.value, supplier.value?.ico || null);
+			scan.value = await importServices.scan(vaultPath.value, ico);
 		} catch (e) {
 			scan.value = null;
 			scanError.value = errorText(e);
@@ -48,11 +48,13 @@ export function useAdopt() {
 		return supplierReadyForInvoicing(draft);
 	}
 
-	async function adopt(scanned: AdoptScan): Promise<AdoptResult> {
-		const ourIco = supplier.value?.ico || scanned.supplier?.ico || null;
+	async function adopt(
+		scanned: AdoptScan,
+		ico = supplier.value?.ico || scanned.supplier?.ico || null,
+	): Promise<AdoptResult> {
 		const { report, addedContacts } = await adoptFiles(
 			scanned.candidates.map((c) => c.path),
-			ourIco,
+			ico,
 		);
 		const supplierFilled = await fillSupplier(scanned.supplier);
 		scan.value = null;

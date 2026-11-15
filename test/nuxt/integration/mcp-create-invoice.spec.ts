@@ -251,7 +251,7 @@ describe('obsah a kontroly vystavené faktury', () => {
 			],
 		});
 
-		expect(reply.error).toBe('Neplatné argumenty (lines.0.quantity: Zadej číslo.).');
+		expect(reply.error).toBe('Neplatné argumenty (Zadej číslo.).');
 		expect(backend.args('save_invoice')).toEqual([]);
 	});
 
@@ -367,7 +367,7 @@ describe('obsah a kontroly vystavené faktury', () => {
 			],
 		});
 
-		expect(reply.error).toBe('Neplatné argumenty (lines.0.quantity: Zadej nejvýš dvě desetinná místa.).');
+		expect(reply.error).toBe('Neplatné argumenty (Zadej nejvýš dvě desetinná místa.).');
 	});
 
 	it('množství přesnější než na setiny odmítne jako formulář', async () => {
@@ -381,7 +381,7 @@ describe('obsah a kontroly vystavené faktury', () => {
 			],
 		});
 
-		expect(reply.error).toBe('Neplatné argumenty (lines.0.quantity: Zadej nejvýš dvě desetinná místa.).');
+		expect(reply.error).toBe('Neplatné argumenty (Zadej nejvýš dvě desetinná místa.).');
 	});
 });
 

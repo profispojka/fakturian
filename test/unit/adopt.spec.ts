@@ -166,14 +166,14 @@ describe('čištění údajů z cizího dokladu', () => {
 		).toEqual([
 			{
 				name: 'Acme s.r.o.',
-				reason: 'address.zip: PSČ má 5 číslic.',
+				reason: 'PSČ má 5 číslic.',
 			},
 		]);
 		// `?bcc=` by se v `mailto:` stal další hlavičkou.
 		expect(refused({ email: 'klient@firma.cz?bcc=utocnik@evil.example' }).refused).toEqual([
 			{
 				name: 'Acme s.r.o.',
-				reason: 'email: Neplatný e-mail.',
+				reason: 'Neplatný e-mail.',
 			},
 		]);
 		expect(
@@ -184,7 +184,7 @@ describe('čištění údajů z cizího dokladu', () => {
 		).toEqual([
 			{
 				name: 'odběratel bez jména',
-				reason: 'name: Povinné pole. a ico: Povinné pole.',
+				reason: 'Povinné pole. a Povinné pole.',
 			},
 		]);
 		// E-mail ISDOC většinou nenese; odběratel bez něj se založit musí.

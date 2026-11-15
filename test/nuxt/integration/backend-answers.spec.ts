@@ -306,7 +306,7 @@ describe('faktura načtená z vaultu', () => {
 		});
 
 		await expect(useNuxtApp().vueApp.runWithContext(useInvoices).load('20260005')).rejects.toThrow(
-			new Error('Doklad má poškozený obsah (issueDate: Datum musí být ve tvaru RRRR-MM-DD.).'),
+			new Error('Doklad má poškozený obsah (Datum musí být ve tvaru RRRR-MM-DD.).'),
 		);
 	});
 
@@ -341,7 +341,7 @@ describe('faktura načtená z vaultu', () => {
 
 		await expect(useNuxtApp().vueApp.runWithContext(useInvoices).load('20260005')).rejects.toThrow(
 			new Error(
-				'Doklad má poškozený obsah (lines.0.itemId: Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
+				'Doklad má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
 			),
 		);
 	});
@@ -361,7 +361,7 @@ describe('faktura načtená z vaultu', () => {
 		});
 
 		await expect(useNuxtApp().vueApp.runWithContext(useInvoices).load('20260005')).rejects.toThrow(
-			new Error('Doklad má poškozený obsah (customer: Neznámé klíče: "newFieldFromBackend").'),
+			new Error('Doklad má poškozený obsah (Neznámé klíče: "newFieldFromBackend").'),
 		);
 	});
 });
@@ -390,7 +390,7 @@ describe('souhrn dokladu v seznamu', () => {
 		});
 
 		await expect(useNuxtApp().vueApp.runWithContext(useInvoices).list()).rejects.toThrow(
-			new Error('Seznam faktur má poškozený obsah (items.1.issueDate: Datum musí být ve tvaru RRRR-MM-DD.).'),
+			new Error('Seznam faktur má poškozený obsah (Datum musí být ve tvaru RRRR-MM-DD.).'),
 		);
 	});
 
@@ -401,7 +401,7 @@ describe('souhrn dokladu v seznamu', () => {
 		});
 
 		await expect(useNuxtApp().vueApp.runWithContext(useInvoices).list()).rejects.toThrow(
-			new Error('Seznam faktur má poškozený obsah (items.0: Neznámé klíče: "newFieldFromBackend").'),
+			new Error('Seznam faktur má poškozený obsah (Neznámé klíče: "newFieldFromBackend").'),
 		);
 	});
 
@@ -418,7 +418,7 @@ describe('souhrn dokladu v seznamu', () => {
 
 		await expect(useNuxtApp().vueApp.runWithContext(useInvoices).list()).rejects.toThrow(
 			new Error(
-				'Seznam faktur má poškozený obsah (items.0.totalCents: Neplatný vstup: očekáváno int, obdrženo číslo).',
+				'Seznam faktur má poškozený obsah (Neplatný vstup: očekáváno int, obdrženo číslo).',
 			),
 		);
 	});
@@ -440,7 +440,7 @@ describe('příchozí platba z Fio', () => {
 		backend.returns('fio_fetch', [withExtraField(PAYMENT)]);
 
 		await expect(useFio().fetchPayments(date('2026-03-01'), date('2026-03-31'))).rejects.toThrow(
-			new Error('Výpis z Fia má poškozený obsah (0: Neznámé klíče: "newFieldFromBackend").'),
+			new Error('Výpis z Fia má poškozený obsah (Neznámé klíče: "newFieldFromBackend").'),
 		);
 	});
 
@@ -453,7 +453,7 @@ describe('příchozí platba z Fio', () => {
 		]);
 
 		await expect(useFio().fetchPayments(date('2026-03-01'), date('2026-03-31'))).rejects.toThrow(
-			new Error('Výpis z Fia má poškozený obsah (0.amountCents: Neplatný vstup: očekáváno int, obdrženo číslo).'),
+			new Error('Výpis z Fia má poškozený obsah (Neplatný vstup: očekáváno int, obdrženo číslo).'),
 		);
 	});
 });
@@ -483,7 +483,7 @@ describe('report importu', () => {
 		});
 
 		await expect(useNuxtApp().vueApp.runWithContext(useImport).importFiles(['/a.pdf'])).rejects.toThrow(
-			new Error('Zpráva o importu má poškozený obsah (imported.0: Neznámé klíče: "newFieldFromBackend").'),
+			new Error('Zpráva o importu má poškozený obsah (Neznámé klíče: "newFieldFromBackend").'),
 		);
 	});
 
@@ -500,7 +500,7 @@ describe('report importu', () => {
 
 		await expect(useNuxtApp().vueApp.runWithContext(useImport).importFiles(['/a.pdf'])).rejects.toThrow(
 			new Error(
-				'Zpráva o importu má poškozený obsah (imported.0.totalCents: Neplatný vstup: očekáváno int, obdrženo číslo).',
+				'Zpráva o importu má poškozený obsah (Neplatný vstup: očekáváno int, obdrženo číslo).',
 			),
 		);
 	});

@@ -58,11 +58,11 @@ describe('zapamatovaná datová složka', () => {
 
 	it('relativní cesta ani jiná hodnota než text se neuloží', async () => {
 		await expect(saveVaultPath({ vaultPath: 'Documents/Fakturian' })).rejects.toThrow(
-			new Error('Cestu k datové složce nejde uložit (vaultPath: Cesta musí být absolutní.).'),
+			new Error('Cestu k datové složce nejde uložit (Cesta musí být absolutní.).'),
 		);
 		await expect(saveVaultPath(JSON.parse('{"vaultPath":42}'))).rejects.toThrow(
 			new Error(
-				'Cestu k datové složce nejde uložit (vaultPath: Neplatný vstup: očekáváno řetězec, obdrženo číslo).',
+				'Cestu k datové složce nejde uložit (Neplatný vstup: očekáváno řetězec, obdrženo číslo).',
 			),
 		);
 		expect(await loadVaultPath()).toBe(null);
@@ -98,8 +98,8 @@ describe('zapamatovaná datová složka', () => {
 				'je poškozené.',
 				expect.objectContaining({ code: 'ERR_ENCODING_INVALID_ENCODED_DATA' }),
 			],
-			['{}', 'je poškozené (vaultPath: Neplatný vstup: očekáváno řetězec, obdrženo undefined).'],
-			['{"vaultPath":"Fakturian"}', 'je poškozené (vaultPath: Cesta musí být absolutní.).'],
+			['{}', 'je poškozené (Neplatný vstup: očekáváno řetězec, obdrženo undefined).'],
+			['{"vaultPath":"Fakturian"}', 'je poškozené (Cesta musí být absolutní.).'],
 			['{"vaultPath":"/Users/jana/Fakturian","theme":"dark"}', 'je poškozené (Neznámé klíče: "theme").'],
 			['["/Users/jana/Fakturian"]', 'je poškozené (Neplatný vstup: očekáváno object, obdrženo pole).'],
 		] as const) {

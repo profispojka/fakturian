@@ -89,7 +89,7 @@ describe('brána příkazů', () => {
 
 		expect(await entry.invoke('ensure_vault', { vaultPath: 42 })).toEqual({
 			ok: false,
-			error: `Příkaz ensure_vault dostal neplatné argumenty (vaultPath: ${STRING_GOT} číslo).`,
+			error: `Příkaz ensure_vault dostal neplatné argumenty (${STRING_GOT} číslo).`,
 		});
 		expect(await entry.invoke('ensure_vault', undefined)).toEqual({
 			ok: false,
@@ -122,7 +122,7 @@ describe('brána příkazů', () => {
 			},
 			{
 				ok: false,
-				error: `number: ${STRING_GOT} undefined`,
+				error: `${STRING_GOT} undefined`,
 			},
 		]);
 	});
@@ -199,9 +199,9 @@ describe('brána příkazů', () => {
 
 // Jeden platný a jeden neplatný vstup každého příkazu a hláška, kterou neplatný dostane.
 const CASES: [string, unknown, unknown, string][] = [
-	['ensure_vault', { vaultPath: VAULT }, { vaultPath: 42 }, `vaultPath: ${STRING_GOT} číslo`],
-	['check_vault', { vaultPath: VAULT }, { vaultPath: null }, `vaultPath: ${STRING_GOT} null`],
-	['vault_logo_state', { vaultPath: VAULT }, {}, `vaultPath: ${STRING_GOT} undefined`],
+	['ensure_vault', { vaultPath: VAULT }, { vaultPath: 42 }, `${STRING_GOT} číslo`],
+	['check_vault', { vaultPath: VAULT }, { vaultPath: null }, `${STRING_GOT} null`],
+	['vault_logo_state', { vaultPath: VAULT }, {}, `${STRING_GOT} undefined`],
 	[
 		'set_vault_logo',
 		{
@@ -209,7 +209,7 @@ const CASES: [string, unknown, unknown, string][] = [
 			source: '/Users/jana/logo.png',
 		},
 		{ vaultPath: VAULT },
-		`source: ${STRING_GOT} undefined`,
+		`${STRING_GOT} undefined`,
 	],
 	[
 		'remove_vault_logo',
@@ -230,7 +230,7 @@ const CASES: [string, unknown, unknown, string][] = [
 			vaultPath: VAULT,
 			name: null,
 		},
-		`name: ${STRING_GOT} null`,
+		`${STRING_GOT} null`,
 	],
 	[
 		'write_data_file',
@@ -244,7 +244,7 @@ const CASES: [string, unknown, unknown, string][] = [
 			name: 'platby.json',
 			json: 7,
 		},
-		`json: ${STRING_GOT} číslo`,
+		`${STRING_GOT} číslo`,
 	],
 	['snapshots_path', { vaultPath: VAULT }, null, 'Neplatný vstup: očekáváno object, obdrženo null'],
 	[
@@ -259,7 +259,7 @@ const CASES: [string, unknown, unknown, string][] = [
 			paths: '/Users/jana/faktura.pdf',
 			ourIco: null,
 		},
-		'paths: Neplatný vstup: očekáváno pole, obdrženo řetězec',
+		'Neplatný vstup: očekáváno pole, obdrženo řetězec',
 	],
 	[
 		'scan_vault',
@@ -268,7 +268,7 @@ const CASES: [string, unknown, unknown, string][] = [
 			ourIco: '12345679',
 		},
 		{ vaultPath: VAULT },
-		`ourIco: ${STRING_GOT} undefined`,
+		`${STRING_GOT} undefined`,
 	],
 	[
 		'adopt_documents',
@@ -282,7 +282,7 @@ const CASES: [string, unknown, unknown, string][] = [
 			paths: [1],
 			ourIco: null,
 		},
-		`paths.0: ${STRING_GOT} číslo`,
+		`${STRING_GOT} číslo`,
 	],
 	[
 		'mail_compose_with_attachment',
@@ -299,7 +299,7 @@ const CASES: [string, unknown, unknown, string][] = [
 			subject: 'Faktura',
 			body: 'Dobrý den',
 		},
-		`attachment: ${STRING_GOT} undefined`,
+		`${STRING_GOT} undefined`,
 	],
 	[
 		'import_received',
@@ -311,9 +311,9 @@ const CASES: [string, unknown, unknown, string][] = [
 			vaultPath: VAULT,
 			sourcePath: 1,
 		},
-		`sourcePath: ${STRING_GOT} číslo`,
+		`${STRING_GOT} číslo`,
 	],
-	['list_broken_received', { vaultPath: VAULT }, { vaultPath: [VAULT] }, `vaultPath: ${STRING_GOT} pole`],
+	['list_broken_received', { vaultPath: VAULT }, { vaultPath: [VAULT] }, `${STRING_GOT} pole`],
 	[
 		'remove_received',
 		{
@@ -321,7 +321,7 @@ const CASES: [string, unknown, unknown, string][] = [
 			file: 'doklad.pdf',
 		},
 		{ vaultPath: VAULT },
-		`file: ${STRING_GOT} undefined`,
+		`${STRING_GOT} undefined`,
 	],
 	[
 		'received_path',
@@ -333,7 +333,7 @@ const CASES: [string, unknown, unknown, string][] = [
 			vaultPath: VAULT,
 			file: 7,
 		},
-		`file: ${STRING_GOT} číslo`,
+		`${STRING_GOT} číslo`,
 	],
 	['list_used_numbers', { vaultPath: VAULT }, [VAULT], 'Neplatný vstup: očekáváno object, obdrženo pole'],
 	[
@@ -346,7 +346,7 @@ const CASES: [string, unknown, unknown, string][] = [
 			vaultPath: VAULT,
 			number: 20260001,
 		},
-		`number: ${STRING_GOT} číslo`,
+		`${STRING_GOT} číslo`,
 	],
 	[
 		'unmark_invoice_sent',
@@ -358,7 +358,7 @@ const CASES: [string, unknown, unknown, string][] = [
 			vaultPath: VAULT,
 			number: 20260001,
 		},
-		`number: ${STRING_GOT} číslo`,
+		`${STRING_GOT} číslo`,
 	],
 	[
 		'delete_invoice',
@@ -387,7 +387,7 @@ const CASES: [string, unknown, unknown, string][] = [
 			invoice: {},
 			isNew: 'ano',
 		},
-		'isNew: Neplatný vstup: očekáváno boolean, obdrženo řetězec',
+		'Neplatný vstup: očekáváno boolean, obdrženo řetězec',
 	],
 	[
 		'preview_invoice',
@@ -399,7 +399,7 @@ const CASES: [string, unknown, unknown, string][] = [
 			vaultPath: VAULT,
 			invoice: [],
 		},
-		'invoice: Neplatný vstup: očekáváno record, obdrženo pole',
+		'Neplatný vstup: očekáváno record, obdrženo pole',
 	],
 	[
 		'load_invoice',
@@ -408,7 +408,7 @@ const CASES: [string, unknown, unknown, string][] = [
 			number: '20260001',
 		},
 		{ number: '20260001' },
-		`vaultPath: ${STRING_GOT} undefined`,
+		`${STRING_GOT} undefined`,
 	],
 	[
 		'export_invoice_pdf',
@@ -421,10 +421,10 @@ const CASES: [string, unknown, unknown, string][] = [
 			vaultPath: VAULT,
 			number: '20260001',
 		},
-		`target: ${STRING_GOT} undefined`,
+		`${STRING_GOT} undefined`,
 	],
 	['list_invoices', { vaultPath: VAULT }, VAULT, 'Neplatný vstup: očekáváno object, obdrženo řetězec'],
-	['fio_set_token', { token: 'token' }, { token: null }, `token: ${STRING_GOT} null`],
+	['fio_set_token', { token: 'token' }, { token: null }, `${STRING_GOT} null`],
 	['fio_has_token', {}, { token: 'token' }, 'Neznámé klíče: "token"'],
 	['fio_clear_token', {}, null, 'Neplatný vstup: očekáváno object, obdrženo null'],
 	[
@@ -437,9 +437,9 @@ const CASES: [string, unknown, unknown, string][] = [
 			from: 20260501,
 			to: '2026-05-31',
 		},
-		`from: ${STRING_GOT} číslo`,
+		`${STRING_GOT} číslo`,
 	],
-	['ares_subject', { ico: '12345679' }, { ico: 12345679 }, `ico: ${STRING_GOT} číslo`],
+	['ares_subject', { ico: '12345679' }, { ico: 12345679 }, `${STRING_GOT} číslo`],
 	['mcp_attach', {}, { session: 1 }, 'Neznámé klíče: "session"'],
 	[
 		'mcp_send',
@@ -451,11 +451,11 @@ const CASES: [string, unknown, unknown, string][] = [
 			session: 0,
 			line: '{}',
 		},
-		'session: Hodnota je příliš malá: number musí být >0',
+		'Hodnota je příliš malá: number musí být >0',
 	],
 	['mcp_socket_path', {}, { path: '/tmp/mcp.sock' }, 'Neznámé klíče: "path"'],
 	['mcp_connector', {}, null, 'Neplatný vstup: očekáváno object, obdrženo null'],
-	['pick_folder', { defaultPath: VAULT }, {}, `defaultPath: ${STRING_GOT} undefined`],
+	['pick_folder', { defaultPath: VAULT }, {}, `${STRING_GOT} undefined`],
 	[
 		'pick_files',
 		{
@@ -468,7 +468,7 @@ const CASES: [string, unknown, unknown, string][] = [
 			extensions: ['pdf'],
 			multiple: 'true',
 		},
-		'multiple: Neplatný vstup: očekáváno boolean, obdrženo řetězec',
+		'Neplatný vstup: očekáváno boolean, obdrženo řetězec',
 	],
 	[
 		'pick_save_path',
@@ -482,10 +482,10 @@ const CASES: [string, unknown, unknown, string][] = [
 			filterName: 'PDF',
 			extensions: [],
 		},
-		'extensions: Dialog potřebuje aspoň jednu příponu.',
+		'Dialog potřebuje aspoň jednu příponu.',
 	],
-	['open_url', { url: 'https://binaro.cz' }, { url: null }, `url: ${STRING_GOT} null`],
-	['reveal_path', { path: VAULT }, { path: 1 }, `path: ${STRING_GOT} číslo`],
+	['open_url', { url: 'https://binaro.cz' }, { url: null }, `${STRING_GOT} null`],
+	['reveal_path', { path: VAULT }, { path: 1 }, `${STRING_GOT} číslo`],
 	[
 		'notify',
 		{
@@ -493,17 +493,17 @@ const CASES: [string, unknown, unknown, string][] = [
 			body: 'Faktura odeslána',
 		},
 		{ title: 'Fakturian' },
-		`body: ${STRING_GOT} undefined`,
+		`${STRING_GOT} undefined`,
 	],
 	['home_dir', {}, { home: '/Users/jana' }, 'Neznámé klíče: "home"'],
 	['default_vault_path', {}, null, 'Neplatný vstup: očekáváno object, obdrženo null'],
 	['load_vault_path', {}, { vaultPath: VAULT }, 'Neznámé klíče: "vaultPath"'],
-	['save_vault_path', { vaultPath: VAULT }, { vaultPath: null }, `vaultPath: ${STRING_GOT} null`],
+	['save_vault_path', { vaultPath: VAULT }, { vaultPath: null }, `${STRING_GOT} null`],
 	[
 		'set_window_theme',
 		{ theme: 'dark' },
 		{ theme: 'system' },
-		'theme: Neplatná možnost: očekávána jedna z hodnot "light"|"dark"',
+		'Neplatná možnost: očekávána jedna z hodnot "light"|"dark"',
 	],
 	['close_window', {}, { force: true }, 'Neznámé klíče: "force"'],
 ];

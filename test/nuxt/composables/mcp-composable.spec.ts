@@ -19,7 +19,7 @@ import { mountUi } from '../../setup/mount';
 import { prepareVault } from '../../setup/vault';
 
 const BROKEN_PAYMENTS =
-	'Soubor platby.json má poškozený obsah (payments: Neplatný vstup: očekáváno record, obdrženo řetězec).';
+	'Soubor platby.json má poškozený obsah (Neplatný vstup: očekáváno record, obdrženo řetězec).';
 
 async function vaultWithBrokenPayments(): Promise<void> {
 	await expect(
@@ -81,7 +81,7 @@ describe('protokol', () => {
 					error: {
 						code: -32_602,
 						message:
-							'Neplatné volání nástroje (params.name: Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
+							'Neplatné volání nástroje (Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
 					},
 				},
 			]),
@@ -151,7 +151,7 @@ describe('protokol', () => {
 		expect(backend.args('mcp_send')).toEqual([]);
 		expect(toasts('Agent poslal zprávu, které appka nerozumí')).toEqual([
 			{
-				description: 'method: Neplatný vstup',
+				description: 'Neplatný vstup',
 				color: 'warning',
 			},
 		]);
@@ -165,7 +165,7 @@ describe('protokol', () => {
 
 		expect(toasts('MCP most poslal nečitelnou zprávu')).toEqual([
 			{
-				description: 'session: Neplatný vstup: očekáváno číslo, obdrženo řetězec',
+				description: 'Neplatný vstup: očekáváno číslo, obdrženo řetězec',
 				color: 'error',
 			},
 		]);

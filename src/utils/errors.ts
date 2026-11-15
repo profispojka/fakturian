@@ -14,9 +14,5 @@ export function errorText(cause: unknown): string {
 const ISSUE_LIMIT = 3;
 
 export function issuesText(error: Zod.ZodError): string {
-	const issues = error.issues.slice(0, ISSUE_LIMIT).map((issue) => {
-		if (issue.path.length) return `${issue.path.join('.')}: ${issue.message}`;
-		return issue.message;
-	});
-	return czechList.format(issues);
+	return czechList.format(error.issues.slice(0, ISSUE_LIMIT).map((issue) => issue.message));
 }

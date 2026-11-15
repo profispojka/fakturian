@@ -103,7 +103,7 @@ describe('expenseServices', () => {
 		expect(await expenseServices.importReceived('/vault', '/source')).toEqual({
 			success: false,
 			file: 'a.pdf',
-			error: 'Přijatý doklad se nepodařilo přečíst: amountCents: Neplatný vstup: očekáváno číslo, obdrženo řetězec',
+			error: 'Přijatý doklad se nepodařilo přečíst: Neplatný vstup: očekáváno číslo, obdrženo řetězec',
 		});
 	});
 	it('odpověď bez objektu vrátí bez jména kopie', async () => {
@@ -169,17 +169,17 @@ describe('importServices', () => {
 		[
 			'scan',
 			() => importServices.scan('/vault', null),
-			'Nález ve složce má poškozený obsah (candidates: Neplatný vstup: očekáváno pole, obdrženo undefined, skipped: Neplatný vstup: očekáváno pole, obdrženo undefined a supplier: Neplatný vstup: očekáváno object, obdrženo undefined).',
+			'Nález ve složce má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo undefined, Neplatný vstup: očekáváno pole, obdrženo undefined a Neplatný vstup: očekáváno object, obdrženo undefined).',
 		],
 		[
 			'importFiles',
 			() => importServices.importFiles('/vault', [], null),
-			'Zpráva o importu má poškozený obsah (imported: Neplatný vstup: očekáváno pole, obdrženo undefined, skipped: Neplatný vstup: očekáváno pole, obdrženo undefined a customers: Neplatný vstup: očekáváno pole, obdrženo undefined).',
+			'Zpráva o importu má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo undefined, Neplatný vstup: očekáváno pole, obdrženo undefined a Neplatný vstup: očekáváno pole, obdrženo undefined).',
 		],
 		[
 			'adoptFiles',
 			() => importServices.adoptFiles('/vault', [], null),
-			'Zpráva o převzetí má poškozený obsah (imported: Neplatný vstup: očekáváno pole, obdrženo undefined, skipped: Neplatný vstup: očekáváno pole, obdrženo undefined a customers: Neplatný vstup: očekáváno pole, obdrženo undefined).',
+			'Zpráva o převzetí má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo undefined, Neplatný vstup: očekáváno pole, obdrženo undefined a Neplatný vstup: očekáváno pole, obdrženo undefined).',
 		],
 	])('%s odmítne vadnou odpověď', async (_name, call, message) => {
 		invoke.mockResolvedValue({});

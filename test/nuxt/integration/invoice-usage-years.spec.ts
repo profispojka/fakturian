@@ -252,7 +252,7 @@ describe('rok čerpání u řádku faktury', () => {
 		});
 
 		await expect(useNuxtApp().vueApp.runWithContext(useInvoices).load('20260001')).rejects.toThrow(
-			new Error('Doklad má poškozený obsah (lines.0.usageYear: Neplatný vstup: očekáváno int, obdrženo číslo).'),
+			new Error('Doklad má poškozený obsah (Neplatný vstup: očekáváno int, obdrženo číslo).'),
 		);
 	});
 });

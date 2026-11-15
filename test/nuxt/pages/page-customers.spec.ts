@@ -244,7 +244,7 @@ describe('nepovedené načtení', () => {
 			}),
 		).rejects.toThrow(
 			new Error(
-				'Soubor nastaveni.json má poškozený obsah (contacts: Neplatný vstup: očekáváno pole, obdrženo řetězec).',
+				'Soubor nastaveni.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).',
 			),
 		);
 		const c = await mount();

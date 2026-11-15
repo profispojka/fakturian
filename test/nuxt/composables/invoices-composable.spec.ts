@@ -464,7 +464,7 @@ describe('čtení z vaultu', () => {
 
 		await expect(useNuxtApp().vueApp.runWithContext(useInvoices).load('20260001')).rejects.toThrow(
 			new Error(
-				'Doklad má poškozený obsah (uuid: Neplatný vstup: očekáváno řetězec, obdrženo undefined, documentType: Neplatná možnost: očekávána jedna z hodnot 1|2 a originalInvoice: Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
+				'Doklad má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo undefined, Neplatná možnost: očekávána jedna z hodnot 1|2 a Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
 			),
 		);
 	});
@@ -501,7 +501,7 @@ describe('čtení z vaultu', () => {
 
 		await expect(useNuxtApp().vueApp.runWithContext(useInvoices).list()).rejects.toThrow(
 			new Error(
-				'Seznam faktur má poškozený obsah (items.0.totalCents: Neplatný vstup: očekáváno číslo, obdrženo undefined).',
+				'Seznam faktur má poškozený obsah (Neplatný vstup: očekáváno číslo, obdrženo undefined).',
 			),
 		);
 	});

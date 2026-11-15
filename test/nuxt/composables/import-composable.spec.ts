@@ -168,7 +168,7 @@ describe('import dokladů', () => {
 
 		await expect(useNuxtApp().vueApp.runWithContext(useImport).importFiles(['/a.pdf'])).rejects.toThrow(
 			new Error(
-				'Zpráva o importu má poškozený obsah (imported: Neplatný vstup: očekáváno pole, obdrženo řetězec, skipped: Neplatný vstup: očekáváno pole, obdrženo undefined a customers: Neplatný vstup: očekáváno pole, obdrženo undefined).',
+				'Zpráva o importu má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec, Neplatný vstup: očekáváno pole, obdrženo undefined a Neplatný vstup: očekáváno pole, obdrženo undefined).',
 			),
 		);
 	});
@@ -256,7 +256,7 @@ describe('zakládání odběratelů z importu', () => {
 			id: expect.any(String),
 			open: true,
 			title: 'Některé odběratele z dokladů appka nezaložila, chybí jim údaje',
-			description: 'Acme s.r.o. (ico: Povinné pole.) a Studio (address.zip: PSČ má 5 číslic.)',
+			description: 'Acme s.r.o. (Povinné pole.) a Studio (PSČ má 5 číslic.)',
 			color: 'warning',
 		});
 	});
@@ -282,7 +282,7 @@ describe('zakládání odběratelů z importu', () => {
 			open: true,
 			title: 'Některé odběratele z dokladů appka nezaložila, chybí jim údaje',
 			description:
-				'Alfa (ico: Povinné pole.), Beta (ico: Povinné pole.) a\u00A0Gama (ico: Povinné pole.) — a další, celkem 4 odběratelé.',
+				'Alfa (Povinné pole.), Beta (Povinné pole.) a\u00A0Gama (Povinné pole.) — a další, celkem 4 odběratelé.',
 			color: 'warning',
 		});
 	});

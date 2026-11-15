@@ -147,7 +147,7 @@ describe('import přetaženého dokladu', () => {
 		backend.returns('remove_received', null);
 
 		await expect(useNuxtApp().vueApp.runWithContext(useExpenses).importDocument('/x.pdf')).rejects.toThrow(
-			new Error('Přijatý doklad se nepodařilo přečíst: date: Datum musí být ve tvaru RRRR-MM-DD.'),
+			new Error('Přijatý doklad se nepodařilo přečíst: Datum musí být ve tvaru RRRR-MM-DD.'),
 		);
 		expect(backend.args('remove_received')).toEqual([
 			{
@@ -224,7 +224,7 @@ describe('import přetaženého dokladu', () => {
 
 		await expect(useNuxtApp().vueApp.runWithContext(useExpenses).importDocument('/x.pdf')).rejects.toThrow(
 			new Error(
-				'Přijatý doklad se nepodařilo přečíst: supplier: Neplatný vstup: očekáváno řetězec, obdrženo undefined, supplierIco: Neplatný vstup a number: Neplatný vstup: očekáváno řetězec, obdrženo undefined',
+				'Přijatý doklad se nepodařilo přečíst: Neplatný vstup: očekáváno řetězec, obdrženo undefined, Neplatný vstup a Neplatný vstup: očekáváno řetězec, obdrženo undefined',
 			),
 		);
 		expect(backend.args('remove_received')).toEqual([
@@ -401,7 +401,7 @@ describe('kontrola složky prijate/', () => {
 
 		await expect(useNuxtApp().vueApp.runWithContext(useExpenses).checkReceived()).rejects.toThrow(
 			new Error(
-				'Kontrola složky prijate/ vrátila nečitelnou odpověď (0.reason: Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
+				'Kontrola složky prijate/ vrátila nečitelnou odpověď (Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
 			),
 		);
 	});

@@ -354,10 +354,11 @@ Factur-X/ZUGFeRD, jen s českým ISDOC. Model dokladu a jeho vrstvy popisuje
   (`readIsdoc`), XML drží `@xmldom/xmldom`.
 - **pdf-lib běží jen ve workeru `worker.mjs`** z poolu `tinypool`: proudy
   objektů rozbaluje synchronně a bez stropu. Práci ukončí limit 10 s a přírůstek
-  paměti procesu nad 1 GB — rozbalená data leží v `ArrayBuffer` mimo haldu, kam
-  strop haldy 256 MB nedosáhne. Worker běží ve stejném procesu jako appka: PDF
-  s miliony drobných objektů přeteče haldu workeru a V8 to umí ohlásit jako
-  pád celého procesu. Hlavní proces posílá bajty a dostává přílohy, příznak
+  paměti procesu nad 1 GB. Strop haldy workeru (`resourceLimits`) se nepoužívá:
+  rozbalená data leží v `ArrayBuffer` mimo haldu a přetečení haldy workeru V8
+  ohlásí jako pád celého procesu, protože worker běží v procesu appky. Hlídání
+  paměti a času proto zastaví práci hluboko pod výchozí haldou; obojí ověřují
+  testy s proudem rozbaleným na 1,5 GB a se třemi miliony objektů. Hlavní proces posílá bajty a dostává přílohy, příznak
   podpisu nebo bajty nového PDF (`desktop/pdf-document.ts`); odeslání tak PDF
   rozebere dvakrát (`loadPdf` a přepis), což se vědomě přijímá místo držení
   stavu ve workeru. Worker, který se nespustí, hlásí appka jako svou vadu, ne

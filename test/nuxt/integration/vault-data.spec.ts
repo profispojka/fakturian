@@ -109,7 +109,7 @@ describe('načtení všech domén', () => {
 
 		await expect(useNuxtApp().vueApp.runWithContext(useVaultData).load()).rejects.toThrow(
 			new Error(
-				'Soubor vydaje.json má poškozený obsah (expenses: Neplatný vstup: očekáváno pole, obdrženo řetězec).',
+				'Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).',
 			),
 		);
 
@@ -125,7 +125,7 @@ describe('načtení všech domén', () => {
 
 		await expect(useNuxtApp().vueApp.runWithContext(useVaultData).load()).rejects.toThrow(
 			new Error(
-				'Soubor platby.json má poškozený obsah (payments: Neplatný vstup: očekáváno record, obdrženo řetězec).\nSoubor vydaje.json má poškozený obsah (expenses: Neplatný vstup: očekáváno pole, obdrženo řetězec).',
+				'Soubor platby.json má poškozený obsah (Neplatný vstup: očekáváno record, obdrženo řetězec).\nSoubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).',
 			),
 		);
 	});
@@ -149,7 +149,7 @@ describe('načtení všech domén', () => {
 
 		await expect(useNuxtApp().vueApp.runWithContext(useVaultData).load()).rejects.toThrow(
 			new Error(
-				'Soubor nastaveni.json má poškozený obsah (supplier.ico: Neplatný vstup, supplier.address: Neplatný vstup: očekáváno object, obdrženo undefined a supplier.registration: Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
+				'Soubor nastaveni.json má poškozený obsah (Neplatný vstup, Neplatný vstup: očekáváno object, obdrženo undefined a Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
 			),
 		);
 		expect(useNuxtApp().vueApp.runWithContext(useVaultData).loaded.value).toBe(false);
@@ -164,7 +164,7 @@ describe('načtení všech domén', () => {
 
 		await expect(useNuxtApp().vueApp.runWithContext(useVaultData).load()).rejects.toThrow(
 			new Error(
-				'Soubor nastaveni.json má poškozený obsah (contacts.0.ico: Neplatný vstup: očekáváno řetězec, obdrženo undefined, contacts.0.address: Neplatný vstup: očekáváno object, obdrženo undefined a contacts.0.id: Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
+				'Soubor nastaveni.json má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo undefined, Neplatný vstup: očekáváno object, obdrženo undefined a Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
 			),
 		);
 		expect(useNuxtApp().vueApp.runWithContext(useVaultData).loaded.value).toBe(false);

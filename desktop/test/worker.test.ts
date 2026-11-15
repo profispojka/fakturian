@@ -1,6 +1,6 @@
 import { once } from 'node:events';
 import { buffer } from 'node:stream/consumers';
-import { createDeflate } from 'node:zlib';
+import { createDeflate, deflateSync } from 'node:zlib';
 
 import { PDFDocument } from 'pdf-lib';
 import { Tinypool } from 'tinypool';
@@ -18,7 +18,20 @@ const ENCODER = new TextEncoder();
 const CRASHED = 'PDF nejde rozbalit v rozumném čase ani paměti — takhle doklad nevypadá';
 const MIB = 1024 * 1024;
 
-// Proud objektů, který se z pár MB rozbalí na `mib` mezer; pdf-lib ho rozbaluje už při načtení.
+// pdf-lib proud objektů rozbalí a rozebere už při načtení dokumentu.
+function objectStreamPdf(count: number, first: number, packed: Uint8Array): Uint8Array {
+	return Buffer.concat([
+		Buffer.from(
+			'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [] /Count 0 >>\nendobj\n' +
+				`3 0 obj\n<< /Type /ObjStm /N ${count} /First ${first} /Filter /FlateDecode /Length ${packed.byteLength} >>\nstream\n`,
+			'latin1',
+		),
+		packed,
+		Buffer.from('\nendstream\nendobj\ntrailer\n<< /Root 1 0 R /Size 4 >>\n%%EOF\n', 'latin1'),
+	]);
+}
+
+// Z pár MB se rozbalí na `mib` mezer.
 async function objectStreamBomb(mib: number): Promise<Uint8Array> {
 	const deflate = createDeflate({ level: 9 });
 	const packed = buffer(deflate);
@@ -28,15 +41,16 @@ async function objectStreamBomb(mib: number): Promise<Uint8Array> {
 	}
 	deflate.end();
 	const data = await packed;
-	return Buffer.concat([
-		Buffer.from(
-			'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [] /Count 0 >>\nendobj\n' +
-				`3 0 obj\n<< /Type /ObjStm /N 1 /First 4 /Filter /FlateDecode /Length ${data.byteLength} >>\nstream\n`,
-			'latin1',
-		),
-		data,
-		Buffer.from('\nendstream\nendobj\ntrailer\n<< /Root 1 0 R /Size 4 >>\n%%EOF\n', 'latin1'),
-	]);
+	return objectStreamPdf(1, 4, data);
+}
+
+// Miliony drobných objektů, každý se v pdf-lib stane záznamem v haldě.
+function manyObjects(count: number): Uint8Array {
+	const object = '<< /A [1 2 3] >> ';
+	const offsets = Array.from({ length: count }, (_, i) => `${i + 4} ${i * object.length}`);
+	const header = `${offsets.join(' ')} `;
+	const body = Buffer.from(header + object.repeat(count), 'latin1');
+	return objectStreamPdf(count, header.length, deflateSync(body, { level: 9 }));
 }
 
 // Práce, která skončí, až ji pool zruší signálem.
@@ -159,14 +173,14 @@ describe('načtení PDF přes worker', () => {
 		expect(await outcome).toEqual(new Error(CRASHED, { cause }));
 	});
 
-	it('worker přeteklý přes strop haldy ohlásí jako vadu dokladu', async () => {
-		const overflow = new Error('Worker terminated due to reaching memory limit');
-		overflow.code = 'ERR_WORKER_OUT_OF_MEMORY';
-		vi.spyOn(Tinypool.prototype, 'run').mockRejectedValueOnce(overflow);
+	it('PDF s miliony objektů ukončí dřív, než přeteče halda a s ní celá appka', async () => {
+		const flood = manyObjects(3_000_000);
 
-		await expect(loadPdf(await pdfWithIsdoc(MINIMAL_ISDOC))).rejects.toEqual(
-			new Error(CRASHED, { cause: overflow }),
-		);
+		const error = await rejection(loadPdf(flood));
+		const { xml } = await readIsdoc(await loadPdf(await pdfWithIsdoc(MINIMAL_ISDOC)));
+
+		expect(error).toEqual(new Error(CRASHED, { cause: expect.objectContaining({ name: 'AbortError' }) }));
+		expect(xml).toBe(MINIMAL_ISDOC);
 	});
 
 	it('worker, který se nespustí, ohlásí jako vadu appky a další PDF načte', async () => {
