@@ -395,7 +395,7 @@ useAsyncState(refreshLogo, undefined, {
 						{{ vaultMsg }}
 					</p>
 					<ul v-if="importDetail.length" class="mt-2 list-disc pl-5 text-meta leading-normal text-ink-2">
-						<li v-for="d in importDetail" :key="d">
+						<li v-for="d in importDetail" :key="d" data-testid="import-skipped">
 							{{ d }}
 						</li>
 					</ul>

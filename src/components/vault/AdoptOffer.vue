@@ -86,7 +86,7 @@ async function onAdopt() {
 			</UButton>
 			<template #content>
 				<ul class="mt-2 pl-5">
-					<li v-for="skippedFile in scan.skipped" :key="skippedFile.file">
+					<li v-for="skippedFile in scan.skipped" :key="skippedFile.file" data-testid="adopt-skipped-file">
 						{{ skippedFile.file }}: {{ skippedFile.reason }}
 					</li>
 				</ul>
