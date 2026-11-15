@@ -19,13 +19,14 @@ import {
 import { describe, expect, it, vi } from 'vitest';
 
 import { creditNote, invoice, MINIMAL_ISDOC } from './invoices.ts';
-import { embeddedFiles, filespec, invoicePdf, samplePdf } from './pdfs.ts';
+import { embeddedFiles, filespec, invoicePdf, loaded, samplePdf } from './pdfs.ts';
 import { invoiceFiles } from './typst.ts';
 
 import { buildIsdoc } from '../invoice/isdoc.ts';
 import { invoiceTypst } from '../invoice/template.ts';
-import { text } from '../isdoc/mod.ts';
-import { hasSignature, ISDOC_ATTACHMENT, loadPdf, readIsdoc, renderTypstPdf, replaceIsdoc, savePdf } from '../pdf.ts';
+import { MAX_ISDOC_BYTES, text } from '../isdoc/mod.ts';
+import { readPdf, rewritePdf } from '../pdf-document.ts';
+import { ISDOC_ATTACHMENT, loadPdf, readIsdoc, renderTypstPdf, replaceIsdoc } from '../pdf.ts';
 
 const ENCODER = new TextEncoder();
 const MAX_ATTACHMENT_BYTES = 32 * 1024 * 1024;
@@ -75,7 +76,7 @@ async function withAssociated(stream: (pdf: PDFDocument) => PDFRawStream): Promi
 
 async function reason(pdf: PDFDocument): Promise<unknown> {
 	try {
-		await readIsdoc(pdf);
+		await readIsdoc(await loaded(pdf));
 	} catch (error) {
 		return error;
 	}
@@ -83,7 +84,7 @@ async function reason(pdf: PDFDocument): Promise<unknown> {
 }
 
 async function embeddedXml(pdf: PDFDocument): Promise<string> {
-	const { xml } = await readIsdoc(pdf);
+	const { xml } = await readIsdoc(await loaded(pdf));
 	return xml;
 }
 
@@ -91,11 +92,13 @@ function ownIsdoc(): Promise<string> {
 	return buildIsdoc(invoice());
 }
 
-// Doklad tak, jak leží ve `faktury/`: vysázený a znovu uložený přes pdf-lib.
+// Doklad tak, jak leží ve `faktury/` po označení jako odeslaný: vysázený a uložený s vyměněnou přílohou.
 async function savedInvoice(): Promise<{ pdf: PDFDocument; raw: string }> {
-	const rendered = await loadPdf(await invoicePdf(invoice()));
-	const saved = await savePdf(rendered);
-	const pdf = await loadPdf(saved);
+	const saved = await rewritePdf(invoicePdf(invoice()), MAX_ISDOC_BYTES, {
+		index: 0,
+		xml: await ownIsdoc(),
+	});
+	const pdf = await PDFDocument.load(saved, { updateMetadata: false });
 	return {
 		pdf,
 		raw: new TextDecoder('latin1').decode(saved),
@@ -133,10 +136,11 @@ function decoded(value: PDFObject | undefined): string {
 
 describe('příloha ISDOC v dokladu vysázeném typstem', () => {
 	it('jmenuje se invoice.isdoc ve stromu jmen i ve filespecu a leží pod ním ISDOC, který se čte zpátky', async () => {
-		const { pdf } = await savedInvoice();
+		const rendered = invoicePdf(invoice());
+		const pdf = await PDFDocument.load(rendered);
 		const { names, spec } = nameTree(pdf);
 		const attached = inflateSync(embeddedStream(pdf, spec).contents).toString('utf8');
-		const { xml } = await readIsdoc(pdf);
+		const { xml } = await readIsdoc(await loadPdf(rendered));
 
 		expect([
 			decoded(names[0]),
@@ -174,7 +178,7 @@ describe('příloha ISDOC v dokladu vysázeném typstem', () => {
 		vi.setSystemTime(INSTANT);
 		let pdf: PDFDocument;
 		try {
-			pdf = await loadPdf(await invoicePdf(invoice()));
+			pdf = await PDFDocument.load(invoicePdf(invoice()));
 		} finally {
 			vi.useRealTimers();
 		}
@@ -186,7 +190,7 @@ describe('příloha ISDOC v dokladu vysázeném typstem', () => {
 	it('vlastní doklad přečte zpátky', async () => {
 		const { pdf } = await savedInvoice();
 
-		const { xml, document } = await readIsdoc(pdf);
+		const { xml, document } = await readIsdoc(await loaded(pdf));
 
 		expect([xml, text(document.documentElement, 'ID')]).toEqual([await ownIsdoc(), '20260001']);
 	});
@@ -196,11 +200,11 @@ describe('příloha ISDOC v dokladu vysázeném typstem', () => {
 		try {
 			const path = join(dir, 'invoice.pdf');
 			await writeFile(path, renderTypstPdf(invoiceTypst('column'), invoiceFiles(invoice())));
-			const pdf = await loadPdf(await readFile(path));
+			const bytes = await readFile(path);
 
-			const { xml } = await readIsdoc(pdf);
+			const { xml } = await readIsdoc(await loadPdf(bytes));
 
-			expect([pdf.getPageCount(), xml]).toEqual([1, MINIMAL_ISDOC]);
+			expect([(await PDFDocument.load(bytes)).getPageCount(), xml]).toEqual([1, MINIMAL_ISDOC]);
 		} finally {
 			await rm(dir, { recursive: true });
 		}
@@ -208,15 +212,29 @@ describe('příloha ISDOC v dokladu vysázeném typstem', () => {
 
 	it('uložení nepřidá proudy objektů, prázdnou stránku ani razítko pdf-lib', async () => {
 		const { pdf, raw } = await savedInvoice();
-		const empty = await loadPdf(await savePdf(await PDFDocument.create()));
+		const empty = await PDFDocument.create();
+		embeddedFiles(empty, [
+			[
+				PDFString.of(ISDOC_ATTACHMENT),
+				attachment(empty, PDFString.of(ISDOC_ATTACHMENT), 'text/xml', ENCODER.encode(MINIMAL_ISDOC)),
+			],
+		]);
+		const rewritten = await rewritePdf(await empty.save({ addDefaultPage: false }), MAX_ISDOC_BYTES, {
+			index: 0,
+			xml: MINIMAL_ISDOC,
+		});
 
-		expect([raw.includes('/ObjStm'), pdf.getProducer(), empty.getPageCount()]).toEqual([false, undefined, 0]);
+		expect([
+			raw.includes('/ObjStm'),
+			pdf.getProducer(),
+			(await PDFDocument.load(rewritten)).getPageCount(),
+		]).toEqual([false, undefined, 0]);
 	});
 
 	it('podpis nemá', async () => {
 		const { pdf } = await savedInvoice();
 
-		expect(hasSignature(pdf)).toBe(false);
+		expect((await loaded(pdf)).signed).toBe(false);
 	});
 });
 
@@ -228,9 +246,13 @@ describe('načtení PDF', () => {
 	});
 
 	it('PDF bez katalogu přílohy nemá', async () => {
-		const pdf = await loadPdf(ENCODER.encode('%PDF-1.7\n%%EOF\n'));
+		const content = await readPdf(ENCODER.encode('%PDF-1.7\n%%EOF\n'), MAX_ISDOC_BYTES);
 
-		expect(await reason(pdf)).toEqual(MISSING);
+		expect(content).toEqual({
+			signed: false,
+			attachments: [],
+		});
+		await expect(readIsdoc(content)).rejects.toEqual(MISSING);
 	});
 });
 
@@ -249,7 +271,7 @@ describe('hledání ISDOC přílohy', () => {
 			const pdf = await samplePdf();
 			embeddedFiles(pdf, [[PDFString.of(name), attachment(pdf, PDFString.of(name), mime, ENCODER.encode(xml))]]);
 
-			const found = await readIsdoc(pdf);
+			const found = await readIsdoc(await loaded(pdf));
 
 			expect([name, found.xml]).toEqual([name, xml]);
 		}
@@ -292,7 +314,7 @@ describe('hledání ISDOC přílohy', () => {
 			const pdf = await samplePdf();
 			associatedFiles(pdf, pdf.context.obj([attachment(pdf, name, undefined, ENCODER.encode(xml))]));
 
-			const found = await readIsdoc(pdf);
+			const found = await readIsdoc(await loaded(pdf));
 
 			expect(found.xml).toBe(xml);
 		}
@@ -334,7 +356,9 @@ describe('hledání ISDOC přílohy', () => {
 
 		expect(await reason(pdf)).toEqual(AMBIGUOUS);
 		expect(await reason(other)).toEqual(AMBIGUOUS);
-		await expect(replaceIsdoc(pdf, xml)).rejects.toEqual(new Error('PDF obsahuje více platných ISDOC příloh.'));
+		await expect(replaceIsdoc(await loaded(pdf), xml)).rejects.toEqual(
+			new Error('PDF obsahuje více platných ISDOC příloh.'),
+		);
 	});
 
 	it('přílohu bez jmenného prostoru ISDOC nevezme, ani jako jedinou', async () => {
@@ -489,13 +513,17 @@ describe('vadné objekty příloh', () => {
 		embeddedFiles(pdf, [[PDFString.of(ISDOC_ATTACHMENT), spec]]);
 
 		expect(await reason(pdf)).toEqual(MISSING);
-		await expect(replaceIsdoc(pdf, 'new')).rejects.toEqual(new Error('PDF neobsahuje přílohu ISDOC.'));
+		await expect(replaceIsdoc(await loaded(pdf), 'new')).rejects.toEqual(
+			new Error('PDF neobsahuje přílohu ISDOC.'),
+		);
 	});
 
 	it('neplatnou přílohu se jménem ISDOC nenahradí', async () => {
 		const pdf = await withAttachments([[ISDOC_ATTACHMENT, CONTRACT]]);
 
-		await expect(replaceIsdoc(pdf, 'new')).rejects.toEqual(new Error('PDF neobsahuje přílohu ISDOC.'));
+		await expect(replaceIsdoc(await loaded(pdf), 'new')).rejects.toEqual(
+			new Error('PDF neobsahuje přílohu ISDOC.'),
+		);
 	});
 });
 
@@ -649,6 +677,12 @@ describe('obsah přílohy', () => {
 
 		expect(await embeddedXml(sixteen)).toBe(new TextDecoder().decode(xml));
 		expect(await reason(seventeen)).toEqual(new Error('PDF má víc než 16 příloh'));
+		await expect(
+			rewritePdf((await loaded(seventeen)).bytes, MAX_ISDOC_BYTES, {
+				index: 16,
+				xml: 'new',
+			}),
+		).rejects.toEqual(new Error('Příloha k nahrazení v PDF není.'));
 	});
 });
 
@@ -671,14 +705,19 @@ describe('náhrada ISDOC přílohy', () => {
 		const spec = filespec(pdf, PDFString.of(ISDOC_ATTACHMENT), stream);
 		embeddedFiles(pdf, [[PDFString.of(ISDOC_ATTACHMENT), spec]]);
 
+		const { bytes } = await loaded(pdf);
 		vi.useFakeTimers({ toFake: ['Date'] });
 		vi.setSystemTime(INSTANT);
+		let saved: Uint8Array;
 		try {
-			await replaceIsdoc(pdf, replacement);
+			saved = await rewritePdf(bytes, MAX_ISDOC_BYTES, {
+				index: 0,
+				xml: replacement,
+			});
 		} finally {
 			vi.useRealTimers();
 		}
-		const reloaded = await loadPdf(await savePdf(pdf));
+		const reloaded = await PDFDocument.load(saved);
 		const written = embeddedStream(reloaded, nameTree(reloaded).spec);
 		const params = lookupDict(reloaded, written.dict, 'Params');
 
@@ -705,9 +744,14 @@ describe('náhrada ISDOC přílohy', () => {
 		);
 		embeddedFiles(pdf, [[PDFString.of(ISDOC_ATTACHMENT), spec]]);
 
+		const content = await loaded(pdf);
+
 		expect(await embeddedXml(pdf)).toBe(xml);
-		await expect(replaceIsdoc(pdf, xml)).rejects.toEqual(
+		await expect(replaceIsdoc(content, xml)).rejects.toEqual(
 			new Error('ISDOC přílohu v PDF nejde bezpečně nahradit — nemá samostatný datový stream.'),
+		);
+		await expect(rewritePdf(content.bytes, MAX_ISDOC_BYTES, { index: 0, xml })).rejects.toEqual(
+			new Error('Příloha k nahrazení v PDF není.'),
 		);
 	});
 
@@ -730,15 +774,18 @@ describe('náhrada ISDOC přílohy', () => {
 		]);
 
 		expect(await reason(pdf)).toEqual(AMBIGUOUS);
-		await expect(replaceIsdoc(pdf, 'new')).rejects.toEqual(new Error('PDF obsahuje více platných ISDOC příloh.'));
+		await expect(replaceIsdoc(await loaded(pdf), 'new')).rejects.toEqual(
+			new Error('PDF obsahuje více platných ISDOC příloh.'),
+		);
 	});
 });
 
 describe('elektronický podpis v PDF', () => {
-	async function withObject(object: (pdf: PDFDocument) => PDFObject): Promise<PDFDocument> {
+	async function hasSignature(object: (pdf: PDFDocument) => PDFObject): Promise<boolean> {
 		const pdf = await samplePdf();
 		pdf.context.register(object(pdf));
-		return pdf;
+		const { signed } = await loaded(pdf);
+		return signed;
 	}
 
 	function nested(levels: number, wrap: (inner: PDFObject) => PDFObject): PDFObject {
@@ -761,16 +808,14 @@ describe('elektronický podpis v PDF', () => {
 				}),
 		];
 		for (const signature of signatures) {
-			expect(hasSignature(await withObject(signature))).toBe(true);
+			expect(await hasSignature(signature)).toBe(true);
 		}
 		expect(
-			hasSignature(
-				await withObject((pdf) =>
-					pdf.context.obj({
-						Type: 'Annot',
-						FT: 'Tx',
-					}),
-				),
+			await hasSignature((pdf) =>
+				pdf.context.obj({
+					Type: 'Annot',
+					FT: 'Tx',
+				}),
 			),
 		).toBe(false);
 	});
@@ -780,10 +825,10 @@ describe('elektronický podpis v PDF', () => {
 		const dicts = (levels: number) => (pdf: PDFDocument) =>
 			nested(levels, (inner) => pdf.context.obj({ Child: inner }));
 
-		expect(hasSignature(await withObject(arrays(64)))).toBe(false);
-		expect(hasSignature(await withObject(arrays(65)))).toBe(true);
-		expect(hasSignature(await withObject(arrays(66)))).toBe(true);
-		expect(hasSignature(await withObject(dicts(64)))).toBe(false);
-		expect(hasSignature(await withObject(dicts(65)))).toBe(true);
+		expect(await hasSignature(arrays(64))).toBe(false);
+		expect(await hasSignature(arrays(65))).toBe(true);
+		expect(await hasSignature(arrays(66))).toBe(true);
+		expect(await hasSignature(dicts(64))).toBe(false);
+		expect(await hasSignature(dicts(65))).toBe(true);
 	});
 });

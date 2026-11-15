@@ -31,6 +31,7 @@ await Promise.all([
 		entryPoints: {
 			main: 'desktop/main.ts',
 			validator: 'desktop/isdoc/validator.ts',
+			worker: 'desktop/worker.ts',
 		},
 		outdir: '.output/desktop',
 		format: 'esm',

@@ -10,7 +10,6 @@ import { invoicePdf, pdfWithIsdoc, samplePdf } from './pdfs.ts';
 import { names, rejection } from './support.ts';
 
 import { invoiceUuid } from '../invoice/isdoc.ts';
-import { savePdf } from '../pdf.ts';
 import { importReceived, listBrokenReceived, receivedPath, removeReceived } from '../received.ts';
 import { ensureVault } from '../vault.ts';
 
@@ -280,7 +279,7 @@ describe('doklady, které do prijate/ nepatří', () => {
 
 	it('PDF bez čitelného ISDOC odmítne bez kopie', async () => {
 		const broken = await source('rozbite.pdf', new TextEncoder().encode('%PDF-1.4\n% tohle není platné PDF\n'));
-		const plain = await source('obycejne.pdf', savePdf(await samplePdf()));
+		const plain = await source('obycejne.pdf', (await samplePdf()).save());
 		const header = await source('hlavicka.pdf', new TextEncoder().encode('%PDF-x'));
 
 		await expect(importFrom(broken)).rejects.toEqual(
@@ -607,7 +606,7 @@ describe('kontrola prijate/', () => {
 		await mkdir(received('slozka.pdf'), { recursive: true });
 		await writeFile(received('platny.pdf'), await receivedPdf('20260001'));
 		await writeFile(received('.DS_Store'), 'macOS');
-		await writeFile(received('bez-isdoc.pdf'), await savePdf(await samplePdf()));
+		await writeFile(received('bez-isdoc.pdf'), await (await samplePdf()).save());
 		await writeFile(received('poznamka.txt'), '%PDF-1.4');
 		await symlink(join(base, 'nikde.pdf'), received('mrtvy-odkaz.pdf'));
 		const xml = MINIMAL_ISDOC.replace(

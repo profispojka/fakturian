@@ -11,7 +11,7 @@ import { paymentSymbol } from './payment.ts';
 
 import { checkSource, sourceFromPdf } from '../import.ts';
 import { asciiLower, compareNumbers } from '../numbering.ts';
-import { loadPdf } from '../pdf.ts';
+import { loadPdf, type LoadedPdf } from '../pdf.ts';
 import { cacheDir } from '../store.ts';
 import {
 	compareText,
@@ -26,7 +26,6 @@ import { overVault } from '../vault.ts';
 
 import type { Invoice } from './model.ts';
 import type { Stats } from 'node:fs';
-import type { PDFDocument } from 'pdf-lib';
 import type { BrokenInvoice } from '~/bindings';
 
 const INDEX_FILE = 'index.json';
@@ -166,7 +165,7 @@ export function summarize(invoice: Invoice, path: string): InvoiceSummary {
 // Doklad ve `faktury/` mohl přinést Finder nebo synchronizace, ne import. Přehled proto ukáže jen to,
 // co by import vzal; ostatní skončí mezi vadnými i s důvodem.
 async function summarizePdf(path: string): Promise<InvoiceSummary> {
-	let pdf: PDFDocument;
+	let pdf: LoadedPdf;
 	try {
 		const bytes = await readDocument(path);
 		pdf = await loadPdf(bytes);

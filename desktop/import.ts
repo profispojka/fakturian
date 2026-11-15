@@ -6,11 +6,10 @@ import { validateNumber } from '~/utils/numbering';
 
 import { child, fromCents, sentAt, text, toCents } from './isdoc/mod.ts';
 import { intoInvoice } from './isdoc/projection.ts';
-import { loadPdf, readIsdoc } from './pdf.ts';
+import { loadPdf, readIsdoc, type LoadedPdf } from './pdf.ts';
 import { readDocument } from './util.ts';
 
 import type { Invoice } from './invoice/model.ts';
-import type { PDFDocument } from 'pdf-lib';
 
 const PDF_SIGNATURE = Buffer.from('%PDF');
 
@@ -27,7 +26,7 @@ export interface Source {
 
 // Údaje, které Fakturian do dokladu zapisuje sám (odeslání), se ověří už tady: vadný doklad by jinak
 // prošel importem a rozbil se až v přehledu.
-export async function sourceFromPdf(pdf: PDFDocument): Promise<Source> {
+export async function sourceFromPdf(pdf: LoadedPdf): Promise<Source> {
 	const { document } = await readIsdoc(pdf);
 	const invoice = intoInvoice(document);
 	const root = document.documentElement;
@@ -57,7 +56,7 @@ export async function readSource(path: string): Promise<Source> {
 	} catch (error) {
 		throw new Error(`nejde přečíst: ${errorText(error)}`, { cause: error });
 	}
-	let pdf: PDFDocument;
+	let pdf: LoadedPdf;
 	try {
 		pdf = await loadPdf(content);
 	} catch (error) {

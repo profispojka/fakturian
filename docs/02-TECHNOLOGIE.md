@@ -352,6 +352,10 @@ Factur-X/ZUGFeRD, jen s českým ISDOC. Model dokladu a jeho vrstvy popisuje
 - **Změna existujícího dokladu** (odeslání): `pdf-lib` přepíše obsah přílohy na
   místě (`replaceIsdoc`). **Čtení zpět** vytáhne ISDOC přes `pdf-lib`
   (`readIsdoc`), XML drží `@xmldom/xmldom`.
+- **pdf-lib běží jen ve workeru `worker.mjs`** se stropem haldy a limitem
+  30 s: proudy objektů rozbaluje synchronně a bez stropu, takže podvržené PDF
+  zabije worker, ne hlavní proces. Hlavní proces posílá bajty a dostává přílohy,
+  příznak podpisu nebo bajty nového PDF (`desktop/pdf-document.ts`).
 - **Každý přečtený ISDOC projde celým XSD 6.0.2** (`parse` v
   `desktop/isdoc/mod.ts`). Kontrolu dělá libxml2 z `xmllint-wasm` ve workeru
   `validator.mjs`, takže hlavní vlákno nečeká; schéma je soubor

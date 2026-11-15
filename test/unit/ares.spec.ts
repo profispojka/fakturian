@@ -65,16 +65,17 @@ describe('parseAres', () => {
 		});
 	});
 
-	it('bez ulice spadne na textovou adresu', () => {
+	it('bez ulice složí adresu z části obce a čísla domovního', () => {
 		expect(
 			parseAres({
 				ico: '00719331',
 				obchodniJmeno: 'Jan Novák',
 				sidlo: {
 					nazevObce: 'Ostrožská Lhota',
+					nazevCastiObce: 'Lhota',
 					cisloDomovni: 120,
 					psc: 68723,
-					textovaAdresa: 'č.p. 120, 68723 Ostrožská Lhota',
+					textovaAdresa: 'Lhota 120, 68723 Ostrožská Lhota',
 				},
 				...registers('NEEXISTUJICI', 'AKTIVNI'),
 			}),
@@ -82,7 +83,7 @@ describe('parseAres', () => {
 			name: 'Jan Novák',
 			ico: '00719331',
 			address: {
-				street: 'č.p. 120, 68723 Ostrožská Lhota',
+				street: 'Lhota 120',
 				city: 'Ostrožská Lhota',
 				zip: '68723',
 			},

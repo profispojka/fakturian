@@ -6,7 +6,9 @@ import { invoiceFiles } from './typst.ts';
 
 import { buildIsdoc } from '../invoice/isdoc.ts';
 import { invoiceTypst } from '../invoice/template.ts';
-import { ISDOC_ATTACHMENT, loadPdf, readIsdoc, renderTypstPdf, replaceIsdoc, savePdf } from '../pdf.ts';
+import { MAX_ISDOC_BYTES } from '../isdoc/mod.ts';
+import { readPdf } from '../pdf-document.ts';
+import { ISDOC_ATTACHMENT, loadPdf, readIsdoc, renderTypstPdf, replaceIsdoc, type LoadedPdf } from '../pdf.ts';
 
 import type { Invoice } from '../invoice/model.ts';
 
@@ -58,7 +60,17 @@ export async function pdfWithIsdoc(xml: string): Promise<Uint8Array> {
 	const name = PDFString.of(ISDOC_ATTACHMENT);
 	const data = pdf.context.stream(new TextEncoder().encode(xml), { Type: 'EmbeddedFile' });
 	embeddedFiles(pdf, [[name, filespec(pdf, name, data)]]);
-	return savePdf(pdf);
+	return pdf.save();
+}
+
+// Totéž co `loadPdf`, jen bez workeru: rozbor PDF tak běží ve vlákně testu, kam dosáhne pokrytí i mutace.
+export async function loaded(pdf: PDFDocument): Promise<LoadedPdf> {
+	const bytes = await pdf.save({ useObjectStreams: false });
+	const content = await readPdf(bytes, MAX_ISDOC_BYTES);
+	return {
+		bytes,
+		...content,
+	};
 }
 
 export async function embeddedXml(path: string): Promise<string> {
@@ -71,6 +83,5 @@ export async function embeddedXml(path: string): Promise<string> {
 export async function rewriteIsdoc(path: string, change: (xml: string) => string): Promise<void> {
 	const pdf = await loadPdf(await readFile(path));
 	const { xml } = await readIsdoc(pdf);
-	await replaceIsdoc(pdf, change(xml));
-	await writeFile(path, await savePdf(pdf));
+	await writeFile(path, await replaceIsdoc(pdf, change(xml)));
 }

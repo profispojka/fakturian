@@ -16,7 +16,7 @@ import { invoiceData, invoiceTypst } from './template.ts';
 
 import { copySent, ISSUING_SYSTEM, parse, sentAt, text, toXml } from '../isdoc/mod.ts';
 import { intoInvoice } from '../isdoc/projection.ts';
-import { ISDOC_ATTACHMENT, loadPdf, readIsdoc, renderTypstPdf, type TypstFiles } from '../pdf.ts';
+import { ISDOC_ATTACHMENT, loadPdf, readIsdoc, renderTypstPdf, type LoadedPdf, type TypstFiles } from '../pdf.ts';
 import { saveSnapshot, snapshotDir } from '../store.ts';
 import { readDocument, writeAtomic, writeNew } from '../util.ts';
 import { overVault, readLogo } from '../vault.ts';
@@ -24,7 +24,6 @@ import { overVault, readLogo } from '../vault.ts';
 import { documentNumberCount, findDocument, removeIndexEntry, scanInvoices } from './index.ts';
 
 import type { Document } from '@xmldom/xmldom';
-import type { PDFDocument } from 'pdf-lib';
 
 // Soubory, ze kterých typst doklad sází. Náhled dostane tytéž jako uložení, aby ukázal to, co se uloží;
 // `previous` je ISDOC přepisované verze dokladu.
@@ -227,7 +226,7 @@ export async function loadInvoice({ vaultPath, number }: { vaultPath: string; nu
 	const root = await overVault(vaultPath);
 	const path = await findDocument(join(root, 'faktury'), number);
 	if (path === undefined) throw new Error(`Doklad ${number} ve složce faktury/ není.`);
-	let pdf: PDFDocument;
+	let pdf: LoadedPdf;
 	try {
 		const bytes = await readDocument(path);
 		pdf = await loadPdf(bytes);

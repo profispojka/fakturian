@@ -8,7 +8,7 @@ import { DocumentKind } from '~/constants/invoice';
 
 import { customer, invoice, MINIMAL_ISDOC, supplier } from './invoices.ts';
 import { fixture } from './isdoc.ts';
-import { invoicePdf, pdfWithIsdoc, samplePdf } from './pdfs.ts';
+import { invoicePdf, loaded, pdfWithIsdoc, samplePdf } from './pdfs.ts';
 import { thrownBy } from './support.ts';
 
 import { alreadyThere, checkSource, isCreditNote, readSource, sourceFromPdf, type Source } from '../import.ts';
@@ -67,9 +67,9 @@ describe('doklad z PDF', () => {
 		const pdf = await loadPdf(invoicePdf(invoice()));
 		const { document } = await readIsdoc(pdf);
 		setSent(document, '2026-05-29T10:15:00Z', 'Jan Dodavatel');
-		await replaceIsdoc(pdf, toXml(document));
+		const saved = await replaceIsdoc(pdf, toXml(document));
 
-		const read = await sourceFromPdf(pdf);
+		const read = await sourceFromPdf(await loadPdf(saved));
 
 		expect(read.sentAt).toBe('2026-05-29T10:15:00Z');
 	});
@@ -111,7 +111,9 @@ describe('doklad z PDF', () => {
 	});
 
 	it('PDF bez ISDOC řekne proč', async () => {
-		await expect(sourceFromPdf(await samplePdf())).rejects.toThrow(new Error('PDF neobsahuje přílohu ISDOC'));
+		await expect(sourceFromPdf(await loaded(await samplePdf()))).rejects.toThrow(
+			new Error('PDF neobsahuje přílohu ISDOC'),
+		);
 	});
 });
 

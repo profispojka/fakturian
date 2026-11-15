@@ -12,7 +12,7 @@ import { saveInvoice } from '../invoice/mod.ts';
 import { markInvoiceSent } from '../invoice/status.ts';
 import { invoiceTypst } from '../invoice/template.ts';
 import { setSent, toXml } from '../isdoc/mod.ts';
-import { loadPdf, readIsdoc, renderTypstPdf, replaceIsdoc, savePdf } from '../pdf.ts';
+import { loadPdf, readIsdoc, renderTypstPdf, replaceIsdoc } from '../pdf.ts';
 
 describe('PDF/A-3a', () => {
 	let dir = '';
@@ -79,9 +79,8 @@ describe('PDF/A-3a', () => {
 		const pdf = await loadPdf(await invoicePdf(invoice()));
 		const { document } = await readIsdoc(pdf);
 		setSent(document, '2026-05-29T10:15:00Z', 'Jan Dodavatel');
-		await replaceIsdoc(pdf, toXml(document));
 		const path = join(dir, 'odeslana.pdf');
-		await writeFile(path, await savePdf(pdf));
+		await writeFile(path, await replaceIsdoc(pdf, toXml(document)));
 
 		await expectPdfA3a([path]);
 	});

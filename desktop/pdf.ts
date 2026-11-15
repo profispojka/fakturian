@@ -1,23 +1,16 @@
 import { Buffer } from 'node:buffer';
-import { inflateSync } from 'node:zlib';
+import { extname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { Worker } from 'node:worker_threads';
 
 import { NodeCompiler, type NodeTypstDocument } from '@myriaddreamin/typst-ts-node-compiler';
-import {
-	PDFArray,
-	PDFDict,
-	PDFDocument,
-	PDFName,
-	PDFRawStream,
-	PDFRef,
-	PDFStream,
-	PDFString,
-	type PDFObject,
-} from 'pdf-lib';
+import pLimit from 'p-limit';
 
 import { errorText } from '~/utils/errors';
 
 import { MAX_ISDOC_BYTES, parse } from './isdoc/mod.ts';
 
+import type { PdfContent, PdfRequest } from './pdf-document.ts';
 import type { Document } from '@xmldom/xmldom';
 
 // Pod tímhle jménem ho vkládá `#pdf.attach` v `invoice/template.ts`.
@@ -86,19 +79,85 @@ export function renderTypstSvg(source: string, files: TypstFiles): string[] {
 	);
 }
 
-// `updateMetadata: false`: pdf-lib by jinak přepsal slovník `Info` a rozešel ho s XMP, na kterém stojí
-// PDF/A. Chyba načtení nese důvod od pdf-lib, volající ho zasadí do své věty.
-export function loadPdf(bytes: Uint8Array): Promise<PDFDocument> {
-	return PDFDocument.load(bytes, { updateMetadata: false });
+// Ze zdrojů běží `worker.ts` vedle tohoto modulu, z bundlu `worker.mjs` vedle `main.mjs`. Ze
+// zdrojů ho Node spouští bez překladu, takže jeho importy nesmí sáhnout na alias `~/`.
+const PDF_WORKER = new URL(`./worker${extname(fileURLToPath(import.meta.url))}`, import.meta.url);
+// Hlavní proces na worker nečeká blokovaně, takže limit jen uklidí zaseknutou práci; doklad trvá zlomek sekundy.
+const PDF_TIMEOUT = 30_000;
+// Skutečný doklad má stovky objektů. Proud objektů, který se rozbalí na miliony, přeteče a zabije worker, ne appku.
+const PDF_HEAP_MB = 256;
+
+// pdf-lib rozbalí proudy objektů synchronně a bez stropu, takže PDF čte a ukládá jen worker, který jde
+// zabít. Jeden na proces, založený až prvním PDF.
+let pdfWorker: Worker | undefined;
+// Práce jdou po jedné, takže odpověď workeru patří vždy té, která zrovna čeká.
+const pdfJobs = pLimit(1);
+
+type PdfAnswer<T> = { result: T } | { error: unknown };
+
+function startPdfWorker(): Worker {
+	// Strop příloh dostane worker od nás: modul s ním importuje alias, který Node ze zdrojů nenačte.
+	const worker = new Worker(PDF_WORKER, {
+		workerData: MAX_ISDOC_BYTES,
+		resourceLimits: {
+			maxOldGenerationSizeMb: PDF_HEAP_MB,
+		},
+	});
+	// Stryker disable next-line CallExpression: ekvivalentní mutant, proces drží naživu čekající práce, test pozdější konec procesu nevidí.
+	worker.unref();
+	// Stryker disable next-line BlockStatement,StringLiteral: další práce by čekala na mrtvý worker celý limit.
+	worker.once('exit', () => {
+		pdfWorker = undefined;
+	});
+	pdfWorker = worker;
+	return worker;
 }
 
-// Nové uložení mění dokument jen o vyměněnou přílohu: klasická tabulka xref bez proudů objektů, jak ho
-// vysází typst, a žádná přidaná prázdná stránka.
-export function savePdf(pdf: PDFDocument): Promise<Uint8Array> {
-	return pdf.save({
-		useObjectStreams: false,
-		addDefaultPage: false,
-	});
+async function exchange<T>(request: PdfRequest): Promise<PdfAnswer<T>> {
+	const worker = pdfWorker ?? startPdfWorker();
+	const answer = Promise.withResolvers<PdfAnswer<T>>();
+	const stopped = () => answer.reject(new Error('práce s PDF nedoběhla'));
+	const timer = setTimeout(() => void worker.terminate(), PDF_TIMEOUT);
+	worker.once('message', answer.resolve);
+	worker.once('error', answer.reject);
+	worker.once('exit', stopped);
+	try {
+		// Prázdný seznam přenášených bufferů: bez něj lint plete `postMessage` s tím z `window`.
+		worker.postMessage(request, []);
+		const reply = await answer.promise;
+		return reply;
+	} finally {
+		clearTimeout(timer);
+		// Stryker disable next-line StringLiteral,CallExpression: ekvivalentní mutant, posluchač `once` po odpovědi zmizí sám a bez odpovědi worker skončil.
+		worker.off('message', answer.resolve);
+		worker.off('error', answer.reject);
+		worker.off('exit', stopped);
+	}
+}
+
+// Spadlý, přeteklý nebo zaseknutý worker je chyba téhle práce; další práce založí nový.
+async function ask<T>(request: PdfRequest): Promise<T> {
+	let reply: PdfAnswer<T>;
+	try {
+		reply = await pdfJobs(() => exchange<T>(request));
+	} catch (error) {
+		throw new Error('PDF nejde rozbalit v rozumném čase ani paměti — takhle doklad nevypadá', { cause: error });
+	}
+	if ('error' in reply) throw reply.error;
+	return reply.result;
+}
+
+// Načtené PDF jsou jen data: hlavní proces dokument pdf-lib nedrží.
+export interface LoadedPdf extends PdfContent {
+	bytes: Uint8Array;
+}
+
+export async function loadPdf(bytes: Uint8Array): Promise<LoadedPdf> {
+	const content = await ask<PdfContent>({ read: bytes });
+	return {
+		bytes,
+		...content,
+	};
 }
 
 export interface EmbeddedIsdoc {
@@ -107,22 +166,10 @@ export interface EmbeddedIsdoc {
 }
 
 interface FoundIsdoc {
-	// Hodnota `/EF /F` tak, jak ve filespecu stojí: nahradit jde jen stream s vlastním odkazem.
-	entry: PDFObject | undefined;
-	stream: PDFRawStream;
+	index: number;
+	replaceable: boolean;
 	isdoc: EmbeddedIsdoc;
 }
-
-// Strop je proti vadnému souboru, ne proti velkému: skutečné PDF má jednotky uzlů.
-const NODE_LIMIT = 10_000;
-const MAX_TREE_DEPTH = 16;
-const MAX_NESTING = 64;
-// Doklad nese jednu přílohu, výjimečně pár dalších; PDF s tisíci odkazy na tutéž zip bombu by jinak
-// rozbalovalo a rozebíralo každý zvlášť.
-const MAX_ATTACHMENTS = 16;
-
-const FLATE = PDFName.of('FlateDecode');
-const SIGNATURE = PDFName.of('Sig');
 
 // Jmenný prostor bez verze: k ISDOC se hlásí i doklad starší verze.
 const ISDOC_CLAIM = 'http://isdoc.cz/namespace/';
@@ -132,68 +179,6 @@ const UTF8 = new TextDecoder('utf-8', { fatal: true });
 // Každý bajt na jeden znak, takže se jmenný prostor najde i v textu, který není UTF-8.
 // Stryker disable next-line StringLiteral: neplatné kódování hodí RangeError už při importu, takže se nespustí žádný test.
 const BYTES = new TextDecoder('latin1');
-
-// Tři pojistky, protože hloubka nestačí: uzel s `/Kids`, který odkazuje sám na sebe, by při hloubce 16
-// dal sto na šestnáctou návštěv.
-function collectNameTree(
-	pdf: PDFDocument,
-	node: PDFObject | undefined,
-	found: PDFDict[],
-	depth: number,
-	seen: Set<PDFRef>,
-): void {
-	// Stryker disable next-line ConditionalExpression: bez pojistek se zacyklený strom prochází do timeoutu.
-	if (depth > MAX_TREE_DEPTH || seen.size >= NODE_LIMIT) return;
-	if (node instanceof PDFRef) {
-		// Stryker disable next-line ConditionalExpression: bez téhle pojistky se zacyklený strom prochází do timeoutu.
-		if (seen.has(node)) return;
-		seen.add(node);
-	}
-	const dict = pdf.context.lookup(node);
-	if (!(dict instanceof PDFDict)) return;
-	const names = dict.lookup(PDFName.of('Names'));
-	// Pole střídá jméno a filespec; jméno je text, takže slovníkem je jen filespec.
-	if (names instanceof PDFArray) {
-		for (const value of names.asArray()) {
-			const filespec = pdf.context.lookup(value);
-			if (filespec instanceof PDFDict) found.push(filespec);
-		}
-	}
-	const kids = dict.lookup(PDFName.of('Kids'));
-	if (kids instanceof PDFArray) {
-		for (const kid of kids.asArray()) collectNameTree(pdf, kid, found, depth + 1, seen);
-	}
-}
-
-// Přílohy z name tree `EmbeddedFiles`; katalogové `/AF` jen tehdy, když strom nedá nic.
-function embeddedFiles(pdf: PDFDocument): PDFDict[] {
-	const catalog = pdf.context.lookup(pdf.context.trailerInfo.Root);
-	if (!(catalog instanceof PDFDict)) return [];
-	const found: PDFDict[] = [];
-	const names = catalog.lookup(PDFName.of('Names'));
-	if (names instanceof PDFDict) collectNameTree(pdf, names.get(PDFName.of('EmbeddedFiles')), found, 0, new Set());
-	if (found.length > 0) return found;
-	const associated = catalog.lookup(PDFName.of('AF'));
-	if (!(associated instanceof PDFArray)) return [];
-	return associated
-		.asArray()
-		.map((item) => pdf.context.lookup(item))
-		.filter((item) => item instanceof PDFDict);
-}
-
-// Obsah přílohy nejvýš do `limit` bajtů. Rozbalování se zastaví na stropu, takže zip bomba nerozbalí
-// gigabajty; neznámý filtr dá syrová data, pokud se do stropu vejdou.
-function streamBytes(stream: PDFRawStream, limit: number): Uint8Array | undefined {
-	const filter = stream.dict.lookup(PDFName.of('Filter'));
-	const flate = filter === FLATE || (filter instanceof PDFArray && filter.size() === 1 && filter.get(0) === FLATE);
-	if (!flate) return stream.contents.byteLength <= limit ? stream.contents : undefined;
-	try {
-		return inflateSync(stream.contents, { maxOutputLength: limit });
-	} /* Stryker disable next-line BlockStatement: ekvivalentní mutant, funkce bez návratu vrátí `undefined` taky. */ catch {
-		// Vadná data i obsah přes strop jsou nečitelná příloha; jiná příloha v PDF může být v pořádku.
-		return undefined;
-	}
-}
 
 // Název ani MIME nejsou důkaz o obsahu faktury. Důvod selhání se vrací jen u přílohy, která se k ISDOC
 // hlásí svým jmenným prostorem — obrázek nebo jiné XML vadou dokladu není.
@@ -218,32 +203,20 @@ async function parseAttachment(bytes: Uint8Array): Promise<EmbeddedIsdoc | strin
 
 // Příloh může být víc a každá se ověří úplným parserem. Dvě platné ISDOC přílohy jsou doklad, u kterého
 // nejde říct, která platí.
-async function uniqueIsdoc(pdf: PDFDocument): Promise<FoundIsdoc | { reason: string }> {
+async function uniqueIsdoc(pdf: PdfContent): Promise<FoundIsdoc | { reason: string }> {
+	if ('reason' in pdf.attachments) return pdf.attachments;
 	let found: FoundIsdoc | undefined;
 	let failure: string | undefined;
-	const files = embeddedFiles(pdf);
-	if (files.length > MAX_ATTACHMENTS) return { reason: `PDF má víc než ${MAX_ATTACHMENTS} příloh` };
-	// Strop platí pro všechny přílohy dohromady, takže se v jednom PDF rozbalí a rozebere nejvýš tolik,
-	// kolik smí mít jediný ISDOC.
-	let budget = MAX_ISDOC_BYTES;
-	for (const filespec of files) {
-		const embedded = filespec.lookup(PDFName.of('EF'));
-		if (!(embedded instanceof PDFDict)) continue;
-		const stream = embedded.lookup(PDFName.of('F'));
-		if (!(stream instanceof PDFRawStream)) continue;
-		const bytes = streamBytes(stream, budget);
-		// Stryker disable next-line ConditionalExpression: ekvivalentní mutant, prázdný obsah parser odmítne a k ISDOC se nehlásí.
-		if (!bytes) continue;
-		budget -= bytes.byteLength;
-		const attachment = await parseAttachment(bytes);
+	for (const [index, { content, replaceable }] of pdf.attachments.entries()) {
+		const attachment = await parseAttachment(content);
 		if (typeof attachment !== 'object') {
 			failure = failure ?? attachment;
 			continue;
 		}
 		if (found) return { reason: 'PDF obsahuje více platných ISDOC příloh' };
 		found = {
-			entry: embedded.get(PDFName.of('F')),
-			stream,
+			index,
+			replaceable,
 			isdoc: attachment,
 		};
 	}
@@ -253,50 +226,23 @@ async function uniqueIsdoc(pdf: PDFDocument): Promise<FoundIsdoc | { reason: str
 }
 
 // Chyba říká, jestli příloha chybí, je vadná, nebo jsou platné dvě.
-export async function readIsdoc(pdf: PDFDocument): Promise<EmbeddedIsdoc> {
+export async function readIsdoc(pdf: PdfContent): Promise<EmbeddedIsdoc> {
 	const lookup = await uniqueIsdoc(pdf);
 	if ('reason' in lookup) throw new Error(lookup.reason);
 	return lookup.isdoc;
 }
 
-// Obsah nalezené přílohy se nahradí na místě: přidaná druhá příloha by v dokumentu nechala starou
-// i novou verzi.
-export async function replaceIsdoc(pdf: PDFDocument, xml: string): Promise<void> {
+// Vrátí bajty PDF s vyměněnou přílohou; původní `pdf` zůstane, jak byl.
+export async function replaceIsdoc(pdf: LoadedPdf, xml: string): Promise<Uint8Array> {
 	const lookup = await uniqueIsdoc(pdf);
 	if ('reason' in lookup) throw new Error(`${lookup.reason}.`);
-	if (!(lookup.entry instanceof PDFRef)) {
+	if (!lookup.replaceable) {
 		throw new Error('ISDOC přílohu v PDF nejde bezpečně nahradit — nemá samostatný datový stream.');
 	}
-	const content = new TextEncoder().encode(xml);
-	const { dict } = lookup.stream;
-	dict.delete(PDFName.of('Filter'));
-	dict.delete(PDFName.of('DecodeParms'));
-	dict.set(PDFName.of('Subtype'), PDFName.of('text/xml'));
-	// Celé `Params` znovu: cizí PDF v nich může nést `/CheckSum` původního obsahu.
-	dict.set(
-		PDFName.of('Params'),
-		pdf.context.obj({
-			Size: content.byteLength,
-			ModDate: PDFString.fromDate(new Date()),
-		}),
-	);
-	pdf.context.assign(lookup.entry, PDFRawStream.of(dict, content));
-}
-
-function objectHasSignature(object: PDFObject, depth: number): boolean {
-	if (depth > MAX_NESTING) return true;
-	if (object instanceof PDFArray) return object.asArray().some((value) => objectHasSignature(value, depth + 1));
-	const dict = object instanceof PDFStream ? object.dict : object;
-	if (!(dict instanceof PDFDict)) return false;
-	return (
-		dict.get(PDFName.of('Type')) === SIGNATURE ||
-		dict.get(PDFName.of('FT')) === SIGNATURE ||
-		dict.values().some((value) => objectHasSignature(value, depth + 1))
-	);
-}
-
-// Podpis PDF (`/Type /Sig`) i podpisové pole formuláře (`/FT /Sig`). Nesmyslně hluboké vnoření se
-// počítá jako podpis: projít ho celé by znamenalo riskovat přetečení zásobníku.
-export function hasSignature(pdf: PDFDocument): boolean {
-	return pdf.context.enumerateIndirectObjects().some(([, object]) => objectHasSignature(object, 0));
+	const saved = await ask<Uint8Array>({
+		rewrite: pdf.bytes,
+		index: lookup.index,
+		xml,
+	});
+	return saved;
 }

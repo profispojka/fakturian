@@ -14,13 +14,12 @@ import { parse, sentAt, toXml } from '../isdoc/mod.ts';
 import { intoInvoice } from '../isdoc/projection.ts';
 import { runConnector } from '../mcp/connector.ts';
 import { rejection } from '../mcp/mod.ts';
-import { hasSignature, loadPdf, readIsdoc, type EmbeddedIsdoc } from '../pdf.ts';
+import { loadPdf, readIsdoc, type EmbeddedIsdoc, type LoadedPdf } from '../pdf.ts';
 import { parseJson, readDataFile, writeDataFile, type DataFileWrite } from '../store.ts';
 import { ensureVault } from '../vault.ts';
 
 import type { Document } from '@xmldom/xmldom';
 import type { Arbitrary } from 'fast-check';
-import type { PDFDocument } from 'pdf-lib';
 import type { FioPayment } from '~/bindings';
 
 const SEED = 202_609;
@@ -141,14 +140,13 @@ async function exerciseIsdoc(data: Uint8Array): Promise<boolean> {
 
 // `true` jen u PDF, které nese ISDOC — až tam dojde i rozbor přílohy.
 async function exercisePdf(data: Uint8Array): Promise<boolean> {
-	let pdf: PDFDocument;
+	let pdf: LoadedPdf;
 	try {
 		pdf = await loadPdf(data);
 	} catch {
 		// Důvod nese pdf-lib a volající ho zasadí do své věty.
 		return false;
 	}
-	hasSignature(pdf);
 	let isdoc: EmbeddedIsdoc;
 	try {
 		isdoc = await readIsdoc(pdf);

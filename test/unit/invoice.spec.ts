@@ -237,6 +237,7 @@ describe('creditTargetOf / creditNotesOf', () => {
 	it('vypíše všechny dobropisy k faktuře a nic jiného', () => {
 		expect(creditNotesOf('20260001', archive)).toEqual(['20260002', '20260003', '20260009']);
 		expect(creditNotesOf('20260000', archive)).toEqual([]);
+		expect(creditNotesOf(undefined, archive)).toEqual([]);
 	});
 
 	it('bez faktury v archivu vrátí null', () => {

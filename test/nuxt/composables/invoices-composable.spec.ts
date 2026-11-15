@@ -391,7 +391,7 @@ describe('uložení a náhled', () => {
 describe('označení odeslání', () => {
 	it('zapíše čas odeslání k existujícímu dokladu', async () => {
 		documentInVault(summary('20260001'));
-		const sentAt = await useNuxtApp().vueApp.runWithContext(useInvoices).markSent('20260001');
+		const sentAt = await useNuxtApp().vueApp.runWithContext(useInvoices).markSent('20260001', () => {});
 		expect(backend.folder('/vault').sent.get('20260001')).toBe(sentAt);
 		expect(backend.args('mark_invoice_sent')).toEqual([
 			{
@@ -399,6 +399,40 @@ describe('označení odeslání', () => {
 				number: '20260001',
 			},
 		]);
+	});
+
+	it('ohlásí označení toastem a „Vrátit zpět“ příznak zruší', async () => {
+		documentInVault(summary('20260001'));
+		const onUndo = vi.fn();
+		await useNuxtApp().vueApp.runWithContext(useInvoices).markSent('20260001', onUndo);
+		const toast = useNuxtApp()
+			.vueApp.runWithContext(useToast)
+			.toasts.value.find((t) => t.title === 'Faktura 20260001 je označená jako odeslaná');
+
+		await toast!.actions![0]!.onClick!(new MouseEvent('click'));
+
+		expect(backend.folder('/vault').sent.has('20260001')).toBe(false);
+		expect(onUndo).toHaveBeenCalledOnce();
+	});
+
+	it('selhání vrácení se ohlásí a stránku neobnoví', async () => {
+		documentInVault(summary('20260001'));
+		const onUndo = vi.fn();
+		await useNuxtApp().vueApp.runWithContext(useInvoices).markSent('20260001', onUndo);
+		backend.breaks('unmark_invoice_sent', 'ISDOC nejde zapsat');
+		const toasts = useNuxtApp().vueApp.runWithContext(useToast).toasts;
+		const toast = toasts.value.find((t) => t.title === 'Faktura 20260001 je označená jako odeslaná');
+
+		await toast!.actions![0]!.onClick!(new MouseEvent('click'));
+
+		expect(onUndo).not.toHaveBeenCalled();
+		expect(toasts.value).toContainEqual(
+			expect.objectContaining({
+				title: 'Fakturu 20260001 se nepodařilo vrátit mezi neodeslané',
+				description: 'ISDOC nejde zapsat',
+				color: 'error',
+			}),
+		);
 	});
 
 	it('bez datové složky odmítne změnu stavu', async () => {
@@ -725,7 +759,7 @@ describe('sdílený přehled archivu', () => {
 		const afterSave = await invoices.archived();
 		expect(afterSave.map((i) => i.number)).toContain('20260002');
 
-		await invoices.markSent('20260001');
+		await invoices.markSent('20260001', () => {});
 		const sent = await invoices.archived();
 		expect(sent.find((i) => i.number === '20260001')?.sentAt).toBe('2026-08-30T14:15:00Z');
 

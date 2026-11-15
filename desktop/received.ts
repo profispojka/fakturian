@@ -7,13 +7,12 @@ import { errorText } from '~/utils/errors';
 
 import { child, text, toCents } from './isdoc/mod.ts';
 import { intoInvoice } from './isdoc/projection.ts';
-import { type EmbeddedIsdoc, loadPdf, readIsdoc } from './pdf.ts';
+import { type EmbeddedIsdoc, loadPdf, readIsdoc, type LoadedPdf } from './pdf.ts';
 import { compareText, errorCode, readDocument, writeAtomic } from './util.ts';
 import { overVault } from './vault.ts';
 
 import type { Invoice } from './invoice/model.ts';
 import type { Stats } from 'node:fs';
-import type { PDFDocument } from 'pdf-lib';
 import type { BrokenReceived, ReceivedDocument } from '~/bindings';
 
 // Acrobat toleruje před hlavičkou `%PDF-` až 1 024 bajtů smetí a některé skenery ho tam opravdu
@@ -78,7 +77,7 @@ async function readPdf(source: string, name: string): Promise<Uint8Array> {
 }
 
 async function readReceived(content: Uint8Array, name: string): Promise<Omit<ReceivedDocument, 'file'>> {
-	let pdf: PDFDocument;
+	let pdf: LoadedPdf;
 	try {
 		pdf = await loadPdf(content);
 	} catch (error) {
