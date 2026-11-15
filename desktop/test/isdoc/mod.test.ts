@@ -1,6 +1,5 @@
-import { Worker } from 'node:worker_threads';
-
 import { DOMImplementation, DOMParser, type Element } from '@xmldom/xmldom';
+import Tinypool from 'tinypool';
 import { describe, expect, it, vi } from 'vitest';
 
 import { MAX_CENTS } from '~/bindings';
@@ -257,76 +256,38 @@ describe('čtení ISDOC', () => {
 });
 
 describe('kontrola proti XSD ve workeru', () => {
-	it('zaseknutou kontrolu po třiceti sekundách ukončí a další kontrola založí nový worker', async () => {
+	it('kontrolu, která nedoběhne do třiceti sekund, ukončí jako vadu dokladu', async () => {
 		const xml = await fixture('foreign-document.isdoc');
-		const silent = vi.spyOn(Worker.prototype, 'postMessage').mockImplementation(() => undefined);
-		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
-		let outcome: Promise<unknown>;
-		try {
-			outcome = rejection(parse(xml));
-			await vi.advanceTimersByTimeAsync(29_999);
-			expect(silent.mock.calls.length).toBe(1);
-			await vi.advanceTimersByTimeAsync(1);
-		} finally {
-			vi.useRealTimers();
-			silent.mockRestore();
-		}
-		expect(await outcome).toEqual(
-			new Error('ISDOC nejde přečíst: kontrola dokladu nedoběhla', {
-				cause: new Error('kontrola proti XSD nedoběhla'),
-			}),
+		const timeout = new AbortController();
+		const limit = vi.spyOn(AbortSignal, 'timeout').mockReturnValueOnce(timeout.signal);
+		const run = vi.spyOn(Tinypool.prototype, 'run').mockImplementationOnce(
+			(_task, options) =>
+				new Promise((_, reject) => {
+					const signal = options?.signal as AbortSignal;
+					signal.addEventListener('abort', () => reject(signal.reason));
+				}),
+		);
+
+		const outcome = rejection(parse(xml));
+		await vi.waitFor(() => expect(run).toHaveBeenCalled());
+		const cause = new Error('Vypršel čas.');
+		timeout.abort(cause);
+
+		expect(limit).toHaveBeenCalledWith(30_000);
+		expect(await outcome).toEqual(new Error('ISDOC nejde přečíst: kontrola dokladu nedoběhla', { cause }));
+	});
+
+	it('worker, který se nespustí, ohlásí jako vadu appky a další kontrola projde', async () => {
+		const xml = await fixture('foreign-document.isdoc');
+		const crash = new Error('Worker spadl.');
+		vi.spyOn(Tinypool.prototype, 'run').mockRejectedValueOnce(crash);
+
+		await expect(parse(xml)).rejects.toEqual(
+			new Error('Fakturian nedokázal spustit kontrolu ISDOC — zkus ho restartovat', { cause: crash }),
 		);
 		const document = await parse(xml);
 
 		expect(text(document.documentElement, 'ID')).toBe('2026-0042');
-	});
-
-	it('pád workeru ohlásí jako chybu té kontroly a další kontrola projde', async () => {
-		const xml = await fixture('foreign-document.isdoc');
-		const crash = vi.spyOn(Worker.prototype, 'postMessage').mockImplementation(function (this: Worker) {
-			setImmediate(() => this.emit('error', new Error('Worker spadl.')));
-		});
-		try {
-			await expect(parse(xml)).rejects.toEqual(
-				new Error('ISDOC nejde přečíst: kontrola dokladu nedoběhla', { cause: new Error('Worker spadl.') }),
-			);
-		} finally {
-			crash.mockRestore();
-		}
-		const document = await parse(xml);
-
-		expect(text(document.documentElement, 'ID')).toBe('2026-0042');
-	});
-
-	it('kontrola, která selže ještě před odesláním dokladu, frontu nezablokuje', async () => {
-		const xml = await fixture('foreign-document.isdoc');
-		const broken = vi.spyOn(Worker.prototype, 'postMessage').mockImplementation(() => {
-			throw new Error('Zprávu nejde odeslat.');
-		});
-		try {
-			await expect(parse(xml)).rejects.toEqual(
-				new Error('ISDOC nejde přečíst: kontrola dokladu nedoběhla', {
-					cause: new Error('Zprávu nejde odeslat.'),
-				}),
-			);
-		} finally {
-			broken.mockRestore();
-		}
-		const document = await parse(xml);
-
-		expect(text(document.documentElement, 'ID')).toBe('2026-0042');
-	});
-
-	it('hotová kontrola po sobě nenechá časovač', async () => {
-		const xml = await fixture('foreign-document.isdoc');
-		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
-		try {
-			await parse(xml);
-
-			expect(vi.getTimerCount()).toBe(0);
-		} finally {
-			vi.useRealTimers();
-		}
 	});
 
 	it('opakované kontroly nenechávají na workeru posluchače', async () => {

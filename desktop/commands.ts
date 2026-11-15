@@ -157,7 +157,7 @@ export function commands(shell: Shell, bridge: Bridge) {
 		mail_compose_with_attachment: command(
 			z.strictObject({
 				vaultPath: z.string(),
-				to: z.string(),
+				to: z.email('Neplatný e-mail.').or(z.literal('')),
 				subject: z.string(),
 				body: z.string(),
 				attachment: z.string(),

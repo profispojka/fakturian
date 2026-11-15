@@ -1,9 +1,10 @@
-import { EventEmitter } from 'node:events';
-import { createRequire, syncBuiltinESMExports } from 'node:module';
-import { Worker } from 'node:worker_threads';
+import { once } from 'node:events';
+import { buffer } from 'node:stream/consumers';
+import { createDeflate } from 'node:zlib';
 
 import { PDFDocument } from 'pdf-lib';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { Tinypool } from 'tinypool';
+import { describe, expect, it, vi } from 'vitest';
 
 import { MINIMAL_ISDOC } from './invoices.ts';
 import { pdfWithIsdoc } from './pdfs.ts';
@@ -11,88 +12,103 @@ import { rejection } from './support.ts';
 
 import { MAX_ISDOC_BYTES } from '../isdoc/mod.ts';
 import { loadPdf, readIsdoc, replaceIsdoc } from '../pdf.ts';
-
-// Worker běží mimo dosah pokrytí, takže se jeho modul pouští ve vlákně testu s podvrženým portem.
-const threads: { parentPort: unknown; workerData: unknown } = createRequire(import.meta.url)('node:worker_threads');
+import runPdfTask from '../worker.ts';
 
 const ENCODER = new TextEncoder();
 const CRASHED = 'PDF nejde rozbalit v rozumném čase ani paměti — takhle doklad nevypadá';
+const MIB = 1024 * 1024;
 
-class FakePort extends EventEmitter {
-	postMessage = vi.fn<(message: unknown, transfer: unknown[]) => void>();
+// Proud objektů, který se z pár MB rozbalí na `mib` mezer; pdf-lib ho rozbaluje už při načtení.
+async function objectStreamBomb(mib: number): Promise<Uint8Array> {
+	const deflate = createDeflate({ level: 9 });
+	const packed = buffer(deflate);
+	const chunk = Buffer.alloc(MIB, ' ');
+	for (let i = 0; i < mib; i++) {
+		if (!deflate.write(chunk)) await once(deflate, 'drain');
+	}
+	deflate.end();
+	const data = await packed;
+	return Buffer.concat([
+		Buffer.from(
+			'%PDF-1.7\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [] /Count 0 >>\nendobj\n' +
+				`3 0 obj\n<< /Type /ObjStm /N 1 /First 4 /Filter /FlateDecode /Length ${data.byteLength} >>\nstream\n`,
+			'latin1',
+		),
+		data,
+		Buffer.from('\nendstream\nendobj\ntrailer\n<< /Root 1 0 R /Size 4 >>\n%%EOF\n', 'latin1'),
+	]);
 }
 
-function pretendWorker(port: FakePort | null, workerData: unknown): void {
-	threads.parentPort = port;
-	threads.workerData = workerData;
-	syncBuiltinESMExports();
+// Práce, která skončí, až ji pool zruší signálem.
+function hang(_task: unknown, options?: { signal?: unknown }): Promise<unknown> {
+	const signal = options?.signal as AbortSignal;
+	return new Promise((_, reject) => signal.addEventListener('abort', () => reject(signal.reason)));
 }
-
-async function answer(port: FakePort, request: unknown): Promise<unknown> {
-	port.postMessage.mockClear();
-	port.emit('message', request);
-	await vi.waitFor(() => expect(port.postMessage).toHaveBeenCalled());
-	return port.postMessage.mock.calls[0];
-}
-
-afterEach(() => {
-	pretendWorker(null, null);
-	vi.resetModules();
-});
 
 describe('práce s PDF ve workeru', () => {
 	it('přečte přílohy, vymění jednu a chybu pdf-lib vrátí jako odpověď', async () => {
-		const port = new FakePort();
-		pretendWorker(port, MAX_ISDOC_BYTES);
-		await import('../worker.ts');
 		const bytes = await pdfWithIsdoc(MINIMAL_ISDOC);
 
-		expect(await answer(port, { read: bytes })).toEqual([
-			{
-				result: {
-					signed: false,
-					attachments: [
-						{
-							content: ENCODER.encode(MINIMAL_ISDOC),
-							replaceable: true,
-						},
-					],
-				},
+		const read = await runPdfTask({
+			read: bytes,
+			budget: MAX_ISDOC_BYTES,
+		});
+		const rewritten = (await runPdfTask({
+			rewrite: bytes,
+			index: 0,
+			xml: '<Nove/>',
+			budget: MAX_ISDOC_BYTES,
+		})) as { result: Uint8Array };
+		const reread = await runPdfTask({
+			read: rewritten.result,
+			budget: MAX_ISDOC_BYTES,
+		});
+		const broken = await runPdfTask({
+			read: ENCODER.encode('tohle PDF neni'),
+			budget: MAX_ISDOC_BYTES,
+		});
+
+		expect(read).toEqual({
+			result: {
+				signed: false,
+				attachments: [
+					{
+						content: ENCODER.encode(MINIMAL_ISDOC),
+						replaceable: true,
+					},
+				],
 			},
-			[],
-		]);
-		const [rewritten] = (await answer(port, { rewrite: bytes, index: 0, xml: '<Nove/>' })) as [
-			{ result: Uint8Array },
-		];
-		const reread = await answer(port, { read: rewritten.result });
-		expect(reread).toEqual([
-			{
-				result: {
-					signed: false,
-					attachments: [
-						{
-							content: ENCODER.encode('<Nove/>'),
-							replaceable: true,
-						},
-					],
-				},
+		});
+		expect(reread).toEqual({
+			result: {
+				signed: false,
+				attachments: [
+					{
+						content: ENCODER.encode('<Nove/>'),
+						replaceable: true,
+					},
+				],
 			},
-			[],
-		]);
-		expect(await answer(port, { read: ENCODER.encode('tohle PDF neni') })).toEqual([
-			{ error: new Error('Failed to parse PDF document (line:0 col:28 offset=14): No PDF header found') },
-			[],
-		]);
+		});
+		expect(broken).toEqual({
+			error: new Error('Failed to parse PDF document (line:0 col:28 offset=14): No PDF header found'),
+		});
 	});
 
-	it('mimo worker nebo bez stropu příloh odmítne běžet', async () => {
-		const refused = new Error('Práce s PDF běží jen jako worker se stropem příloh.');
-		pretendWorker(null, MAX_ISDOC_BYTES);
-		await expect(import('../worker.ts')).rejects.toEqual(refused);
-		vi.resetModules();
+	it('strop příloh bere z požadavku', async () => {
+		const bytes = await pdfWithIsdoc(MINIMAL_ISDOC);
 
-		pretendWorker(new FakePort(), null);
-		await expect(import('../worker.ts')).rejects.toEqual(refused);
+		const answer = await runPdfTask({
+			read: bytes,
+			budget: 3,
+		});
+
+		expect(answer).toEqual({
+			result: {
+				signed: false,
+				attachments: [],
+			},
+		});
 	});
 });
 
@@ -104,43 +120,78 @@ describe('načtení PDF přes worker', () => {
 
 		const saved = await replaceIsdoc(pdf, changed);
 		const { xml } = await readIsdoc(await loadPdf(saved));
+		const reloaded = await PDFDocument.load(saved);
 
 		expect([pdf.bytes, pdf.signed, xml]).toEqual([bytes, false, changed]);
-		expect((await PDFDocument.load(saved)).getPageCount()).toBe(1);
+		expect(reloaded.getPageCount()).toBe(1);
 	});
 
-	it('práci, která nedoběhne do třiceti sekund, ukončí a další PDF načte novým workerem', async () => {
+	it('chybu pdf-lib vrátí tak, jak přišla', async () => {
+		await expect(loadPdf(ENCODER.encode('tohle PDF neni'))).rejects.toEqual(
+			new Error('Failed to parse PDF document (line:0 col:28 offset=14): No PDF header found'),
+		);
+	});
+
+	it('proud objektů, který se rozbalí přes 1 GB, ukončí dřív, než zabere paměť appky', async () => {
+		const bomb = await objectStreamBomb(1536);
+		// Bez časového limitu: práci musí zastavit hlídání paměti.
+		vi.spyOn(AbortSignal, 'timeout').mockReturnValueOnce(new AbortController().signal);
+
+		const error = await rejection(loadPdf(bomb));
+		const pdf = await loadPdf(await pdfWithIsdoc(MINIMAL_ISDOC));
+		const { xml } = await readIsdoc(pdf);
+
+		expect(error).toEqual(new Error(CRASHED, { cause: expect.objectContaining({ name: 'AbortError' }) }));
+		expect(xml).toBe(MINIMAL_ISDOC);
+	}, 30_000);
+
+	it('práci, která nedoběhne do deseti sekund, ukončí', async () => {
+		const timeout = new AbortController();
+		const limit = vi.spyOn(AbortSignal, 'timeout').mockReturnValueOnce(timeout.signal);
+		const run = vi.spyOn(Tinypool.prototype, 'run').mockImplementationOnce(hang);
+
+		const outcome = rejection(loadPdf(await pdfWithIsdoc(MINIMAL_ISDOC)));
+		await vi.waitFor(() => expect(run).toHaveBeenCalled());
+		const cause = new Error('Vypršel čas.');
+		timeout.abort(cause);
+
+		expect(limit).toHaveBeenCalledWith(10_000);
+		expect(await outcome).toEqual(new Error(CRASHED, { cause }));
+	});
+
+	it('worker přeteklý přes strop haldy ohlásí jako vadu dokladu', async () => {
+		const overflow = new Error('Worker terminated due to reaching memory limit');
+		overflow.code = 'ERR_WORKER_OUT_OF_MEMORY';
+		vi.spyOn(Tinypool.prototype, 'run').mockRejectedValueOnce(overflow);
+
+		await expect(loadPdf(await pdfWithIsdoc(MINIMAL_ISDOC))).rejects.toEqual(
+			new Error(CRASHED, { cause: overflow }),
+		);
+	});
+
+	it('worker, který se nespustí, ohlásí jako vadu appky a další PDF načte', async () => {
+		const crash = new Error('Worker spadl.');
+		vi.spyOn(Tinypool.prototype, 'run').mockRejectedValueOnce(crash);
 		const bytes = await pdfWithIsdoc(MINIMAL_ISDOC);
-		const silent = vi.spyOn(Worker.prototype, 'postMessage').mockImplementation(() => undefined);
-		vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
-		let outcome: Promise<unknown>;
+
+		const error = await rejection(loadPdf(bytes));
+		const { xml } = await readIsdoc(await loadPdf(bytes));
+
+		expect(error).toEqual(
+			new Error('Fakturian nedokázal spustit čtení PDF — zkus ho restartovat', { cause: crash }),
+		);
+		expect(xml).toBe(MINIMAL_ISDOC);
+	});
+
+	it('hotová práce po sobě nenechá hlídání paměti', async () => {
+		const bytes = await pdfWithIsdoc(MINIMAL_ISDOC);
+		vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
 		try {
-			outcome = rejection(loadPdf(bytes));
-			await vi.advanceTimersByTimeAsync(29_999);
-			expect(silent.mock.calls.length).toBe(1);
-			await vi.advanceTimersByTimeAsync(1);
+			await loadPdf(bytes);
+
+			expect(vi.getTimerCount()).toBe(0);
 		} finally {
 			vi.useRealTimers();
-			silent.mockRestore();
 		}
-		expect(await outcome).toEqual(new Error(CRASHED, { cause: new Error('práce s PDF nedoběhla') }));
-		const pdf = await loadPdf(bytes);
-
-		expect((await readIsdoc(pdf)).xml).toBe(MINIMAL_ISDOC);
-	});
-
-	it('pád workeru ohlásí jako chybu té práce a další PDF načte', async () => {
-		const bytes = await pdfWithIsdoc(MINIMAL_ISDOC);
-		const crash = vi.spyOn(Worker.prototype, 'postMessage').mockImplementation(function (this: Worker) {
-			setImmediate(() => this.emit('error', new Error('Worker spadl.')));
-		});
-		try {
-			await expect(loadPdf(bytes)).rejects.toEqual(new Error(CRASHED, { cause: new Error('Worker spadl.') }));
-		} finally {
-			crash.mockRestore();
-		}
-		const pdf = await loadPdf(bytes);
-
-		expect((await readIsdoc(pdf)).xml).toBe(MINIMAL_ISDOC);
 	});
 });

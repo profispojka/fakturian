@@ -147,8 +147,14 @@ jednodušší" a „není to konzistentní" novým scénářem není.
   (`desktop/util.ts`) bere „Faktura 2026.pdf" jako možnou kopii „Faktura.pdf".
   Šíře je záměrná: výpis si skutečné číslo přečte z PDF a užší pravidlo by
   přehlédlo skutečnou kopii od synchronizace.
-- **BEZP-12 · Deduplikace příloh PDF podle odkazu.** `uniqueIsdoc`
-  (`desktop/pdf.ts`) drží strop 16 příloh a 32 MB na celé PDF; opakovaný odkaz
+- **DATA-27 · Úprava faktury ze dvou Maců přepíše novější PDF.** `saveInvoice`
+  (`desktop/invoice/mod.ts`, větev úpravy) porovná s diskem jen UUID, ne verzi,
+  kterou formulář načetl. Scénář vyžaduje otevřít tutéž fakturu na dvou strojích
+  naráz a na jednom z nich ji opravit a odeslat; živnostník fakturuje z jednoho
+  Macu a ke stejné faktuře se vrací postupně. Slib „cizí změnu nepřepíšeme"
+  z `01-FUNKCE` § 13 platí pro JSON (`KNOWN` v `desktop/store.ts`), u PDF ne.
+- **BEZP-12 · Deduplikace příloh PDF podle odkazu.** `attachments`
+  (`desktop/pdf-document.ts`) drží strop 16 příloh a 32 MB na celé PDF; opakovaný odkaz
   se do nich započítá.
 - **LOG-38 · Fio nerozliší TLS a DNS, stavové kódy jsou čísla.** `fioFetch`
   (`desktop/fio.ts`): obojí končí „jste offline?" a náprava je pro uživatele
@@ -175,9 +181,9 @@ jednodušší" a „není to konzistentní" novým scénářem není.
   (`desktop/mcp/connector.ts`). Čtení přímo ze souborů by potřebovalo zámkový
   soubor respektovaný appkou i connectorem (`desktop/store.ts`).
 - **NAPAD-2 · Výpočty v hlavním procesu.** Překlad Typstu (`compileTypst` v
-  `desktop/pdf.ts`) a `inflateSync` ve `streamBytes` běží synchronně a fronta
-  `exclusive` v `desktop/store.ts` je jedna pro všechny datové soubory. Worker
-  a fronta po souborech se zavedou, až uložení nebo náhled okno znatelně zdrží.
+  `desktop/pdf.ts`) běží synchronně a fronta `exclusive` v `desktop/store.ts`
+  je jedna pro všechny datové soubory. Worker a fronta po souborech se zavedou,
+  až uložení nebo náhled okno znatelně zdrží.
 
 ### Rozhraní
 

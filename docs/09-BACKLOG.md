@@ -62,24 +62,11 @@
   Nápověda (`showcase/content/napoveda/datova-slozka.md`) přitom slibuje, že ostatní části appky
   fungují dál. Přidat „Ukázat ve Finderu" (`revealPath`) a srovnat text nápovědy.
 
-- **DATA-27 · Úprava faktury ze dvou Maců přepíše novější PDF — STŘEDNÍ.**
-  `saveInvoice` (`desktop/invoice/mod.ts`, větev úpravy) porovná s diskem jen UUID; verzi, kterou
-  formulář načetl, nic neověřuje. Formulář otevřený na druhém stroji uloží starší obsah přes
-  opravu a odeslání z prvního, `copySent` přenese příznak odeslání a týdenní záloha
-  (`saveSnapshot`) odeslanou verzi často nemá. `docs/01-FUNKCE.md` § 13 slibuje, že cizí změnu
-  appka nepřepíše; pro JSON to drží `KNOWN` v `desktop/store.ts`. Poslat s fakturou otisk PDF
-  a při neshodě uložení odmítnout.
-
 - **UI-43 · Neúspěšné otevření faktury nechá ve formuláři předchozí — STŘEDNÍ.**
   `openFromRoute` v `src/pages/invoice/[id].vue`: když `load` dokladu B selže (PDF mezitím
   zmizelo nebo se přejmenovalo), zůstane formulář s dokladem A i se změnami, které uživatel právě
   zahodil, adresa ukazuje B. „Uložit" zapíše A, „Smazat" míří na B. Při selhání formulář vyprázdnit
   a ukázat stav „doklad nejde otevřít" (`missing`).
-
-- **UCT-46 · Fakturu soukromé osobě bez IČO vystavit nejde — STŘEDNÍ (rozhodnout).**
-  `invoiceHeaderSchema` (`src/schemas/invoices.ts`) a `contactStoredSchema` vyžadují IČO
-  odběratele. `docs/01-FUNKCE.md` § 2 přitom nabízí „Ruční zadání (… / fyzická osoba)". Buď zapsat
-  do `08-ZNAME-OMEZENI.md` a prezentace jako omezení, nebo odběratele bez IČO povolit.
 
 - **TEST-23 · Hlídání limitu obratu nemá pokryté tři větve — STŘEDNÍ.**
   `saveInvoice` (`desktop/invoice/mod.ts`): `crossed.add(year)` u roku, který už limit překročil
@@ -120,12 +107,6 @@
   `askDelete` (`src/pages/expense/index.vue`) nechá PDF v `prijate/` a `identicalFile`
   (`desktop/received.ts`) pak tentýž soubor odmítne jako duplikát. Obnovit jde jen smazáním souboru
   ve Finderu.
-
-- **BEZP-18 · Adresa příjemce mailu se v hlavním procesu nekontroluje — NÍZKÁ.**
-  Příkaz `mail_compose_with_attachment` (`desktop/commands.ts`) bere `to: z.string()`
-  a `mailComposeWithAttachment` (`desktop/mail.ts`) ji předá `osascript` jako argument; hodnota
-  `-e` z ní udělá přepínač. Zneužít to jde jen z kompromitovaného rendereru; patří sem `z.email()`
-  nebo prázdný řetězec.
 
 - **NAST-27 · V balíčku zůstává `default_app.asar` z Electronu — NÍZKÁ.**
   `electronDist` v `electron-builder.yml` vypne úplný úklid, takže

@@ -32,6 +32,7 @@
 	"dependencies": {
 		"@myriaddreamin/typst-ts-node-compiler": "0.8.0-rc3",
 		"@napi-rs/keyring": "2.1.2",
+		"tinypool": "2.2.0",
 		"xmllint-wasm": "5.3.0"
 	},
 	"devDependencies": {

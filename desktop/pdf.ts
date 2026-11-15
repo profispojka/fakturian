@@ -1,14 +1,15 @@
 import { Buffer } from 'node:buffer';
 import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Worker } from 'node:worker_threads';
 
 import { NodeCompiler, type NodeTypstDocument } from '@myriaddreamin/typst-ts-node-compiler';
 import pLimit from 'p-limit';
+import { Tinypool } from 'tinypool';
 
 import { errorText } from '~/utils/errors';
 
 import { MAX_ISDOC_BYTES, parse } from './isdoc/mod.ts';
+import { errorCode, MIB } from './util.ts';
 
 import type { PdfContent, PdfRequest } from './pdf-document.ts';
 import type { Document } from '@xmldom/xmldom';
@@ -82,69 +83,54 @@ export function renderTypstSvg(source: string, files: TypstFiles): string[] {
 // Ze zdrojů běží `worker.ts` vedle tohoto modulu, z bundlu `worker.mjs` vedle `main.mjs`. Ze
 // zdrojů ho Node spouští bez překladu, takže jeho importy nesmí sáhnout na alias `~/`.
 const PDF_WORKER = new URL(`./worker${extname(fileURLToPath(import.meta.url))}`, import.meta.url);
-// Hlavní proces na worker nečeká blokovaně, takže limit jen uklidí zaseknutou práci; doklad trvá zlomek sekundy.
-const PDF_TIMEOUT = 30_000;
-// Skutečný doklad má stovky objektů. Proud objektů, který se rozbalí na miliony, přeteče a zabije worker, ne appku.
+// Doklad trvá zlomek sekundy; limit ukončí práci, která se zacyklí bez růstu paměti.
+const PDF_TIMEOUT = 10_000;
+// Skutečný doklad má stovky objektů. Přetečení haldy workeru ale umí V8 ohlásit jako pád celého procesu.
 const PDF_HEAP_MB = 256;
+// Rozbalené proudy leží v `ArrayBuffer` mimo haldu, kam `resourceLimits` nedosáhne; pdf-lib jich rozbalí
+// stovky MB za sekundu. Hlídá se proto přírůstek paměti celého procesu.
+const PDF_MEMORY_BYTES = 1024 * MIB;
+const PDF_MEMORY_CHECK = 50;
 
 // pdf-lib rozbalí proudy objektů synchronně a bez stropu, takže PDF čte a ukládá jen worker, který jde
-// zabít. Jeden na proces, založený až prvním PDF.
-let pdfWorker: Worker | undefined;
-// Práce jdou po jedné, takže odpověď workeru patří vždy té, která zrovna čeká.
+// zabít. Jeden na proces, založený až prvním PDF; spadlý nebo zabitý nahradí pool novým.
+const pdfPool = new Tinypool({
+	filename: PDF_WORKER,
+	minThreads: 0,
+	maxThreads: 1,
+	idleTimeout: 60_000,
+	resourceLimits: {
+		maxOldGenerationSizeMb: PDF_HEAP_MB,
+	},
+});
+// Po jedné, aby limity začaly běžet až se začátkem práce, ne zařazením do fronty.
 const pdfJobs = pLimit(1);
 
-type PdfAnswer<T> = { result: T } | { error: unknown };
-
-function startPdfWorker(): Worker {
-	// Strop příloh dostane worker od nás: modul s ním importuje alias, který Node ze zdrojů nenačte.
-	const worker = new Worker(PDF_WORKER, {
-		workerData: MAX_ISDOC_BYTES,
-		resourceLimits: {
-			maxOldGenerationSizeMb: PDF_HEAP_MB,
-		},
+function ask<T>(request: PdfRequest): Promise<T> {
+	return pdfJobs(async () => {
+		const memory = new AbortController();
+		const baseline = process.memoryUsage.rss();
+		const watch = setInterval(() => {
+			if (process.memoryUsage.rss() - baseline > PDF_MEMORY_BYTES) memory.abort();
+		}, PDF_MEMORY_CHECK);
+		const signal = AbortSignal.any([AbortSignal.timeout(PDF_TIMEOUT), memory.signal]);
+		let reply: { result: T } | { error: unknown };
+		try {
+			reply = await pdfPool.run(request, { signal });
+		} catch (error) {
+			if (signal.aborted || errorCode(error) === 'ERR_WORKER_OUT_OF_MEMORY') {
+				throw new Error('PDF nejde rozbalit v rozumném čase ani paměti — takhle doklad nevypadá', {
+					cause: error,
+				});
+			}
+			// Worker, který se nespustí, je vada appky, ne dokladu.
+			throw new Error('Fakturian nedokázal spustit čtení PDF — zkus ho restartovat', { cause: error });
+		} finally {
+			clearInterval(watch);
+		}
+		if ('error' in reply) throw reply.error;
+		return reply.result;
 	});
-	// Stryker disable next-line CallExpression: ekvivalentní mutant, proces drží naživu čekající práce, test pozdější konec procesu nevidí.
-	worker.unref();
-	// Stryker disable next-line BlockStatement,StringLiteral: další práce by čekala na mrtvý worker celý limit.
-	worker.once('exit', () => {
-		pdfWorker = undefined;
-	});
-	pdfWorker = worker;
-	return worker;
-}
-
-async function exchange<T>(request: PdfRequest): Promise<PdfAnswer<T>> {
-	const worker = pdfWorker ?? startPdfWorker();
-	const answer = Promise.withResolvers<PdfAnswer<T>>();
-	const stopped = () => answer.reject(new Error('práce s PDF nedoběhla'));
-	const timer = setTimeout(() => void worker.terminate(), PDF_TIMEOUT);
-	worker.once('message', answer.resolve);
-	worker.once('error', answer.reject);
-	worker.once('exit', stopped);
-	try {
-		// Prázdný seznam přenášených bufferů: bez něj lint plete `postMessage` s tím z `window`.
-		worker.postMessage(request, []);
-		const reply = await answer.promise;
-		return reply;
-	} finally {
-		clearTimeout(timer);
-		// Stryker disable next-line StringLiteral,CallExpression: ekvivalentní mutant, posluchač `once` po odpovědi zmizí sám a bez odpovědi worker skončil.
-		worker.off('message', answer.resolve);
-		worker.off('error', answer.reject);
-		worker.off('exit', stopped);
-	}
-}
-
-// Spadlý, přeteklý nebo zaseknutý worker je chyba téhle práce; další práce založí nový.
-async function ask<T>(request: PdfRequest): Promise<T> {
-	let reply: PdfAnswer<T>;
-	try {
-		reply = await pdfJobs(() => exchange<T>(request));
-	} catch (error) {
-		throw new Error('PDF nejde rozbalit v rozumném čase ani paměti — takhle doklad nevypadá', { cause: error });
-	}
-	if ('error' in reply) throw reply.error;
-	return reply.result;
 }
 
 // Načtené PDF jsou jen data: hlavní proces dokument pdf-lib nedrží.
@@ -153,7 +139,10 @@ export interface LoadedPdf extends PdfContent {
 }
 
 export async function loadPdf(bytes: Uint8Array): Promise<LoadedPdf> {
-	const content = await ask<PdfContent>({ read: bytes });
+	const content = await ask<PdfContent>({
+		read: bytes,
+		budget: MAX_ISDOC_BYTES,
+	});
 	return {
 		bytes,
 		...content,
@@ -243,6 +232,7 @@ export async function replaceIsdoc(pdf: LoadedPdf, xml: string): Promise<Uint8Ar
 		rewrite: pdf.bytes,
 		index: lookup.index,
 		xml,
+		budget: MAX_ISDOC_BYTES,
 	});
 	return saved;
 }

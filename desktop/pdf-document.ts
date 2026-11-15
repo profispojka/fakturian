@@ -29,7 +29,10 @@ export interface PdfRewrite {
 	xml: string;
 }
 
-export type PdfRequest = { read: Uint8Array } | ({ rewrite: Uint8Array } & PdfRewrite);
+// Strop příloh jde s každou prací: modul s ním importuje alias, který Node ze zdrojů nenačte.
+export type PdfRequest = { budget: number } & ({ read: Uint8Array } | ({ rewrite: Uint8Array } & PdfRewrite));
+
+export type PdfAnswer = { result: PdfContent | Uint8Array } | { error: unknown };
 
 interface Found {
 	// Hodnota `/EF /F` tak, jak ve filespecu stojí.

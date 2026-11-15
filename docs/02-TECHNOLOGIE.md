@@ -352,13 +352,19 @@ Factur-X/ZUGFeRD, jen s českým ISDOC. Model dokladu a jeho vrstvy popisuje
 - **Změna existujícího dokladu** (odeslání): `pdf-lib` přepíše obsah přílohy na
   místě (`replaceIsdoc`). **Čtení zpět** vytáhne ISDOC přes `pdf-lib`
   (`readIsdoc`), XML drží `@xmldom/xmldom`.
-- **pdf-lib běží jen ve workeru `worker.mjs`** se stropem haldy a limitem
-  30 s: proudy objektů rozbaluje synchronně a bez stropu, takže podvržené PDF
-  zabije worker, ne hlavní proces. Hlavní proces posílá bajty a dostává přílohy,
-  příznak podpisu nebo bajty nového PDF (`desktop/pdf-document.ts`).
+- **pdf-lib běží jen ve workeru `worker.mjs`** z poolu `tinypool`: proudy
+  objektů rozbaluje synchronně a bez stropu. Práci ukončí limit 10 s a přírůstek
+  paměti procesu nad 1 GB — rozbalená data leží v `ArrayBuffer` mimo haldu, kam
+  strop haldy 256 MB nedosáhne. Worker běží ve stejném procesu jako appka: PDF
+  s miliony drobných objektů přeteče haldu workeru a V8 to umí ohlásit jako
+  pád celého procesu. Hlavní proces posílá bajty a dostává přílohy, příznak
+  podpisu nebo bajty nového PDF (`desktop/pdf-document.ts`); odeslání tak PDF
+  rozebere dvakrát (`loadPdf` a přepis), což se vědomě přijímá místo držení
+  stavu ve workeru. Worker, který se nespustí, hlásí appka jako svou vadu, ne
+  jako vadný doklad.
 - **Každý přečtený ISDOC projde celým XSD 6.0.2** (`parse` v
   `desktop/isdoc/mod.ts`). Kontrolu dělá libxml2 z `xmllint-wasm` ve workeru
-  `validator.mjs`, takže hlavní vlákno nečeká; schéma je soubor
+  `validator.mjs` z poolu `tinypool`, takže hlavní vlákno nečeká; schéma je soubor
   `desktop/isdoc/isdoc-invoice-6.0.2.xsd` přibalený do bundlu.
 - **ISDOC pro neplátce:** `VATApplicable=false`, daňové sumy 0, sazba 0 %.
 - **PDF/A-3a** ověřuje test externím validátorem veraPDF.
@@ -466,10 +472,12 @@ distribuce není rozhodnutý.
   `.output/release`:
   DMG a ZIP pro arm64, jen macOS, minimální systém `mac.minimumSystemVersion`.
 - `desktop:build` (`tools/desktop/build.ts`) zabalí esbuildem hlavní proces do
-  `.output/desktop/main.mjs`, worker ISDOC do `validator.mjs` a preload do
-  `preload.cjs` (preload v sandboxu nesmí být ES modul). Mimo bundl zůstávají
-  jen `dependencies` — nativní addony a wasm; frontend a nástroje patří do
-  `devDependencies`. Addony a worker leží v balíčku mimo archiv `asar`.
+  `.output/desktop/main.mjs`, worker ISDOC do `validator.mjs`, worker PDF do
+  `worker.mjs` a preload do `preload.cjs` (preload v sandboxu nesmí být ES
+  modul). Mimo bundl zůstávají jen `dependencies` — nativní addony, wasm
+  a `tinypool`, který si vstupní worker hledá vedle sebe; frontend a nástroje
+  patří do `devDependencies`. Addony, workery a `tinypool` leží v balíčku mimo
+  archiv `asar`.
 - `THIRD-PARTY-NOTICES.txt` uvádí licence a copyrighty závislostí dodávaných
   v aplikaci včetně balíčků zabalených do frontendu a hlavního procesu. Udržuje
   se ručně a balíček jej nese v `Contents/Resources`.

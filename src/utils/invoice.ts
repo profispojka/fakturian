@@ -107,7 +107,8 @@ export function creditTargetOf(
 	};
 }
 
-export function creditNotesOf(invoiceNumber: string, archive: readonly InvoiceSummary[]): string[] {
+export function creditNotesOf(invoiceNumber: string | undefined, archive: readonly InvoiceSummary[]): string[] {
+	if (!invoiceNumber) return [];
 	return archive
 		.filter((i) => i.documentType === DocumentKind.CreditNote && i.originalInvoice === invoiceNumber)
 		.map((i) => i.number);

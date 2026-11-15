@@ -1,68 +1,42 @@
 import { EventEmitter } from 'node:events';
 import { createRequire, syncBuiltinESMExports } from 'node:module';
 
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import SCHEMA from '../../isdoc/isdoc-invoice-6.0.2.xsd';
 import { fixture } from '../isdoc.ts';
 
-// Worker běží mimo dosah pokrytí, takže se modul validátoru pouští ve vlákně testu. Port se podvrhne
-// přímo v `worker_threads`: lepidlo xmllint si ho bere přes `require`, kam `vi.mock` nesahá.
-const threads: { parentPort: unknown; workerData: unknown } = createRequire(import.meta.url)('node:worker_threads');
+import type { Validation } from '../../isdoc/validator.ts';
 
-class FakePort extends EventEmitter {
-	postMessage = vi.fn<(message: unknown, transfer: unknown[]) => void>();
-}
+// Worker běží mimo dosah pokrytí, takže se kontrola pouští ve vlákně testu. Lepidlo xmllint si při
+// načtení registruje posluchače na `parentPort`, který ve vlákně testu není; podvrhne se v `worker_threads`,
+// kam si ho bere přes `require` a kam `vi.mock` nesahá.
+const threads: { parentPort: unknown } = createRequire(import.meta.url)('node:worker_threads');
 
-function pretendWorker(port: FakePort | null, workerData: unknown): void {
-	threads.parentPort = port;
-	threads.workerData = workerData;
+let validate: (task: { xml: string; schema: string }) => Promise<Validation>;
+
+beforeAll(async () => {
+	threads.parentPort = new EventEmitter();
 	syncBuiltinESMExports();
-}
+	({ default: validate } = await import('../../isdoc/validator.ts'));
+});
 
-async function answer(port: FakePort, xml: string): Promise<unknown> {
-	port.postMessage.mockClear();
-	port.emit('message', xml);
-	await vi.waitFor(() => expect(port.postMessage).toHaveBeenCalled(), { timeout: 10_000 });
-	return port.postMessage.mock.calls[0];
-}
-
-afterEach(() => {
-	pretendWorker(null, null);
-	vi.resetModules();
+afterAll(() => {
+	threads.parentPort = null;
+	syncBuiltinESMExports();
 });
 
 describe('validátor ISDOC ve workeru', () => {
 	it('platný doklad ohlásí nulovým kódem a vadný s hláškou libxml2', async () => {
-		const port = new FakePort();
-		pretendWorker(port, SCHEMA);
-		await import('../../isdoc/validator.ts');
-
-		expect(await answer(port, await fixture('foreign-document.isdoc'))).toEqual([
-			{
-				code: 0,
-				stderr: 'invoice.isdoc validates\n',
-			},
-			[],
-		]);
-		expect(await answer(port, '<Invoice/>')).toEqual([
-			{
-				code: 3,
-				stderr: expect.stringMatching(
-					/^invoice\.isdoc:1: Schemas validity error : Element 'Invoice': No matching global declaration available for the validation root\.\n/,
-				),
-			},
-			[],
-		]);
-	});
-
-	it('mimo worker nebo bez schématu odmítne běžet', async () => {
-		const refused = new Error('Validátor ISDOC běží jen jako worker se schématem.');
-		pretendWorker(null, SCHEMA);
-		await expect(import('../../isdoc/validator.ts')).rejects.toEqual(refused);
-		vi.resetModules();
-
-		pretendWorker(new FakePort(), null);
-		await expect(import('../../isdoc/validator.ts')).rejects.toEqual(refused);
+		expect(await validate({ xml: await fixture('foreign-document.isdoc'), schema: SCHEMA })).toEqual({
+			code: 0,
+			stderr: 'invoice.isdoc validates\n',
+		});
+		expect(await validate({ xml: '<Invoice/>', schema: SCHEMA })).toEqual({
+			code: 3,
+			stderr: expect.stringMatching(
+				/^invoice\.isdoc:1: Schemas validity error : Element 'Invoice': No matching global declaration available for the validation root\.\n/,
+			),
+		});
 	});
 });

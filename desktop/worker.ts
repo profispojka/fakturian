@@ -1,25 +1,15 @@
-import { parentPort, workerData } from 'node:worker_threads';
+import { readPdf, rewritePdf, type PdfAnswer, type PdfRequest } from './pdf-document.ts';
 
-import { readPdf, rewritePdf, type PdfContent, type PdfRequest } from './pdf-document.ts';
-
-if (!parentPort || typeof workerData !== 'number')
-	throw new Error('Práce s PDF běží jen jako worker se stropem příloh.');
-const port = parentPort;
-const budget = workerData;
-
-// Chyba pdf-lib jde hlavnímu vláknu jako odpověď; událost `error` workeru znamená, že práce nedoběhla.
-async function answer(request: PdfRequest): Promise<void> {
-	let result: PdfContent | Uint8Array;
+// Chyba pdf-lib je odpověď o dokumentu; odmítnutí z poolu znamená, že worker práci nedokončil.
+export default async function runPdfTask(request: PdfRequest): Promise<PdfAnswer> {
 	try {
-		if ('read' in request) result = await readPdf(request.read, budget);
-		else result = await rewritePdf(request.rewrite, budget, request);
+		if ('read' in request) {
+			const content = await readPdf(request.read, request.budget);
+			return { result: content };
+		}
+		const saved = await rewritePdf(request.rewrite, request.budget, request);
+		return { result: saved };
 	} catch (error) {
-		port.postMessage({ error }, []);
-		return;
+		return { error };
 	}
-	port.postMessage({ result }, []);
 }
-
-port.on('message', (request: PdfRequest) => {
-	void answer(request);
-});

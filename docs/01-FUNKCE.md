@@ -67,7 +67,7 @@ a editovatelné v Nastavení. Novou fakturu jimi appka předvyplní.
 - Seznam odběratelů (název, IČO, město), vyhledávání
 - **Přidat / upravit / smazat** odběratele
 - **Dotáhnout z ARES** podle IČO — vyplní název, adresu a IČO
-- Ruční zadání (když firma není v ARESu / fyzická osoba)
+- Ruční zadání (když firma nebo OSVČ není v ARESu; IČO je povinné, viz UCT-46)
 - **Povinné údaje:** název, IČO, ulice, město a PSČ.
   **E-mail je nepovinný** (fakturu jde předat i papírem); když vyplněný je,
   musí být platný a použije se pro odeslání faktury.
@@ -397,10 +397,11 @@ Cloudové zástupce a konfliktní kopie appka rozpozná. Zástupce PDF dál reze
 číslo dokladu; u konfliktního PDF zastaví nejednoznačné započtení a u
 konfliktního JSONu čtení i zápis, dokud uživatel verze nerozhodne ve Finderu.
 
-**Cizí změnu appka nepřepíše.** Když soubor od načtení změnil jiný Mac přes
+**Cizí změnu appka nepřepíše.** Když datový soubor (JSON) od načtení změnil jiný Mac přes
 cloud nebo druhé okno Fakturianu, zápis se odmítne a appka nabídne, že se
 načte znovu z disku; neuložené změny se tím ztratí. Vault v cloudu je proto
-lepší používat v jednu chvíli z jednoho stroje.
+lepší používat v jednu chvíli z jednoho stroje. U PDF faktury se při úpravě
+kontroluje jen číslo dokladu, ne verze načtená formulářem.
 
 ---
 
