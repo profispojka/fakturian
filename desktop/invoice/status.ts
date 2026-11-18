@@ -50,7 +50,12 @@ async function loadForStatus(
 			cause: error,
 		});
 	}
-	return { root, path, pdf, document };
+	return {
+		root,
+		path,
+		pdf,
+		document,
+	};
 }
 
 function assertUnsigned(number: string, pdf: LoadedPdf, document: Document): void {
@@ -78,12 +83,13 @@ export async function markInvoiceSent({ vaultPath, number }: { vaultPath: string
 	return at;
 }
 
-export async function unmarkInvoiceSent({ vaultPath, number }: { vaultPath: string; number: string }): Promise<void> {
+export async function unmarkInvoiceSent({ vaultPath, number }: { vaultPath: string; number: string }): Promise<null> {
 	const { root, path, pdf, document } = await loadForStatus(vaultPath, number, 'ho nelze vrátit mezi neodeslané');
-	if (sentAt(document) === undefined) return;
+	if (sentAt(document) === undefined) return null;
 	assertUnsigned(number, pdf, document);
 
 	clearSent(document);
 	const bytes = await replaceIsdoc(pdf, toXml(document));
 	await writePdf(root, path, number, bytes);
+	return null;
 }

@@ -12,14 +12,15 @@
 		"suspicious": "error"
 	},
 	"ignorePatterns": ["node_modules", ".nuxt", ".output", "dist", "build", "coverage"],
-	// Vlastní pravidla z `tools/lint/oxlint-fakturian.ts` se zapínají po složkách v `overrides` (kromě
-	// `object-multiline`, které platí všude);
-	// na rozdíl od type-aware pravidel dopadají i na `<script>` ve `.vue`.
-	"jsPlugins": ["./tools/lint/oxlint-fakturian.ts"],
+	// Vlastní pravidla z `tools/lint/` se zapínají globálně nebo po složkách v `overrides`.
+	// Na rozdíl od type-aware pravidel dopadají i na `<script>` ve `.vue`.
+	"jsPlugins": ["./tools/lint/oxlint-fakturian.ts", "./tools/lint/guardrails.mjs"],
 	"rules": {
 		"unicorn/no-array-sort": "error",
 		"no-new": "error",
 		"vitest/valid-expect": ["error", { "maxArgs": 2 }],
+		// Generativní test může mít scénář uložený v konstantě; aserce běží až při `assert(property)`.
+		"vitest/no-standalone-expect": ["error", { "additionalTestBlockFunctions": ["asyncProperty", "property"] }],
 		"no-unused-vars": "error",
 		"no-warning-comments": [
 			"error",
@@ -37,6 +38,11 @@
 		],
 		"max-lines": ["error", { "max": 1200, "skipBlankLines": true }],
 		"fakturian/object-multiline": "error",
+		"fakturian/blank-line-around-multiline-statements": "error",
+		"fakturian/no-iife": "error",
+		"no-script-url": "error",
+		"typescript/no-implied-eval": "error",
+		"typescript/no-unnecessary-type-assertion": "error",
 		"no-var": "error",
 		"prefer-const": "error",
 		// `void` označuje záměrně nečekaný příslib a čtení layoutové vlastnosti bez použití hodnoty.
@@ -151,6 +157,11 @@
 				"fakturian/await-standalone": "error",
 				"fakturian/error-text": "error",
 				"fakturian/shortcut-guard": "error",
+				"fakturian/no-delete": "error",
+				"fakturian/no-wrapping-if": "error",
+				"fakturian/no-provide-inject": "error",
+				"fakturian/complexity": ["error", { "max": 20 }],
+				"fakturian-guards/no-composables-outside-root": "error",
 				"fakturian/no-alias-function": "error",
 				"fakturian/comment-style": "error",
 				"typescript/no-unsafe-argument": "error",
@@ -182,7 +193,11 @@
 				// `utils/date.ts` nad `@internationalized/date`, takže `Date` v appce nemá co dělat.
 				"no-restricted-globals": [
 					"error",
-					{ "name": "Date", "message": "Dnešek je `today()`, výpočty jdou přes `~/utils/date`." }
+					{ "name": "Date", "message": "Dnešek je `today()`, výpočty jdou přes `~/utils/date`." },
+					{
+						"name": "defineExpose",
+						"message": "Rodič a dítě komunikují přes props, defineModel a události."
+					}
 				],
 				// `schema.parse()` pošle do UI `ZodError` s víceřádkovým JSONem.
 				"no-restricted-properties": [
@@ -336,7 +351,10 @@
 		},
 		{
 			"files": ["src/components/**/*.vue"],
-			"rules": { "fakturian/component-path": "error" }
+			"rules": {
+				"fakturian/component-path": "error",
+				"fakturian-guards/max-emits": ["error", { "max": 3 }]
+			}
 		},
 		{
 			"files": ["src/middleware/**/*.{js,jsx,ts,tsx}", "src/plugins/**/*.{js,jsx,ts,tsx}", "src/app.config.ts"],
@@ -397,6 +415,7 @@
 		{
 			"files": ["**/*.{test,spec}.{js,jsx,ts,tsx,vue}"],
 			"rules": {
+				"fakturian-guards/no-conditional-in-test": "error",
 				"no-restricted-properties": [
 					"error",
 					{

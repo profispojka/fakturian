@@ -14,6 +14,7 @@ const props = withDefaults(
 	}>(),
 	{ destructive: true },
 );
+
 const emit = defineEmits<{ close: [boolean] }>();
 
 useEventListener(

@@ -149,15 +149,15 @@ function chartOption(t: Tokens): EChartsCoreOption {
 // Barvy jsou CSS tokeny, které ECharts sám nečte; po přepnutí vzhledu se musí přečíst znovu.
 const palette = shallowRef<Tokens>();
 
-onMounted(() => {
-	const readPalette = () => {
-		palette.value = tokens(root);
-	};
-	readPalette();
-	useMutationObserver(document.documentElement, readPalette, {
-		attributes: true,
-		attributeFilter: ['class'],
-	});
+const readPalette = () => {
+	palette.value = tokens(root);
+};
+
+onMounted(readPalette);
+
+useMutationObserver(document.documentElement, readPalette, {
+	attributes: true,
+	attributeFilter: ['class'],
 });
 
 const option = computed(() => palette.value && chartOption(palette.value));

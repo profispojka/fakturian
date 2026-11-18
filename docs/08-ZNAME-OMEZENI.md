@@ -240,5 +240,5 @@ jednodušší" a „není to konzistentní" novým scénářem není.
   validátor.** `test/tooling/quality-gate.spec.ts`.
 - **NAST-26 · Kontrolní skripty.** `requireTsMutations`
   (`tools/mutation/mutation-result.ts`) pustí mutanta `Ignored` s jakýmkoli
-  důvodem; `errorTextRule` (`tools/lint/oxlint-fakturian.ts`) hlásí falešně při
+  důvodem; `errorTextRule` (`tools/lint/rules/error-text.ts`) hlásí falešně při
   zastínění jména `e`.
