@@ -6,6 +6,7 @@ import { QUICK_NEW_ITEMS } from '~/constants/quicknew';
 
 const createOpen = ref(false);
 const paletteOpen = useState<boolean>('paletteOpen', () => false);
+
 whenever(paletteOpen, () => {
 	createOpen.value = false;
 });
@@ -18,6 +19,7 @@ const { vaultPath, ready } = useVault();
 const pageNeedsVault = computed(() => !route.meta.vaultOptional);
 
 const { supplier } = useSettings();
+
 // `legacy` odmítnutí schránky obslouží náhradní cestou přes textarea, takže `copy()` nehází.
 const { copy: icoCopy, copied: icoCopied } = useClipboard({
 	legacy: true,

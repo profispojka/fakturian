@@ -39,6 +39,7 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
  * sbírá jen kvůli rozepsání `var()` a přes `getPropertyValue` je nevydá — vrátí prázdno.
  */
 const originalComputedStyle = globalThis.getComputedStyle;
+
 function customProperty(el: Element, name: string): string {
 	for (let element: Element | null = el; element; element = element.parentElement) {
 		const declaration = new RegExp(`${name}\\s*:\\s*([^;]+)`).exec(element.getAttribute('style') ?? '');
@@ -46,6 +47,7 @@ function customProperty(el: Element, name: string): string {
 	}
 	return '';
 }
+
 globalThis.getComputedStyle = (el, pseudo) => {
 	const style = originalComputedStyle(el, pseudo);
 	const getPropertyValue = style.getPropertyValue.bind(style);

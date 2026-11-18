@@ -9,6 +9,7 @@ import { date } from '../setup/dates';
 import { summary } from '../setup/fixtures';
 
 const invoke = vi.fn();
+
 vi.stubGlobal('fakturian', {
 	invoke,
 });
@@ -36,6 +37,7 @@ function wireInvoice() {
 beforeEach(() => {
 	invoke.mockReset();
 });
+
 afterEach(() => {
 	vi.useRealTimers();
 });
@@ -344,9 +346,7 @@ describe('invoiceServices', () => {
 		);
 		invoke.mockResolvedValue([42]);
 		await expect(invoiceServices.usedNumbers('/x')).rejects.toThrow(
-			new Error(
-				'Seznam použitých čísel má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo číslo).',
-			),
+			new Error('Seznam použitých čísel má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo číslo).'),
 		);
 	});
 
@@ -386,9 +386,7 @@ describe('invoiceServices', () => {
 			],
 		});
 		await expect(invoiceServices.list('/x')).rejects.toThrow(
-			new Error(
-				'Seznam faktur má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo číslo).',
-			),
+			new Error('Seznam faktur má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo číslo).'),
 		);
 	});
 

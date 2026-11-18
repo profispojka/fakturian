@@ -768,13 +768,16 @@ describe('schéma položky ceníku', () => {
 });
 
 const YEARS = [2025, 2026, 2027];
+
 // Čtvrtiny jsou ve dvojkové soustavě přesné, takže součet modelu nezávisí na pořadí sčítání.
 const quarters = (min: number, max: number) =>
 	integer({
 		min,
 		max,
 	}).map((n) => n / 4);
+
 const usageYear = constantFrom(...YEARS);
+
 const usageDocument = record({
 	documentType: constantFrom(DocumentKind.Invoice, DocumentKind.CreditNote),
 	issueYear: usageYear,
@@ -791,6 +794,7 @@ const usageDocument = record({
 		},
 	),
 });
+
 const limitedPricelist = tuple(quarters(1, 200), quarters(1, 200)).map(([first, second]): PriceItem[] => [
 	{
 		id: 'p0',

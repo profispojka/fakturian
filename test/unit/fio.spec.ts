@@ -22,6 +22,7 @@ function inv(number: string, totalCents: number): InvoiceSummary {
 		path: `${number}.pdf`,
 	};
 }
+
 function pay(vs: string, amountCents: number, id: string): FioPayment {
 	return {
 		id,

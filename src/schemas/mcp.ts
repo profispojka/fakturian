@@ -4,6 +4,7 @@ import { z, type Zod } from '~/utils/zod';
 
 // Agent si argumenty domýšlí z popisu nástroje, proto `strictObject`: překlep v klíči odmítne celé volání.
 const noArgsSchema = z.strictObject({});
+
 // Rok chodí jako číslo i řetězec, v obou případech jen celý RRRR.
 const yearArgsSchema = z.strictObject({
 	year: z

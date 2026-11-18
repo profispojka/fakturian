@@ -12,6 +12,7 @@ const bun = 'bun';
 const reportDirectory = path.join(root, '.output-release-smoke');
 const appBundle = path.join(root, '.output', 'release', `mac-${process.arch}`, 'Fakturian.app');
 const appExecutable = path.join(appBundle, 'Contents', 'MacOS', 'Fakturian');
+
 const appOutput = {
 	stdout: '',
 	stderr: '',
@@ -38,6 +39,7 @@ rmSync(reportDirectory, {
 	recursive: true,
 	force: true,
 });
+
 mkdirSync(reportDirectory, { recursive: true });
 
 function recordAppOutput(stream: NodeJS.ReadableStream | null, name: 'stdout' | 'stderr'): void {
@@ -180,6 +182,7 @@ const runRoot = mkdtempSync(`/tmp/frs-${process.pid}-`);
 const isolatedHome = path.join(runRoot, 'home');
 const socketPath = path.join(isolatedHome, 'Library', 'Application Support', 'com.fakturian.desktop', 'mcp.sock');
 mkdirSync(isolatedHome, { recursive: true });
+
 const isolatedEnvironment = {
 	...process.env,
 	HOME: isolatedHome,
@@ -190,6 +193,7 @@ const isolatedEnvironment = {
 
 let forcedTermination = false;
 let result = 'failed';
+
 try {
 	// Job `package` v CI balíček staví sám a `--prebuilt` spustí právě ten, ze kterého vznikly DMG a ZIP.
 	if (!process.argv.includes('--prebuilt')) {

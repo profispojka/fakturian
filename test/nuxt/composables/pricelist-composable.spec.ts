@@ -24,6 +24,7 @@ const VACATION: PriceItem = {
 	icon: 'i-lucide-tree-palm',
 	annualLimit: 160,
 };
+
 const WORK: PriceItem = {
 	id: 'p-prace',
 	name: 'Práce',

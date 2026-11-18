@@ -6,6 +6,7 @@ import { z, type Zod } from '~/utils/zod';
 
 // Musí sedět s `deriveDueDays` v `desktop/adopt.ts`.
 const MAX_DUE_DAYS = 365;
+
 export const defaultDueDaysSchema = z
 	.number('Zadej číslo.')
 	.int('Zadej celé číslo.')
