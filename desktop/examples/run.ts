@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 
 // Příklad sdílí kód appky s aliasem `~/` a šablonami Typstu jako text, takže se před spuštěním zabalí
-// stejně jako v `tools/desktop/build.ts`. Validátor ISDOC a práce s PDF běží jako workery vedle bundlu.
+// stejně jako v `tools/desktop/build.ts`. Validátor ISDOC a podproces s PDF leží vedle bundlu.
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const EXAMPLES = ['demo-vault', 'e2e-invoice'];
 
@@ -36,7 +36,7 @@ await build({
 	entryPoints: {
 		[example]: `desktop/examples/${example}.ts`,
 		validator: 'desktop/isdoc/validator.ts',
-		worker: 'desktop/worker.ts',
+		process: 'desktop/process.ts',
 	},
 	outdir,
 	outExtension: {

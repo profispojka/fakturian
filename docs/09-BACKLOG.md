@@ -88,8 +88,3 @@
   `askDelete` (`src/pages/expense/index.vue`) nechá PDF v `prijate/` a `identicalFile`
   (`desktop/received.ts`) pak tentýž soubor odmítne jako duplikát. Obnovit jde jen smazáním souboru
   ve Finderu.
-
-- **NAST-27 · V balíčku zůstává `default_app.asar` z Electronu — NÍZKÁ.**
-  `electronDist` v `electron-builder.yml` vypne úplný úklid, takže
-  `Contents/Resources/default_app.asar` jde s appkou. Fuse `OnlyLoadAppFromAsar` ho nenačte;
-  smazat ho jde v `afterPack`.

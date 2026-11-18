@@ -214,6 +214,28 @@ describe('cesta ven z obrazovky vadných dat', () => {
 		expect(replace).toHaveBeenCalledWith('/');
 	});
 
+	it('Ukázat ve Finderu otevře skrytou složku .fakturian', async () => {
+		backend.breaks('read_data_file', 'vydaje.json má poškozený obsah');
+		const c = await mount();
+
+		await c.find('[data-testid="start-error-reveal"]').trigger('click');
+		await flushPromises();
+
+		expect(backend.exposed).toEqual(['/vault/.fakturian']);
+	});
+
+	it('když Finder složku neukáže, řekne to hláška a obrazovka zůstane', async () => {
+		backend.breaks('read_data_file', 'vydaje.json má poškozený obsah');
+		const c = await mount();
+		backend.fails('reveal_path', 'Finder neodpovídá');
+
+		await c.find('[data-testid="start-error-reveal"]').trigger('click');
+		await flushPromises();
+
+		expect(document.body.textContent).toContain('Složku se nepodařilo ukázat ve Finderu');
+		expect(c.find('[data-testid="start-error"]').exists()).toBe(true);
+	});
+
 	it('nepovedený výběr jiné složky nechá obrazovku vadných dat', async () => {
 		backend.breaks('read_data_file', 'vydaje.json má poškozený obsah');
 		const c = await mount();

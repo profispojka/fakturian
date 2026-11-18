@@ -352,17 +352,19 @@ Factur-X/ZUGFeRD, jen s českým ISDOC. Model dokladu a jeho vrstvy popisuje
 - **Změna existujícího dokladu** (odeslání): `pdf-lib` přepíše obsah přílohy na
   místě (`replaceIsdoc`). **Čtení zpět** vytáhne ISDOC přes `pdf-lib`
   (`readIsdoc`), XML drží `@xmldom/xmldom`.
-- **pdf-lib běží jen ve workeru `worker.mjs`** z poolu `tinypool`: proudy
-  objektů rozbaluje synchronně a bez stropu. Práci ukončí limit 10 s a přírůstek
-  paměti procesu nad 1 GB. Strop haldy workeru (`resourceLimits`) se nepoužívá:
-  rozbalená data leží v `ArrayBuffer` mimo haldu a přetečení haldy workeru V8
-  ohlásí jako pád celého procesu, protože worker běží v procesu appky. Hlídání
-  paměti a času proto zastaví práci hluboko pod výchozí haldou; obojí ověřují
-  testy s proudem rozbaleným na 1,5 GB a se třemi miliony objektů. Hlavní proces posílá bajty a dostává přílohy, příznak
-  podpisu nebo bajty nového PDF (`desktop/pdf-document.ts`); odeslání tak PDF
-  rozebere dvakrát (`loadPdf` a přepis), což se vědomě přijímá místo držení
-  stavu ve workeru. Worker, který se nespustí, hlásí appka jako svou vadu, ne
-  jako vadný doklad.
+- **pdf-lib běží jen v samostatném podprocesu `pdf-process.mjs`**: proudy
+  objektů rozbaluje synchronně a bez stropu a přetečení haldy V8 ohlásí pádem
+  celého procesu, takže worker ve stejném procesu appku neochrání. V appce
+  podproces spouští `utilityProcess` Electronu (fuse `runAsNode` je vypnutá),
+  pod Node — testy a `desktop/examples` — `child_process.fork`. Podproces má
+  haldu 512 MB, vlastní vlákno ho zabije nad 1 GB paměti (rozbalená data leží
+  v `ArrayBuffer` mimo haldu) a hlavní proces ho ukončí po 10 s. Testy to
+  ověřují proudem rozbaleným na 1,5 GB a třemi miliony objektů. Hlavní proces
+  posílá bajty a dostává přílohy, příznak podpisu nebo bajty nového PDF
+  (`runPdfTask` v `desktop/pdf-document.ts`); odeslání tak PDF rozebere dvakrát
+  (`loadPdf` a přepis), což se vědomě přijímá místo držení stavu v podprocesu.
+  Podproces, který se nespustí (neohlásí se zprávou `ready`), hlásí appka jako
+  svou vadu, ne jako vadný doklad.
 - **Každý přečtený ISDOC projde celým XSD 6.0.2** (`parse` v
   `desktop/isdoc/mod.ts`). Kontrolu dělá libxml2 z `xmllint-wasm` ve workeru
   `validator.mjs` z poolu `tinypool`, takže hlavní vlákno nečeká; schéma je soubor
@@ -473,12 +475,13 @@ distribuce není rozhodnutý.
   `.output/release`:
   DMG a ZIP pro arm64, jen macOS, minimální systém `mac.minimumSystemVersion`.
 - `desktop:build` (`tools/desktop/build.ts`) zabalí esbuildem hlavní proces do
-  `.output/desktop/main.mjs`, worker ISDOC do `validator.mjs`, worker PDF do
-  `worker.mjs` a preload do `preload.cjs` (preload v sandboxu nesmí být ES
+  `.output/desktop/main.mjs`, worker ISDOC do `validator.mjs`, podproces PDF do
+  `pdf-process.mjs` a preload do `preload.cjs` (preload v sandboxu nesmí být ES
   modul). Mimo bundl zůstávají jen `dependencies` — nativní addony, wasm
   a `tinypool`, který si vstupní worker hledá vedle sebe; frontend a nástroje
-  patří do `devDependencies`. Addony, workery a `tinypool` leží v balíčku mimo
-  archiv `asar`.
+  patří do `devDependencies`. Addony, worker ISDOC a `tinypool` leží v balíčku
+  mimo archiv `asar`; `pdf-process.mjs` zůstává v archivu, `utilityProcess` ho
+  z něj načte.
 - `THIRD-PARTY-NOTICES.txt` uvádí licence a copyrighty závislostí dodávaných
   v aplikaci včetně balíčků zabalených do frontendu a hlavního procesu. Udržuje
   se ručně a balíček jej nese v `Contents/Resources`.

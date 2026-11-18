@@ -80,7 +80,6 @@ jobs:
           test -f "$app/Contents/Resources/LICENSE.electron.txt"
           test -f "$app/Contents/Resources/LICENSES.chromium.html"
           test -f "$app/Contents/Resources/app.asar.unpacked/.output/desktop/validator.mjs"
-          test -f "$app/Contents/Resources/app.asar.unpacked/.output/desktop/worker.mjs"
           test -d "$app/Contents/Resources/app.asar.unpacked/node_modules/xmllint-wasm"
           fuses=$(node node_modules/@electron/fuses/dist/bin.js read --app "$app")
           echo "$fuses"

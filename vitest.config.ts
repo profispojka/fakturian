@@ -26,6 +26,8 @@ export default defineConfig({
 				'desktop/**/*.d.ts',
 				// Vstup Electronu jen skládá otestované moduly; bez skutečného `app` ho spouští až E2E.
 				'desktop/main.ts',
+				// Vstup podprocesu PDF běží v jiném procesu než test; jeho práci (`runPdfTask`) testy volají přímo.
+				'desktop/pdf-process.ts',
 			],
 			reporter: ['text', 'json-summary', 'html'],
 			reportsDirectory: 'coverage',

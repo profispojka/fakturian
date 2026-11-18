@@ -1,15 +1,15 @@
 import { Buffer } from 'node:buffer';
+import { fork } from 'node:child_process';
+import { once } from 'node:events';
 import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { NodeCompiler, type NodeTypstDocument } from '@myriaddreamin/typst-ts-node-compiler';
 import pLimit from 'p-limit';
-import { Tinypool } from 'tinypool';
 
 import { errorText } from '~/utils/errors';
 
 import { MAX_ISDOC_BYTES, parse } from './isdoc/mod.ts';
-import { MIB } from './util.ts';
 
 import type { PdfContent, PdfRequest } from './pdf-document.ts';
 import type { Document } from '@xmldom/xmldom';
@@ -80,52 +80,107 @@ export function renderTypstSvg(source: string, files: TypstFiles): string[] {
 	);
 }
 
-// Ze zdrojů běží `worker.ts` vedle tohoto modulu, z bundlu `worker.mjs` vedle `main.mjs`. Ze
+// Ze zdrojů běží `pdf-process.ts` vedle tohoto modulu, z bundlu `pdf-process.mjs` vedle `main.mjs`. Ze
 // zdrojů ho Node spouští bez překladu, takže jeho importy nesmí sáhnout na alias `~/`.
-const PDF_WORKER = new URL(`./worker${extname(fileURLToPath(import.meta.url))}`, import.meta.url);
+const PDF_PROCESS = fileURLToPath(new URL(`./pdf-process${extname(fileURLToPath(import.meta.url))}`, import.meta.url));
 // Doklad trvá zlomek sekundy; limit ukončí práci, která se zacyklí bez růstu paměti.
 const PDF_TIMEOUT = 10_000;
-// Strop haldy workeru (`resourceLimits`) nechrání: rozbalené proudy leží mimo haldu a přetečení haldy V8
-// ohlásí jako pád celého procesu. Hlídá se proto přírůstek paměti procesu, hluboko pod výchozí haldou.
-const PDF_MEMORY_BYTES = 1024 * MIB;
-const PDF_MEMORY_CHECK = 50;
+// Přetečení haldy podprocesu skončí jen jeho pádem; skutečný doklad má stovky objektů.
+const PDF_HEAP = '--max-old-space-size=512';
 
-// pdf-lib rozbalí proudy objektů synchronně a bez stropu, takže PDF čte a ukládá jen worker, který jde
-// zabít. Jeden na proces, založený až prvním PDF; spadlý nebo zabitý nahradí pool novým.
-const pdfPool = new Tinypool({
-	filename: PDF_WORKER,
-	minThreads: 0,
-	maxThreads: 1,
-	idleTimeout: 60_000,
-});
-// Po jedné, aby limity začaly běžet až se začátkem práce, ne zařazením do fronty.
+// pdf-lib rozbalí proudy objektů synchronně a bez stropu a přetečení jeho haldy V8 ohlásí pádem celého
+// procesu. PDF proto čte a ukládá samostatný podproces: jeden, založený až prvním PDF, po pádu nový.
+interface PdfProcess {
+	events: NodeJS.EventEmitter;
+	send: (request: PdfRequest) => void;
+	kill: () => void;
+}
+
+let pdfProcess: PdfProcess | undefined;
+// Po jedné, takže odpověď podprocesu patří vždy té práci, která zrovna čeká.
 const pdfJobs = pLimit(1);
+
+async function spawnPdfProcess(): Promise<PdfProcess> {
+	// V appce `utilityProcess`: Electron s vypnutou fuse `runAsNode` jinak podproces Node nespustí.
+	if (process.type === 'browser') {
+		const { utilityProcess } = await import('electron');
+		const child = utilityProcess.fork(PDF_PROCESS, [], {
+			serviceName: 'Fakturian PDF',
+			execArgv: [PDF_HEAP],
+		});
+		return {
+			events: child,
+			// Prázdný seznam přenášených portů: bez něj lint plete `postMessage` s tím z `window`.
+			send: (request) => child.postMessage(request, []),
+			kill: () => child.kill(),
+		};
+	}
+	const child = fork(PDF_PROCESS, {
+		serialization: 'advanced',
+		execArgv: [PDF_HEAP],
+	});
+	// Nečinný podproces nedrží ukázky ani testy naživu; běžící práci drží její časovač.
+	child.unref();
+	// Stryker disable next-line OptionalChaining: ekvivalentní mutant, `fork` kanál IPC zakládá vždy.
+	child.channel?.unref();
+	return {
+		events: child,
+		send: (request) => child.send(request),
+		kill: () => child.kill(),
+	};
+}
+
+// Další zpráva podprocesu; když místo ní skončí, je to chyba.
+async function nextMessage<T>(events: NodeJS.EventEmitter): Promise<T> {
+	const settled = new AbortController();
+	try {
+		const [message] = await Promise.race([
+			// Stryker disable next-line ObjectLiteral: ekvivalentní mutant, bez zprávy zůstane posluchač jen na skončeném podprocesu.
+			once(events, 'message', { signal: settled.signal }),
+			once(events, 'exit', { signal: settled.signal }).then(([code]) => {
+				throw new Error(`podproces PDF skončil s kódem ${code}`);
+			}),
+		]);
+		return message;
+	} finally {
+		settled.abort();
+	}
+}
 
 function ask<T>(request: PdfRequest): Promise<T> {
 	return pdfJobs(async () => {
-		const memory = new AbortController();
-		const baseline = process.memoryUsage.rss();
-		const watch = setInterval(() => {
-			// Stryker disable next-line EqualityOperator: ekvivalentní mutant, přírůstek přesně na bajt strop netrefí.
-			if (process.memoryUsage.rss() - baseline > PDF_MEMORY_BYTES) memory.abort();
-		}, PDF_MEMORY_CHECK);
-		const signal = AbortSignal.any([AbortSignal.timeout(PDF_TIMEOUT), memory.signal]);
-		let reply: { result: T } | { error: unknown };
+		let current = pdfProcess;
+		// Stryker disable next-line OptionalChaining: ekvivalentní mutant, založení podprocesu nečeká, takže za 10 s je `current` vždy přiřazený.
+		const timer = setTimeout(() => current?.kill(), PDF_TIMEOUT);
 		try {
-			reply = await pdfPool.run(request, { signal });
-		} catch (error) {
-			if (signal.aborted) {
+			if (!current) {
+				try {
+					current = await spawnPdfProcess();
+					await nextMessage(current.events);
+				} catch (error) {
+					current?.kill();
+					// Podproces, který se nespustí, je vada appky, ne dokladu.
+					throw new Error('Fakturian nedokázal spustit čtení PDF — zkus ho restartovat', { cause: error });
+				}
+				pdfProcess = current;
+				current.events.once('exit', () => {
+					pdfProcess = undefined;
+				});
+			}
+			let reply: { result: T } | { error: unknown };
+			try {
+				current.send(request);
+				reply = await nextMessage(current.events);
+			} catch (error) {
 				throw new Error('PDF nejde rozbalit v rozumném čase ani paměti — takhle doklad nevypadá', {
 					cause: error,
 				});
 			}
-			// Worker, který se nespustí, je vada appky, ne dokladu.
-			throw new Error('Fakturian nedokázal spustit čtení PDF — zkus ho restartovat', { cause: error });
+			if ('error' in reply) throw reply.error;
+			return reply.result;
 		} finally {
-			clearInterval(watch);
+			clearTimeout(timer);
 		}
-		if ('error' in reply) throw reply.error;
-		return reply.result;
 	});
 }
 

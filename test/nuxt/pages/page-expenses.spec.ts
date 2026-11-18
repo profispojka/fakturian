@@ -131,17 +131,6 @@ describe('výpis výdajů', () => {
 		expect(c.find('[data-testid="expense-table"]').text()).toContain(czkFromCents(1234_00));
 	});
 
-	it('výdaj bez dodavatele vyzve k doplnění i v nabídce akcí', async () => {
-		await vaultWithExpenses(expense('v1', { supplier: '' }));
-
-		const c = await mount();
-		expect(c.find('[data-testid="expense-edit"]').text()).toContain('Doplnit údaje');
-
-		await c.find('[data-testid="expense-actions-v1"]').trigger('click');
-		await flushPromises();
-		expect(layer().find('[data-testid="expense-actions-heading"]').text()).toBe('Doplnit údaje');
-	});
-
 	it('výdaj bez popisu ukáže jen dodavatele', async () => {
 		await vaultWithExpenses(expense('v1', { description: '' }));
 
@@ -434,6 +423,19 @@ describe('přetažení dokladů', () => {
 		expect(c.find('[data-testid="status-message"]').exists()).toBe(false);
 	});
 
+	it('soubory ohlášené bez jediného souboru nic nenaimportují ani neohlásí', async () => {
+		const c = await mount();
+
+		drag('drop', {
+			types: ['Files'],
+			files: [],
+		});
+		await flushPromises();
+
+		expect(c.find('[data-testid="status-message"]').exists()).toBe(false);
+		expect(backend.args('import_received')).toEqual([]);
+	});
+
 	it('událost bez přenášených dat nic nezmění', async () => {
 		const c = await mount();
 
@@ -525,7 +527,7 @@ describe('přetažení dokladů', () => {
 });
 
 describe('hlášky importu', () => {
-	it('doklad bez jména dodavatele se ohlásí jako „doklad"', async () => {
+	it('doklad bez jména dodavatele z hlavního procesu odmítne a neuloží', async () => {
 		backend.dialog.push(['/a.pdf']);
 		documentReturns({ supplier: '' });
 		const c = await mount();
@@ -533,7 +535,13 @@ describe('hlášky importu', () => {
 		await c.find('[data-testid="expense-import"]').trigger('click');
 		await flushPromises();
 
-		expect(c.find('[data-testid="expenses-footer"]').text()).toContain('Naimportováno: doklad.');
+		expect(c.find('[data-testid="expense-table"]').exists()).toBe(false);
+		expect(useNuxtApp().vueApp.runWithContext(useToast).toasts.value).toContainEqual(
+			expect.objectContaining({
+				title: expect.stringContaining('Přijatý doklad se nepodařilo přečíst'),
+				color: 'error',
+			}),
+		);
 	});
 
 	it('doklad odmítnutý backendem se neuloží a jeho důvod je vidět', async () => {
@@ -691,7 +699,7 @@ describe('nepovedené načtení', () => {
 			}),
 		).rejects.toThrow(
 			new Error(
-				'Soubor vydaje.json má poškozený obsah (expenses: Neplatný vstup: očekáváno pole, obdrženo řetězec).',
+				'Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).',
 			),
 		);
 		const c = await mount();

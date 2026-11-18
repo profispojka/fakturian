@@ -518,6 +518,26 @@ describe('nabídka převzetí', () => {
 		expect(backend.args('list_invoices')).toContainEqual({ vaultPath: '/Users/test/Documents/Fakturian' });
 	});
 
+	it('sken i převzetí jedou s IČem napsaným v průvodci, ne s odvozeným z dokladů', async () => {
+		await openWizard();
+		await layer().find('[data-testid="field-ico"]').setValue('12345679');
+		await flushPromises();
+		await layer().find('[data-testid="wizard-ico-continue"]').trigger('click');
+		await flushPromises();
+		await layer().find('[data-testid="wizard-recommended"]').trigger('click');
+		await flushPromises();
+		await layer().find('[data-testid="wizard-adopt"]').trigger('click');
+		await flushPromises();
+
+		expect(backend.args('scan_vault')).toEqual([
+			{
+				vaultPath: '/Users/test/Documents/Fakturian',
+				ourIco: '12345679',
+			},
+		]);
+		expect(backend.args('adopt_documents')[0]).toMatchObject({ ourIco: '12345679' });
+	});
+
 	it('selhání převzetí se ukáže a krok zůstane', async () => {
 		backend.breaks('adopt_documents', 'soubor je zamčený');
 		await openWizard();
@@ -1183,7 +1203,7 @@ describe('vlastní složka', () => {
 		expect(backend.args('scan_vault')).toEqual([
 			{
 				vaultPath: '/Users/jan/iCloud/Fakturian',
-				ourIco: null,
+				ourIco: '12345679',
 			},
 		]);
 		expect(layer().text()).toContain('Tvoje fakturační údaje');

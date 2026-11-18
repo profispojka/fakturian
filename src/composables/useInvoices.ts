@@ -55,8 +55,10 @@ export function useInvoices() {
 		const year = yearOf(today());
 		const start = continuedStart(used, year, previousTemplate, template, next.invoiceNumberStart ?? '');
 		if (!start) return next;
+		// Rozložení přes proxy formuláře by do kopie přeneslo reaktivní `address` a `structuredClone` by ji
+		// v `useForm` nepřijal.
 		return {
-			...next,
+			...toRaw(next),
 			invoiceNumberStart: start,
 		};
 	}
@@ -155,9 +157,31 @@ export function useInvoices() {
 		await invoiceServices.exportPdf(requireVault(), number, target);
 	}
 
-	async function markSent(number: string): Promise<string> {
+	// `onUndo` dá stránce vědět, že příznak je pryč a má si obnovit, co o dokladu ukazuje.
+	async function markSent(number: string, onUndo: () => void): Promise<string> {
 		const sentAt = await invoiceServices.markSent(requireVault(), number);
 		forgetArchive();
+		toast.add({
+			title: `Faktura ${number} je označená jako odeslaná`,
+			actions: [
+				{
+					label: 'Vrátit zpět',
+					onClick: async () => {
+						try {
+							await invoiceServices.unmarkSent(requireVault(), number);
+							forgetArchive();
+							onUndo();
+						} catch (e) {
+							toast.add({
+								title: `Fakturu ${number} se nepodařilo vrátit mezi neodeslané`,
+								description: errorText(e),
+								color: 'error',
+							});
+						}
+					},
+				},
+			],
+		});
 		return sentAt;
 	}
 

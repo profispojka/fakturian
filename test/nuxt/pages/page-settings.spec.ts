@@ -90,8 +90,6 @@ describe('motiv aplikace', () => {
 describe('fakturační údaje', () => {
 	it('PSČ, účet a kód banky uloží bez mezer a ukáže uložené hodnoty', async () => {
 		const supplier = completeSupplier();
-		supplier.invoiceNumberFormat = 'F{NNNN}';
-		supplier.invoiceNumberStart = 'F0042';
 		supplier.address.country = 'CZ';
 		await vaultS(supplier);
 		const c = await mount();

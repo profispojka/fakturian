@@ -200,9 +200,7 @@ describe('výpis faktur', () => {
 				invoice: credit,
 				isNew: false,
 			}),
-		).resolves.toBe(
-			invoices('20260002.pdf'),
-		);
+		).resolves.toBe(invoices('20260002.pdf'));
 	});
 
 	it('chybějící faktury/ je prázdný vault', async () => {
