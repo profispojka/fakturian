@@ -29,6 +29,7 @@ const page = (path: string) =>
 			},
 		}),
 	);
+
 const asset = (path: string) => handle(new Request(`${APP_ORIGIN}${path}`));
 
 beforeEach(async () => {

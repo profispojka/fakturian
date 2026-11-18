@@ -7,9 +7,11 @@ import aresSro from '../fixtures/ares-sro.json' with { type: 'json' };
 import aresTradesman from '../fixtures/ares-zivnostnik.json' with { type: 'json' };
 
 const invoke = vi.fn();
+
 vi.stubGlobal('fakturian', {
 	invoke,
 });
+
 beforeEach(() => {
 	invoke.mockReset();
 });

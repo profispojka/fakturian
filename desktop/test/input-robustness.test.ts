@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { Writable } from 'node:stream';
 
-import { assert, asyncProperty, constantFrom, nat, oneof, property, string, tuple, uint8Array } from 'fast-check';
+import { assert, asyncProperty, constantFrom, nat, oneof, pre, property, string, tuple, uint8Array } from 'fast-check';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { validateNumber } from '~/utils/numbering';
@@ -41,17 +41,21 @@ const ISDOC_FILES = [
 	'bez-castky.isdoc',
 	'bez-mnozstvi.isdoc',
 ];
+
 const ISDOC_SEEDS = await Promise.all(
 	ISDOC_FILES.map((name) => readFile(new URL(`fixtures/${name}`, import.meta.url))),
 );
+
 const PDF_SEEDS = await Promise.all(
 	['2026017', '2026018', '2026022'].map((number) =>
 		readFile(new URL(`fixtures/adopt/Vydaná faktura - ${number}.pdf`, import.meta.url)),
 	),
 );
+
 const FIO_SEED = new TextEncoder().encode(
 	'{"accountStatement":{"info":{"currency":"CZK"},"transactionList":{"transaction":[{"column0":{"value":"2026-09-10"},"column1":{"value":1250.5},"column5":{"value":"20260001"},"column22":{"value":"fixture-payment"}}]}}}',
 );
+
 const JSON_SEEDS = [
 	...(await Promise.all(
 		['adopt-folder.json', 'document-number-parity.json', 'money-parity.json'].map((name) =>
@@ -319,7 +323,7 @@ describe('generativní testy vstupů zvenku', () => {
 					}),
 				),
 				(number) => {
-					if (validateNumber(number) !== null) return;
+					pre(validateNumber(number) === null);
 					const path = join(folder, number);
 					expect([dirname(path), basename(path)]).toEqual([folder, number]);
 				},

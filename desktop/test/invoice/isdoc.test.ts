@@ -14,6 +14,7 @@ const FOREIGN_ISSUER = '<IssuingSystem>CiziSystem</IssuingSystem>';
 
 const SAMPLE_CUSTOMER_REGISTRATION =
 	'<RegisterIdentification><Preformatted>Zapsáno v evidenci pod IČO 87654326</Preformatted></RegisterIdentification>';
+
 const SAMPLE_FIRST_ITEM = '<Description>Konzultace</Description></Item>';
 
 // Doklad, jak se vrátí z ISDOC: UUID se při zápisu doplní.

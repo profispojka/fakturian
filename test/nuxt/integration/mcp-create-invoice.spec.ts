@@ -34,24 +34,29 @@ async function issue(args: unknown): Promise<{ result: unknown; error: string | 
 }
 
 const CANCELLED = 'Agent volání zrušil, faktura se nevystavila.';
+
 const row = {
 	description: 'Práce',
 	quantity: 1,
 	unit: 'hod',
 	unitPriceCents: 120_000,
 };
+
 const request = {
 	customerName: 'Acme',
 	lines: [row],
 };
+
 const betaRequest = {
 	...request,
 	customerName: 'Beta',
 };
+
 const BETA_QUESTION =
 	`Agent chce vystavit fakturu pro „Beta" (IČO 25596641) na ${czkFromCents(120_000)}:\n` +
 	`• Práce — 1 hod × ${czkFromCents(120_000)}\n` +
 	'Doklad dostane číslo z řady; zrušit ho jde jen smazáním v appce.';
+
 // 40 hodin z ročního limitu 160, s vazbou na ceník.
 const vacationLine = {
 	description: VACATION.name,

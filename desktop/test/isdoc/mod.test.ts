@@ -451,6 +451,12 @@ describe('údaje Fakturianu o odeslání', () => {
 		expect(sentAt(document)).toBe(undefined);
 	});
 
+	it('vrácení odeslání bez kořene nic nezmění', () => {
+		const document = new DOMImplementation().createDocument(null, '', null);
+		clearSent(document);
+		expect(toXml(document)).toBe('');
+	});
+
 	it('vrácení odeslání nechá cizí rozšíření a bez Extensions nic nezmění', async () => {
 		const withForeign = await parse(await fixture('example1.isdoc'));
 		const before = toXml(withForeign);

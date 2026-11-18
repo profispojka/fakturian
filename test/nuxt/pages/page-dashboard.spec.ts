@@ -27,6 +27,7 @@ import type { PriceUsageRecord } from '~/utils/pricelist';
 const TODAY = date('2026-08-31');
 const THIS_YEAR = yearOf(TODAY);
 const LONG_AGO = date('2020-01-01');
+
 // Letošní doklad splatný dnes: Přehled ho počítá do tržeb roku, ale ne do dokladů po splatnosti.
 const THIS_YEARS = {
 	issueDate: date('2026-01-15'),

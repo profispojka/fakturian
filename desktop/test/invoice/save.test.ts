@@ -21,6 +21,7 @@ import { imageCount } from '../typst.ts';
 const UNSAFE_NUMBER = new Error(
 	'Číslo dokladu může mít nejvýš 64 znaků: písmena bez diakritiky, číslice, mezery, tečky, pomlčky a podtržítka, a musí začínat i končit písmenem nebo číslicí.',
 );
+
 const OUR_ISSUER = '<IssuingSystem>Fakturian</IssuingSystem>';
 
 let base = '';

@@ -108,9 +108,7 @@ describe('načtení všech domén', () => {
 		backend.writeFile('/vault', 'vydaje.json', { expenses: 'tohle není pole' });
 
 		await expect(useNuxtApp().vueApp.runWithContext(useVaultData).load()).rejects.toThrow(
-			new Error(
-				'Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).',
-			),
+			new Error('Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).'),
 		);
 
 		expect(useNuxtApp().vueApp.runWithContext(useExpensesFile).loaded.value).toBe(false);

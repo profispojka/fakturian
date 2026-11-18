@@ -74,6 +74,7 @@ function folderGone(): void {
 beforeEach(() => {
 	rememberedFolder();
 });
+
 describe('start mimo desktopovou appku', () => {
 	it('řekne, že jde o desktopovou appku, a data vůbec nenačítá', async () => {
 		outsideDesktop();

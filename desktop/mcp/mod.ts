@@ -159,6 +159,7 @@ export function writeLine(stream: Writable, line: string): Promise<void> {
 // by se musel dočíst bez limitu. Řádek useknutý koncem spojení je rozepsaná zpráva, ne celá.
 export function readLines(stream: AsyncIterable<Buffer>): AsyncGenerator<Buffer, void>;
 export function readLines(stream: AsyncIterable<Buffer>, limit: number): AsyncGenerator<Buffer | null, void>;
+
 export async function* readLines(
 	stream: AsyncIterable<Buffer>,
 	limit = Number.POSITIVE_INFINITY,

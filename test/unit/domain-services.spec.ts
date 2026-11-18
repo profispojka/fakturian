@@ -7,9 +7,11 @@ import { importServices } from '~/services/import';
 import { date } from '../setup/dates';
 
 const invoke = vi.fn();
+
 vi.stubGlobal('fakturian', {
 	invoke,
 });
+
 beforeEach(() => {
 	invoke.mockReset();
 });

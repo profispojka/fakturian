@@ -12,15 +12,19 @@ import type { Invoice } from '../invoice/model.ts';
 const USAGE = 'Použití: node desktop/examples/run.ts e2e-invoice <vault> <RRRR-MM-DD>';
 
 const [vault, issueArgument] = process.argv.slice(2);
+
 if (vault === undefined || issueArgument === undefined) {
 	console.error(USAGE);
 	process.exit(2);
 }
+
 const issue = parseDate(issueArgument);
+
 if (issue === undefined) {
 	console.error(`Datum ${issueArgument} není RRRR-MM-DD.\n${USAGE}`);
 	process.exit(2);
 }
+
 const number = `${yearOf(issue)}0001`;
 
 const invoice: Invoice = {
@@ -69,6 +73,7 @@ const invoice: Invoice = {
 		},
 	],
 };
+
 try {
 	await saveInvoice({
 		vaultPath: vault,
@@ -78,4 +83,5 @@ try {
 } catch (error) {
 	throw new Error(`Doklad ${number}: ${errorText(error)}`, { cause: error });
 }
+
 console.log(`  faktura ${number}  E2E odběratel  2 501 Kč`);

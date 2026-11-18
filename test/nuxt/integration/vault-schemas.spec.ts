@@ -54,6 +54,7 @@ const PRICE_ITEM = {
 	priceCents: 120_000,
 	unit: 'hod',
 };
+
 const EMPTY_SETTINGS = {
 	supplier: null,
 	contacts: [],
@@ -111,9 +112,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 		const v = useNuxtApp().vueApp.runWithContext(useVaultData);
 
 		await expect(v.load()).rejects.toThrow(
-			new Error(
-				'Soubor nastaveni.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo undefined).',
-			),
+			new Error('Soubor nastaveni.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo undefined).'),
 		);
 		expect(v.loaded.value).toBe(false);
 		await expect(v.save()).rejects.toThrow('Data (nastaveni.json) se nepodařilo načíst');
@@ -130,9 +129,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 		const v = useNuxtApp().vueApp.runWithContext(useVaultData);
 
 		await expect(v.load()).rejects.toThrow(
-			new Error(
-				'Soubor nastaveni.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).',
-			),
+			new Error('Soubor nastaveni.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).'),
 		);
 		expect(v.loaded.value).toBe(false);
 		await expect(v.save()).rejects.toThrow(
@@ -273,9 +270,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 			},
 		});
 		await expect(useNuxtApp().vueApp.runWithContext(useVaultData).load()).rejects.toThrow(
-			new Error(
-				'Soubor nastaveni.json má poškozený obsah (Neplatný vstup: očekáváno číslo, obdrženo řetězec).',
-			),
+			new Error('Soubor nastaveni.json má poškozený obsah (Neplatný vstup: očekáváno číslo, obdrženo řetězec).'),
 		);
 
 		await vaultFiles({
@@ -467,9 +462,7 @@ describe('platby.json', () => {
 		const f = useNuxtApp().vueApp.runWithContext(usePaymentsFile);
 
 		await expect(f.load()).rejects.toThrow(
-			new Error(
-				'Soubor platby.json má poškozený obsah (Neplatný vstup: očekáváno record, obdrženo undefined).',
-			),
+			new Error('Soubor platby.json má poškozený obsah (Neplatný vstup: očekáváno record, obdrženo undefined).'),
 		);
 		expect(f.loaded.value).toBe(false);
 		await expect(f.save()).rejects.toThrow('Data (platby.json) se nepodařilo načíst');
@@ -489,9 +482,7 @@ describe('platby.json', () => {
 		const f = useNuxtApp().vueApp.runWithContext(usePaymentsFile);
 
 		await expect(f.load()).rejects.toThrow(
-			new Error(
-				'Soubor platby.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo object).',
-			),
+			new Error('Soubor platby.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo object).'),
 		);
 		expect(f.loaded.value).toBe(false);
 	});
@@ -511,9 +502,7 @@ describe('vydaje.json', () => {
 		const f = useNuxtApp().vueApp.runWithContext(useExpensesFile);
 
 		await expect(f.load()).rejects.toThrow(
-			new Error(
-				'Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo undefined).',
-			),
+			new Error('Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo undefined).'),
 		);
 		expect(f.loaded.value).toBe(false);
 		await expect(f.save()).rejects.toThrow('Data (vydaje.json) se nepodařilo načíst');
@@ -541,9 +530,7 @@ describe('vydaje.json', () => {
 		});
 
 		await expect(useNuxtApp().vueApp.runWithContext(useExpensesFile).load()).rejects.toThrow(
-			new Error(
-				`Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo undefined).`,
-			),
+			new Error(`Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo undefined).`),
 		);
 	});
 
@@ -557,9 +544,7 @@ describe('vydaje.json', () => {
 		const f = useNuxtApp().vueApp.runWithContext(useExpensesFile);
 
 		await expect(f.load()).rejects.toThrow(
-			new Error(
-				'Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno číslo, obdrženo undefined).',
-			),
+			new Error('Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno číslo, obdrženo undefined).'),
 		);
 		expect(f.loaded.value).toBe(false);
 	});
@@ -577,9 +562,7 @@ describe('vydaje.json', () => {
 		});
 
 		await expect(useNuxtApp().vueApp.runWithContext(useExpensesFile).load()).rejects.toThrow(
-			new Error(
-				'Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno číslo, obdrženo řetězec).',
-			),
+			new Error('Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno číslo, obdrženo řetězec).'),
 		);
 	});
 
@@ -596,9 +579,7 @@ describe('vydaje.json', () => {
 		});
 
 		await expect(useNuxtApp().vueApp.runWithContext(useExpensesFile).load()).rejects.toThrow(
-			new Error(
-				'Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno int, obdrženo číslo).',
-			),
+			new Error('Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno int, obdrženo číslo).'),
 		);
 	});
 
@@ -659,9 +640,7 @@ describe('načtení celého vaultu', () => {
 		const v = useNuxtApp().vueApp.runWithContext(useVaultData);
 
 		await expect(v.load()).rejects.toThrow(
-			new Error(
-				'Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno číslo, obdrženo řetězec).',
-			),
+			new Error('Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno číslo, obdrženo řetězec).'),
 		);
 		expect(v.loaded.value).toBe(true);
 		expect(v.data.value.contacts).toHaveLength(1);

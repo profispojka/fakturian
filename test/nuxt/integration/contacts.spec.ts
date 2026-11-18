@@ -78,9 +78,7 @@ describe('useContacts', () => {
 		});
 		const original = saved('nastaveni.json');
 		await expect(useNuxtApp().vueApp.runWithContext(useVaultData).load()).rejects.toThrow(
-			new Error(
-				'Soubor nastaveni.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).',
-			),
+			new Error('Soubor nastaveni.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).'),
 		);
 		await expect(useNuxtApp().vueApp.runWithContext(useContacts).upsert(contact('k1'))).rejects.toThrow(
 			new Error(

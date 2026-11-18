@@ -13,6 +13,7 @@ import type { Invoice } from '../invoice/model.ts';
 
 const RENDERER = NodeCompiler.create();
 const TEXT_LAYER = /<h5:div class="tsel"[^>]*>([^<]*)<\/h5:div>/g;
+
 const ENTITIES: Record<string, string> = {
 	amp: '&',
 	lt: '<',

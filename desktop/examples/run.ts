@@ -10,6 +10,7 @@ const root = fileURLToPath(new URL('../..', import.meta.url));
 const EXAMPLES = ['demo-vault', 'e2e-invoice'];
 
 const [example, ...args] = process.argv.slice(2);
+
 if (example === undefined || !EXAMPLES.includes(example)) {
 	console.error(`Použití: node desktop/examples/run.ts <${EXAMPLES.join('|')}> …`);
 	process.exit(2);
@@ -18,6 +19,7 @@ if (example === undefined || !EXAMPLES.includes(example)) {
 const manifest = await readFile(`${root}package.json`, 'utf8');
 const pkg: { dependencies: Record<string, string> } = JSON.parse(manifest);
 const outdir = `${root}.output/examples`;
+
 await build({
 	bundle: true,
 	platform: 'node',

@@ -47,7 +47,7 @@ function markSent(number: string): Promise<string> {
 	});
 }
 
-function unmarkSent(number: string): Promise<void> {
+function unmarkSent(number: string): Promise<null> {
 	return unmarkInvoiceSent({
 		vaultPath: base,
 		number,
@@ -190,7 +190,7 @@ describe('vrácení odeslání', () => {
 		const path = await saveNumbered('20260021');
 		await markSent('20260021');
 
-		await unmarkSent('20260021');
+		expect(await unmarkSent('20260021')).toBeNull();
 
 		const after = await embeddedXml(path);
 		expect(after).not.toMatch(/Extensions|fakturian/);
@@ -209,7 +209,7 @@ describe('vrácení odeslání', () => {
 		);
 		const signed = await readFile(path);
 
-		await unmarkSent('20260022');
+		expect(await unmarkSent('20260022')).toBeNull();
 
 		expect(await readFile(path)).toEqual(signed);
 	});

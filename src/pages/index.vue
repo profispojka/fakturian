@@ -39,6 +39,7 @@ const {
 	filters: {},
 	onLoaded: refreshUsage,
 });
+
 const todayDate = useToday();
 const thisYear = computed(() => yearOf(todayDate.value));
 
@@ -65,6 +66,7 @@ useAsyncState(checkReceived, undefined, {
 const s = computed(() => dashboardStats(items.value, payments.value, todayDate.value));
 
 const range = ref<PeriodRange>('month');
+
 const rangeOptions: SelectOption<PeriodRange>[] = [
 	{
 		value: 'month',
@@ -79,6 +81,7 @@ const rangeOptions: SelectOption<PeriodRange>[] = [
 		label: 'Roky',
 	},
 ];
+
 const series = computed(() =>
 	periodSeries(items.value, range.value, todayDate.value).map((b) => ({
 		label: b.label,
@@ -87,6 +90,7 @@ const series = computed(() =>
 );
 
 const balanceYear = ref<number | null>(thisYear.value);
+
 const balanceOptions = computed<SelectOption<number | null>[]>(() => [
 	{
 		value: thisYear.value,
@@ -101,6 +105,7 @@ const balanceOptions = computed<SelectOption<number | null>[]>(() => [
 		label: 'Vše',
 	},
 ]);
+
 const bal = computed(() => balance(items.value, payments.value, balanceYear.value, expenses.value));
 
 const debtors = computed(() => topDebtors(items.value, payments.value));
@@ -115,6 +120,7 @@ const vat = computed(() => vatLimit(items.value, todayDate.value));
 function overdue(i: InvoiceSummary): boolean {
 	return i.documentType === DocumentKind.Invoice && daysOverdue(i.dueDate, todayDate.value) > 0;
 }
+
 const vatPercent = computed(() => Math.min(100, Math.round(vat.value.ratio * 100)));
 
 const vatLevel = computed(() => vatLevelOf(vat.value.ratio));

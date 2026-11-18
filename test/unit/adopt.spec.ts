@@ -16,6 +16,7 @@ import type { InvoiceSummary } from '~/schemas/invoices';
 const contract = await import('../fixtures/adopt-folder.json').then((m) => m.default ?? m);
 
 const today = date(contract.today);
+
 const invoices: InvoiceSummary[] = contract.invoices.map((i) => ({
 	...i,
 	issueDate: date(i.issueDate),
@@ -24,6 +25,7 @@ const invoices: InvoiceSummary[] = contract.invoices.map((i) => ({
 	sentAt: null,
 	path: '',
 }));
+
 const withoutPayments = {};
 
 describe('převzetí složky → fakturační údaje', () => {

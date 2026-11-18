@@ -5,6 +5,7 @@ import { runPdfTask, type PdfAnswer, type PdfRequest } from './pdf-document.ts';
 // Rozbalené proudy leží v `ArrayBuffer` mimo haldu, kam strop haldy nedosáhne. Hlídač běží ve vlastním
 // vlákně, protože hlavní vlákno podprocesu stojí v synchronním rozbalování pdf-lib.
 const MEMORY_LIMIT = 1024 * 1024 * 1024;
+
 // Naživu podproces drží kanál k rodiči, ne hlídač: se zavřeným kanálem skončí.
 new Worker(
 	`const { workerData } = require('node:worker_threads');

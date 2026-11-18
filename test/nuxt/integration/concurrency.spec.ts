@@ -191,57 +191,57 @@ describe('souběh příkazů a selhání IPC', () => {
 		);
 	});
 
-	it('import a převzetí souběžně s uložením a výpisem doklad neztratí ani nezdvojí', async () => {
-		await assert(
-			asyncProperty(
-				scheduler(),
-				array(constantFrom('import', 'adopt', 'save', 'list'), {
-					minLength: 1,
-					maxLength: 6,
-				}),
-				array(boolean(), {
-					maxLength: 20,
-				}),
-				async (s, actions, faults) => {
-					clearNuxtState();
-					resetBackend();
-					await prepareVault();
-					const foreign = NUMBERS.map((number) => [`/vault/Faktura ${number}.pdf`, number] as const);
-					for (const [path, number] of foreign) {
-						backend.foreign.set(path, wireInvoice(validInvoice(number)));
-					}
-					const app = useNuxtApp().vueApp.runWithContext(() => ({
-						invoices: useInvoices(),
-						importing: useImport(),
-						adopting: useAdopt(),
-					}));
-					const steps = {
-						import: () => app.importing.importFiles(foreign.map(([path]) => path)),
-						adopt: async () => {
-							const scan = await app.adopting.refresh();
-							if (scan) await app.adopting.adopt(scan);
-						},
-						save: () => app.invoices.save(validInvoice(NUMBERS[0]!), true),
-						list: () => app.invoices.list(),
-					};
-					const pendingFaults = [...faults];
-					backend.scheduler = s;
-					backend.fault = () => (pendingFaults.shift() ? 'Disk je odpojený.' : null);
-					const running = Promise.allSettled(actions.map((kind) => steps[kind]()));
-					await s.waitFor(running);
-
-					backend.scheduler = null;
-					backend.fault = null;
-					// Každý cizí doklad je buď pořád venku, nebo právě jednou v `faktury/`; číslo z formuláře taky.
-					const inArchive = [...backend.folder('/vault').invoices.keys()];
-					const outside = [...backend.foreign.values()].map((inv) => inv.number);
-					for (const number of NUMBERS) {
-						expect(inArchive.includes(number) || outside.includes(number)).toBe(true);
-					}
-					expect(new Set(inArchive).size).toBe(inArchive.length);
-					expect(await app.invoices.archived()).toEqual(await app.invoices.list());
+	const concurrentAdoption = asyncProperty(
+		scheduler(),
+		array(constantFrom('import', 'adopt', 'save', 'list'), {
+			minLength: 1,
+			maxLength: 6,
+		}),
+		array(boolean(), {
+			maxLength: 20,
+		}),
+		async (s, actions, faults) => {
+			clearNuxtState();
+			resetBackend();
+			await prepareVault();
+			const foreign = NUMBERS.map((number) => [`/vault/Faktura ${number}.pdf`, number] as const);
+			for (const [path, number] of foreign) {
+				backend.foreign.set(path, wireInvoice(validInvoice(number)));
+			}
+			const app = useNuxtApp().vueApp.runWithContext(() => ({
+				invoices: useInvoices(),
+				importing: useImport(),
+				adopting: useAdopt(),
+			}));
+			const steps = {
+				import: () => app.importing.importFiles(foreign.map(([path]) => path)),
+				adopt: async () => {
+					const scan = await app.adopting.refresh();
+					if (scan) await app.adopting.adopt(scan);
 				},
-			),
-		);
+				save: () => app.invoices.save(validInvoice(NUMBERS[0]!), true),
+				list: () => app.invoices.list(),
+			};
+			const pendingFaults = [...faults];
+			backend.scheduler = s;
+			backend.fault = () => (pendingFaults.shift() ? 'Disk je odpojený.' : null);
+			const running = Promise.allSettled(actions.map((kind) => steps[kind]()));
+			await s.waitFor(running);
+
+			backend.scheduler = null;
+			backend.fault = null;
+			// Každý cizí doklad je buď pořád venku, nebo právě jednou v `faktury/`; číslo z formuláře taky.
+			const inArchive = [...backend.folder('/vault').invoices.keys()];
+			const outside = [...backend.foreign.values()].map((inv) => inv.number);
+			for (const number of NUMBERS) {
+				expect(inArchive.includes(number) || outside.includes(number)).toBe(true);
+			}
+			expect(new Set(inArchive).size).toBe(inArchive.length);
+			expect(await app.invoices.archived()).toEqual(await app.invoices.list());
+		},
+	);
+
+	it('import a převzetí souběžně s uložením a výpisem doklad neztratí ani nezdvojí', async () => {
+		await assert(concurrentAdoption);
 	});
 });

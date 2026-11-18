@@ -757,9 +757,7 @@ describe('náhrada ISDOC přílohy', () => {
 				index: 0,
 				xml,
 			}),
-		).rejects.toEqual(
-			new Error('Příloha k nahrazení v PDF není.'),
-		);
+		).rejects.toEqual(new Error('Příloha k nahrazení v PDF není.'));
 	});
 
 	it('nepřepíše jinou přílohu místo vložené', async () => {

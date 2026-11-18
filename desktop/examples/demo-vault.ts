@@ -74,6 +74,7 @@ const KOVO: Client = {
 	zip: '70200',
 	email: 'ucto@kovotrade.cz',
 };
+
 const HLEDACEK: Client = {
 	id: 'c-hledacek',
 	name: 'Portál Hledáček a.s.',
@@ -83,6 +84,7 @@ const HLEDACEK: Client = {
 	zip: '15000',
 	email: 'fakturace@hledacek.example',
 };
+
 const MRAZ: Client = {
 	id: 'c-mraz',
 	name: 'Studio Mráz s.r.o.',
@@ -92,6 +94,7 @@ const MRAZ: Client = {
 	zip: '11000',
 	email: 'fakturace@studiomraz.cz',
 };
+
 const SEVERNI: Client = {
 	id: 'c-nordic',
 	name: 'Severní web s.r.o.',
@@ -101,6 +104,7 @@ const SEVERNI: Client = {
 	zip: '60200',
 	email: 'faktury@severniweb.cz',
 };
+
 const KOTVA: Client = {
 	id: 'c-kotva',
 	name: 'Bistro Kotva s.r.o.',
@@ -110,6 +114,7 @@ const KOTVA: Client = {
 	zip: '60200',
 	email: 'kotva@bistrokotva.cz',
 };
+
 const VLK: Client = {
 	id: 'c-vlk',
 	name: 'Doprava Vlk s.r.o.',
@@ -119,6 +124,7 @@ const VLK: Client = {
 	zip: '77900',
 	email: 'faktury@dopravavlk.cz',
 };
+
 const NOVAKOVA: Client = {
 	id: 'c-novakova',
 	name: 'Nováková Design',
@@ -128,6 +134,7 @@ const NOVAKOVA: Client = {
 	zip: '60200',
 	email: 'eva@novakovadesign.cz',
 };
+
 const POLEDNIK: Client = {
 	id: 'c-meridian',
 	name: 'Poledník Digital s.r.o.',
@@ -137,6 +144,7 @@ const POLEDNIK: Client = {
 	zip: '40001',
 	email: 'ucetni@polednikdigital.cz',
 };
+
 const FITNESS: Client = {
 	id: 'c-fitness',
 	name: 'Praha Fitness Group s.r.o.',
@@ -146,6 +154,7 @@ const FITNESS: Client = {
 	zip: '12000',
 	email: 'ucetni@prahafitness.cz',
 };
+
 const BENES: Client = {
 	id: 'c-benes',
 	name: 'Lukáš Beneš',
@@ -509,28 +518,35 @@ function invoiceHeader(
 }
 
 const [vaultArgument, todayArgument] = process.argv.slice(2);
+
 if (vaultArgument === undefined) {
 	console.error(USAGE);
 	process.exit(2);
 }
+
 const vault = vaultArgument;
 const parsedToday = todayArgument === undefined ? dateIn(2026, 8, 21) : parseDate(todayArgument);
+
 if (parsedToday === undefined) {
 	console.error(`Datum ${todayArgument} není RRRR-MM-DD.\n${USAGE}`);
 	process.exit(2);
 }
+
 const today = parsedToday;
 
 let existing: string[] = [];
+
 try {
 	existing = await readdir(vault);
 } catch (error) {
 	if (errorCode(error) !== 'ENOENT') throw error;
 }
+
 if (existing.length > 0) {
 	console.error(`Složka ${vault} není prázdná — ukázková data by přepsala cizí vault.`);
 	process.exit(1);
 }
+
 await mkdir(join(vault, 'faktury'), { recursive: true });
 await mkdir(join(vault, 'prijate'), { recursive: true });
 
@@ -759,6 +775,7 @@ async function issueCreditNote(issueMonth: DateString): Promise<void> {
 
 const history = new Rng(0x5eed_fa47);
 let periodStart = dateIn(2024, 9, 1);
+
 while (periodStart <= dateIn(2026, 7, 1)) {
 	// Prvního plus 31 dní padne vždy do následujícího měsíce.
 	const nextMonth = addDays(periodStart, 31);
@@ -780,6 +797,7 @@ while (periodStart <= dateIn(2026, 7, 1)) {
 }
 
 const thisPeriod = dateIn(yearOf(today), monthOf(today), 1);
+
 const recent = [
 	{
 		daysAgo: 4,
@@ -800,6 +818,7 @@ const recent = [
 		lines: [line('Webová prezentace — návrh a kódování', 1, 'projekt', 7_800_000)],
 	},
 ];
+
 for (const { daysAgo, client, dueDays, lines } of recent) {
 	const issue = addDays(today, -daysAgo);
 	const number = nextNumber(yearOf(today));
@@ -812,6 +831,7 @@ for (const { daysAgo, client, dueDays, lines } of recent) {
 
 // Tři dlužníci, každý jinak dlouho po splatnosti; poslední okno doplní, kdyby užší okna nic nenašla.
 const debtors: string[] = [];
+
 for (const [from, to] of [
 	[60, 150],
 	[20, 55],
@@ -827,6 +847,7 @@ for (const [from, to] of [
 }
 
 const payments: Record<string, { id: string; date: DateString; amountCents: number }[]> = {};
+
 for (const [i, document] of issued.entries()) {
 	// Splatnost teprve běží, nebo klient prostě neplatí.
 	if (today < document.due || debtors.includes(document.number)) continue;
@@ -882,6 +903,7 @@ const settings = {
 
 const data = join(vault, '.fakturian');
 await mkdir(data, { recursive: true });
+
 for (const [name, content] of Object.entries({
 	'nastaveni.json': settings,
 	'platby.json': {
@@ -898,10 +920,12 @@ const year = yearOf(today);
 const yearAgo = addDays(today, -365);
 let thisYearCents = 0;
 let rollingCents = 0;
+
 for (const { issue, totalCents } of issued) {
 	if (yearOf(issue) === year) thisYearCents += totalCents;
 	if (issue > yearAgo) rollingCents += totalCents;
 }
+
 const paidCount = Object.keys(payments).length;
 const seen = await listInvoices({ vaultPath: vault });
 const usageLines = seen.items.reduce((sum, item) => sum + item.usageLines.length, 0);
@@ -910,7 +934,9 @@ console.log(`  appka ve složce načte: ${seen.items.length} dokladů`);
 console.log(`  faktur: ${issued.length} (z toho ${creditNotes} dobropisy)`);
 console.log(`  zaplaceno: ${paidCount}, nezaplaceno: ${issued.length - paidCount}`);
 console.log(`  letos (${year}) vyfakturováno: ${Math.trunc(thisYearCents / 100)} Kč`);
+
 console.log(
 	`  klouzavých 12 měsíců: ${Math.trunc(rollingCents / 100)} Kč (${Math.trunc(rollingCents / 2_000_000)} % limitu 2 000 000)`,
 );
+
 console.log(`  výdajů: ${EXPENSES.length}, řádků s vazbou na ceník: ${usageLines}`);

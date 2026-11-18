@@ -80,6 +80,7 @@ async function vaultWithUsage(
 beforeEach(async () => {
 	await vaultWithPricelist();
 });
+
 describe('výpis ceníku', () => {
 	it('dvojklik na řádek otevře jeho položku', async () => {
 		await vaultWithPricelist(item('p1'), item('p2'));
@@ -549,9 +550,7 @@ describe('nepovedené načtení', () => {
 				},
 			}),
 		).rejects.toThrow(
-			new Error(
-				'Soubor nastaveni.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).',
-			),
+			new Error('Soubor nastaveni.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).'),
 		);
 		const c = await mountPricelist();
 

@@ -61,9 +61,7 @@ describe('zapamatovaná datová složka', () => {
 			new Error('Cestu k datové složce nejde uložit (Cesta musí být absolutní.).'),
 		);
 		await expect(saveVaultPath(JSON.parse('{"vaultPath":42}'))).rejects.toThrow(
-			new Error(
-				'Cestu k datové složce nejde uložit (Neplatný vstup: očekáváno řetězec, obdrženo číslo).',
-			),
+			new Error('Cestu k datové složce nejde uložit (Neplatný vstup: očekáváno řetězec, obdrženo číslo).'),
 		);
 		expect(await loadVaultPath()).toBe(null);
 	});

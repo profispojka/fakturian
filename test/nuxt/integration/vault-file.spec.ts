@@ -19,6 +19,7 @@ const schema = z.object({
 	items: z.array(z.string()),
 	name: z.string(),
 });
+
 const empty = (): Data => ({
 	items: [],
 	name: '',
@@ -69,9 +70,7 @@ describe('načtení souboru domény', () => {
 		const f = file();
 
 		await expect(f.load()).rejects.toThrow(
-			new Error(
-				'Soubor cenik.json má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
-			),
+			new Error('Soubor cenik.json má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo undefined).'),
 		);
 		expect(f.loaded.value).toBe(false);
 		await expect(f.save()).rejects.toThrow('Data (cenik.json) se nepodařilo načíst');
@@ -86,9 +85,7 @@ describe('načtení souboru domény', () => {
 		const f = file();
 
 		await expect(f.load()).rejects.toThrow(
-			new Error(
-				'Soubor cenik.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).',
-			),
+			new Error('Soubor cenik.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).'),
 		);
 		expect(f.loaded.value).toBe(false);
 	});
@@ -108,9 +105,7 @@ describe('načtení souboru domény', () => {
 		});
 
 		await expect(file().load()).rejects.toThrow(
-			new Error(
-				'Soubor cenik.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).',
-			),
+			new Error('Soubor cenik.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).'),
 		);
 	});
 
@@ -128,9 +123,7 @@ describe('načtení souboru domény', () => {
 			name: 'Stará složka',
 		});
 		await expect(f.load()).rejects.toThrow(
-			new Error(
-				'Soubor cenik.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).',
-			),
+			new Error('Soubor cenik.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).'),
 		);
 		expect(f.data.value).toEqual(empty());
 	});
@@ -600,9 +593,7 @@ describe('chyba načtení', () => {
 		const f = file();
 
 		await expect(f.load()).rejects.toThrow(
-			new Error(
-				'Soubor cenik.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).',
-			),
+			new Error('Soubor cenik.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).'),
 		);
 		expect(f.error.value).toContain('Soubor cenik.json má poškozený obsah');
 

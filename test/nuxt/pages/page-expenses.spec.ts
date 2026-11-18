@@ -698,9 +698,7 @@ describe('nepovedené načtení', () => {
 				},
 			}),
 		).rejects.toThrow(
-			new Error(
-				'Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).',
-			),
+			new Error('Soubor vydaje.json má poškozený obsah (Neplatný vstup: očekáváno pole, obdrženo řetězec).'),
 		);
 		const c = await mount();
 

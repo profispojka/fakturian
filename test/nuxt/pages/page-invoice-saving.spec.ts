@@ -92,7 +92,10 @@ describe('uložení', () => {
 
 	it('faktura s dobropisem se uložit nedá, dobropis ano', async () => {
 		invoiceInVault('20260001');
-		invoiceInVault('20260002', { documentType: 2, originalInvoice: '20260001' });
+		invoiceInVault('20260002', {
+			documentType: 2,
+			originalInvoice: '20260001',
+		});
 
 		const invoice = await mountInvoice('20260001');
 		expect(invoice.find('[data-testid="action-save"]').attributes('disabled')).toBeDefined();

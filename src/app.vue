@@ -102,7 +102,11 @@ async function revealData() {
 	try {
 		await systemServices.revealPath(`${vaultPath.value}/.fakturian`);
 	} catch (e) {
-		toast.add({ title: 'Složku se nepodařilo ukázat ve Finderu', description: errorText(e), color: 'error' });
+		toast.add({
+			title: 'Složku se nepodařilo ukázat ve Finderu',
+			description: errorText(e),
+			color: 'error',
+		});
 	}
 }
 

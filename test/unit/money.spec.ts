@@ -34,6 +34,7 @@ const quantity = tuple(
 	),
 	nat(6),
 );
+
 const unitPrice = oneof(
 	integer({
 		min: -2_000_000_000,

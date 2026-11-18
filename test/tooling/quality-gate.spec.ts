@@ -10,6 +10,7 @@ import { requireTsMutations } from '../../tools/mutation/mutation-result.ts';
 
 const reporter = resolve('tools/testing/required-tests-reporter.ts');
 const vitest = resolve('node_modules/vitest/vitest.mjs');
+
 const ts = (status: string) => ({
 	files: {
 		'source.ts': {

@@ -40,8 +40,10 @@ class ExecError extends Error {
 
 const TOKEN = 'abcdefghij0123456789ABCDEFGHIJabcdefghij0123456789ABCDEFGHIJ0123';
 const TOKEN_MESSAGE = 'Fio token má být 64 znaků A–Z, a–z, 0–9 (zkopíruj ho z internetového bankovnictví celý).';
+
 const AMOUNT_MESSAGE =
 	's nečitelnou nebo nesmyslně velkou částkou — Fakturian ji radši nezpracuje, než aby ji spolkl jako nulu.';
+
 const PERIOD = {
 	from: '2026-05-01',
 	to: '2026-05-31',

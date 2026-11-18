@@ -13,9 +13,11 @@ import { Bridge, MAX_LINE, type McpServer, READY, serveMcp, tokenPath, type Wind
 import { VERSION } from '../../version.ts';
 
 const APP_NOT_RUNNING = 'Fakturian neběží. Spusť appku — agent pracuje proti ní, ne přímo se soubory.';
+
 const INTERRUPTED =
 	'Spojení s Fakturianem se během volání přerušilo (appka skončila nebo se okno znovu načetlo). ' +
 	'Výsledek není známý — u create_invoice nejdřív ověř list_invoices, než to zkusíš znovu.';
+
 const CALL = '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"summary"}}';
 const CANCELLED = '{"jsonrpc":"2.0","method":"notifications/cancelled","params":{"requestId":1}}';
 const PING = '{"jsonrpc":"2.0","id":4,"method":"ping"}';

@@ -315,6 +315,7 @@ const lettersOf = (letters: string[], maxLength: number) =>
 		unit: constantFrom(...letters),
 		maxLength,
 	});
+
 const template = tuple(
 	lettersOf(['F', 'V', 'Z', 'a', 'b'], 3),
 	constantFrom('', '-', '.', '_', ' '),
@@ -329,14 +330,17 @@ const template = tuple(
 	if (yearFirst) return `${prefix}{RRRR}${separator}${sequence}${suffix}`;
 	return `${prefix}${sequence}${separator}{RRRR}${suffix}`;
 });
+
 const year = integer({
 	min: 1000,
 	max: 9999,
 });
+
 const sequence = integer({
 	min: 1,
 	max: 999_999_999,
 });
+
 const upTo = (maxLength: number) => ({
 	maxLength,
 });

@@ -498,8 +498,8 @@ describe('selhání složky prijate/', () => {
 		expect(await fits(tooLong)).toBe(false);
 		while (tooLong - longest > 1) {
 			const middle = Math.floor((longest + tooLong) / 2);
-			if (await fits(middle)) longest = middle;
-			else tooLong = middle;
+			const fitsMiddle = await fits(middle);
+			[longest, tooLong] = fitsMiddle ? [middle, tooLong] : [longest, middle];
 		}
 		await rm(probe, { recursive: true });
 		const name = `${'d'.repeat(longest - '.pdf'.length)}.pdf`;

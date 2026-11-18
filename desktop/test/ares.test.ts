@@ -7,6 +7,7 @@ import { aresSubject } from '../ares.ts';
 
 const ICO = '12345679';
 const PATH = `/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/${ICO}`;
+
 const SUBJECT = {
 	ico: ICO,
 	obchodniJmeno: 'Testovací firma s.r.o.',

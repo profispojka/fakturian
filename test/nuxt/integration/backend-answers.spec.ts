@@ -340,9 +340,7 @@ describe('faktura načtená z vaultu', () => {
 		});
 
 		await expect(useNuxtApp().vueApp.runWithContext(useInvoices).load('20260005')).rejects.toThrow(
-			new Error(
-				'Doklad má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
-			),
+			new Error('Doklad má poškozený obsah (Neplatný vstup: očekáváno řetězec, obdrženo undefined).'),
 		);
 	});
 
@@ -417,9 +415,7 @@ describe('souhrn dokladu v seznamu', () => {
 		});
 
 		await expect(useNuxtApp().vueApp.runWithContext(useInvoices).list()).rejects.toThrow(
-			new Error(
-				'Seznam faktur má poškozený obsah (Neplatný vstup: očekáváno int, obdrženo číslo).',
-			),
+			new Error('Seznam faktur má poškozený obsah (Neplatný vstup: očekáváno int, obdrženo číslo).'),
 		);
 	});
 });
@@ -499,9 +495,7 @@ describe('report importu', () => {
 		});
 
 		await expect(useNuxtApp().vueApp.runWithContext(useImport).importFiles(['/a.pdf'])).rejects.toThrow(
-			new Error(
-				'Zpráva o importu má poškozený obsah (Neplatný vstup: očekáváno int, obdrženo číslo).',
-			),
+			new Error('Zpráva o importu má poškozený obsah (Neplatný vstup: očekáváno int, obdrženo číslo).'),
 		);
 	});
 
