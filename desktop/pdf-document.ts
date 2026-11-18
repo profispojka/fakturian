@@ -153,10 +153,9 @@ function objectHasSignature(object: PDFObject, depth: number): boolean {
 	);
 }
 
-// `updateMetadata: false`: pdf-lib by jinak přepsal slovník `Info` a rozešel ho s XMP, na kterém stojí
-// PDF/A. Chyba načtení nese důvod od pdf-lib, volající ho zasadí do své věty.
+// Chyba načtení nese důvod od pdf-lib, volající ho zasadí do své věty.
 export async function readPdf(bytes: Uint8Array, budget: number): Promise<PdfContent> {
-	const pdf = await PDFDocument.load(bytes, { updateMetadata: false });
+	const pdf = await PDFDocument.load(bytes);
 	const found = attachments(pdf, budget);
 	return {
 		signed: pdf.context.enumerateIndirectObjects().some(([, object]) => objectHasSignature(object, 0)),
@@ -173,8 +172,10 @@ export async function readPdf(bytes: Uint8Array, budget: number): Promise<PdfCon
 // Příloha se nahradí na místě, přidaná druhá by nechala starou i novou verzi. Uložení zůstane jako ze
 // sazby typstem: klasická tabulka xref bez proudů objektů a bez přidané prázdné stránky.
 export async function rewritePdf(bytes: Uint8Array, budget: number, rewrite: PdfRewrite): Promise<Uint8Array> {
+	// `updateMetadata: false`: pdf-lib by jinak přepsal slovník `Info` a rozešel ho s XMP, na kterém stojí PDF/A.
 	const pdf = await PDFDocument.load(bytes, { updateMetadata: false });
 	const found = attachments(pdf, budget);
+	// Stryker disable next-line StringLiteral: ekvivalentní mutant, `{ reason }` na indexu přílohu nemá.
 	const target = 'reason' in found ? undefined : found[rewrite.index];
 	if (!(target?.entry instanceof PDFRef)) throw new Error('Příloha k nahrazení v PDF není.');
 	const content = new TextEncoder().encode(rewrite.xml);
@@ -195,4 +196,18 @@ export async function rewritePdf(bytes: Uint8Array, budget: number, rewrite: Pdf
 		useObjectStreams: false,
 		addDefaultPage: false,
 	});
+}
+
+// Chyba pdf-lib je odpověď o dokumentu; podproces, který neodpoví, práci nedokončil.
+export async function runPdfTask(request: PdfRequest): Promise<PdfAnswer> {
+	try {
+		if ('read' in request) {
+			const content = await readPdf(request.read, request.budget);
+			return { result: content };
+		}
+		const saved = await rewritePdf(request.rewrite, request.budget, request);
+		return { result: saved };
+	} catch (error) {
+		return { error };
+	}
 }

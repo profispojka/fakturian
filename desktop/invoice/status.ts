@@ -5,23 +5,24 @@ import { validateNumber } from '~/utils/numbering';
 
 import { writePdf } from './mod.ts';
 
-import { sentAt, setSent, toXml } from '../isdoc/mod.ts';
+import { clearSent, sentAt, setSent, toXml } from '../isdoc/mod.ts';
 import { intoInvoice } from '../isdoc/projection.ts';
-import { hasSignature, loadPdf, readIsdoc, replaceIsdoc, savePdf } from '../pdf.ts';
+import { loadPdf, readIsdoc, replaceIsdoc, type LoadedPdf } from '../pdf.ts';
 import { readDocument } from '../util.ts';
 import { overVault } from '../vault.ts';
 
 import { documentNumberCount, findDocument } from './index.ts';
 
 import type { Document } from '@xmldom/xmldom';
-import type { PDFDocument } from 'pdf-lib';
 
 // Podpis ISDOC stojí na konci dokladu jako prvek v tomhle jmenném prostoru (skupina `Signature` v XSD).
 const XMLDSIG_NAMESPACE = 'http://www.w3.org/2000/09/xmldsig#';
 
-// Akce je jednosměrná: zrušení příznaku by znovu otevřelo možnost přepsat doklad, který už mohl dostat
-// zákazník.
-export async function markInvoiceSent({ vaultPath, number }: { vaultPath: string; number: string }): Promise<string> {
+async function loadForStatus(
+	vaultPath: string,
+	number: string,
+	blocked: string,
+): Promise<{ root: string; path: string; pdf: LoadedPdf; document: Document }> {
 	const numberProblem = validateNumber(number);
 	if (numberProblem) throw new Error(numberProblem);
 	const root = await overVault(vaultPath);
@@ -32,12 +33,12 @@ export async function markInvoiceSent({ vaultPath, number }: { vaultPath: string
 	}
 	const path = await findDocument(invoices, number);
 	if (path === undefined) throw new Error(`Fakturu ${number} se nepodařilo najít.`);
-	let pdf: PDFDocument;
+	let pdf: LoadedPdf;
 	try {
 		const bytes = await readDocument(path);
 		pdf = await loadPdf(bytes);
 	} catch (error) {
-		throw new Error(`Doklad ${number} nejde přečíst, proto ho nelze označit jako odeslaný: ${errorText(error)}`, {
+		throw new Error(`Doklad ${number} nejde přečíst, proto ${blocked}: ${errorText(error)}`, {
 			cause: error,
 		});
 	}
@@ -45,26 +46,44 @@ export async function markInvoiceSent({ vaultPath, number }: { vaultPath: string
 	try {
 		({ document } = await readIsdoc(pdf));
 	} catch (error) {
-		throw new Error(`Doklad ${number} nejde přečíst (${errorText(error)}), proto ho nelze označit jako odeslaný.`, {
+		throw new Error(`Doklad ${number} nejde přečíst (${errorText(error)}), proto ${blocked}.`, {
 			cause: error,
 		});
 	}
-	// Už odeslaný doklad vrátí svůj čas beze změny, i když ho mezitím někdo podepsal.
-	const sent = sentAt(document);
-	if (sent !== undefined) return sent;
-	if (hasSignature(pdf)) {
+	return { root, path, pdf, document };
+}
+
+function assertUnsigned(number: string, pdf: LoadedPdf, document: Document): void {
+	if (pdf.signed) {
 		throw new Error(`Doklad ${number} obsahuje elektronický podpis. Zápis stavu odeslání by ho zneplatnil.`);
 	}
 	const signatures = Array.from(document.getElementsByTagNameNS(XMLDSIG_NAMESPACE, '*'));
 	if (signatures.some((element) => element.parentNode === document.documentElement)) {
 		throw new Error(`ISDOC dokladu ${number} obsahuje elektronický podpis. Zápis stavu odeslání by ho zneplatnil.`);
 	}
+}
+
+export async function markInvoiceSent({ vaultPath, number }: { vaultPath: string; number: string }): Promise<string> {
+	const { root, path, pdf, document } = await loadForStatus(vaultPath, number, 'ho nelze označit jako odeslaný');
+	// Už odeslaný doklad vrátí svůj čas beze změny, i když ho mezitím někdo podepsal.
+	const sent = sentAt(document);
+	if (sent !== undefined) return sent;
+	assertUnsigned(number, pdf, document);
 
 	const at = new Date().toISOString();
 	const invoice = intoInvoice(document);
 	setSent(document, at, invoice.supplier.name);
-	await replaceIsdoc(pdf, toXml(document));
-	const bytes = await savePdf(pdf);
+	const bytes = await replaceIsdoc(pdf, toXml(document));
 	await writePdf(root, path, number, bytes);
 	return at;
+}
+
+export async function unmarkInvoiceSent({ vaultPath, number }: { vaultPath: string; number: string }): Promise<void> {
+	const { root, path, pdf, document } = await loadForStatus(vaultPath, number, 'ho nelze vrátit mezi neodeslané');
+	if (sentAt(document) === undefined) return;
+	assertUnsigned(number, pdf, document);
+
+	clearSent(document);
+	const bytes = await replaceIsdoc(pdf, toXml(document));
+	await writePdf(root, path, number, bytes);
 }
