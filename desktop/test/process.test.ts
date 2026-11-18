@@ -37,7 +37,7 @@ const ENCODER = new TextEncoder();
 const CRASHED = 'PDF nejde rozbalit v rozumném čase ani paměti — takhle doklad nevypadá';
 const NOT_STARTED = 'Fakturian nedokázal spustit čtení PDF — zkus ho restartovat';
 const MIB = 1024 * 1024;
-const PDF_PROCESS = fileURLToPath(new URL('../pdf-process.ts', import.meta.url));
+const PDF_PROCESS = fileURLToPath(new URL('../process.ts', import.meta.url));
 const PARENT_PORT = fileURLToPath(new URL('./parent-port.ts', import.meta.url));
 
 afterEach(() => {
@@ -272,7 +272,7 @@ describe('načtení PDF přes podproces', () => {
 
 	it('podproces, který se nespustí, ohlásí jako vadu appky a další PDF načte novým', async () => {
 		const { loadPdf: freshLoad } = await import('../pdf.ts');
-		vi.mocked(fork).mockImplementationOnce((_path, options) => actual.fork('/neexistuje/pdf-process.ts', options));
+		vi.mocked(fork).mockImplementationOnce((_path, options) => actual.fork('/neexistuje/process.ts', options));
 		const bytes = await pdfWithIsdoc(MINIMAL_ISDOC);
 
 		const error = await rejection(freshLoad(bytes));

@@ -352,7 +352,7 @@ Factur-X/ZUGFeRD, jen s českým ISDOC. Model dokladu a jeho vrstvy popisuje
 - **Změna existujícího dokladu** (odeslání): `pdf-lib` přepíše obsah přílohy na
   místě (`replaceIsdoc`). **Čtení zpět** vytáhne ISDOC přes `pdf-lib`
   (`readIsdoc`), XML drží `@xmldom/xmldom`.
-- **pdf-lib běží jen v samostatném podprocesu `pdf-process.mjs`**: proudy
+- **pdf-lib běží jen v samostatném podprocesu `process.mjs`**: proudy
   objektů rozbaluje synchronně a bez stropu a přetečení haldy V8 ohlásí pádem
   celého procesu, takže worker ve stejném procesu appku neochrání. V appce
   podproces spouští `utilityProcess` Electronu (fuse `runAsNode` je vypnutá),
@@ -476,11 +476,11 @@ distribuce není rozhodnutý.
   DMG a ZIP pro arm64, jen macOS, minimální systém `mac.minimumSystemVersion`.
 - `desktop:build` (`tools/desktop/build.ts`) zabalí esbuildem hlavní proces do
   `.output/desktop/main.mjs`, worker ISDOC do `validator.mjs`, podproces PDF do
-  `pdf-process.mjs` a preload do `preload.cjs` (preload v sandboxu nesmí být ES
+  `process.mjs` a preload do `preload.cjs` (preload v sandboxu nesmí být ES
   modul). Mimo bundl zůstávají jen `dependencies` — nativní addony, wasm
   a `tinypool`, který si vstupní worker hledá vedle sebe; frontend a nástroje
   patří do `devDependencies`. Addony, worker ISDOC a `tinypool` leží v balíčku
-  mimo archiv `asar`; `pdf-process.mjs` zůstává v archivu, `utilityProcess` ho
+  mimo archiv `asar`; `process.mjs` zůstává v archivu, `utilityProcess` ho
   z něj načte.
 - `THIRD-PARTY-NOTICES.txt` uvádí licence a copyrighty závislostí dodávaných
   v aplikaci včetně balíčků zabalených do frontendu a hlavního procesu. Udržuje

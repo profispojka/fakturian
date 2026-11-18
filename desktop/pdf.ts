@@ -80,9 +80,9 @@ export function renderTypstSvg(source: string, files: TypstFiles): string[] {
 	);
 }
 
-// Ze zdrojů běží `pdf-process.ts` vedle tohoto modulu, z bundlu `pdf-process.mjs` vedle `main.mjs`. Ze
+// Ze zdrojů běží `process.ts` vedle tohoto modulu, z bundlu `process.mjs` vedle `main.mjs`. Ze
 // zdrojů ho Node spouští bez překladu, takže jeho importy nesmí sáhnout na alias `~/`.
-const PDF_PROCESS = fileURLToPath(new URL(`./pdf-process${extname(fileURLToPath(import.meta.url))}`, import.meta.url));
+const PDF_PROCESS = fileURLToPath(new URL(`./process${extname(fileURLToPath(import.meta.url))}`, import.meta.url));
 // Doklad trvá zlomek sekundy; limit ukončí práci, která se zacyklí bez růstu paměti.
 const PDF_TIMEOUT = 10_000;
 // Přetečení haldy podprocesu skončí jen jeho pádem; skutečný doklad má stovky objektů.

@@ -31,7 +31,7 @@ await Promise.all([
 		entryPoints: {
 			main: 'desktop/main.ts',
 			validator: 'desktop/isdoc/validator.ts',
-			'pdf-process': 'desktop/pdf-process.ts',
+			process: 'desktop/process.ts',
 		},
 		outdir: '.output/desktop',
 		format: 'esm',

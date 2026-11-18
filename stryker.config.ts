@@ -37,7 +37,7 @@ export default {
 		// navíc shodí a každá kontrola dokladu pak čeká na limit.
 		'!desktop/isdoc/validator.ts',
 		// Vstup podprocesu PDF běží v jiném procesu, kam aktivní mutant nedosáhne.
-		'!desktop/pdf-process.ts',
+		'!desktop/process.ts',
 	],
 	// `perTest` potřebuje, aby runner uměl spustit jen dotčené testy — vitest to umí a bez toho by
 	// každý mutant znamenal celou sadu.
