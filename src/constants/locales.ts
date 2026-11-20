@@ -44,13 +44,6 @@ export const FURTHER_FORMS: CzechPluralForms = {
 	other: 'dalších',
 };
 
-export const WEEK_FORMS: CzechPluralForms = {
-	one: 'týden',
-	few: 'týdny',
-	many: 'týdne',
-	other: 'týdnů',
-};
-
 export const LOOKS_LIKE_FORMS: CzechPluralForms = {
 	one: 'který vypadá',
 	few: 'které vypadají',

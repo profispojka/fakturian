@@ -2,9 +2,7 @@ import {
 	CalendarDate,
 	DateFormatter,
 	getLocalTimeZone,
-	parseAbsolute,
 	parseDate as calendarDate,
-	toCalendarDate as dayOf,
 	today as localToday,
 } from '@internationalized/date';
 
@@ -54,6 +52,7 @@ export function toCalendarDate(value: DateString | undefined): CalendarDate | un
 export function fromCalendarDate(value: CalendarDate): DateString;
 export function fromCalendarDate(value: null | undefined): undefined;
 export function fromCalendarDate(value: CalendarDate | null | undefined): DateString | undefined;
+
 export function fromCalendarDate(value: CalendarDate | null | undefined): DateString | undefined {
 	return parseDate(value?.toString());
 }
@@ -144,11 +143,6 @@ export function today(): DateString {
 	return dateString(localToday(getLocalTimeZone()));
 }
 
-// Okamžik z backendu je v UTC; den se počítá v místní zóně stejně jako `today()`.
-export function localDateOf(instant: string): DateString {
-	return dateString(dayOf(parseAbsolute(instant, getLocalTimeZone())));
-}
-
 export function addDays(date: DateString, days: number): DateString {
 	const start = calendarDate(date);
 	if (days < MIN_DATE.compare(start) || days > MAX_DATE.compare(start))
@@ -180,30 +174,21 @@ const DATE = {
 	timeZone: 'UTC',
 } satisfies Intl.DateTimeFormatOptions;
 
-const DAY_MONTH = {
-	day: 'numeric',
-	month: 'numeric',
-	timeZone: 'UTC',
-} satisfies Intl.DateTimeFormatOptions;
-
 export function formatDate(date: DateString | undefined): string {
 	if (!date) return '—';
 	return new DateFormatter(LOCALE, DATE).format(calendarDate(date).toDate('UTC'));
-}
-
-export function formatDayMonth(date: DateString | undefined): string {
-	if (!date) return '—';
-	return new DateFormatter(LOCALE, DAY_MONTH).format(calendarDate(date).toDate('UTC'));
 }
 
 const MONTH = {
 	month: 'long',
 	timeZone: 'UTC',
 } satisfies Intl.DateTimeFormatOptions;
+
 const MONTH_SHORT = {
 	month: 'short',
 	timeZone: 'UTC',
 } satisfies Intl.DateTimeFormatOptions;
+
 const YEAR_SHORT = {
 	year: '2-digit',
 	timeZone: 'UTC',

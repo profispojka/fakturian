@@ -58,9 +58,6 @@ export interface Invoice extends Required<
 	originalIssueDate?: DateString;
 }
 
-/** Rozepsaný doklad: datum vystavení je povinné, ale než ho uživatel zadá, chybí. */
-export type InvoiceForm = Omit<Invoice, 'issueDate'> & { issueDate?: DateString };
-
 const documentTypeSchema = z.enum(DocumentKind);
 
 export function emptyParty(): InvoiceParty {
@@ -192,6 +189,7 @@ export const invoiceListSchema = z.strictObject({
 	items: z.array(invoiceSummarySchema),
 	broken: z.array(brokenInvoiceSchema),
 }) satisfies Zod.ZodType<InvoiceList>;
+
 // Stryker restore all
 
 // Stryker disable all: Formulářová schémata ověřují samostatné hraniční a chybové scénáře.
@@ -387,5 +385,4 @@ export function invoiceSchema(ctx: InvoiceContext = {}) {
 	});
 }
 
-export type ValidInvoiceForm = Zod.infer<ReturnType<typeof invoiceSchema>>;
 // Stryker restore all

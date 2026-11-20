@@ -13,6 +13,7 @@ import type { ItemUsage, ItemUsageInvoice } from '~/utils/pricelist';
 const { pricelist, remove, usage, refreshUsage, loadError: fileError } = usePricelist();
 const paletteOpen = useState<boolean>('paletteOpen', () => false);
 const activeId = ref('');
+
 const {
 	filtered,
 	filters,
@@ -61,6 +62,7 @@ const status = usePageStatus();
 
 // Vykázané množství se počítá z archivu, takže ho stránka musí nejdřív přečíst.
 const invoicesError = ref('');
+
 useAsyncState(refreshUsage, undefined, {
 	onError: (e) => {
 		invoicesError.value = errorText(e);
@@ -88,12 +90,14 @@ const todayDate = useToday();
 const thisYear = computed(() => yearOf(todayDate.value));
 // Dokud si uživatel rok nevybere, drží se letoška i přes Nový rok.
 const pickedYear = ref<number>();
+
 const year = computed({
 	get: () => pickedYear.value ?? thisYear.value,
 	set: (picked) => {
 		pickedYear.value = picked;
 	},
 });
+
 const years = computed(() =>
 	[thisYear.value, thisYear.value - 1, thisYear.value - 2].map((r) => ({
 		label: String(r),

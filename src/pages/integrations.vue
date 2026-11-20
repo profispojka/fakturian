@@ -10,11 +10,13 @@ const status = usePageStatus();
 const { hasToken, tokenError, syncError, refreshHasToken, setToken, clearToken } = useFio();
 // Bez tokenu se nesynchronizuje, takže stará chyba by jen strašila.
 const fioSyncFailed = computed(() => hasToken.value && Boolean(syncError.value));
+
 const fioStatusColor = computed(() => {
 	if (fioSyncFailed.value || tokenError.value) return 'error';
 	if (hasToken.value) return 'primary';
 	return 'neutral';
 });
+
 const { form: fio, reset: resetFio } = useForm(() => ({ token: '' }));
 
 onMounted(refreshHasToken);
@@ -42,6 +44,7 @@ async function removeFioToken() {
 
 // Connector se registruje v MCP klientovi, ne tady.
 const { socketPath, connector, error: mcpPathsError } = useMcpPaths();
+
 const mcpStatusColor = computed(() => {
 	if (mcpPathsError.value) return 'error';
 	if (socketPath.value) return 'primary';

@@ -31,6 +31,7 @@ const { supplier, setSupplier } = useSettings();
 const { preview: previewInvoice, continueSeries } = useInvoices();
 
 const { form, dirty, reset, mayDiscard } = useForm<Supplier>(() => supplier.value ?? emptySupplier());
+
 // Rozepsaný formulář se nepřepisuje: nepovedené uložení vrátí dodavatele v paměti zpátky a formulář by
 // s ním přišel o všechno, co v něm uživatel napsal.
 whenever(supplier, (s) => {

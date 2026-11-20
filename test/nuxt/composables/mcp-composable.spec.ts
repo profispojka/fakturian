@@ -18,8 +18,7 @@ import {
 import { mountUi } from '../../setup/mount';
 import { prepareVault } from '../../setup/vault';
 
-const BROKEN_PAYMENTS =
-	'Soubor platby.json má poškozený obsah (Neplatný vstup: očekáváno record, obdrženo řetězec).';
+const BROKEN_PAYMENTS = 'Soubor platby.json má poškozený obsah (Neplatný vstup: očekáváno record, obdrženo řetězec).';
 
 async function vaultWithBrokenPayments(): Promise<void> {
 	await expect(
@@ -80,8 +79,7 @@ describe('protokol', () => {
 					id,
 					error: {
 						code: -32_602,
-						message:
-							'Neplatné volání nástroje (Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
+						message: 'Neplatné volání nástroje (Neplatný vstup: očekáváno řetězec, obdrženo undefined).',
 					},
 				},
 			]),

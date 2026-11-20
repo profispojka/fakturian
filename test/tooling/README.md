@@ -1,9 +1,8 @@
 # Lint a guardraily
 
-`bun run lint` a `bun run lint:check` jen kontrolují. `bun run lint:fix` opraví
-kód i formát a znovu spustí celou lint bránu. `bun run lint:guardrails` spouští
-kontroly CSS a projekt `unit` jen nad touto složkou, bez přípravy Nuxtu.
-Stejná brána běží v CI a v `.claude/hooks/verify.sh` přes `lint:check`.
+`bun run lint` opraví kód i formát, pak spustí kontroly CSS a projekt `unit` jen
+nad touto složkou, bez přípravy Nuxtu. Stejná brána běží v CI (opravitelný nález
+ji shodí přes `git diff --exit-code`) a v `.claude/hooks/verify.sh`.
 
 ## Konvence sdílené s DENem
 

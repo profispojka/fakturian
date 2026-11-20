@@ -568,6 +568,15 @@ describe('odeslání e-mailem po uložení', () => {
 			'Doklad 20260001 už byl odeslaný a odběratel má u sebe původní verzi. Opravdu ho chceš upravit?',
 		);
 		await answerDialog(false);
+		const toast = useNuxtApp()
+			.vueApp.runWithContext(useToast)
+			.toasts.value.find((item) => item.title === 'Faktura 20260001 je označená jako odeslaná');
+		await toast!.actions![0]!.onClick!(new MouseEvent('click'));
+		await flushPromises();
+		expect(backend.folder('/vault').sent.has('20260001')).toBe(false);
+		await c.find('[data-testid="action-save"]').trigger('click');
+		await flushPromises();
+		expect(layer().find('[data-testid="dialog-message"]').exists()).toBe(false);
 	});
 
 	it('selhání záznamu odeslání se ohlásí', async () => {

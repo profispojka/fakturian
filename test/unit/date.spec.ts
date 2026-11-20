@@ -13,10 +13,8 @@ import {
 	addDays,
 	daysBetween,
 	formatDate,
-	formatDayMonth,
 	canShiftMonth,
 	isDateString,
-	localDateOf,
 	monthName,
 	parseDate,
 	parseIsdocDate,
@@ -178,14 +176,6 @@ describe('addDays', () => {
 	});
 });
 
-describe('localDateOf', () => {
-	it('den okamžiku počítá v místní zóně, ne v UTC', () => {
-		expect(localDateOf('2026-09-06T22:30:00Z')).toBe('2026-09-07');
-		expect(localDateOf('2026-12-31T22:59:59.999999999Z')).toBe('2026-12-31');
-		expect(localDateOf('2026-12-31T23:00:00Z')).toBe('2027-01-01');
-	});
-});
-
 describe('startOfYear a endOfYear', () => {
 	it('vrátí 1. leden a 31. prosinec roku, do kterého datum patří', () => {
 		expect(startOfYear(date('2026-05-29'))).toBe('2026-01-01');
@@ -282,15 +272,13 @@ describe('periodShortLabel', () => {
 	});
 });
 
-describe('formatDate / formatDayMonth', () => {
+describe('formatDate', () => {
 	it('datum se píše číselně a s mezerami', () => {
 		expect(formatDate(date('2026-03-14'))).toBe('14. 3. 2026');
-		expect(formatDayMonth(date('2026-07-14'))).toBe('14. 7.');
 	});
 
 	it('chybějící datum je pomlčka, ne prázdno', () => {
 		expect(formatDate(undefined)).toBe('—');
-		expect(formatDayMonth(undefined)).toBe('—');
 	});
 });
 
@@ -466,9 +454,12 @@ function daysInMonth(year: number, month: number): number {
 	if (month === 2) return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0) ? 29 : 28;
 	return [4, 6, 9, 11].includes(month) ? 30 : 31;
 }
+
 const two = (n: number) => String(n).padStart(2, '0');
+
 const dateText = (year: number, month: number, day: number) =>
 	`${String(year).padStart(4, '0')}-${two(month)}-${two(day)}`;
+
 // Model rozepíše pořadové číslo dne; appka dostane jeho zápis.
 function dateOfDay(n: number): DateString {
 	const { year, month, day } = civil(n);
@@ -477,29 +468,36 @@ function dateOfDay(n: number): DateString {
 
 const FIRST_DAY = dayNumber(1000, 1, 1);
 const LAST_DAY = dayNumber(9999, 12, 31);
+
 const dayInRange = integer({
 	min: FIRST_DAY,
 	max: LAST_DAY,
 });
+
 const beyond = integer({
 	min: 1,
 	max: 1_000_000,
 });
+
 const dayOutside = oneof(
 	tuple(dayInRange, beyond).map(([n, k]) => [n, LAST_DAY - n + k] as const),
 	tuple(dayInRange, beyond).map(([n, k]) => [n, FIRST_DAY - n - k] as const),
 );
+
 // Měsíc jako `rok × 12 + měsíc − 1`; povolená období leží v ⟨12 000, 120 000).
 const FIRST_MONTH = 12_000;
 const LAST_MONTH = 119_999;
+
 const monthInRange = integer({
 	min: FIRST_MONTH,
 	max: LAST_MONTH,
 });
+
 const monthOutside = oneof(
 	tuple(monthInRange, beyond).map(([m, k]) => [m, LAST_MONTH - m + k] as const),
 	tuple(monthInRange, beyond).map(([m, k]) => [m, FIRST_MONTH - m - k] as const),
 );
+
 const periodOfMonth = (index: number) => period(`${Math.floor(index / 12)}-${two((index % 12) + 1)}`);
 
 describe('kalendář proti nezávislému modelu', () => {

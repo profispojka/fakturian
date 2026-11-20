@@ -58,7 +58,7 @@ $cmd_out"
 	fi
 }
 
-run lint bun run lint:check
+run lint bun run lint
 # `typecheck` obsahuje i `tsc -p desktop/tsconfig.json`; hlavní proces importuje typy z `src/`.
 run typecheck bun run typecheck
 

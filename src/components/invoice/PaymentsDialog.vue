@@ -12,6 +12,7 @@ const props = defineProps<{
 	settlement: Settlement;
 	saving: boolean;
 }>();
+
 const emit = defineEmits<{ record: [payment: ReceivedPayment]; remove: [id: string]; close: [] }>();
 
 // Zbytek k úhradě a dnešek v okamžiku otevření: úhrada celé faktury je tak jedno potvrzení.
@@ -20,6 +21,7 @@ const draft = ref<{ id: string; date?: DateString; amountCents: number }>({
 	date: today(),
 	amountCents: Math.abs(props.settlement.outstandingCents),
 });
+
 const draftDate = useDateModel(draft, 'date');
 </script>
 

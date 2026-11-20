@@ -19,7 +19,6 @@ describe('errorText', () => {
 	it('ze ZodError udělá větu, ne JSON', () => {
 		const result = z.object({ ico: z.string() }).safeParse({ ico: 7 });
 		expect(result.success).toBe(false);
-		if (result.success) return;
 		expect(errorText(result.error)).toBe(result.error.issues[0]?.message);
 	});
 
@@ -33,7 +32,6 @@ describe('issuesText', () => {
 	it('vypíše větu problému bez jména pole', () => {
 		const result = z.string().safeParse(7);
 		expect(result.success).toBe(false);
-		if (result.success) return;
 		expect(issuesText(result.error)).toBe(result.error.issues[0]?.message);
 	});
 
@@ -51,7 +49,6 @@ describe('issuesText', () => {
 			d: 1,
 		});
 		expect(result.success).toBe(false);
-		if (result.success) return;
 		const [a, b, c] = result.error.issues.map((issue) => issue.message);
 		expect(issuesText(result.error)).toBe(`${a}, ${b} a ${c}`);
 	});
@@ -68,7 +65,6 @@ describe('issuesText', () => {
 			},
 		});
 		expect(result.success).toBe(false);
-		if (result.success) return;
 		expect(issuesText(result.error)).toBe(result.error.issues[0]?.message);
 	});
 });
