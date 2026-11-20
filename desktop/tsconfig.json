@@ -23,6 +23,5 @@
 			"~/*": ["../src/*"]
 		}
 	},
-	"include": ["**/*.ts"],
-	"exclude": ["test/**"]
+	"include": ["**/*.ts"]
 }

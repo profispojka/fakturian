@@ -258,7 +258,7 @@ describe('import vydaných dokladů', () => {
 	});
 
 	it('různí odběratelé bez IČO i s různým IČO zůstanou zvlášť, stejné IČO je jeden', async () => {
-		const parties = [
+		const parties: [string, string][] = [
 			['Jana Novak', ''],
 			['Petr Novak', ''],
 			['Firma A', '87654326'],

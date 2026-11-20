@@ -29,6 +29,6 @@ describe('filtry seznamů', () => {
 		});
 		const c = await mountPage('/customers');
 		await c.find('[data-testid="customer-search"]').setValue('Nenalezeno');
-		await vi.waitFor(() => expect(c.find('[data-testid="customer-table"]').exists()).toBe(false));
+		await vi.waitFor(() => expect(c.find('[data-testid="empty-state-filtered"]').exists()).toBe(true));
 	});
 });

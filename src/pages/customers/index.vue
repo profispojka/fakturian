@@ -141,10 +141,10 @@ const columns: TableColumn<Contact>[] = [
 			:columns="columns"
 			:row-id="(c) => c.id"
 			:loading="loading"
-			loading-text="Načítám odběratele…"
 			:error="fileError || loadError"
 			data-testid="customer-table"
 			@select="selectCustomer">
+			<template #loading>Načítám odběratele…</template>
 			<template #empty>Zatím žádní odběratelé.</template>
 			<template #name-cell="{ row: { original: c } }">
 				<div :data-testid="`customer-entry-${c.id}`" :data-selected="selected?.id === c.id || undefined">

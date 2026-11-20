@@ -46,6 +46,7 @@ describe('dashboardStats', () => {
 	const payments: Payments = {
 		'20260002': [
 			{
+				id: 'p1',
 				date: date('2026-05-05'),
 				amountCents: 200_000,
 			},
@@ -70,6 +71,7 @@ describe('částečná úhrada na přehledu', () => {
 	const payments: Payments = {
 		'20260001': [
 			{
+				id: 'p1',
 				date: date('2026-05-10'),
 				amountCents: 40_000,
 			},
@@ -125,6 +127,7 @@ describe('dueSoon', () => {
 				{
 					b: [
 						{
+							id: 'p1',
 							date: today,
 							amountCents: 100_000,
 						},
@@ -217,12 +220,14 @@ describe('balance / top listy', () => {
 	const payments: Payments = {
 		'1': [
 			{
+				id: 'p1',
 				date: date('2026-01-15'),
 				amountCents: 100_000,
 			},
 		],
 		'4': [
 			{
+				id: 'p1',
 				date: date('2025-12-15'),
 				amountCents: 500_000,
 			},
@@ -323,6 +328,7 @@ describe('faktura s dobropisem na Přehledu', () => {
 		const paid: Payments = {
 			'20260001': [
 				{
+					id: 'p1',
 					date: date('2026-02-10'),
 					amountCents: 100_000,
 				},
@@ -352,6 +358,7 @@ describe('faktura s dobropisem na Přehledu', () => {
 		const paid: Payments = {
 			'20260001': [
 				{
+					id: 'p1',
 					date: date('2026-02-10'),
 					amountCents: 100_000,
 				},

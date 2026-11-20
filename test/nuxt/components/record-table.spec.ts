@@ -53,7 +53,6 @@ async function mount(props: Record<string, unknown>) {
 describe('RecordTable', () => {
 	it('při načítání řekne, co načítá, a prázdný stav neukáže', async () => {
 		const c = await mount({
-			loading: true,
 			loadingText: 'Načítám záznamy…',
 		});
 
@@ -62,11 +61,10 @@ describe('RecordTable', () => {
 		expect(c.find('[data-testid="records-before"]').text()).toBe('Hláška nad tabulkou');
 	});
 
-	it('bez záznamů ukáže vlastní text', async () => {
+	it('bez záznamů ukáže vlastní text v tabulce', async () => {
 		const c = await mount({});
 
-		expect(c.find('[data-testid="empty-state"]').text()).toContain('Zatím nic.');
-		expect(c.find('[data-testid="records"]').exists()).toBe(false);
+		expect(c.find('[data-testid="records"] [data-testid="empty-state"]').text()).toContain('Zatím nic.');
 	});
 
 	it('hledání bez shody řekne, že nic nenašlo', async () => {

@@ -161,23 +161,26 @@ export function useInvoices() {
 	async function markSent(number: string, onUndo: () => void): Promise<string> {
 		const sentAt = await invoiceServices.markSent(requireVault(), number);
 		forgetArchive();
+		async function undoSent() {
+			try {
+				await invoiceServices.unmarkSent(requireVault(), number);
+				forgetArchive();
+				onUndo();
+			} catch (e) {
+				toast.add({
+					title: `Fakturu ${number} se nepodařilo vrátit mezi neodeslané`,
+					description: errorText(e),
+					color: 'error',
+				});
+			}
+		}
 		toast.add({
 			title: `Faktura ${number} je označená jako odeslaná`,
 			actions: [
 				{
 					label: 'Vrátit zpět',
-					onClick: async () => {
-						try {
-							await invoiceServices.unmarkSent(requireVault(), number);
-							forgetArchive();
-							onUndo();
-						} catch (e) {
-							toast.add({
-								title: `Fakturu ${number} se nepodařilo vrátit mezi neodeslané`,
-								description: errorText(e),
-								color: 'error',
-							});
-						}
+					onClick: () => {
+						void undoSent();
 					},
 				},
 			],

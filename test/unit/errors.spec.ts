@@ -19,7 +19,7 @@ describe('errorText', () => {
 	it('ze ZodError udělá větu, ne JSON', () => {
 		const result = z.object({ ico: z.string() }).safeParse({ ico: 7 });
 		expect(result.success).toBe(false);
-		expect(errorText(result.error)).toBe(result.error.issues[0]?.message);
+		expect(errorText(result.error)).toBe(result.error!.issues[0]?.message);
 	});
 
 	it('na čemkoli jiném skončí u jeho textové podoby', () => {
@@ -32,7 +32,7 @@ describe('issuesText', () => {
 	it('vypíše větu problému bez jména pole', () => {
 		const result = z.string().safeParse(7);
 		expect(result.success).toBe(false);
-		expect(issuesText(result.error)).toBe(result.error.issues[0]?.message);
+		expect(issuesText(result.error!)).toBe(result.error!.issues[0]?.message);
 	});
 
 	it('vypíše nejvýš tři problémy jako český výčet', () => {
@@ -49,8 +49,8 @@ describe('issuesText', () => {
 			d: 1,
 		});
 		expect(result.success).toBe(false);
-		const [a, b, c] = result.error.issues.map((issue) => issue.message);
-		expect(issuesText(result.error)).toBe(`${a}, ${b} a ${c}`);
+		const [a, b, c] = result.error!.issues.map((issue) => issue.message);
+		expect(issuesText(result.error!)).toBe(`${a}, ${b} a ${c}`);
 	});
 
 	it('u vnořeného pole nelepí cestu', () => {
@@ -65,6 +65,6 @@ describe('issuesText', () => {
 			},
 		});
 		expect(result.success).toBe(false);
-		expect(issuesText(result.error)).toBe(result.error.issues[0]?.message);
+		expect(issuesText(result.error!)).toBe(result.error!.issues[0]?.message);
 	});
 });

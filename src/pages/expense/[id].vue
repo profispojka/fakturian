@@ -54,6 +54,7 @@ function syncFromRoute() {
 	missing.value = false;
 	shown.value = id.value;
 }
+
 watch([id, expenses, loaded], syncFromRoute, { immediate: true });
 
 async function onSubmit(event: FormSubmitEvent<ValidExpenseForm>) {

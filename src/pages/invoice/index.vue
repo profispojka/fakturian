@@ -99,6 +99,7 @@ function brokenActions(path: string) {
 		},
 	];
 }
+
 // Značka žije ve sdíleném stavu, aby ji druhý příchod na výpis nespustil znovu.
 const fioAutoSynced = useState<boolean>('fioAutoSynced', () => false);
 
@@ -188,6 +189,7 @@ const stateFilters: SelectOption<InvoiceStateFilter>[] = [
 		label: 'Po splatnosti',
 	},
 ];
+
 const selectedInvoice = computed(
 	() => filtered.value.find((i) => i.number === selectedNumber.value) ?? filtered.value[0],
 );
@@ -499,7 +501,6 @@ function invoiceActions(i: InvoiceSummary): DropdownMenuItem[] {
 			:columns="columns"
 			:row-id="(i) => i.number"
 			:loading="loading"
-			loading-text="Načítám faktury…"
 			:error="loadError"
 			:empty-hidden="brokenInvoices.length > 0"
 			data-testid="invoices-table"
@@ -524,6 +525,7 @@ function invoiceActions(i: InvoiceSummary): DropdownMenuItem[] {
 						data-testid="broken-invoice-row" />
 				</div>
 			</template>
+			<template #loading>Načítám faktury…</template>
 			<template #empty>Zatím žádné faktury.</template>
 			<template #number-cell="{ row: { original: i } }">
 				<div

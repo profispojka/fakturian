@@ -1,10 +1,7 @@
 {
 	// Typy generuje Nuxt do .nuxt/ (`bun run postinstall`, `bun run dev` nebo `bunx nuxt prepare`).
-	"files": [],
-	"references": [
-		{ "path": "./tsconfig.app.json" },
-		{ "path": "./.nuxt/tsconfig.server.json" },
-		{ "path": "./.nuxt/tsconfig.shared.json" },
-		{ "path": "./.nuxt/tsconfig.node.json" }
-	]
+	"extends": "./.nuxt/tsconfig.app.json",
+	"include": [".nuxt/nuxt.d.ts", "src/**/*", "test/**/*"],
+	// E2E má vlastní `test/e2e/tsconfig.json`.
+	"exclude": ["test/e2e/**"]
 }

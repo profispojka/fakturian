@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { DocumentKind } from '~/constants/invoice';
 import { newInvoice } from '~/schemas/invoices';
 import { emptySupplier } from '~/schemas/suppliers';
 import { today } from '~/utils/date';
@@ -126,7 +127,7 @@ describe('duplikace faktury', () => {
 	it('nepřebírá UUID ani vazbu na dobropis', () => {
 		const credited = {
 			...original,
-			documentType: 2,
+			documentType: DocumentKind.CreditNote,
 			originalInvoice: '20250009',
 			originalUuid: 'u9',
 		};

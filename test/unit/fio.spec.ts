@@ -114,6 +114,7 @@ describe('matchPayments', () => {
 		const payments = {
 			'20260001': [
 				{
+					id: 'p1',
 					date: date('2026-05-20'),
 					amountCents: 40_000,
 					fioId: 'm1',
@@ -138,6 +139,7 @@ describe('matchPayments', () => {
 		const payments = {
 			'20260001': [
 				{
+					id: 'p1',
 					date: date('2026-05-10'),
 					amountCents: 40_000,
 				},
@@ -154,6 +156,7 @@ describe('matchPayments', () => {
 		const payments = {
 			'20260001': [
 				{
+					id: 'p1',
 					date: date('2026-05-18'),
 					amountCents: 100_000,
 				},

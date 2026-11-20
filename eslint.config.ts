@@ -2,6 +2,8 @@ import pluginVue from 'eslint-plugin-vue';
 import tseslint from 'typescript-eslint';
 import vueParser from 'vue-eslint-parser';
 
+import type { Linter } from 'eslint';
+
 // Oxlint pouští type-aware pravidla jen nad `.ts`, `<script>` komponent kontroluje až tady.
 export default [
 	{
@@ -89,4 +91,4 @@ export default [
 			'@typescript-eslint/no-unsafe-return': 'error',
 		},
 	},
-];
+] satisfies Linter.Config[];

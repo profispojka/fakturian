@@ -28,4 +28,5 @@ case "$file_path" in
 esac
 
 bunx oxfmt --write "$file_path" >/dev/null 2>&1 || true
+bunx oxlint -A all -D fakturian/blank-line-around-multiline-statements --fix "$file_path" >/dev/null 2>&1 || true
 exit 0

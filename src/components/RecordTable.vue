@@ -13,7 +13,6 @@ const props = defineProps<{
 	columns: TableColumn<T>[];
 	rowId: (row: T) => string;
 	loading?: boolean;
-	loadingText?: string;
 	error?: string;
 	emptyHidden?: boolean;
 }>();
@@ -21,7 +20,7 @@ const props = defineProps<{
 const emit = defineEmits<{ select: [event: Event, row: TableRow<T>] }>();
 
 const slots = useSlots();
-const cellSlots = computed(() => Object.keys(slots).filter((name) => name !== 'before' && name !== 'empty'));
+const cellSlots = computed(() => Object.keys(slots).filter((name) => !['before', 'empty', 'loading'].includes(name)));
 
 // Stovky řádků by postavily tisíce komponent Reka UI naráz; krátký výpis se vykreslí celý. Výška řádku
 // musí sedět s `h-15` u `.record-list` v `app.config.ts`.
@@ -31,8 +30,10 @@ const ROW_HEIGHT = 60;
 const scroller = useTemplateRef<HTMLElement>('scroller');
 const table = useTemplateRef<ComponentPublicInstance>('table');
 
+const virtual = computed(() => props.data.length > VIRTUAL_FROM);
+
 function virtualRows() {
-	if (props.data.length <= VIRTUAL_FROM) return false;
+	if (!virtual.value) return false;
 	const el = unrefElement(table);
 	return {
 		estimateSize: ROW_HEIGHT,
@@ -45,14 +46,11 @@ function virtualRows() {
 <template>
 	<div ref="scroller" class="relative flex min-h-0 flex-1 flex-col overflow-y-auto px-3 pb-3">
 		<slot name="before" />
-		<p v-if="loading" class="py-10 text-center text-meta text-ink-3" role="status" data-testid="records-loading">
-			{{ loadingText }}
-		</p>
-		<EmptyState v-else-if="!emptyHidden || error" :items="items" :filtered="data" :error="error">
-			<slot name="empty" />
-		</EmptyState>
+		<EmptyState v-if="error" :error="error" />
+		<!-- `UTable` čte `virtualize` jen při založení; klíč ji při změně režimu založí znovu. -->
 		<UTable
-			v-if="!error && data.length"
+			v-else-if="data.length || loading || !emptyHidden"
+			:key="virtual ? 'virtual' : 'full'"
 			v-bind="$attrs"
 			ref="table"
 			:virtualize="virtualRows()"
@@ -60,8 +58,17 @@ function virtualRows() {
 			:data="data"
 			:get-row-id="rowId"
 			:columns="columns"
+			:loading="loading"
 			sticky
 			@select="(event: Event, row: TableRow<T>) => emit('select', event, row)">
+			<template #loading>
+				<span role="status" data-testid="records-loading"><slot name="loading" /></span>
+			</template>
+			<template #empty>
+				<EmptyState :items="items" :filtered="data">
+					<slot name="empty" />
+				</EmptyState>
+			</template>
 			<template v-for="name in cellSlots" :key="name" #[name]="slotProps">
 				<slot :name="name" v-bind="slotProps" />
 			</template>

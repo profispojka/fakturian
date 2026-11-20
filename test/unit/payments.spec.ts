@@ -45,6 +45,7 @@ describe('settlementOf', () => {
 		expect(
 			settle(inv(100_000), [
 				{
+					id: 'p1',
 					date: date('2026-05-20'),
 					amountCents: 40_000,
 				},
@@ -60,10 +61,12 @@ describe('settlementOf', () => {
 	it('platby se sečtou', () => {
 		const s = settle(inv(100_000), [
 			{
+				id: 'p1',
 				date: date('2026-05-25'),
 				amountCents: 60_000,
 			},
 			{
+				id: 'p1',
 				date: date('2026-05-20'),
 				amountCents: 40_000,
 			},
@@ -79,6 +82,7 @@ describe('settlementOf', () => {
 		expect(
 			settle(inv(100_000), [
 				{
+					id: 'p1',
 					date: date('2026-05-20'),
 					amountCents: 120_000,
 				},
@@ -106,14 +110,17 @@ describe('lastPaymentOn', () => {
 		expect(
 			lastPaymentOn([
 				{
+					id: 'p1',
 					date: date('2026-05-25'),
 					amountCents: 60_000,
 				},
 				{
+					id: 'p1',
 					date: date('2026-06-02'),
 					amountCents: 10_000,
 				},
 				{
+					id: 'p1',
 					date: date('2026-05-20'),
 					amountCents: 40_000,
 				},
@@ -128,14 +135,17 @@ describe('lastPaymentOn', () => {
 	it('zachová vstup i při shodných datech a přelomu roku', () => {
 		const received = Object.freeze([
 			{
+				id: 'p1',
 				date: date('2027-01-01'),
 				amountCents: 100,
 			},
 			{
+				id: 'p1',
 				date: date('2026-12-31'),
 				amountCents: 200,
 			},
 			{
+				id: 'p1',
 				date: date('2027-01-01'),
 				amountCents: 300,
 			},
@@ -174,6 +184,7 @@ describe('faktura s dobropisem', () => {
 		const ledger = ledgerOf([invoice, credit], {
 			'20260001': [
 				{
+					id: 'p1',
 					date: paidOn,
 					amountCents: 30_000,
 				},
@@ -198,6 +209,7 @@ describe('faktura s dobropisem', () => {
 		const ledger = ledgerOf([invoice, credit], {
 			'20260001': [
 				{
+					id: 'p1',
 					date: paidOn,
 					amountCents: 130_000,
 				},
@@ -215,12 +227,14 @@ describe('faktura s dobropisem', () => {
 		const ledger = ledgerOf([invoice, credit], {
 			'20260001': [
 				{
+					id: 'p1',
 					date: paidOn,
 					amountCents: 100_000,
 				},
 			],
 			'20260002': [
 				{
+					id: 'p1',
 					date: date('2026-05-25'),
 					amountCents: 120_000,
 				},
@@ -239,12 +253,14 @@ describe('faktura s dobropisem', () => {
 		const ledger = ledgerOf([invoice, credit], {
 			'20260001': [
 				{
+					id: 'p1',
 					date: paidOn,
 					amountCents: 100_000,
 				},
 			],
 			'20260002': [
 				{
+					id: 'p1',
 					date: date('2026-05-25'),
 					amountCents: 40_000,
 				},

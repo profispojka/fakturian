@@ -81,6 +81,8 @@ export default defineAppConfig({
 				th: 'h-8 border-b border-line px-3 py-1 text-left text-note font-medium text-ink-2 whitespace-nowrap eyebrow in-[.ftable]:sticky in-[.ftable]:top-0 in-[.ftable]:z-1 in-[.ftable]:bg-pane in-[.modal-card]:bg-card! in-[.ftable]:first:pl-3 in-[.ftable]:last:pr-0 in-[.record-list]:border-0! in-[.record-list]:bg-pane in-[.record-list]:text-micro! in-[.record-list]:font-normal! in-[.record-list]:tracking-normal! in-[.record-list]:text-ink-3 in-[.record-list]:normal-case!',
 				td: 'h-(--row-tbl) border-b border-line-soft px-3 py-1 text-left text-ink-2 whitespace-nowrap in-[.ftable]:first:pl-3 in-[.ftable]:first:text-ink in-[.ftable]:last:pr-0 in-[.record-list]:h-15 in-[.record-list]:border-0! in-[.record-list]:py-2 in-[.record-list]:text-meta',
 				separator: 'hidden',
+				loading: 'in-[.record-list]:py-10 in-[.record-list]:text-meta in-[.record-list]:text-ink-3',
+				empty: 'in-[.record-list]:py-0',
 			},
 		},
 		badge: {
