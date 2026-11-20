@@ -1,7 +1,7 @@
 import { RuleTester } from 'oxlint/plugins-dev';
 import { describe, it } from 'vitest';
 
-import { objectMultiline } from '../../tools/lint/oxlint-fakturian';
+import { objectMultiline } from '../../tools/lint/rules/object-multiline.ts';
 
 // `RuleTester` si `describe`/`it` bere ze statických vlastností, ne z globálů, a `globals: true` sada nemá.
 RuleTester.describe = describe;

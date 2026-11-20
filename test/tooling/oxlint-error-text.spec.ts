@@ -1,7 +1,7 @@
 import { RuleTester } from 'oxlint/plugins-dev';
 import { describe, it } from 'vitest';
 
-import { errorTextRule } from '../../tools/lint/oxlint-fakturian';
+import { errorTextRule } from '../../tools/lint/rules/error-text.ts';
 
 // `RuleTester` si `describe`/`it` bere ze statických vlastností, ne z globálů.
 RuleTester.describe = describe;

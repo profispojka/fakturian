@@ -1,7 +1,7 @@
 import { RuleTester } from 'oxlint/plugins-dev';
 import { describe, it } from 'vitest';
 
-import { constantsDataOnly } from '../../tools/lint/oxlint-fakturian';
+import { constantsDataOnly } from '../../tools/lint/rules/constants-data-only.ts';
 
 // `RuleTester` si `describe`/`it` bere ze statických vlastností, ne z globálů.
 RuleTester.describe = describe;

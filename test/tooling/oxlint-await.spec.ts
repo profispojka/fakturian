@@ -1,7 +1,7 @@
 import { RuleTester } from 'oxlint/plugins-dev';
 import { describe, it } from 'vitest';
 
-import { awaitStandalone } from '../../tools/lint/oxlint-fakturian';
+import { awaitStandalone } from '../../tools/lint/rules/await-standalone.ts';
 
 // `RuleTester` si `describe`/`it` bere ze statických vlastností, ne z globálů, a `globals: true` sada nemá.
 RuleTester.describe = describe;

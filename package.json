@@ -21,13 +21,12 @@
 		"test:e2e:visual:update": "playwright test test/e2e/visual --update-snapshots=all",
 		"typecheck:e2e": "tsc --noEmit -p test/e2e/tsconfig.json",
 		"mutants:ts": "node tools/mutation/mutants-ts.ts",
-		"lint": "oxlint --fix --type-aware --ignore-pattern 'test/**' --ignore-pattern 'desktop/test/**' . && oxlint --fix --type-aware test/smoke && oxlint --fix test desktop/test && eslint \"src/**/*.vue\" --fix",
-		"lint:check": "oxlint --type-aware --ignore-pattern 'test/**' --ignore-pattern 'desktop/test/**' . && oxlint --type-aware test/smoke && oxlint test desktop/test && eslint \"src/**/*.vue\"",
+		"lint": "oxlint --fix --type-aware --ignore-pattern 'test/**' --ignore-pattern 'desktop/test/**' . && oxlint --fix --type-aware test/smoke && oxlint --fix test desktop/test && eslint \"src/**/*.vue\" --fix && oxfmt --write . && oxlint -A all -D fakturian/blank-line-around-multiline-statements --fix . && node scripts/check-tailwind-scales.ts && node scripts/check-dead-css.ts && vitest run --config vitest.mutation.config.ts --project unit test/tooling",
 		"format": "oxfmt --write .",
 		"format:check": "oxfmt --check .",
-		"typecheck": "vue-tsc --noEmit -p .nuxt/tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p desktop/tsconfig.json && tsc --noEmit -p showcase/tsconfig.scripts.json",
+		"typecheck": "vue-tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p desktop/tsconfig.json && tsc --noEmit -p showcase/tsconfig.scripts.json",
 		"desktop:build": "node tools/desktop/build.ts",
-		"check": "bun run lint:check && bun run format:check && bun run typecheck && bun run typecheck:e2e && bun run test -- --coverage && bun run generate && bun run desktop:build && bun audit --audit-level=low"
+		"check": "bun run lint &&bun run format:check && bun run typecheck && bun run typecheck:e2e && bun run test -- --coverage && bun run generate && bun run desktop:build && bun audit --audit-level=low"
 	},
 	"dependencies": {
 		"@myriaddreamin/typst-ts-node-compiler": "0.8.0-rc3",

@@ -66,11 +66,16 @@ class Ares {
 	unavailable = false;
 
 	write(company: AresCompany): void {
+		const address = /^(.*?)(?: (\d+)(?:\/(\d+)([a-zA-Z]?))?)?$/.exec(company.address.street);
+		if (!address) throw new Error('Adresa testovací firmy není jednořádkový text.');
 		this.companies.set(company.ico, {
 			obchodniJmeno: company.name,
 			ico: company.ico,
 			sidlo: {
-				textovaAdresa: company.address.street,
+				nazevUlice: address[1],
+				cisloDomovni: address[2] === undefined ? undefined : Number(address[2]),
+				cisloOrientacni: address[3] === undefined ? undefined : Number(address[3]),
+				cisloOrientacniPismeno: address[4],
 				nazevObce: company.address.city,
 				psc: Number(company.address.zip.replace(/\s/g, '')),
 			},

@@ -103,7 +103,7 @@ bun install
 | `bun run test -- --config vitest.mutation.config.ts --project desktop`                                                       | jen testy hlavního procesu (`desktop/test/`)                                                        |
 | `FUZZ_CASES=2000 bun run test -- --config vitest.mutation.config.ts --project desktop desktop/test/input-robustness.test.ts` | hlubší fuzz běh                                                                                     |
 | `bun run mutants:ts`                                                                                                         | mutační testování ze seznamu `mutate` ve `stryker.config.ts`; `--mutate <soubor>` na jeden soubor   |
-| `bun run lint` / `format`                                                                                                    | oxlint / oxfmt **se zápisem**; `lint:check` a `format:check` jen kontrolují                         |
+| `bun run lint` / `format`                                                                                                    | oxlint, ESLint a oxfmt **se zápisem** + guardraily; `format:check` jen kontroluje                   |
 | `bun run typecheck`                                                                                                          | typy appky, hlavního procesu, nástrojů a skriptů showcase                                           |
 
 Co přesně která brána měří, jaké jsou prahy a jak se čtou mutační reporty, je

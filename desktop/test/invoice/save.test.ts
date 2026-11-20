@@ -107,6 +107,24 @@ async function foreignDocument(number: string, change: (xml: string) => string):
 	);
 }
 
+async function archiveAboveLastYearLimit(): Promise<void> {
+	const previous = {
+		...invoice(),
+		number: '20250001',
+		issueDate: '2025-12-31',
+		lines: [
+			{
+				...invoice().lines[0],
+				quantity: 1,
+				unitPriceCents: 200_000_001,
+			},
+		],
+	};
+	await mkdir(join(base, 'faktury'), { recursive: true });
+	const pdf = await pdfWithIsdoc(buildIsdoc(previous));
+	await writeFile(join(base, 'faktury', '20250001.pdf'), pdf);
+}
+
 describe('doklad z webview', () => {
 	it('nepovinná pole doplní prázdná a rok čerpání bez hodnoty vynechá', () => {
 		expect(
@@ -338,6 +356,35 @@ describe('uložení a načtení', () => {
 				],
 			}),
 		).rejects.toThrow('Doklad nejde uložit, protože by obrat za kalendářní rok překročil 2 000 000 Kč.');
+	});
+
+	it('překročený obrat v minulém roce nedovolí vystavit další kladný doklad', async () => {
+		await archiveAboveLastYearLimit();
+		await expect(saveNew(invoice())).rejects.toThrow(
+			new Error(
+				'Doklad nejde uložit, protože obrat v předchozím roce překročil 2 000 000 Kč. Další postup ověř s účetním.',
+			),
+		);
+		expect(await names(join(base, 'faktury'))).toEqual(['20250001.pdf']);
+	});
+
+	it('překročený obrat v minulém roce neblokuje úpravu záporného dobropisu', async () => {
+		await archiveAboveLastYearLimit();
+		const credit = {
+			...creditNote(),
+			originalInvoice: '20250001',
+		};
+		const pdf = await pdfWithIsdoc(buildIsdoc(credit));
+		await writeFile(join(base, 'faktury', `${credit.number}.pdf`), pdf);
+		const edited = {
+			...credit,
+			lines: credit.lines.map((line) => ({
+				...line,
+				unitPriceCents: -1,
+			})),
+		};
+		await saveEdit(edited);
+		expect(invoiceTotalCents(await load(credit.number))).toBe(-5);
 	});
 
 	it('nedovolí vystavení, pokud kvůli vadnému dokladu nelze ověřit obrat', async () => {

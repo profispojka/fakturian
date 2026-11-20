@@ -1,7 +1,7 @@
 import { RuleTester } from 'oxlint/plugins-dev';
 import { describe, it } from 'vitest';
 
-import { submitByButton } from '../../tools/lint/oxlint-fakturian';
+import { submitByButton } from '../../tools/lint/rules/submit-by-button.ts';
 
 // `RuleTester` si `describe`/`it` bere ze statických vlastností, ne z globálů.
 RuleTester.describe = describe;

@@ -27,6 +27,20 @@ export default [
 			'@typescript-eslint': tseslint.plugin,
 		},
 		rules: {
+			'vue/component-name-in-template-casing': ['error', 'PascalCase', { registeredComponentsOnly: false }],
+			'vue/no-mutating-props': 'error',
+			'vue/max-props': ['error', { maxProps: 7 }],
+			'vue/no-restricted-syntax': [
+				'error',
+				{
+					selector: "VAttribute[directive=true][key.name.name='on'][key.argument.name=/^vue:/]",
+					message: 'Akci volej tam, kde se mění stav, ne z životního cyklu vnode v šabloně.',
+				},
+				{
+					selector: "VElement[name='a']",
+					message: 'Odkazy vykresluj přes ULink; v okně appky otevírej cizí stránku přes openUrl.',
+				},
+			],
 			'vue/attributes-order': 'error',
 			'vue/enforce-style-attribute': ['error', { allow: ['plain'] }],
 			'vue/no-v-html': 'error',

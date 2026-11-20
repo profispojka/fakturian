@@ -451,10 +451,9 @@ describe('údaje Fakturianu o odeslání', () => {
 		expect(sentAt(document)).toBe(undefined);
 	});
 
-	it('vrácení odeslání bez kořene nic nezmění', () => {
+	it('dokument bez kořene vrátit mezi neodeslané nejde', () => {
 		const document = new DOMImplementation().createDocument(null, '', null);
-		clearSent(document);
-		expect(toXml(document)).toBe('');
+		expect(() => clearSent(document)).toThrow(new Error('Dokument ISDOC nemá kořenový prvek.'));
 	});
 
 	it('vrácení odeslání nechá cizí rozšíření a bez Extensions nic nezmění', async () => {

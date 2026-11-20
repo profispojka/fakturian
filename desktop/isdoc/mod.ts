@@ -67,6 +67,7 @@ const SKIPPED = [
 	['<?', '?>'],
 	['<!', '>'],
 ] as const;
+
 // Začátek nebo konec prvku (skupina nese `/` konce); hodnoty atributů smí obsahovat `>`.
 const TAG = /<(\/?)[^>"']*(?:(?:"[^"]*"|'[^']*')[^>"']*)*>/y;
 
@@ -79,6 +80,7 @@ const PARSER = new DOMParser({
 	onError: onWarningStopParsing,
 	normalizeLineEndings: (source) => source.replace(/\r\n?/g, '\n'),
 });
+
 const SERIALIZER = new XMLSerializer();
 
 // Jeden worker na proces, založený až první kontrolou: modul xmllint se v něm přeloží jednou za jeho
@@ -89,6 +91,7 @@ const validator = new Tinypool({
 	maxThreads: 1,
 	idleTimeout: 60_000,
 });
+
 // Po jedné, aby limit začal běžet až se začátkem kontroly, ne zařazením do fronty.
 const validations = pLimit(1);
 
@@ -279,13 +282,15 @@ export function setSent(document: Document, at: string, by: string): void {
 
 // Prázdné `Extensions` se odstraní, aby doklad vyšel stejný jako před označením.
 export function clearSent(document: Document): void {
-	const extensions = child(document.documentElement, 'Extensions');
+	const root = document.documentElement;
+	if (!root) throw new Error('Dokument ISDOC nemá kořenový prvek.');
+	const extensions = child(root, 'Extensions');
 	if (!extensions) return;
 	for (const node of Array.from(extensions.childNodes)) {
 		if (isFakturianElement(node, SENT_AT) || isFakturianElement(node, SENT_BY)) extensions.removeChild(node);
 	}
 	if (!Array.from(extensions.childNodes).some((node) => node instanceof Element)) {
-		document.documentElement.removeChild(extensions);
+		root.removeChild(extensions);
 	}
 }
 
