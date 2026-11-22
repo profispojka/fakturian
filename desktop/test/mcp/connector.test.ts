@@ -106,7 +106,7 @@ async function served(lines: string[], socket: string) {
 	return out.lines;
 }
 
-async function answers(lines: string[], socket: string, count = lines.length): Promise<unknown[]> {
+async function answers(lines: string[], socket: string, count = lines.length) {
 	const received = await served(lines, socket);
 	const first = await received.first(count);
 	return first.map((line) => JSON.parse(line));
@@ -204,7 +204,7 @@ function appEndingAfter(count: number, answered: unknown[]) {
 		socket.write(`${READY}\n`);
 		for (let i = 0; i < count; i++) {
 			const received = await lines.next();
-			const request = JSON.parse(received);
+			const request = JSON.parse(received!);
 			if (answered.includes(request.id)) socket.write(`${JSON.stringify(answer(request.id))}\n`);
 		}
 		socket.end();
@@ -527,7 +527,7 @@ describe('connector se skutečnou appkou', () => {
 			},
 		]);
 		const [first, second] = await app.messages(2);
-		expect(second.session).toBe(first.session);
+		expect(second!.session).toBe(first!.session);
 	});
 });
 
@@ -557,7 +557,7 @@ describe('connector s appkou, která spojení ukončí', () => {
 		const path = await fakeApp(async (socket, lines) => {
 			await lines.next();
 			socket.write(` ${READY} \r\n`);
-			const request = JSON.parse(await lines.next());
+			const request = JSON.parse((await lines.next())!);
 			socket.write(`${JSON.stringify(answer(request.id))}\n`);
 		});
 
@@ -646,7 +646,7 @@ describe('connector s appkou, která spojení ukončí', () => {
 
 describe('konec connectoru', () => {
 	it('zavřený výstup protokol ukončí kódem 1 a důvod napíše na stderr', async () => {
-		const stderr = vi.spyOn(process.stderr, 'write').mockImplementation((_chunk, done) => {
+		const stderr = vi.spyOn(process.stderr, 'write').mockImplementation((_chunk: unknown, done?: unknown) => {
 			if (typeof done === 'function') done();
 			return true;
 		});
@@ -663,7 +663,7 @@ describe('konec connectoru', () => {
 	});
 
 	it('chyba čtení vstupu skončí kódem 1', async () => {
-		vi.spyOn(process.stderr, 'write').mockImplementation((_chunk, done) => {
+		vi.spyOn(process.stderr, 'write').mockImplementation((_chunk: unknown, done?: unknown) => {
 			if (typeof done === 'function') done();
 			return true;
 		});

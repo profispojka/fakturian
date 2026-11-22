@@ -856,10 +856,10 @@ const bridge: Omit<DesktopBridge, 'invoke'> & { invoke(name: string, args: Parti
 
 export function resetBackend(): void {
 	backend.reset();
-	Reflect.set(globalThis, 'fakturian', bridge);
+	globalThis.fakturian = bridge as DesktopBridge;
 }
 
 /** Appka běží v obyčejném prohlížeči, ne v okně Electronu. */
 export function outsideDesktop(): void {
-	Reflect.deleteProperty(globalThis, 'fakturian');
+	globalThis.fakturian = undefined;
 }

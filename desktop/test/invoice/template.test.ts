@@ -157,8 +157,8 @@ describe('data pro šablonu', () => {
 
 	it('množství bez exponentu a zápornou nulu vytiskne i v PDF', () => {
 		const document = invoice();
-		document.lines[0].quantity = -0;
-		document.lines[1].quantity = 1e-7;
+		document.lines[0]!.quantity = -0;
+		document.lines[1]!.quantity = 1e-7;
 		const text = printedOn(document).join(' ');
 
 		expect(text).toContain('0 hod');

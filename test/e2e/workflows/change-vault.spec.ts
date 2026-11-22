@@ -5,6 +5,10 @@ import { expect } from '@playwright/test';
 
 import { fixtureVault, test } from '../app.ts';
 
+declare global {
+	var e2eOpenDialogs: unknown[] | undefined;
+}
+
 // Panel NSOpenPanel Playwright ovládat neumí; sada ho nahradí v hlavním procesu a zkontroluje, s čím
 // ho appka otevřela.
 test.describe('změna vaultu přes dialog výběru složky', () => {
@@ -17,7 +21,7 @@ test.describe('změna vaultu přes dialog výběru složky', () => {
 		const { app, page } = await launch(source);
 		await app.evaluate(({ dialog }, folder) => {
 			const opened: unknown[] = [];
-			Reflect.set(globalThis, 'e2eOpenDialogs', opened);
+			globalThis.e2eOpenDialogs = opened;
 			dialog.showOpenDialog = (...args: unknown[]) => {
 				opened.push(args.at(-1));
 				return Promise.resolve({
@@ -32,7 +36,7 @@ test.describe('změna vaultu přes dialog výběru složky', () => {
 
 		// Přepnutí načte appku znovu a prázdná složka nemá dodavatele, takže nový start se na něj ptá.
 		await expect(page.getByTestId('wizard')).toBeVisible();
-		expect(await app.evaluate(() => Reflect.get(globalThis, 'e2eOpenDialogs'))).toEqual([
+		expect(await app.evaluate(() => globalThis.e2eOpenDialogs)).toEqual([
 			{
 				defaultPath: source,
 				properties: ['openDirectory', 'createDirectory'],

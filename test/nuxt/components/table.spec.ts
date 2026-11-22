@@ -200,7 +200,7 @@ describe('useTable', () => {
 		scope.stop();
 	});
 
-	it.each(['resolve', 'reject'] as const)('ignoruje opožděnou odpověď starého seznamu: %s', async (outcome) => {
+	it('ignoruje opožděný starý seznam, dokud se nová obnova nevyřeší', async () => {
 		const old = Promise.withResolvers<string[]>();
 		const latest = Promise.withResolvers<string[]>();
 		const list = vi.fn().mockReturnValueOnce(old.promise).mockReturnValueOnce(latest.promise);
@@ -212,8 +212,31 @@ describe('useTable', () => {
 			}),
 		)!;
 		const refresh = table.refresh();
-		if (outcome === 'resolve') old.resolve(['Stará složka']);
-		else old.reject(new Error('Stará chyba'));
+		old.resolve(['Stará složka']);
+		await settle();
+		expect(table.loading.value).toBe(true);
+		expect(table.items.value).toEqual([]);
+		expect(table.error.value).toBe('');
+		latest.resolve(['Nová složka']);
+		await refresh;
+		expect(table.items.value).toEqual(['Nová složka']);
+		expect(table.loading.value).toBe(false);
+		scope.stop();
+	});
+
+	it('ignoruje opožděnou chybu starého seznamu, dokud se nová obnova nevyřeší', async () => {
+		const old = Promise.withResolvers<string[]>();
+		const latest = Promise.withResolvers<string[]>();
+		const list = vi.fn().mockReturnValueOnce(old.promise).mockReturnValueOnce(latest.promise);
+		const scope = effectScope();
+		const table = scope.run(() =>
+			useTable(list, {
+				...TABLE,
+				filter: () => true,
+			}),
+		)!;
+		const refresh = table.refresh();
+		old.reject(new Error('Stará chyba'));
 		await settle();
 		expect(table.loading.value).toBe(true);
 		expect(table.items.value).toEqual([]);
@@ -243,33 +266,53 @@ describe('useTable', () => {
 		expect(onLoaded).not.toHaveBeenCalled();
 	});
 
-	it.each(['resolve', 'reject'] as const)(
-		'starý požadavek po dokončení nového nic nepřepíše: %s',
-		async (outcome) => {
-			const old = Promise.withResolvers<string[]>();
-			const latest = Promise.withResolvers<string[]>();
-			const list = vi.fn().mockReturnValueOnce(old.promise).mockReturnValueOnce(latest.promise);
-			const onLoaded = vi.fn();
-			const scope = effectScope();
-			const table = scope.run(() =>
-				useTable(list, {
-					...TABLE,
-					onLoaded,
-				}),
-			)!;
-			const refresh = table.refresh();
-			latest.resolve(['Nová složka']);
-			await refresh;
-			if (outcome === 'resolve') old.resolve(['Stará složka']);
-			else old.reject(new Error('Stará chyba'));
-			await settle();
-			expect(table.items.value).toEqual(['Nová složka']);
-			expect(table.error.value).toBe('');
-			expect(table.loading.value).toBe(false);
-			expect(onLoaded).toHaveBeenCalledExactlyOnceWith(['Nová složka']);
-			scope.stop();
-		},
-	);
+	it('starý seznam po dokončení nové obnovy nic nepřepíše', async () => {
+		const old = Promise.withResolvers<string[]>();
+		const latest = Promise.withResolvers<string[]>();
+		const list = vi.fn().mockReturnValueOnce(old.promise).mockReturnValueOnce(latest.promise);
+		const onLoaded = vi.fn();
+		const scope = effectScope();
+		const table = scope.run(() =>
+			useTable(list, {
+				...TABLE,
+				onLoaded,
+			}),
+		)!;
+		const refresh = table.refresh();
+		latest.resolve(['Nová složka']);
+		await refresh;
+		old.resolve(['Stará složka']);
+		await settle();
+		expect(table.items.value).toEqual(['Nová složka']);
+		expect(table.error.value).toBe('');
+		expect(table.loading.value).toBe(false);
+		expect(onLoaded).toHaveBeenCalledExactlyOnceWith(['Nová složka']);
+		scope.stop();
+	});
+
+	it('chyba starého seznamu po dokončení nové obnovy nic nepřepíše', async () => {
+		const old = Promise.withResolvers<string[]>();
+		const latest = Promise.withResolvers<string[]>();
+		const list = vi.fn().mockReturnValueOnce(old.promise).mockReturnValueOnce(latest.promise);
+		const onLoaded = vi.fn();
+		const scope = effectScope();
+		const table = scope.run(() =>
+			useTable(list, {
+				...TABLE,
+				onLoaded,
+			}),
+		)!;
+		const refresh = table.refresh();
+		latest.resolve(['Nová složka']);
+		await refresh;
+		old.reject(new Error('Stará chyba'));
+		await settle();
+		expect(table.items.value).toEqual(['Nová složka']);
+		expect(table.error.value).toBe('');
+		expect(table.loading.value).toBe(false);
+		expect(onLoaded).toHaveBeenCalledExactlyOnceWith(['Nová složka']);
+		scope.stop();
+	});
 
 	it('ruční obnova drží řádky do výsledku, chyba je vyprázdní a zůstane vidět při opakování', async () => {
 		const failed = Promise.withResolvers<string[]>();
@@ -311,7 +354,7 @@ describe('useTable', () => {
 		scope.stop();
 	});
 
-	it.each(['resolve', 'reject'] as const)('odchod během obnovy zachová poslední stav: %s', async (outcome) => {
+	it('odchod během obnovy zachová poslední stav, i když seznam pak dorazí', async () => {
 		const pending = Promise.withResolvers<string[]>();
 		const list = vi.fn().mockResolvedValueOnce(['A']).mockReturnValueOnce(pending.promise);
 		const onLoaded = vi.fn();
@@ -326,8 +369,29 @@ describe('useTable', () => {
 		const refresh = table.refresh();
 		scope.stop();
 		expect(table.loading.value).toBe(false);
-		if (outcome === 'resolve') pending.resolve(['B']);
-		else pending.reject(new Error('Opuštěná stránka'));
+		pending.resolve(['B']);
+		await refresh;
+		expect(table.items.value).toEqual(['A']);
+		expect(table.error.value).toBe('');
+		expect(onLoaded).toHaveBeenCalledExactlyOnceWith(['A']);
+	});
+
+	it('odchod během obnovy zachová poslední stav, i když seznam pak selže', async () => {
+		const pending = Promise.withResolvers<string[]>();
+		const list = vi.fn().mockResolvedValueOnce(['A']).mockReturnValueOnce(pending.promise);
+		const onLoaded = vi.fn();
+		const scope = effectScope();
+		const table = scope.run(() =>
+			useTable(list, {
+				...TABLE,
+				onLoaded,
+			}),
+		)!;
+		await settle();
+		const refresh = table.refresh();
+		scope.stop();
+		expect(table.loading.value).toBe(false);
+		pending.reject(new Error('Opuštěná stránka'));
 		await refresh;
 		expect(table.items.value).toEqual(['A']);
 		expect(table.error.value).toBe('');

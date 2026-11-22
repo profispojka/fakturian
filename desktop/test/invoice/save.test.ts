@@ -114,7 +114,7 @@ async function archiveAboveLastYearLimit(): Promise<void> {
 		issueDate: '2025-12-31',
 		lines: [
 			{
-				...invoice().lines[0],
+				...invoice().lines[0]!,
 				quantity: 1,
 				unitPriceCents: 200_000_001,
 			},
@@ -315,7 +315,7 @@ describe('uložení a načtení', () => {
 			...invoice(),
 			lines: [
 				{
-					...invoice().lines[0],
+					...invoice().lines[0]!,
 					quantity: 1,
 					unitPriceCents: 199_999_900,
 				},
@@ -400,7 +400,7 @@ describe('uložení a načtení', () => {
 			...invoice(),
 			lines: [
 				{
-					...invoice().lines[0],
+					...invoice().lines[0]!,
 					quantity: 1,
 					unitPriceCents: 200_000_000,
 				},

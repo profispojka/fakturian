@@ -1,3 +1,4 @@
+import { flushPromises } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h } from 'vue';
 
@@ -391,7 +392,7 @@ describe('uložení a náhled', () => {
 describe('označení odeslání', () => {
 	it('zapíše čas odeslání k existujícímu dokladu', async () => {
 		documentInVault(summary('20260001'));
-		const sentAt = await useNuxtApp().vueApp.runWithContext(useInvoices).markSent('20260001', () => {});
+		const sentAt = await useNuxtApp().vueApp.runWithContext(useInvoices).markSent('20260001', vi.fn());
 		expect(backend.folder('/vault').sent.get('20260001')).toBe(sentAt);
 		expect(backend.args('mark_invoice_sent')).toEqual([
 			{
@@ -404,12 +405,12 @@ describe('označení odeslání', () => {
 	it('ohlásí označení toastem a „Vrátit zpět“ příznak zruší', async () => {
 		documentInVault(summary('20260001'));
 		const onUndo = vi.fn();
+		mountUi(OverlayHost);
 		await useNuxtApp().vueApp.runWithContext(useInvoices).markSent('20260001', onUndo);
-		const toast = useNuxtApp()
-			.vueApp.runWithContext(useToast)
-			.toasts.value.find((t) => t.title === 'Faktura 20260001 je označená jako odeslaná');
+		await flushPromises();
 
-		await toast!.actions![0]!.onClick!(new MouseEvent('click'));
+		await layer().find('[data-testid="toast-undo-sent"]').trigger('click');
+		await flushPromises();
 
 		expect(backend.folder('/vault').sent.has('20260001')).toBe(false);
 		expect(onUndo).toHaveBeenCalledOnce();
@@ -418,12 +419,14 @@ describe('označení odeslání', () => {
 	it('selhání vrácení se ohlásí a stránku neobnoví', async () => {
 		documentInVault(summary('20260001'));
 		const onUndo = vi.fn();
+		mountUi(OverlayHost);
 		await useNuxtApp().vueApp.runWithContext(useInvoices).markSent('20260001', onUndo);
+		await flushPromises();
 		backend.breaks('unmark_invoice_sent', 'ISDOC nejde zapsat');
 		const toasts = useNuxtApp().vueApp.runWithContext(useToast).toasts;
-		const toast = toasts.value.find((t) => t.title === 'Faktura 20260001 je označená jako odeslaná');
 
-		await toast!.actions![0]!.onClick!(new MouseEvent('click'));
+		await layer().find('[data-testid="toast-undo-sent"]').trigger('click');
+		await flushPromises();
 
 		expect(onUndo).not.toHaveBeenCalled();
 		expect(toasts.value).toContainEqual(
@@ -437,7 +440,7 @@ describe('označení odeslání', () => {
 
 	it('bez datové složky odmítne změnu stavu', async () => {
 		withoutFolder();
-		await expect(useNuxtApp().vueApp.runWithContext(useInvoices).markSent('20260001')).rejects.toThrow(
+		await expect(useNuxtApp().vueApp.runWithContext(useInvoices).markSent('20260001', vi.fn())).rejects.toThrow(
 			new Error('Není zvolena datová složka'),
 		);
 	});
@@ -500,9 +503,7 @@ describe('čtení z vaultu', () => {
 		});
 
 		await expect(useNuxtApp().vueApp.runWithContext(useInvoices).list()).rejects.toThrow(
-			new Error(
-				'Seznam faktur má poškozený obsah (Neplatný vstup: očekáváno číslo, obdrženo undefined).',
-			),
+			new Error('Seznam faktur má poškozený obsah (Neplatný vstup: očekáváno číslo, obdrženo undefined).'),
 		);
 	});
 
@@ -530,7 +531,7 @@ describe('čtení z vaultu', () => {
 	});
 });
 
-/** Potvrzovací dialog vykresluje `UApp`; bez něj by otázka nikdy nevyskočila. */
+/** Potvrzovací dialog i toasty vykresluje `UApp`; bez něj by nebylo na co kliknout. */
 const OverlayHost = defineComponent({
 	name: 'OverlayHost',
 	setup: () => () => h('div'),
@@ -759,7 +760,7 @@ describe('sdílený přehled archivu', () => {
 		const afterSave = await invoices.archived();
 		expect(afterSave.map((i) => i.number)).toContain('20260002');
 
-		await invoices.markSent('20260001', () => {});
+		await invoices.markSent('20260001', vi.fn());
 		const sent = await invoices.archived();
 		expect(sent.find((i) => i.number === '20260001')?.sentAt).toBe('2026-08-30T14:15:00Z');
 

@@ -40,6 +40,7 @@
 		"fakturian/object-multiline": "error",
 		"fakturian/blank-line-around-multiline-statements": "error",
 		"fakturian/no-iife": "error",
+		"fakturian/no-double-assertion": "error",
 		"no-script-url": "error",
 		"typescript/no-implied-eval": "error",
 		"typescript/no-unnecessary-type-assertion": "error",
@@ -148,7 +149,20 @@
 		"no-commonjs": "error",
 		"no-namespace": "error",
 		"no-duplicates": "error",
-		"no-dynamic-require": "error"
+		"no-dynamic-require": "error",
+
+		// Proxy schová, co se volá, a co nezachytí, potichu přepošle na skutečný objekt.
+		"no-restricted-globals": [
+			"error",
+			{
+				"name": "Proxy",
+				"message": "Napiš obyčejnou funkci nebo objekt; typ v testu dorovná `as typeof original`."
+			},
+			{
+				"name": "Reflect",
+				"message": "Sáhni na vlastnost napřímo (`obj.key = …`, `delete obj.key`); typ v testu dorovná `as`."
+			}
+		]
 	},
 	"overrides": [
 		{
@@ -194,6 +208,8 @@
 				"no-restricted-globals": [
 					"error",
 					{ "name": "Date", "message": "Dnešek je `today()`, výpočty jdou přes `~/utils/date`." },
+					{ "name": "Proxy", "message": "Napiš obyčejnou funkci nebo objekt." },
+					{ "name": "Reflect", "message": "Sáhni na vlastnost napřímo (`obj.key = …`, `delete obj.key`)." },
 					{
 						"name": "defineExpose",
 						"message": "Rodič a dítě komunikují přes props, defineModel a události."
@@ -401,6 +417,18 @@
 					{
 						"name": "Date",
 						"message": "Čas nastav `vi.setSystemTime('RRRR-MM-DDTHH:MM')`, datum vezmi z fixture."
+					},
+					{
+						"name": "Proxy",
+						"message": "Napiš obyčejnou funkci nebo objekt; typ dorovná `as typeof original`."
+					},
+					{
+						"name": "Reflect",
+						"message": "Sáhni na vlastnost napřímo (`obj.key = …`, `delete obj.key`); typ dorovná `as`."
+					},
+					{
+						"name": "MouseEvent",
+						"message": "Klikni na vykreslený prvek: `find('[data-testid=\"…\"]').trigger('click')`, handler nevolej ručně."
 					}
 				],
 				"fakturian/no-contract-mock": "error",

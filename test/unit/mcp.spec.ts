@@ -41,19 +41,23 @@ describe('seznam nástrojů pro connector', () => {
 	});
 
 	it('řádek nové faktury popíše pole dokladu, cenu v haléřích a rok čerpání', () => {
-		const line = inputSchema('create_invoice')?.properties.lines.items;
-
-		expect(Object.keys(line.properties).toSorted()).toEqual([
-			'description',
-			'itemId',
-			'quantity',
-			'unit',
-			'unitPriceCents',
-			'usageYear',
-		]);
-		expect(line.properties.unitPriceCents.description).toBe('Cena za jednotku v haléřích.');
-		expect(line.properties.usageYear.description).toBe(
-			'Interní rok čerpání ročního limitu; výchozí je rok vystavení.',
+		expect(inputSchema('create_invoice')?.properties?.lines).toEqual(
+			expect.objectContaining({
+				items: expect.objectContaining({
+					properties: {
+						description: expect.anything(),
+						itemId: expect.anything(),
+						quantity: expect.anything(),
+						unit: expect.anything(),
+						unitPriceCents: expect.objectContaining({
+							description: 'Cena za jednotku v haléřích.',
+						}),
+						usageYear: expect.objectContaining({
+							description: 'Interní rok čerpání ročního limitu; výchozí je rok vystavení.',
+						}),
+					},
+				}),
+			}),
 		);
 	});
 

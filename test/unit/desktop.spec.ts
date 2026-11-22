@@ -4,8 +4,10 @@ import { reactive } from 'vue';
 import { commands } from '~/bindings';
 import { NOT_DESKTOP_MESSAGE, isDesktop } from '~/utils/desktop';
 
+import type { DesktopBridge } from '~/bindings';
+
 afterEach(() => {
-	Reflect.deleteProperty(globalThis, 'fakturian');
+	globalThis.fakturian = undefined;
 	vi.unstubAllGlobals();
 });
 
@@ -15,7 +17,7 @@ describe('rozpoznání prostředí', () => {
 	});
 
 	it('s mostem, který vystaví preload, vrátí true', () => {
-		Reflect.set(globalThis, 'fakturian', {});
+		globalThis.fakturian = {} as DesktopBridge;
 		expect(isDesktop()).toBe(true);
 	});
 

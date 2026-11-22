@@ -174,16 +174,16 @@ export function useInvoices() {
 				});
 			}
 		}
+		const undo = {
+			label: 'Vrátit zpět',
+			'data-testid': 'toast-undo-sent',
+			onClick: () => {
+				void undoSent();
+			},
+		};
 		toast.add({
 			title: `Faktura ${number} je označená jako odeslaná`,
-			actions: [
-				{
-					label: 'Vrátit zpět',
-					onClick: () => {
-						void undoSent();
-					},
-				},
-			],
+			actions: [undo],
 		});
 		return sentAt;
 	}

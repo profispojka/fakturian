@@ -14,7 +14,10 @@ afterEach(() => {
 
 Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
 	value(this: HTMLCanvasElement) {
-		const state: Record<string | symbol, unknown> = {
+		const noop = () => undefined;
+		const gradient = { addColorStop: noop };
+		// Metody, které volá kreslení ECharts (`zrender/lib/canvas`); chybějící test shodí.
+		return {
 			canvas: this,
 			measureText: (text: string) => ({
 				width: 6 * text.length,
@@ -22,14 +25,34 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
 				actualBoundingBoxDescent: 2,
 			}),
 			getLineDash: () => [],
+			createLinearGradient: () => gradient,
+			createRadialGradient: () => gradient,
+			createPattern: () => null,
+			arc: noop,
+			beginPath: noop,
+			bezierCurveTo: noop,
+			clearRect: noop,
+			clip: noop,
+			closePath: noop,
+			drawImage: noop,
+			ellipse: noop,
+			fill: noop,
+			fillRect: noop,
+			fillText: noop,
+			lineTo: noop,
+			moveTo: noop,
+			quadraticCurveTo: noop,
+			rect: noop,
+			restore: noop,
+			rotate: noop,
+			save: noop,
+			scale: noop,
+			setLineDash: noop,
+			setTransform: noop,
+			stroke: noop,
+			strokeText: noop,
+			translate: noop,
 		};
-		return new Proxy(state, {
-			get: (target, key) => (key in target ? target[key] : () => undefined),
-			set: (target, key, value) => {
-				target[key] = value;
-				return true;
-			},
-		});
 	},
 	configurable: true,
 });

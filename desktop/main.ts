@@ -67,6 +67,7 @@ async function start(): Promise<void> {
 	});
 	const win = new BrowserWindow(options);
 	const shell = startShell(win, {
+		parent: win,
 		origin: devUrl === undefined ? APP_ORIGIN : originOf(devUrl),
 		serveMcp: (bridge) => serveMcp(mcpSocketPath(), bridge),
 		background: e2e,

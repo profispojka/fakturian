@@ -195,7 +195,7 @@ export class Bridge {
 	// Načítané okno ještě neposlouchá, takže zprávy do `attach` čekají v `#backlog`.
 	#attached = false;
 	#backlog: WindowMessage[] = [];
-	#sessions = new Map<number, Socket>();
+	#sessions = new Map<number, Writable>();
 	#lastSession = 0;
 
 	constructor(emit: (message: WindowMessage) => void) {
@@ -216,7 +216,7 @@ export class Bridge {
 		this.#sessions.clear();
 	}
 
-	open(socket: Socket): number {
+	open(socket: Writable): number {
 		this.#lastSession += 1;
 		this.#sessions.set(this.#lastSession, socket);
 		return this.#lastSession;
