@@ -16,7 +16,14 @@ import {
 	MIN_YEAR,
 	MAX_YEAR,
 } from '~/utils/date';
-import { contactToParty, creditNotesOf, creditTargetOf,invoiceTotalCents, lineTotalCents, variableSymbolFor } from '~/utils/invoice';
+import {
+	contactToParty,
+	creditNotesOf,
+	creditTargetOf,
+	invoiceTotalCents,
+	lineTotalCents,
+	variableSymbolFor,
+} from '~/utils/invoice';
 import { formatCount } from '~/utils/locales';
 import { defaultInvoiceMail } from '~/utils/mail';
 import { templateOf } from '~/utils/numbering';
@@ -61,6 +68,7 @@ const previewPages = ref<string[] | null>(null);
 
 const swapping = ref(false);
 const bodyEl = ref<HTMLElement | null>(null);
+
 const { start: startSwapTimer, stop: stopSwapTimer } = useTimeoutFn(
 	() => {
 		swapping.value = false;
@@ -208,10 +216,12 @@ const calendarPrevious = {
 	icon: 'i-lucide-chevron-left',
 	'data-testid': 'date-month-prev',
 };
+
 const calendarNext = {
 	icon: 'i-lucide-chevron-right',
 	'data-testid': 'date-month-next',
 };
+
 const issueDate = useDateModel(inv, 'issueDate');
 const dueDate = useDateModel(inv, 'dueDate');
 // Formuláře, kde splatnost nastavil uživatel sám. `reset()` dá formuláři nový objekt, takže se nemaže.
@@ -252,10 +262,12 @@ const showContactPicker = ref(false);
 function openContactPicker() {
 	showContactPicker.value = true;
 }
+
 function pickContact(c: Contact) {
 	inv.value.customer = contactToParty(c);
 	showContactPicker.value = false;
 }
+
 function clearCustomer() {
 	inv.value.customer = emptyParty();
 }
@@ -347,6 +359,7 @@ function remainingFor(p: PriceItem): number {
 function addLine() {
 	inv.value.lines.push(emptyLine());
 }
+
 function removeLine(i: number) {
 	inv.value.lines.splice(i, 1);
 }
@@ -456,11 +469,9 @@ async function sendEmail() {
 	const { subject, body } = defaultInvoiceMail(inv.value.number, total.value);
 	try {
 		await emailWithAttachment(inv.value.customer.email, subject, body, savedPath.value);
-		if (!sentAt.value) {
-			sentAt.value = await markSent(inv.value.number, () => {
-				sentAt.value = null;
-			});
-		}
+		sentAt.value = await markSent(inv.value.number, () => {
+			sentAt.value = null;
+		});
 	} catch (e) {
 		status.error('E-mail se nepodařilo připravit', e);
 	}
@@ -988,7 +999,11 @@ const lineColumns: TableColumn<InvoiceLineRow>[] = [
 					type="submit"
 					:loading="loading"
 					:disabled="missing || credits.length > 0"
-					:title="credits.length ? `Faktura má dobropis ${credits.join(', ')}, proto ji nejde upravit.` : undefined"
+					:title="
+						credits.length
+							? `Faktura má dobropis ${credits.join(', ')}, proto ji nejde upravit.`
+							: undefined
+					"
 					:aria-busy="loading"
 					data-save
 					data-testid="action-save">

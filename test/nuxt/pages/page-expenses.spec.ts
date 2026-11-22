@@ -535,7 +535,7 @@ describe('hlášky importu', () => {
 		await c.find('[data-testid="expense-import"]').trigger('click');
 		await flushPromises();
 
-		expect(c.find('[data-testid="expense-table"]').exists()).toBe(false);
+		expect(c.findAll('[data-testid^="expense-entry-"]')).toHaveLength(0);
 		expect(useNuxtApp().vueApp.runWithContext(useToast).toasts.value).toContainEqual(
 			expect.objectContaining({
 				title: expect.stringContaining('Přijatý doklad se nepodařilo přečíst'),

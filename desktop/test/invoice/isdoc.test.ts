@@ -18,7 +18,7 @@ const SAMPLE_CUSTOMER_REGISTRATION =
 const SAMPLE_FIRST_ITEM = '<Description>Konzultace</Description></Item>';
 
 // Doklad, jak se vrátí z ISDOC: UUID se při zápisu doplní.
-function afterWrite(document: Invoice): Promise<Invoice> {
+function afterWrite(document: Invoice): Invoice {
 	const uuid = invoiceUuid(document);
 	return {
 		...document,
@@ -99,7 +99,7 @@ describe('zápis vlastního ISDOC', () => {
 	it('cesta tam a zpět doklad nezmění', async () => {
 		for (const document of [...samples(), sampleInvoice()]) {
 			const xml = buildIsdoc(document);
-			const expected = await afterWrite(document);
+			const expected = afterWrite(document);
 
 			expect(await parseIsdoc(xml)).toEqual(expected);
 		}
@@ -107,8 +107,8 @@ describe('zápis vlastního ISDOC', () => {
 
 	it('množství zapíše bez exponentu a zápornou nulu jako nulu', () => {
 		const document = sampleInvoice();
-		document.lines[0].quantity = -0;
-		document.lines[1].quantity = 1e-7;
+		document.lines[0]!.quantity = -0;
+		document.lines[1]!.quantity = 1e-7;
 
 		const xml = buildIsdoc(document);
 
@@ -135,7 +135,7 @@ describe('zápis vlastního ISDOC', () => {
 		const parsed = await parseIsdoc(xml);
 
 		expect(xml).toContain('<TaxInclusiveAmount>3659.97</TaxInclusiveAmount>');
-		expect(parsed).toEqual(await afterWrite(note));
+		expect(parsed).toEqual(afterWrite(note));
 	});
 
 	it('z odkazu na původní doklad vynechá, co by schéma odmítlo', async () => {

@@ -1,3 +1,5 @@
+import { execFile } from 'node:child_process';
+
 import { AsyncEntry } from '@napi-rs/keyring';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -5,15 +7,7 @@ import { closeServers, MockHttp, reroute } from './http.ts';
 
 import { fioClearToken, fioFetch, fioHasToken, fioSetToken, keepTokenInMemory } from '../fio.ts';
 
-const execFile = vi.hoisted(() => vi.fn());
-
-vi.mock(import('node:child_process'), async (importOriginal) => {
-	const original = await importOriginal();
-	return {
-		...original,
-		execFile,
-	};
-});
+vi.mock(import('node:child_process'), { spy: true });
 
 const TOKEN = 'abcdefghij0123456789ABCDEFGHIJabcdefghij0123456789ABCDEFGHIJ0123';
 

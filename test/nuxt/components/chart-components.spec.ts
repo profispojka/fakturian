@@ -53,13 +53,17 @@ vi.mock('vue-echarts', async () => {
 		),
 	};
 });
+
 vi.mock('echarts/charts', () => ({ BarChart: {} }));
+
 vi.mock('echarts/components', () => ({
 	GridComponent: {},
 	TooltipComponent: {},
 }));
+
 vi.mock('echarts/renderers', () => ({ CanvasRenderer: {} }));
 vi.mock('echarts/core', () => ({ use: vi.fn(() => undefined) }));
+
 vi.mock('@vueuse/core', async (importOriginal) => {
 	const original = await importOriginal<Record<string, unknown>>();
 	return {

@@ -42,6 +42,7 @@ async function mount(props: Record<string, unknown>) {
 		slots: {
 			before: () => h('p', { 'data-testid': 'records-before' }, 'Hláška nad tabulkou'),
 			empty: () => 'Zatím nic.',
+			loading: () => 'Načítám záznamy…',
 			'name-cell': (scope?: { row: { original: Row } }) =>
 				h('span', { 'data-testid': `records-cell-${scope?.row.original.id}` }, scope?.row.original.name),
 		},
@@ -53,7 +54,7 @@ async function mount(props: Record<string, unknown>) {
 describe('RecordTable', () => {
 	it('při načítání řekne, co načítá, a prázdný stav neukáže', async () => {
 		const c = await mount({
-			loadingText: 'Načítám záznamy…',
+			loading: true,
 		});
 
 		expect(c.find('[data-testid="records-loading"]').text()).toBe('Načítám záznamy…');

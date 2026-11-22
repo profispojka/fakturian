@@ -88,7 +88,7 @@ async function embeddedXml(pdf: PDFDocument): Promise<string> {
 	return xml;
 }
 
-function ownIsdoc(): Promise<string> {
+function ownIsdoc(): string {
 	return buildIsdoc(invoice());
 }
 
@@ -96,7 +96,7 @@ function ownIsdoc(): Promise<string> {
 async function savedInvoice(): Promise<{ pdf: PDFDocument; raw: string }> {
 	const saved = await rewritePdf(invoicePdf(invoice()), MAX_ISDOC_BYTES, {
 		index: 0,
-		xml: await ownIsdoc(),
+		xml: ownIsdoc(),
 	});
 	const pdf = await PDFDocument.load(saved, { updateMetadata: false });
 	return {
@@ -192,14 +192,14 @@ describe('příloha ISDOC v dokladu vysázeném typstem', () => {
 
 		const { xml, document } = await readIsdoc(await loaded(pdf));
 
-		expect([xml, text(document.documentElement, 'ID')]).toEqual([await ownIsdoc(), '20260001']);
+		expect([xml, text(document.documentElement, 'ID')]).toEqual([ownIsdoc(), '20260001']);
 	});
 
 	it('vložený ISDOC přežije zápis na disk a nové načtení', async () => {
 		const dir = await mkdtemp(join(tmpdir(), `fakturian-attachment-${process.pid}-`));
 		try {
 			const path = join(dir, 'invoice.pdf');
-			await writeFile(path, renderTypstPdf(invoiceTypst('column'), invoiceFiles(invoice())));
+			await writeFile(path, renderTypstPdf(invoiceTypst(), invoiceFiles(invoice())));
 			const bytes = await readFile(path);
 
 			const { xml } = await readIsdoc(await loadPdf(bytes));
@@ -263,7 +263,7 @@ describe('hledání ISDOC přílohy', () => {
 	});
 
 	it('najde ji pod jiným jménem, bez přípony i bez MIME, podle obsahu', async () => {
-		const xml = await ownIsdoc();
+		const xml = ownIsdoc();
 		for (const [name, mime] of [
 			['export_2026.isdoc', 'text/xml'],
 			['data.bin', 'text/xml'],
@@ -310,7 +310,7 @@ describe('hledání ISDOC přílohy', () => {
 	});
 
 	it('jméno přílohy nerozhoduje, ani prázdné nebo v UTF-16', async () => {
-		const xml = await ownIsdoc();
+		const xml = ownIsdoc();
 		for (const name of [PDFString.of(''), PDFHexString.fromText(ISDOC_ATTACHMENT), PDFNull]) {
 			const pdf = await samplePdf();
 			associatedFiles(pdf, pdf.context.obj([attachment(pdf, name, undefined, ENCODER.encode(xml))]));
@@ -322,7 +322,7 @@ describe('hledání ISDOC přílohy', () => {
 	});
 
 	it('přílohu uvedenou jen v /AF najde', async () => {
-		const xml = await ownIsdoc();
+		const xml = ownIsdoc();
 		const pdf = await samplePdf();
 		associatedFiles(
 			pdf,
@@ -345,7 +345,7 @@ describe('hledání ISDOC přílohy', () => {
 	});
 
 	it('dvě platné přílohy jsou nejednoznačné, i když jedna má jméno ze specifikace', async () => {
-		const xml = await ownIsdoc();
+		const xml = ownIsdoc();
 		const pdf = await withAttachments([
 			['objednavka.xml', ENCODER.encode(xml)],
 			[ISDOC_ATTACHMENT, ENCODER.encode(xml)],
@@ -426,7 +426,7 @@ describe('hledání ISDOC přílohy', () => {
 	it('ISDOC s kořenem s prefixem a za dlouhým komentářem najde', async () => {
 		const prefixed = MINIMAL_ISDOC.replace(/<(\/?)([A-Z])/g, '<$1i:$2').replace('xmlns=', 'xmlns:i=');
 		// Deklarace XML smí stát jen na začátku, takže za komentářem jde doklad bez ní.
-		const xml = await ownIsdoc();
+		const xml = ownIsdoc();
 		const commented = `<!-- ${'x'.repeat(9 * 1024)} -->\n${xml.replace('<?xml version="1.0" encoding="UTF-8"?>\n', '')}`;
 		for (const content of [prefixed, commented]) {
 			const pdf = await withAttachments([['data.bin', ENCODER.encode(content)]]);
@@ -595,7 +595,7 @@ describe('obsah přílohy', () => {
 	it('zabalenou přílohu rozbalí, zip bombu přes strop ne', async () => {
 		// Mezery za kořenem XML povoluje, takže nafouknutá příloha zůstává platným ISDOC a najít ji brání
 		// jen strop velikosti.
-		const xml = await ownIsdoc();
+		const xml = ownIsdoc();
 		const small = padded(xml, xml.length + 1024 * 1024);
 
 		expect(await embeddedXml(await compressed(small))).toBe(new TextDecoder().decode(small));
@@ -603,7 +603,7 @@ describe('obsah přílohy', () => {
 	});
 
 	it('filtr FlateDecode zadaný polem rozbalí, řetězec filtrů ne', async () => {
-		const xml = await ownIsdoc();
+		const xml = ownIsdoc();
 		const filtered = (filters: string[]) => (pdf: PDFDocument) => {
 			const stream = pdf.context.flateStream(ENCODER.encode(xml));
 			stream.dict.set(PDFName.of('Filter'), pdf.context.obj(filters.map((filter) => PDFName.of(filter))));
@@ -615,7 +615,7 @@ describe('obsah přílohy', () => {
 	});
 
 	it('pole filtrů s jiným nebo dalším filtrem nerozbaluje', async () => {
-		const xml = await ownIsdoc();
+		const xml = ownIsdoc();
 		const raw = (filters: string[]) => (pdf: PDFDocument) =>
 			pdf.context.stream(ENCODER.encode(xml), {
 				Filter: filters.map((filter) => PDFName.of(filter)),
@@ -636,7 +636,7 @@ describe('obsah přílohy', () => {
 	});
 
 	it('neznámý filtr dá syrový obsah, pokud se vejde pod strop', async () => {
-		const xml = await ownIsdoc();
+		const xml = ownIsdoc();
 		const raw = (content: Uint8Array) => (pdf: PDFDocument) => pdf.context.stream(content, { Filter: 'DCTDecode' });
 		const unreadable = (size: number) => {
 			const content = new Uint8Array(size).fill(0xff);
@@ -652,7 +652,7 @@ describe('obsah přílohy', () => {
 	});
 
 	it('strop velikosti platí pro všechny přílohy dohromady', async () => {
-		const xml = ENCODER.encode(await ownIsdoc());
+		const xml = ENCODER.encode(ownIsdoc());
 		const filler = (size: number) => new Uint8Array(size).fill(0x20);
 
 		const fits = await withAttachments([
@@ -669,7 +669,7 @@ describe('obsah přílohy', () => {
 	});
 
 	it('šestnáct příloh projde, sedmnáct už ne', async () => {
-		const xml = ENCODER.encode(await ownIsdoc());
+		const xml = ENCODER.encode(ownIsdoc());
 		const others = (count: number) =>
 			Array.from({ length: count }, (_, index): [string, Uint8Array] => [`smlouva-${index}.txt`, CONTRACT]);
 
@@ -690,7 +690,7 @@ describe('obsah přílohy', () => {
 
 describe('náhrada ISDOC přílohy', () => {
 	it('přepíše existující stream, zruší filtr a zapíše velikost i datum změny', async () => {
-		const xml = await ownIsdoc();
+		const xml = ownIsdoc();
 		const replacement = buildIsdoc(creditNote());
 		const pdf = await samplePdf();
 		const stream = pdf.context.flateStream(ENCODER.encode(xml), {
@@ -733,7 +733,7 @@ describe('náhrada ISDOC přílohy', () => {
 	});
 
 	it('stream vložený přímo ve filespecu nahradit nejde, i když se přečte', async () => {
-		const xml = await ownIsdoc();
+		const xml = ownIsdoc();
 		const pdf = await samplePdf();
 		const spec = pdf.context.register(
 			pdf.context.obj({
@@ -761,7 +761,7 @@ describe('náhrada ISDOC přílohy', () => {
 	});
 
 	it('nepřepíše jinou přílohu místo vložené', async () => {
-		const xml = await ownIsdoc();
+		const xml = ownIsdoc();
 		const pdf = await samplePdf();
 		const inline = pdf.context.register(
 			pdf.context.obj({

@@ -236,11 +236,8 @@ describe('akce nad fakturou', () => {
 		await openActions(c);
 		await layer().find('[data-testid="invoice-action-email-20260001"]').trigger('click');
 		await flushPromises();
-		const toast = useNuxtApp()
-			.vueApp.runWithContext(useToast)
-			.toasts.value.find((t) => t.title === 'Faktura 20260001 je označená jako odeslaná');
 
-		await toast!.actions![0]!.onClick!(new MouseEvent('click'));
+		await layer().find('[data-testid="toast-undo-sent"]').trigger('click');
 		await flushPromises();
 
 		expect(backend.folder('/vault').sent.has('20260001')).toBe(false);

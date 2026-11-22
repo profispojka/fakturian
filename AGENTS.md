@@ -69,11 +69,12 @@ texty v UI a hlášky. Česky zůstávají i jména, která jsou data nebo veře
   a `schemas/import.ts`; nová výjimka se přidává jen s důvodem v komentáři.
 - **Po úpravě souboru** ho hook naformátuje (`oxfmt`), na konci tahu pustí lint, typecheck (i nad
   `desktop/tsconfig.json`) a u změny v `desktop/` testy projektu `desktop`, které na ni dosáhnou
-  (`.claude/hooks/`). Codex hooky nespouští — ověř to výslovně: `bun run lint:check`,
+  (`.claude/hooks/`). Codex hooky nespouští — ověř to výslovně: `bun run lint`,
   `bun run typecheck`, `bun run test`.
-- **Před dokončením práce** spusť z kořene projektu `node scripts/check-tailwind-scales.ts`
-  a `node scripts/check-dead-css.ts` a oprav jejich nálezy. Tyto samostatné skripty kontrolují
-  projektové škály Tailwindu a použití CSS.
+- **`bun run lint` rovnou opravuje** (oxlint, ESLint, oxfmt) a pak pustí statické guardraily
+  a kontroly CSS (`scripts/check-tailwind-scales.ts`, `scripts/check-dead-css.ts`); jejich nálezy
+  oprav ručně. Rozsah a konvence sdílené s DENem popisuje
+  [test/tooling/README.md](test/tooling/README.md).
 
 ## Kód
 
@@ -209,10 +210,10 @@ by jinak otevřel cizí doklad.
 Postup je ve skillech `vue-testy` a `test-ids`, celý model v `docs/07-KVALITA.md`. Vždy:
 
 - Vue vrstva se testuje proti skutečnému Nuxt UI, routeru a potvrzovacímu dialogu — žádné stuby.
-- **Vitest testy se netypují a jejich matchery se nezakazují** (rozhodnutí z 17. 10. 2026).
-  `bun run typecheck` je nepouští, typová pravidla lintu na `test/**` neplatí a `toBeTruthy`,
-  `toMatch`, `toBeGreaterThan` a spol. jsou povolené.
-  `test/tsconfig.json` zůstává jen kvůli editoru. Desktopové E2E dál hlídá `fakturian/exact-text`.
+- **Vitest testy se typují, jejich matchery se nezakazují.** `bun run typecheck` je kontroluje
+  (`src/` a `test/` v `tsconfig.json`, `desktop/test/` v `desktop/tsconfig.json`). Typová pravidla lintu
+  na `test/**` neplatí a `toBeTruthy`, `toMatch`, `toBeGreaterThan` a spol. jsou povolené.
+  Desktopové E2E dál hlídá `fakturian/exact-text`.
 - Kontrakt, který testuješ, se nemockuje — schémata vaultu běží doopravdy
   (`fakturian/no-contract-mock`).
 - Každé volání `commands.*` má test odmítavé cesty, každé odmítnutí příkazu v `desktop/` taky.

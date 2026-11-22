@@ -1,5 +1,5 @@
 import { array, assert, asyncProperty, boolean, constantFrom, integer, scheduler, tuple } from 'fast-check';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { clearNuxtState } from '#app';
 import { useAdopt } from '~/composables/useAdopt';
@@ -57,7 +57,7 @@ describe('souběh příkazů a selhání IPC', () => {
 						list: invoices.list,
 						archived: invoices.archived,
 						remove: invoices.remove,
-						markSent: invoices.markSent,
+						markSent: (number: string) => invoices.markSent(number, vi.fn()),
 					};
 					const pendingFaults = [...faults];
 					backend.scheduler = s;

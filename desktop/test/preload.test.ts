@@ -27,7 +27,7 @@ vi.mock('electron', async () => {
 
 await import('../preload.ts');
 
-const [[name, bridge]] = vi.mocked(contextBridge.exposeInMainWorld).mock.calls;
+const [name, bridge] = vi.mocked(contextBridge.exposeInMainWorld).mock.calls[0]!;
 
 beforeEach(() => {
 	vi.mocked(ipcRenderer.invoke).mockReset();

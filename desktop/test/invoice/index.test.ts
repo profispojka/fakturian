@@ -643,7 +643,7 @@ describe('cache výpisu', () => {
 			isNew: true,
 		});
 		await listInvoices({ vaultPath: from });
-		const cached = JSON.parse(await readFile(join(cacheDir(from), 'index.json')));
+		const cached = JSON.parse(await readFile(join(cacheDir(from), 'index.json'), 'utf8'));
 		cached.entries['20260001.pdf'].summary.customer = 'Z cache';
 		await writeFile(join(cacheDir(from), 'index.json'), JSON.stringify(cached));
 

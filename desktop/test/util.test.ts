@@ -29,34 +29,31 @@ vi.mock(import('node:fs/promises'), async (importOriginal) => {
 	const { basename: nameOf } = await import('node:path');
 	return {
 		...fs,
-		open: async (path: string, flags: string) => {
-			const file = await fs.open(path, flags);
+		open: async (...args: Parameters<typeof fs.open>) => {
+			const file = await fs.open(...args);
+			const name = nameOf(String(args[0]));
 			const { sync, close, stat } = file;
 			file.sync = async () => {
-				disk.calls.push(`sync ${nameOf(path)}`);
+				disk.calls.push(`sync ${name}`);
 				await sync.call(file);
 			};
 			file.close = async () => {
-				disk.calls.push(`close ${nameOf(path)}`);
+				disk.calls.push(`close ${name}`);
 				await close.call(file);
 			};
-			file.stat = async () => {
-				const info = await stat.call(file);
-				await disk.afterStat?.();
-				return info;
-			};
+			file.stat = new Proxy(stat, {
+				async apply(target, _thisArg, options) {
+					const info: unknown = await Reflect.apply(target, file, options);
+					await disk.afterStat?.();
+					return info;
+				},
+			});
 			return file;
 		},
 	};
 });
 
-vi.mock(import('node:crypto'), async (importOriginal) => {
-	const crypto = await importOriginal();
-	return {
-		...crypto,
-		randomBytes: vi.fn(crypto.randomBytes),
-	};
-});
+vi.mock(import('node:crypto'), { spy: true });
 
 beforeEach(() => {
 	disk.calls = [];
@@ -135,7 +132,7 @@ describe('atomický zápis', () => {
 		const target = join(dir, 'platby.json');
 		await writeFile(target, 'staré');
 
-		vi.mocked(randomBytes).mockReturnValueOnce(Buffer.from('abcdef', 'hex'));
+		vi.mocked<(size: number) => Buffer>(randomBytes).mockReturnValueOnce(Buffer.from('abcdef', 'hex'));
 
 		await writeAtomic(target, new TextEncoder().encode('nové'));
 
@@ -154,7 +151,7 @@ describe('atomický zápis', () => {
 		const outside = join(dir, 'cizi.txt');
 		await writeFile(outside, 'cizí');
 		await symlink(outside, `${target}abcdef.tmp`);
-		vi.mocked(randomBytes).mockReturnValueOnce(Buffer.from('abcdef', 'hex'));
+		vi.mocked<(size: number) => Buffer>(randomBytes).mockReturnValueOnce(Buffer.from('abcdef', 'hex'));
 
 		await expect(writeAtomic(target, new TextEncoder().encode('nové'))).rejects.toThrow(
 			new Error(`Zápis selhal: EEXIST: file already exists, open '${target}abcdef.tmp'`, {
@@ -170,7 +167,7 @@ describe('atomický zápis', () => {
 		await writeFile(parent, 'soubor');
 		const target = join(parent, 'faktura.json');
 
-		vi.mocked(randomBytes).mockReturnValueOnce(Buffer.from('abcdef', 'hex'));
+		vi.mocked<(size: number) => Buffer>(randomBytes).mockReturnValueOnce(Buffer.from('abcdef', 'hex'));
 
 		await expect(writeAtomic(target, new TextEncoder().encode('obsah'))).rejects.toThrow(
 			new Error(`Zápis selhal: ENOTDIR: not a directory, open '${target}abcdef.tmp'`, {

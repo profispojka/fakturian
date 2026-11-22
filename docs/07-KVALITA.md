@@ -45,30 +45,34 @@ které patří.
 `bun run check` je jeden řetěz kroků; přesné pořadí je skript `check`
 v `package.json`. Každý krok musí projít, jinak řetěz skončí.
 
-| Krok                          | Co ověřuje                                                                                                                                                      |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `lint:check`                  | oxlint (vlastní pravidla v `tools/lint/oxlint-fakturian.ts`) a ESLint nad `<script>` a šablonou `.vue` (type-aware pravidla, `data-testid`, nescoped `<style>`) |
-| `format:check`                | formát přes oxfmt                                                                                                                                               |
-| `typecheck`                   | typy frontendu, hlavního procesu (`desktop/tsconfig.json`), nástrojů a skriptů showcase; Vitest testy se netypují                                               |
-| `typecheck:e2e`               | typy E2E scénářů a jejich podpory (`test/e2e/tsconfig.json`)                                                                                                    |
-| `bun run test -- --coverage`  | Vitest projekty `unit`, `nuxt` a `desktop` a 100% prahy pro každý zahrnutý soubor                                                                               |
-| `generate`                    | statický Nuxt build                                                                                                                                             |
-| `desktop:build`               | esbuild hlavního procesu, validátoru ISDOC a preloadu do `.output/desktop/`                                                                                     |
-| `bun audit --audit-level=low` | advisories JS závislostí                                                                                                                                        |
+| Krok                          | Co ověřuje                                                                                                                              |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `lint`                        | Oxlint, ESLint nad Vue skripty a šablonami, statické guardraily a kontroly CSS; podrobnosti v [test/tooling](../test/tooling/README.md) |
+| `format:check`                | formát přes oxfmt                                                                                                                       |
+| `typecheck`                   | typy frontendu, hlavního procesu (`desktop/tsconfig.json`), nástrojů, skriptů showcase a Vitest testů                                   |
+| `typecheck:e2e`               | typy E2E scénářů a jejich podpory (`test/e2e/tsconfig.json`)                                                                            |
+| `bun run test -- --coverage`  | Vitest projekty `unit`, `nuxt` a `desktop` a 100% prahy pro každý zahrnutý soubor                                                       |
+| `generate`                    | statický Nuxt build                                                                                                                     |
+| `desktop:build`               | esbuild hlavního procesu, validátoru ISDOC a preloadu do `.output/desktop/`                                                             |
+| `bun audit --audit-level=low` | advisories JS závislostí                                                                                                                |
 
 Vitest používá `tools/testing/required-tests-reporter.ts`. Prázdná nebo
 přeskočená sada, skip/todo, neúspěšný hook, neošetřená chyba i úspěch až po
 retry znamenají selhání. `allowOnly: false` zakazuje `.only`.
 Čisté unit testy jsou v `test/unit/` a jejich soubory jsou
 pojmenované podle testovaného tématu. V `test/tooling/` jsou `RuleTester` testy
-pravidel Oxlintu a testy bran kvality, které ověřují selhání Vitestu při
-úmyslných poruchách v oddělených procesech; obojí běží v projektu `unit`.
+pravidel Oxlintu, statické guardraily aplikace a testy bran kvality, které ověřují selhání Vitestu při
+úmyslných poruchách v oddělených procesech. Vše běží v projektu `unit` a v `lint`.
+
+`bun run lint` rovnou opravuje, co oxlint, ESLint a oxfmt opravit umějí; CI pak hlídá,
+že oprava nic nezměnila. Typy frontendu a testů `test/` vybírá kořenový `tsconfig.json`
+nad generovaným Nuxt configem; E2E má vlastní `test/e2e/tsconfig.json`.
 
 ### Mimo `check`
 
-Agent před dokončením práce spouští z kořene projektu `node scripts/check-tailwind-scales.ts`
-(projektové stupnice, tokeny, zlomy a zbytečné utility) a `node scripts/check-dead-css.ts`
-(použití tvarů z `main.css` a `@reference` v blocích `<style>`). Pokyny drží `AGENTS.md`.
+Kontroly `scripts/check-tailwind-scales.ts` (stupnice, tokeny, zlomy a zbytečné utility)
+a `scripts/check-dead-css.ts` (použití tvarů z `main.css` a `@reference` v blocích `<style>`)
+jsou součástí `lint`, tedy i `check`.
 
 Pomalejší kroky nebo kroky, které potřebují prostředí, jaké běžná lokální brána
 nemá:
