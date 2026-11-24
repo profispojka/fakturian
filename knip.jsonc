@@ -1,0 +1,27 @@
+{
+	"$schema": "https://unpkg.com/knip@6/schema.json",
+	"entry": [
+		"desktop/main.ts!",
+		"desktop/preload.ts!",
+		"desktop/process.ts!",
+		"desktop/isdoc/validator.ts!",
+		// Podpora testů a demo data webu jsou platní odběratelé sdílených výpočtů (`parsePeriod`, `monthsBetween`).
+		"test/setup/*.ts!",
+		"showcase/harness/*.ts!",
+		"desktop/examples/*.ts",
+		"desktop/test/**/*.test.ts",
+		"test/**/*.spec.ts",
+		"test/e2e/e2e.client.ts",
+		"tools/testing/required-tests-reporter.ts",
+		"vitest.config.ts",
+		"vitest.mutation.config.ts",
+		"stryker.config.ts",
+	],
+	"project": ["src/**/*.{ts,vue}!", "desktop/**/*.ts!", "!desktop/{test,examples}/**!", "test/setup/*.ts!"],
+	// Plugin bere vstupy z `test.include`, kam `@nuxt/test-utils` přidá `src/**/*.vue` — osiřelá komponenta by prošla.
+	"vitest": false,
+	"ignore": ["showcase/!(harness)/**", "showcase/*.ts", "test/e2e/snapshot.css"],
+	"ignoreBinaries": ["xmllint", "verapdf", "electron"],
+	"ignoreDependencies": ["@stryker-mutator/core", "@stryker-mutator/vitest-runner"],
+	"ignoreExportsUsedInFile": true,
+}

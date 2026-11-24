@@ -450,6 +450,19 @@
 						"message": "Klikni na vykreslený prvek: `find('[data-testid=\"…\"]').trigger('click')`, handler nevolej ručně."
 					}
 				],
+				"no-restricted-imports": [
+					"error",
+					{
+						"paths": [
+							{
+								"name": "@vue/test-utils",
+								"importNames": ["DOMWrapper"],
+								"allowTypeImports": true,
+								"message": "Wrapper vrací `find()`. Teleportovaný obsah hledej přes komponentu: `overlay(DialogContent)`, `dialog()`."
+							}
+						]
+					}
+				],
 				"fakturian/no-contract-mock": "error",
 				"fakturian/no-alias-function": "error",
 				"fakturian/comment-style": "error"
@@ -457,7 +470,7 @@
 		},
 		{
 			"files": ["test/nuxt/**"],
-			"rules": { "fakturian/test-id-selector": "error" }
+			"rules": { "fakturian/test-id-selector": "error", "fakturian/selector-literal": "error" }
 		},
 		{
 			"files": ["**/*.{test,spec}.{js,jsx,ts,tsx,vue}"],

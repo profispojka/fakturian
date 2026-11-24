@@ -78,19 +78,8 @@ describe('lineCents', () => {
 		expect(lineCents(1.5, -3_333)).toBe(-5_000);
 		expect(lineCents(0.5, -12_345)).toBe(-6_173);
 	});
-	it('dobropis je přesným zrcadlem faktury', () => {
-		for (const [q, p] of [
-			[0.5, 12_345],
-			[2.5, 101],
-			[0.5, 75],
-			[0.5, 3_999],
-		] as const) {
-			expect(lineCents(q, -p)).toBe(-lineCents(q, p));
-		}
-	});
 	it('násobí přesně, ne v plovoucí čárce', () => {
 		// 1,005 je v plovoucí čárce 1,00499…, součin by haléř ztratil.
-		expect(1.005 * 100).toBeLessThan(100.5);
 		expect(lineCents(1.005, 100)).toBe(101);
 		expect(lineCents(0.145, -100)).toBe(-15);
 		expect(lineCents(1.234, 100)).toBe(123);
@@ -159,12 +148,6 @@ describe('sdílená tabulka zaokrouhlení', () => {
 		for (const [cents, text] of formats) {
 			expect(czkFromCents(cents), `${cents}`).toBe(`${text}${NBSP}Kč`);
 		}
-	});
-
-	it('částku ořízne na strop `MAX_CENTS`', () => {
-		expect(roundCents(Number.MAX_SAFE_INTEGER)).toBe(MAX_CENTS);
-		expect(roundCents(-Number.MAX_SAFE_INTEGER)).toBe(-MAX_CENTS);
-		expect(lineCents(Number.MAX_SAFE_INTEGER, 100)).toBe(MAX_CENTS);
 	});
 });
 

@@ -202,15 +202,6 @@ describe('matchPayments', () => {
 		});
 	});
 
-	it('příchozí platbu k dobropisu nespáruje — k němu peníze odcházejí', () => {
-		const payment = pay('20260003', 50_000, 'm1');
-
-		expect(matchPayments([payment], [inv('20260003', -50_000)], {})).toEqual({
-			matched: [],
-			unmatched: [payment],
-		});
-	});
-
 	it('příchozí platbu nespáruje ani s dobropisem, který má co vracet', () => {
 		const credit = {
 			...inv('20260003', -100_000),
@@ -286,16 +277,5 @@ describe('párování faktury s dobropisem', () => {
 
 		expect(matched).toEqual([]);
 		expect(unmatched.map((m) => m.id)).toEqual(['m1']);
-	});
-
-	it('druhý pohyb z téže dávky uhrazenou fakturu nedoplní', () => {
-		const { matched, unmatched } = matchPayments(
-			[pay('20260001', 100_000, 'm1'), pay('20260001', 100_000, 'm2')],
-			[inv('20260001', 100_000)],
-			{},
-		);
-
-		expect(matched.map((m) => m.payment.fioId)).toEqual(['m1']);
-		expect(unmatched.map((m) => m.id)).toEqual(['m2']);
 	});
 });

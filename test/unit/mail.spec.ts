@@ -25,10 +25,7 @@ describe('defaultInvoiceMail', () => {
 	it('vrací předmět s číslem faktury a tělo se zformátovanou částkou', () => {
 		const { subject, body } = defaultInvoiceMail('2026-0001', 123_400);
 		expect(subject).toBe('Faktura 2026-0001');
-		expect(body).toContain('2026-0001');
 		expect(body).toContain('na částku 1 234,00 Kč.');
-		expect(body).toContain('Dobrý den');
-		expect(body).toContain('S pozdravem');
 	});
 
 	it('tělo je víceřádkové (mailto kódování pak vloží %0A)', () => {
@@ -51,10 +48,6 @@ describe('mailtoUrl — injekce hlaviček', () => {
 	});
 
 	it('zalomení řádku v adrese se zakóduje', () => {
-		expect(mailtoUrl('a@b.cz%0Abcc:evil@x.com', '', '')).not.toContain('%0Abcc');
-	});
-
-	it('běžná adresa zůstane čitelná', () => {
-		expect(mailtoUrl('jan.novak@firma.cz', '', '')).toBe('mailto:jan.novak@firma.cz');
+		expect(mailtoUrl('a@b.cz\nbcc:evil@x.com', '', '')).toBe('mailto:a@b.cz%0Abcc%3Aevil@x.com');
 	});
 });

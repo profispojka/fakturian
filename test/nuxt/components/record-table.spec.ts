@@ -1,9 +1,9 @@
+import { flushPromises } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import { h } from 'vue';
 
 import RecordTable from '~/components/RecordTable.vue';
 
-import { backend } from '../../setup/backend';
 import { mountUi } from '../../setup/mount';
 
 import type { TableColumn } from '@nuxt/ui';
@@ -47,7 +47,7 @@ async function mount(props: Record<string, unknown>) {
 				h('span', { 'data-testid': `records-cell-${scope?.row.original.id}` }, scope?.row.original.name),
 		},
 	});
-	await backend.settled();
+	await flushPromises();
 	return c;
 }
 
@@ -111,8 +111,7 @@ describe('RecordTable', () => {
 		expect(c.findAll('[data-testid^="records-cell-"]').map((cell) => cell.text())).toEqual(['Řádek 0', 'Řádek 1']);
 		await c.find('[data-testid="records-cell-r1"]').trigger('click');
 
-		const [event] = c.emitted('select') ?? [];
-		expect(event?.[1]).toEqual(expect.objectContaining({ original: data[1] }));
+		expect(c.emitted('select')?.[0]?.[1]).toEqual(expect.objectContaining({ original: data[1] }));
 	});
 
 	it('dlouhý výpis nevykreslí všechny řádky naráz', async () => {

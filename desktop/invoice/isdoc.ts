@@ -14,12 +14,10 @@ import {
 	fromCents,
 	ISDOC_NAMESPACE,
 	ISSUING_SYSTEM,
-	parse,
 	toXml,
 	USAGE_YEAR,
 	XMLNS_NAMESPACE,
 } from '../isdoc/mod.ts';
-import { intoInvoice } from '../isdoc/projection.ts';
 
 const IMPLEMENTATION = new DOMImplementation();
 
@@ -179,9 +177,4 @@ export function buildIsdoc(invoice: Invoice): string {
 	add(details, 'BIC', '');
 	add(details, 'VariableSymbol', paymentSymbol(invoice));
 	return toXml(document);
-}
-
-export async function parseIsdoc(xml: string): Promise<Invoice> {
-	const document = await parse(xml);
-	return intoInvoice(document);
 }

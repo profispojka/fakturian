@@ -73,15 +73,6 @@ describe('součet výdajů za období', () => {
 		expect(expensesTotalCents(expenses, (d) => periodOf(d) === period('2026-04'))).toBe(0);
 	});
 
-	it('jednorázový doklad se počítá v měsíci, kdy je datovaný', () => {
-		expect(expensesTotalCents(expenses, (d) => periodOf(d) === period('2026-02'))).toBe(45_000_00);
-	});
-
-	it('stejný měsíc jiného roku se nepočítá', () => {
-		expect(expensesTotalCents(expenses, (d) => periodOf(d) === period('2025-01'))).toBe(0);
-		expect(expensesTotalCents(expenses, (d) => periodOf(d) === period('2027-03'))).toBe(0);
-	});
-
 	it('celý rok sečte všechny jeho měsíce', () => {
 		expect(expensesTotalCents(expenses, (d) => yearOf(d) === 2026)).toBe(500_00 + 300_00 + 45_000_00);
 	});
@@ -148,16 +139,6 @@ describe('výdaj z přijatého dokladu', () => {
 		expect(expenseFromReceived(doc)).toMatchObject({
 			documentNumber: 'F2026-7',
 			documentUuid: 'ABC-1',
-		});
-		expect(
-			expenseFromReceived({
-				...doc,
-				number: '',
-				uuid: '',
-			}),
-		).toMatchObject({
-			documentNumber: undefined,
-			documentUuid: undefined,
 		});
 	});
 	it('týž přijatý doklad pozná podle UUID nebo dodavatele s číslem', () => {

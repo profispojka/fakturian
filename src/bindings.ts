@@ -435,8 +435,6 @@ export type InvoiceLine_Serialize = {
 	usageYear?: number | null;
 };
 
-export type InvoiceList = InvoiceList_Serialize | InvoiceList_Deserialize;
-
 export type InvoiceList_Deserialize = {
 	items: InvoiceSummary_Deserialize[];
 	broken: BrokenInvoice[];
@@ -563,12 +561,6 @@ export type SkippedFile = {
 	file: string;
 	reason: string;
 };
-
-/**
- *  Řádek s vazbou na ceník. Vykázané množství i roční limit se počítají z těchhle řádků, takže
- *  jdou do přehledu dokladů — samostatná evidence ve vaultu by byla druhá pravda.
- */
-export type UsageLine = UsageLine_Serialize | UsageLine_Deserialize;
 
 /**
  *  Řádek s vazbou na ceník. Vykázané množství i roční limit se počítají z těchhle řádků, takže

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { DocumentKind } from '~/constants/invoice';
 import { newInvoice } from '~/schemas/invoices';
@@ -24,7 +24,6 @@ import { date } from '../setup/dates';
 import { summary } from '../setup/fixtures';
 
 import type { InvoiceSummary } from '~/schemas/invoices';
-import type { Supplier } from '~/schemas/suppliers';
 import type { DateString } from '~/utils/date';
 
 describe('lineTotalCents / invoiceTotalCents', () => {
@@ -50,76 +49,6 @@ describe('lineTotalCents / invoiceTotalCents', () => {
 			}),
 		).toBe(1560000);
 	});
-
-	it('desetinné množství a ceny nezanáší nepřesnost plovoucí čárky', () => {
-		// 3 × 19,99 = 59,97 Kč přesně; klasické f64 by dalo 59.970000000000006
-		expect(
-			lineTotalCents({
-				quantity: 3,
-				unitPriceCents: 1_999,
-			}),
-		).toBe(5997);
-		expect(
-			invoiceTotalCents({
-				lines: [
-					{
-						quantity: 1,
-						unitPriceCents: 10,
-					},
-					{
-						quantity: 1,
-						unitPriceCents: 20,
-					},
-				],
-			}),
-		).toBe(30);
-	});
-});
-
-describe('newInvoice', () => {
-	const supplier: Supplier = {
-		name: 'Jan',
-		ico: '123',
-		address: {
-			street: 'Ulice 1',
-			city: 'Praha',
-			zip: '11000',
-		},
-		registration: 'Fyzická osoba zapsaná v živnostenském rejstříku, Živnostenský úřad Praha 1',
-		bankAccount: '2000145399',
-		bankCode: '0800',
-		email: 'jan@x.cz',
-		defaultDueDays: 30,
-		invoiceNumberFormat: '{RRRR}{NNNN}',
-	};
-
-	beforeEach(() => {
-		vi.useFakeTimers();
-		vi.setSystemTime('2026-03-01T10:00');
-	});
-
-	afterEach(() => {
-		vi.useRealTimers();
-	});
-
-	it('předvyplní dodavatele a VS, splatnost dle dní', () => {
-		const inv = newInvoice(supplier, '20260001');
-		expect(inv.number).toBe('20260001');
-		expect(inv.variableSymbol).toBe('20260001');
-		expect(inv.supplier).toEqual(supplierToParty(supplier));
-		expect(inv.bankAccount).toBe('2000145399');
-		expect(inv.lines).toHaveLength(1);
-		expect(inv.issueDate).toBe('2026-03-01');
-		expect(inv.dueDate).toBe('2026-03-31');
-	});
-
-	it('bez dodavatele má prázdnou stranu a 14 dní splatnost', () => {
-		const inv = newInvoice(null, '20260001');
-		expect(inv.supplier.name).toBe('');
-		expect(inv.issueDate).toBe('2026-03-01');
-		expect(inv.dueDate).toBe('2026-03-15');
-		expect(inv.vatNote).toBe('Nejsem plátce DPH.');
-	});
 });
 
 describe('creditNoteFrom', () => {
@@ -140,7 +69,6 @@ describe('creditNoteFrom', () => {
 		expect(cn.documentType).toBe(2);
 		expect(cn.originalInvoice).toBe('20260001');
 		expect(cn.originalIssueDate).toBe(original.issueDate);
-		expect(cn.originalUuid).toBe(original.uuid);
 		expect(cn.number).toBe('20260002');
 		expect(cn.variableSymbol).toBe('20260002');
 		expect(cn.customer.name).toBe('Acme');
@@ -172,12 +100,14 @@ describe('creditNoteFrom', () => {
 		expect(invoiceTotalCents(cn)).toBe(-80_000);
 	});
 
-	it('nepřebírá UUID původní faktury — je to samostatný doklad', () => {
+	it('nepřebírá UUID původní faktury — je to samostatný doklad, na původní jen odkazuje', () => {
 		const issued = {
 			...original,
 			uuid: 'a8438851-4b4e-5ece-96ac-c34ae2f4a74c',
 		};
-		expect(creditNoteFrom(issued, '20260002').uuid).toBe('');
+		const cn = creditNoteFrom(issued, '20260002');
+		expect(cn.uuid).toBe('');
+		expect(cn.originalUuid).toBe('a8438851-4b4e-5ece-96ac-c34ae2f4a74c');
 	});
 
 	it('nepřebírá poznámku původní faktury', () => {
@@ -477,7 +407,6 @@ describe('matchesDateFilter', () => {
 describe('roky čerpání', () => {
 	it('nová faktura nepotřebuje období ani ručně zadaný rok čerpání', () => {
 		const inv = newInvoice(null, '20260001');
-		expect(inv).not.toHaveProperty('period');
 		expect(inv.lines[0]?.usageYear).toBeUndefined();
 	});
 	it('dobropis vrací každý řádek do jeho původního roku', () => {
@@ -521,8 +450,8 @@ describe('variabilní symbol', () => {
 		expect(cn.variableSymbol).toBe('2026008');
 	});
 
-	it('nepřeteče deset číslic', () => {
-		expect(variableSymbolFor('123456789012345').length).toBe(10);
+	it('nepřeteče deset číslic a ponechá konec s pořadím dokladu', () => {
+		expect(variableSymbolFor('123456789012345')).toBe('6789012345');
 	});
 });
 

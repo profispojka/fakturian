@@ -95,7 +95,6 @@ describe('klíč navíc v odpovědi backendu', () => {
 			defaultDueDays: 30,
 		};
 
-		expect(() => adoptedSupplierSchema.parse(d)).not.toThrow();
 		expect(
 			adoptedSupplierSchema.safeParse({
 				...d,

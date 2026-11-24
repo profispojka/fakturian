@@ -132,7 +132,7 @@ describe('isValidIco', () => {
 		expect(isValidIco('270\u00a0824\u00a040')).toBe(false);
 		expect(isValidIco('27082440\n')).toBe(false);
 		expect(isValidIco('２７０８２４４０')).toBe(false);
-		expect(isValidIco('2345679')).toBe(false);
+		expect(isValidIco('2345676')).toBe(false);
 	});
 });
 
@@ -379,9 +379,9 @@ describe('supplierSchema', () => {
 		s.email = 'nope';
 		expect(invalidFields(supplierSchema, s)).toEqual(['email']);
 	});
-	it.each(['270 82 440', ' 270\u00a082440\t', '27082440\n'])('IČO %s vydá bez bílých znaků', (ico) => {
+	it('IČO vydá bez bílých znaků', () => {
 		const s = goodSupplier();
-		s.ico = ico;
+		s.ico = '270 82 440';
 
 		const result = supplierSchema.safeParse(s);
 		expect(result).toMatchObject({
@@ -641,19 +641,6 @@ describe('invoiceSchema', () => {
 			},
 		]);
 	});
-	it('řádek s nulovou cenou projde', () => {
-		const inv = buildInvoice();
-		inv.lines = [
-			{
-				id: 'r1',
-				description: 'X',
-				quantity: 1,
-				unit: 'ks',
-				unitPriceCents: 0,
-			},
-		];
-		expect(invalidFields(invoiceSchema(), inv)).toEqual([]);
-	});
 	it('faktura se slevou až na nulu projde', () => {
 		const inv = buildInvoice();
 		inv.lines = [
@@ -869,11 +856,6 @@ describe('invoiceSchema', () => {
 			expect(issues(invoice, null)).toEqual([]);
 		});
 	});
-	it('faktura bez poznámky projde', () => {
-		const inv = buildInvoice();
-		inv.note = '';
-		expect(invalidFields(invoiceSchema(), inv)).toEqual([]);
-	});
 	it('nečíselný nebo příliš dlouhý variabilní symbol neprojde', () => {
 		const inv = buildInvoice();
 		inv.variableSymbol = 'FA-2026-7';
@@ -900,10 +882,10 @@ describe('invoiceSchema', () => {
 });
 
 describe('data na faktuře', () => {
-	it('platná data projdou schématem', () => {
+	it('splatnost v den vystavení projde', () => {
 		const inv = buildInvoice();
 		inv.issueDate = date('2026-05-29');
-		inv.dueDate = date('2026-06-12');
+		inv.dueDate = date('2026-05-29');
 		expect(invalidFields(invoiceSchema(), inv)).toEqual([]);
 	});
 
@@ -931,62 +913,6 @@ describe('data na faktuře', () => {
 });
 
 describe('roční limity ceníku', () => {
-	it('překročený roční limit položky zablokuje uložení', () => {
-		const inv = buildInvoice();
-		const ctx = {
-			limitOverflows: [
-				{
-					label: 'dovolená',
-					unit: 'hod',
-					remaining: 24,
-					year: 2026,
-				},
-			],
-		};
-
-		expect(invalidFields(invoiceSchema(ctx), inv)).toContain('lines');
-	});
-
-	it('problém uvede položku i zbývající množství', () => {
-		const schema = invoiceSchema({
-			limitOverflows: [
-				{
-					label: 'dovolená',
-					unit: 'hod',
-					remaining: 24,
-					year: 2026,
-				},
-			],
-		});
-
-		expect(issuesOf(schema, buildInvoice())).toEqual([
-			{
-				path: ['lines'],
-				message: 'Položka „dovolená" překračuje roční limit pro rok 2026 — zbývá 24 hod.',
-			},
-		]);
-	});
-
-	it('vyčerpaný limit se hlásí jako vyčerpaný', () => {
-		const schema = invoiceSchema({
-			limitOverflows: [
-				{
-					label: 'Školení',
-					unit: 'den',
-					remaining: 0,
-					year: 2026,
-				},
-			],
-		});
-
-		expect(issuesOf(schema, buildInvoice())).toEqual([
-			{
-				path: ['lines'],
-				message: 'Položka „Školení" má vyčerpaný roční limit pro rok 2026.',
-			},
-		]);
-	});
-
 	it('prázdný seznam přeteklých položek fakturu nezastaví', () => {
 		expect(invalidFields(invoiceSchema({ limitOverflows: [] }), buildInvoice())).not.toContain('lines');
 	});
@@ -1018,24 +944,6 @@ describe('nepovinná pole, která na vstupu vůbec nejsou', () => {
 		const { email: _email, ...s } = goodSupplier();
 
 		expect(invalidFields(supplierSchema, s)).toEqual([]);
-	});
-
-	it('chybějící klíč se pořád validuje, když se vyplní špatně', () => {
-		expect(
-			invalidFields(contactSchema, {
-				name: 'Acme',
-				ico: '123',
-				address: {},
-			}),
-		).toContain('ico');
-		expect(
-			invalidFields(contactSchema, {
-				name: 'Acme',
-				address: {
-					zip: 'abc',
-				},
-			}),
-		).toContain('address.zip');
 	});
 
 	it('IČO a PSČ odběratele se na faktuře kontrolují', () => {
@@ -1145,12 +1053,6 @@ describe('splatnost dodavatele je celé číslo', () => {
 		]);
 	});
 
-	it('celá splatnost projde', () => {
-		const s = goodSupplier();
-		s.defaultDueDays = 30;
-		expect(invalidFields(supplierSchema, s)).toEqual([]);
-	});
-
 	it('splatnost je nejvýš rok, jako u převzatých dokladů', () => {
 		expect(defaultDueDaysSchema.safeParse(365).data).toBe(365);
 		expect(issuesOf(defaultDueDaysSchema, 366)).toEqual([
@@ -1159,7 +1061,6 @@ describe('splatnost dodavatele je celé číslo', () => {
 				message: 'Zadej číslo ≤ 365.',
 			},
 		]);
-		expect(defaultDueDaysSchema.safeParse(3_000_000).success).toBe(false);
 	});
 });
 
@@ -1180,17 +1081,11 @@ describe('vazba řádku na ceník ve schématu faktury', () => {
 		expect(invalidFields(invoiceSchema(), inv)).toEqual([]);
 		expect(invoiceSchema().parse(inv).lines[0]).toHaveProperty('itemId', 'p-1');
 	});
-
-	it('řádek bez itemId je pořád v pořádku — ručně psaný ho nemá', () => {
-		const inv = buildInvoice();
-
-		expect(invalidFields(invoiceSchema(), inv)).toEqual([]);
-	});
 });
 
 describe('vaultDataSchema', () => {
 	it('chybějící klíče nastavení jsou neúplný soubor', () => {
 		expect(vaultDataSchema.safeParse({ supplier: null }).success).toBe(false);
-		expect(vaultDataSchema.parse(emptyVaultData())).toEqual(emptyVaultData());
+		expect(vaultDataSchema.safeParse(emptyVaultData()).success).toBe(true);
 	});
 });

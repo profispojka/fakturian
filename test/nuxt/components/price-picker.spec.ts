@@ -1,9 +1,10 @@
 import { flushPromises } from '@vue/test-utils';
+import { DialogContent } from 'reka-ui';
 import { describe, expect, it } from 'vitest';
 
 import PricePicker from '~/components/invoice/PricePicker.vue';
 
-import { layer, mountUi } from '../../setup/mount';
+import { mountUi, overlay } from '../../setup/mount';
 
 describe('PricePicker', () => {
 	it('vloží stejnou položku opakovaně kliknutím na řádek', async () => {
@@ -23,12 +24,12 @@ describe('PricePicker', () => {
 		});
 		await flushPromises();
 
-		await layer().find('[data-testid="pricelist-insert"]').trigger('click');
+		await overlay(DialogContent).find('[data-testid="pricelist-insert"]').trigger('click');
 		await flushPromises();
-		await layer().find('[data-testid="pricelist-insert"]').trigger('click');
+		await overlay(DialogContent).find('[data-testid="pricelist-insert"]').trigger('click');
 		await flushPromises();
 
 		expect(c.emitted('add')).toEqual([[item], [item]]);
-		expect(layer().find('[data-testid="pricelist-pick"]').exists()).toBe(true);
+		expect(overlay(DialogContent).find('[data-testid="pricelist-pick"]').exists()).toBe(true);
 	});
 });

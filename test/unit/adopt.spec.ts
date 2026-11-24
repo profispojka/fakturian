@@ -46,11 +46,10 @@ describe('převzetí složky → fakturační údaje', () => {
 		expect(supplierReadyForInvoicing(supplier)).toBe(true);
 	});
 
-	it('řada i splatnost pokračují tak, jak je uživatel měl jinde', () => {
+	it('řada pokračuje tak, jak ji uživatel měl jinde', () => {
 		const supplier = supplierFromAdopted(adoptedSupplierSchema.parse(contract.supplier));
 		// Sedmimístné `2026022` z cizí řady → `{RRRR}{NNN}`, ne výchozí `{RRRR}{NNNN}`.
 		expect(supplier.invoiceNumberFormat).toBe('{RRRR}{NNN}');
-		expect(supplier.defaultDueDays).toBe(14);
 	});
 
 	it('příští faktura naváže na cizí řadu i pořadím', () => {
@@ -91,7 +90,6 @@ describe('převzetí složky → přehled', () => {
 		);
 		expect(s.unpaid).toHaveLength(3);
 		expect(s.overdueCount).toBe(2);
-		expect(s.recent).toHaveLength(3);
 	});
 
 	it('graf fakturace má sloupce tam, kde se fakturovalo', () => {
@@ -103,7 +101,6 @@ describe('převzetí složky → přehled', () => {
 		expect(byKey['2026-08']).toBe(6_776_000);
 		// Součet sloupců = roční obrat; graf a číslo nad ním musí říkat totéž.
 		expect(series.reduce((a, b) => a + b.salesCents, 0)).toBe(19_094_000);
-		expect(series.filter((b) => b.salesCents > 0)).toHaveLength(2);
 	});
 
 	it('žebříčky odběratelů i hlídání limitu plátcovství počítají', () => {

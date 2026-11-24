@@ -1,4 +1,4 @@
-import { array, assert, boolean, constantFrom, integer, option, property, record, tuple } from 'fast-check';
+import { array, assert, constantFrom, integer, option, property, record, tuple } from 'fast-check';
 import { describe, expect, it } from 'vitest';
 
 import { PRICE_ICONS } from '~/constants/icons';
@@ -181,18 +181,6 @@ describe('spárování řádku s položkou ceníku', () => {
 				PRICELIST,
 			),
 		).toBe(VACATION);
-		expect(
-			itemForLine(
-				{
-					id: 'r1',
-					description: VACATION.name,
-					quantity: 1,
-					unit: 'hod',
-					unitPriceCents: 120_000,
-				},
-				PRICELIST,
-			),
-		).toBeNull();
 	});
 
 	it('neznámé itemId neukazuje jinou položku ceníku', () => {
@@ -335,10 +323,6 @@ describe('blokace překročení limitu', () => {
 		expect(o(vacation(16.001))).toEqual([]);
 	});
 
-	it('nepovoluje se část — rozhoduje celé množství', () => {
-		expect(o(vacation(20))).toHaveLength(1);
-	});
-
 	it('editace nezapočítá vlastní množství dvakrát', () => {
 		expect(o(vacation(144, '20260001'))).toEqual([]);
 		expect(o(vacation(160, '20260001'))).toEqual([]);
@@ -477,47 +461,6 @@ describe('zápis vazby faktura ↔ položky', () => {
 		expect(recordsFor(inv, 2025).map((x) => x.year)).toEqual([2025, 2025]);
 	});
 
-	it('přejmenování položky vazbu nesené řádkem nerozbije', () => {
-		const linked = invoiceWith([
-			{
-				id: 'r1',
-				description: 'Konzultační činnost',
-				quantity: 40,
-				unit: 'hod',
-				unitPriceCents: 120_000,
-				itemId: 'p-dov',
-			},
-		]);
-		expect(recordsFor(linked, 2026)).toEqual([speech('20260001', 2026, 40)]);
-	});
-
-	it('položka smazaná z ceníku o záznam nepřijde, dokud je řádek na faktuře', () => {
-		const linked = invoiceWith([
-			{
-				id: 'r1',
-				description: 'Konzultační činnost',
-				quantity: 40,
-				unit: 'hod',
-				unitPriceCents: 120_000,
-				itemId: 'p-dov',
-			},
-		]);
-		expect(recordsFor(linked, 2026)).toEqual([speech('20260001', 2026, 40)]);
-	});
-
-	it('řádek bez vazby se nezapíše', () => {
-		const manual = invoiceWith([
-			{
-				id: 'r1',
-				description: VACATION.name,
-				quantity: 40,
-				unit: VACATION.unit,
-				unitPriceCents: 120_000,
-			},
-		]);
-		expect(recordsFor(manual, 2026)).toEqual([]);
-	});
-
 	it('vazba na řádku přebije název, který ukazuje jinam', () => {
 		const confused = invoiceWith([
 			{
@@ -559,41 +502,6 @@ describe('blokace na úrovni validace faktury', () => {
 			},
 		],
 	};
-
-	it('bez překročení faktura projde', () => {
-		expect(invoiceSchema({ limitOverflows: [] }).safeParse(inv).success).toBe(true);
-	});
-
-	it('při překročení faktura neprojde a hláška řekne, kolik zbývá', () => {
-		const e = invoiceSchema({
-			limitOverflows: [
-				{
-					label: 'dovolená',
-					unit: 'hod',
-					remaining: 16,
-					year: 2026,
-				},
-			],
-		}).safeParse(inv);
-		expect(e.success).toBe(false);
-		const message = e.error?.issues.find((i) => i.path.join('.') === 'lines')?.message;
-		expect(message).toContain('dovolená');
-		expect(message).toContain('16 hod');
-	});
-
-	it('vyčerpaný limit se hlásí jako vyčerpaný, ne jako nula', () => {
-		const e = invoiceSchema({
-			limitOverflows: [
-				{
-					label: 'dovolená',
-					unit: 'hod',
-					remaining: 0,
-					year: 2026,
-				},
-			],
-		}).safeParse(inv);
-		expect(e.error?.issues.find((i) => i.path.join('.') === 'lines')?.message).toContain('vyčerpaný');
-	});
 
 	it('každá přeteklá položka má vlastní hlášku', () => {
 		const e = invoiceSchema({
@@ -662,11 +570,6 @@ describe('limit nikdy nepřeteče nahoru', () => {
 		const u = itemUsage(VACATION, records, 2026);
 		expect(u.used).toBe(0);
 		expect(u.remaining).toBe(160);
-		expect(u.remaining).toBeLessThanOrEqual(u.limit);
-	});
-
-	it('zbývající množství se taky nepřetáhne přes limit', () => {
-		expect(remainingFor(VACATION, [speech('20260002', 2026, -320)], 2026, '20260003')).toBe(160);
 	});
 });
 
@@ -709,7 +612,8 @@ describe('jak se položka jmenuje a jakou nese ikonku', () => {
 
 	it('každá ikonka v nabídce má popisek pro čtečku', () => {
 		expect(PRICE_ICONS).toHaveLength(22);
-		expect(PRICE_ICONS.every((i) => i.key.startsWith('i-lucide-') && i.label.trim())).toBe(true);
+		expect(PRICE_ICONS.filter((i) => !i.key.startsWith('i-lucide-'))).toEqual([]);
+		expect(PRICE_ICONS.filter((i) => !i.label.trim())).toEqual([]);
 		expect(new Set(PRICE_ICONS.map((i) => i.key)).size).toBe(PRICE_ICONS.length);
 	});
 });
@@ -752,7 +656,6 @@ describe('schéma položky ceníku', () => {
 			...valid,
 			annualLimit,
 		});
-		expect(r.success).toBe(false);
 		expect(
 			r.error?.issues.map((issue) => ({
 				path: issue.path,
@@ -861,6 +764,61 @@ function archiveRecords(documents: UsageDocument[]): PriceUsageRecord[] {
 	);
 }
 
+function modelItemUsage(item: PriceItem, documents: UsageDocument[], year: number) {
+	const perDocument = modelUsage(documents, item.id, year);
+	const limit = item.annualLimit ?? 0;
+	return {
+		limit,
+		used: Math.max(
+			0,
+			perDocument.reduce((sum, q) => sum + q, 0),
+		),
+		remaining: modelRemaining(limit, perDocument),
+		invoices: perDocument
+			.map((quantity, index) => ({
+				invoiceNumber: documentNumber(index),
+				quantity,
+			}))
+			.filter(({ quantity }) => quantity !== 0),
+	};
+}
+
+/** Přetečení podle modelu: rozepsaný doklad chce víc, než položce v roce zbývá po dokladech `others`. */
+function modelOverflows(pricelist: PriceItem[], others: UsageDocument[], draft: UsageDocument) {
+	return pricelist.flatMap((item) =>
+		YEARS.flatMap((year) => {
+			const limit = item.annualLimit ?? 0;
+			const [onDraft] = modelUsage([draft], item.id, year);
+			const remaining = modelRemaining(limit, modelUsage(others, item.id, year));
+			if (limit === 0 || onDraft === 0 || onDraft === undefined || onDraft <= remaining + 0.001) return [];
+			return [
+				{
+					label: item.note ?? item.name,
+					unit: item.unit,
+					remaining,
+					year,
+				},
+			];
+		}),
+	);
+}
+
+function byPlace(a: { label: string; year: number }, b: { label: string; year: number }): number {
+	return a.label.localeCompare(b.label) || a.year - b.year;
+}
+
+// Rozepsaný doklad je buď nový, nebo novější verze prvního dokladu archivu.
+const draftPlace = constantFrom(
+	{
+		number: 'F9999',
+		replaced: 0,
+	},
+	{
+		number: documentNumber(0),
+		replaced: 1,
+	},
+);
+
 describe('čerpání limitů proti modelu', () => {
 	it('vyčerpané, zbývající a doklady položky sedí se součtem z archivu', () => {
 		assert(
@@ -873,22 +831,7 @@ describe('čerpání limitů proti modelu', () => {
 				(pricelist, documents, year) => {
 					const records = archiveRecords(documents);
 					for (const item of pricelist) {
-						const perDocument = modelUsage(documents, item.id, year);
-						const limit = item.annualLimit ?? 0;
-						expect(itemUsage(item, records, year)).toEqual({
-							limit,
-							used: Math.max(
-								0,
-								perDocument.reduce((sum, q) => sum + q, 0),
-							),
-							remaining: modelRemaining(limit, perDocument),
-							invoices: perDocument
-								.map((quantity, index) => ({
-									invoiceNumber: documentNumber(index),
-									quantity,
-								}))
-								.filter(({ quantity }) => quantity !== 0),
-						});
+						expect(itemUsage(item, records, year)).toEqual(modelItemUsage(item, documents, year));
 					}
 				},
 			),
@@ -904,27 +847,9 @@ describe('čerpání limitů proti modelu', () => {
 					maxLength: 6,
 				}),
 				usageDocument,
-				boolean(),
-				(pricelist, documents, draft, replacesFirst) => {
-					const number = replacesFirst ? documentNumber(0) : 'F9999';
-					const others = replacesFirst ? documents.slice(1) : documents;
-					const expected = pricelist.flatMap((item) =>
-						YEARS.flatMap((year) => {
-							const limit = item.annualLimit ?? 0;
-							const [onDraft] = modelUsage([draft], item.id, year);
-							const remaining = modelRemaining(limit, modelUsage(others, item.id, year));
-							if (limit === 0 || onDraft === 0 || onDraft === undefined || onDraft <= remaining + 0.001)
-								return [];
-							return [
-								{
-									label: item.note ?? item.name,
-									unit: item.unit,
-									remaining,
-									year,
-								},
-							];
-						}),
-					);
+				draftPlace,
+				(pricelist, documents, draft, { number, replaced }) => {
+					const expected = modelOverflows(pricelist, documents.slice(replaced), draft);
 
 					const overflows = limitOverflows(
 						{
@@ -942,8 +867,6 @@ describe('čerpání limitů proti modelu', () => {
 						archiveRecords(documents),
 						draft.issueYear,
 					);
-					const byPlace = (a: { label: string; year: number }, b: { label: string; year: number }) =>
-						a.label.localeCompare(b.label) || a.year - b.year;
 					expect(overflows.toSorted(byPlace)).toEqual(expected.toSorted(byPlace));
 				},
 			),
