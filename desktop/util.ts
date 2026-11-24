@@ -47,6 +47,42 @@ export function errorCode(error: unknown): unknown {
 	return error instanceof Error && 'code' in error ? error.code : undefined;
 }
 
+// Text chyby Node je anglický a s kódem; do hlášky jde důvod slovy, chyba sama zůstává v `cause` a v logu.
+export function diskProblem(error: unknown): string {
+	switch (errorCode(error)) {
+		case undefined:
+			return errorText(error);
+		case 'EACCES':
+		case 'EPERM':
+			return 'Fakturian k tomu nemá oprávnění (zkontroluj ve Finderu Informace › Sdílení a oprávnění)';
+		case 'ENOENT':
+			return 'soubor nebo složka neexistuje';
+		case 'ENOTDIR':
+			return 'v cestě leží soubor tam, kde má být složka';
+		case 'EISDIR':
+		case 'ERR_FS_EISDIR':
+			return 'v cestě leží složka tam, kde má být soubor';
+		case 'EEXIST':
+			return 'v cestě už leží soubor se stejným jménem';
+		case 'ERR_ENCODING_INVALID_ENCODED_DATA':
+			return 'obsah není v kódování UTF-8';
+		case 'ENOSPC':
+		case 'EDQUOT':
+			return 'na disku není místo';
+		case 'EROFS':
+			return 'disk je jen pro čtení';
+		case 'EBUSY':
+			return 'soubor drží otevřený jiný program';
+		case 'ENAMETOOLONG':
+			return 'název je příliš dlouhý';
+		case 'EMFILE':
+		case 'ENFILE':
+			return 'appka má otevřeno příliš mnoho souborů, restartuj ji';
+		default:
+			return 'systém ohlásil chybu disku';
+	}
+}
+
 async function syncPath(path: string): Promise<void> {
 	const file = await open(path, 'r');
 	try {
@@ -67,7 +103,7 @@ export async function writeAtomic(target: string, content: Uint8Array): Promise<
 		await rename(temporary, target);
 	} catch (error) {
 		await Promise.allSettled([rm(temporary)]);
-		throw new Error(`Zápis selhal: ${errorText(error)}`, { cause: error });
+		throw new Error(`Zápis selhal: ${diskProblem(error)}`, { cause: error });
 	}
 	await Promise.allSettled([syncPath(dirname(target))]);
 }
@@ -79,7 +115,7 @@ export async function writeNew(target: string, content: Uint8Array): Promise<New
 		await writeFile(target, new Uint8Array(), { flag: 'wx' });
 	} catch (error) {
 		if (errorCode(error) === 'EEXIST') return 'taken';
-		throw new Error(`Zápis selhal: ${errorText(error)}`, { cause: error });
+		throw new Error(`Zápis selhal: ${diskProblem(error)}`, { cause: error });
 	}
 	try {
 		await writeAtomic(target, content);

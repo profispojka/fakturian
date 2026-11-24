@@ -4,7 +4,7 @@ import { mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises'
 import { Server, Socket } from 'node:net';
 import { join } from 'node:path';
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { connect, type Lines, readSocket, socketDir, socketPair } from './sockets.ts';
 
@@ -52,18 +52,12 @@ function windowFor() {
 		async next() {
 			while (read >= seen.length) await arrived();
 			read += 1;
-			return seen[read - 1];
+			return seen[read - 1]!;
 		},
 	};
 }
 
-vi.mock(import('node:crypto'), async (importOriginal) => {
-	const crypto = await importOriginal();
-	return {
-		...crypto,
-		randomBytes: vi.fn(crypto.randomBytes),
-	};
-});
+vi.mock(import('node:crypto'), { spy: true });
 
 // Zaseknuté spojení má test shodit hned: celá sada běží v desítkách milisekund.
 vi.setConfig({
@@ -232,7 +226,8 @@ describe('most mezi spojeními a oknem', () => {
 
 		const error = await rejectionOf(bridge.send(42, '{}'));
 
-		expect([error, Object.hasOwn(error as Error, 'cause')]).toEqual([new Error(DISCONNECTED), false]);
+		assert(error instanceof Error);
+		expect([error, Object.hasOwn(error, 'cause')]).toEqual([new Error(DISCONNECTED), false]);
 	});
 
 	it('zápis, který selže, je odpojený connector', async () => {
@@ -502,7 +497,8 @@ describe('most na unixovém socketu', () => {
 	it('chyba spojení odmítnutého pro plný most most neshodí', async () => {
 		const listen = vi.spyOn(Server.prototype, 'listen');
 		await startBridge();
-		const [server] = listen.mock.contexts;
+		const server = listen.mock.contexts[0];
+		assert(server instanceof Server);
 		const extra = Array.from({ length: MAX_CLIENTS + 1 }, () => new Socket());
 		sockets.push(...extra);
 
@@ -550,7 +546,7 @@ describe('most na unixovém socketu', () => {
 		agent.socket.write(`${REQUEST}\n`);
 
 		const error = await agent.lines.next();
-		expect(JSON.parse(error)).toEqual({
+		expect(JSON.parse(error!)).toEqual({
 			jsonrpc: '2.0',
 			id: null,
 			error: {
@@ -628,7 +624,7 @@ describe('most na unixovém socketu', () => {
 		expect(await refused.lines.next()).toBe(null);
 
 		const leaving = connected.pop();
-		leaving.socket.destroy();
+		leaving!.socket.destroy();
 		await most.next();
 		await introduced(most.token);
 	});
@@ -730,7 +726,7 @@ describe('most na unixovém socketu', () => {
 	});
 
 	it('dočasný soubor klíče, který už existuje, se nepřepíše', async () => {
-		vi.mocked(randomBytes)
+		vi.mocked<(size: number) => Buffer>(randomBytes)
 			.mockImplementationOnce((size: number) => Buffer.alloc(size, 0xab))
 			.mockImplementationOnce((size: number) => Buffer.alloc(size, 0xab));
 		await mkdir(dir, { recursive: true });
@@ -755,7 +751,8 @@ describe('most na unixovém socketu', () => {
 		vi.stubEnv('HOME', dir);
 		const listen = vi.spyOn(Server.prototype, 'listen');
 		const most = await startBridge();
-		const [server] = listen.mock.contexts;
+		const server = listen.mock.contexts[0];
+		assert(server instanceof Server);
 
 		server.emit('error', new Error('EMFILE: too many open files'));
 
@@ -770,7 +767,7 @@ describe('most na unixovém socketu', () => {
 		const agent = await introduced(most.token);
 
 		const [server] = servers.splice(0);
-		await server.close();
+		await server!.close();
 
 		expect(await agent.lines.next()).toBe(null);
 		expect(most.seen).toEqual([{ session: 1 }]);

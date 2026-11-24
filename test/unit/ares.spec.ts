@@ -1,20 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import { TRADE_REGISTER_ENTRY } from '~/constants/registration';
-import { aresServices, parseAres } from '~/services/ares';
+import { parseAres } from '~/services/ares';
 
 import aresSro from '../fixtures/ares-sro.json' with { type: 'json' };
 import aresTradesman from '../fixtures/ares-zivnostnik.json' with { type: 'json' };
-
-const invoke = vi.fn();
-
-vi.stubGlobal('fakturian', {
-	invoke,
-});
-
-beforeEach(() => {
-	invoke.mockReset();
-});
 
 const EMPTY = {
 	name: '',
@@ -231,43 +221,6 @@ describe('zápis do rejstříku z ARESu', () => {
 				...registers('NEEXISTUJICI', 'NEEXISTUJICI'),
 			}).registration,
 		).toBe('');
-	});
-});
-
-describe('aresServices', () => {
-	it('zeptá se hlavního procesu a převede odpověď na firmu', async () => {
-		invoke.mockResolvedValue({
-			obchodniJmeno: 'Firma',
-			ico: '25596641',
-			sidlo: {
-				nazevObce: 'Praha',
-				nazevUlice: 'Dlouhá',
-				cisloDomovni: 1,
-				psc: 11000,
-			},
-			...registers('NEEXISTUJICI', 'AKTIVNI'),
-		});
-		expect(await aresServices.query('25596641')).toEqual({
-			name: 'Firma',
-			ico: '25596641',
-			address: {
-				street: 'Dlouhá 1',
-				city: 'Praha',
-				zip: '11000',
-			},
-			registration: 'Zapsáno v živnostenském rejstříku',
-		});
-		expect(invoke).toHaveBeenCalledExactlyOnceWith('ares_subject', { ico: '25596641' });
-	});
-
-	it('odmítnutí hlavního procesu nese dál beze změny', async () => {
-		invoke.mockRejectedValue('Nepodařilo se spojit s ARES (jste offline?).');
-		await expect(aresServices.query('25596641')).rejects.toBe('Nepodařilo se spojit s ARES (jste offline?).');
-	});
-
-	it('odpověď v neznámém tvaru odmítne', async () => {
-		invoke.mockResolvedValue('<html>');
-		await expect(aresServices.query('25596641')).rejects.toThrow(/^Odpověď z ARES má neočekávaný tvar \(/);
 	});
 });
 

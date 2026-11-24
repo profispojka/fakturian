@@ -117,6 +117,11 @@ export function yearOf(date: DateString): number {
 	return calendarDate(date).year;
 }
 
+// Jen pro datum, které na hranici prošlo `parseIsdocDate`; ISDOC k němu smí připsat časovou zónu.
+export function isdocYear(text: string): number {
+	return calendarDate(text.trim().slice(0, 10)).year;
+}
+
 export function monthOf(date: DateString): number {
 	return calendarDate(date).month;
 }

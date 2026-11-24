@@ -1,8 +1,8 @@
-import { flushPromises } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import plugin from '~/plugins/errors.client';
 
+import { backend } from '../../setup/backend';
 import { runPlugin } from '../../setup/plugin';
 
 // `PromiseRejectionEvent` happy-dom nemá; plugin z události čte jen `reason`.
@@ -19,7 +19,7 @@ describe('nechycená chyba', () => {
 		runPlugin(plugin);
 
 		await useNuxtApp().callHook('vue:error', new Error('Tabulka se nevykreslila'), null, 'render');
-		await flushPromises();
+		await backend.settled();
 
 		expect(useNuxtApp().vueApp.runWithContext(useToast).toasts.value).toContainEqual(
 			expect.objectContaining({
@@ -34,7 +34,7 @@ describe('nechycená chyba', () => {
 		runPlugin(plugin);
 
 		window.dispatchEvent(new Rejection(new Error('Zápis nedoběhl')));
-		await flushPromises();
+		await backend.settled();
 
 		expect(useNuxtApp().vueApp.runWithContext(useToast).toasts.value).toContainEqual(
 			expect.objectContaining({
@@ -49,7 +49,7 @@ describe('nechycená chyba', () => {
 		runPlugin(plugin);
 
 		window.dispatchEvent(new Rejection('Datová složka /vault neexistuje.'));
-		await flushPromises();
+		await backend.settled();
 
 		expect(useNuxtApp().vueApp.runWithContext(useToast).toasts.value).toContainEqual(
 			expect.objectContaining({ description: 'Datová složka /vault neexistuje.' }),

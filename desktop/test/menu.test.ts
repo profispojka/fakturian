@@ -57,9 +57,10 @@ describe('menu appky', () => {
 			devTools: false,
 		});
 
-		const quit = app.submenu.find((item) => item.label === 'Ukončit Fakturian');
+		const items = app!.submenu;
+		const quit = items.find((item) => item.label === 'Ukončit Fakturian')!;
 		expect(quit.role).toBe(undefined);
-		quit.click();
+		quit.click!();
 
 		expect(requestClose).toHaveBeenCalledOnce();
 	});

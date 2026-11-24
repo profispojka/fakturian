@@ -17,6 +17,7 @@ import {
 	isDateString,
 	monthName,
 	parseDate,
+	isdocYear,
 	parseIsdocDate,
 	parsePeriod,
 	periodOf,
@@ -82,6 +83,16 @@ describe('parseDate', () => {
 		const toString = vi.fn(() => '2026-05-29');
 		expect(parseDate({ toString })).toBeUndefined();
 		expect(toString).not.toHaveBeenCalled();
+	});
+});
+
+describe('isdocYear', () => {
+	it.each(['2028-02-29', '2028-02-29Z', '2028-02-29+01:00', ' 2028-02-29-14:00\n'])('z %j přečte rok', (text) => {
+		expect(isdocYear(text)).toBe(2028);
+	});
+
+	it('na neplatném datu spadne, netipuje rok', () => {
+		expect(() => isdocYear('2026-02-30')).toThrow('Value out of range');
 	});
 });
 

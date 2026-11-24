@@ -40,7 +40,6 @@
 		"fakturian/object-multiline": "error",
 		"fakturian/blank-line-around-multiline-statements": "error",
 		"fakturian/no-iife": "error",
-		"fakturian/no-double-assertion": "error",
 		"no-script-url": "error",
 		"typescript/no-implied-eval": "error",
 		"typescript/no-unnecessary-type-assertion": "error",
@@ -72,8 +71,14 @@
 		"no-template-curly-in-string": "error",
 		// `Object.assign(cil, zdroj)` mění objekt pod cizí referencí a klíč navíc nesmaže, takže ve
 		// formuláři zůstane viset pole z předchozího dokladu. Spread vyrobí nový objekt.
+		// `Object.defineProperty` jde mimo reaktivitu Vue a nezapisovatelná vlastnost pak potichu neuloží.
 		"no-restricted-properties": [
 			"error",
+			{
+				"object": "Object",
+				"property": "defineProperty",
+				"message": "Přiřaď vlastnost napřímo; readonly nebo chybějící klíč obejde proměnná s širším typem (`const target: { key?: T } = obj`)."
+			},
 			{
 				"object": "Object",
 				"property": "assign",
@@ -130,8 +135,8 @@
 		"typescript/unbound-method": "error",
 		"typescript/array-type": "error",
 		"typescript/prefer-nullish-coalescing": ["error", { "ignorePrimitives": { "string": true } }],
-		// Aserce nic neověří, jen umlčí překladač: tvar se buď ověří zodem, nebo napíše do podpisu.
-		// `as const` dotčené není, jen zužuje literál.
+		// Aserce nic neověří, jen umlčí překladač, ani v testech: tvar ověří zod nebo `assert`, falešný
+		// objekt přijde z mocku modulu (`new BaseWindow()`). `as const` dotčené není, jen zužuje literál.
 		"typescript/consistent-type-assertions": ["error", { "assertionStyle": "never" }],
 		"typescript/restrict-template-expressions": "error",
 		"typescript/consistent-type-imports": "error",
@@ -156,11 +161,11 @@
 			"error",
 			{
 				"name": "Proxy",
-				"message": "Napiš obyčejnou funkci nebo objekt; typ v testu dorovná `as typeof original`."
+				"message": "Napiš obyčejnou funkci nebo objekt s typem, který pod něj patří."
 			},
 			{
 				"name": "Reflect",
-				"message": "Sáhni na vlastnost napřímo (`obj.key = …`, `delete obj.key`); typ v testu dorovná `as`."
+				"message": "Sáhni na vlastnost napřímo (`obj.key = …`, `delete obj.key`)."
 			}
 		]
 	},
@@ -220,6 +225,11 @@
 					"error",
 					{
 						"object": "Object",
+						"property": "defineProperty",
+						"message": "Přiřaď vlastnost napřímo; readonly nebo chybějící klíč obejde proměnná s širším typem (`const target: { key?: T } = obj`)."
+					},
+					{
+						"object": "Object",
 						"property": "assign",
 						"message": "Použij spread — `{ ...a, ...b }`, u refu `ref.value = { ...ref.value, … }`."
 					},
@@ -269,6 +279,11 @@
 				],
 				"no-restricted-properties": [
 					"error",
+					{
+						"object": "Object",
+						"property": "defineProperty",
+						"message": "Přiřaď vlastnost napřímo; readonly nebo chybějící klíč obejde proměnná s širším typem (`const target: { key?: T } = obj`)."
+					},
 					{
 						"property": "parse",
 						"allowObjects": ["JSON", "Date", "URL"],
@@ -346,6 +361,11 @@
 					"error",
 					{
 						"object": "Object",
+						"property": "defineProperty",
+						"message": "Přiřaď vlastnost napřímo; readonly nebo chybějící klíč obejde proměnná s širším typem (`const target: { key?: T } = obj`)."
+					},
+					{
+						"object": "Object",
 						"property": "assign",
 						"message": "Použij spread — `{ ...a, ...b }`, u refu `ref.value = { ...ref.value, … }`."
 					},
@@ -410,7 +430,6 @@
 				"no-explicit-any": "off",
 				"no-non-null-assertion": "off",
 				"vitest/require-mock-type-parameters": "off",
-				"typescript/consistent-type-assertions": "off",
 				"fakturian/submit-by-button": "error",
 				"no-restricted-globals": [
 					"error",
@@ -420,11 +439,11 @@
 					},
 					{
 						"name": "Proxy",
-						"message": "Napiš obyčejnou funkci nebo objekt; typ dorovná `as typeof original`."
+						"message": "Napiš obyčejnou funkci nebo objekt s typem, který pod něj patří."
 					},
 					{
 						"name": "Reflect",
-						"message": "Sáhni na vlastnost napřímo (`obj.key = …`, `delete obj.key`); typ dorovná `as`."
+						"message": "Sáhni na vlastnost napřímo (`obj.key = …`, `delete obj.key`)."
 					},
 					{
 						"name": "MouseEvent",
@@ -446,6 +465,11 @@
 				"fakturian-guards/no-conditional-in-test": "error",
 				"no-restricted-properties": [
 					"error",
+					{
+						"object": "Object",
+						"property": "defineProperty",
+						"message": "Přiřaď vlastnost napřímo; readonly nebo chybějící klíč obejde proměnná s širším typem (`const target: { key?: T } = obj`)."
+					},
 					{
 						"object": "Object",
 						"property": "assign",

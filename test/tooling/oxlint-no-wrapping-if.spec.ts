@@ -6,7 +6,7 @@ import { noWrappingIf } from '../../tools/lint/rules/no-wrapping-if.ts';
 RuleTester.describe = describe;
 RuleTester.it = it;
 
-new RuleTester().run('no-wrapping-if', noWrappingIf as Parameters<RuleTester['run']>[1], {
+new RuleTester().run('no-wrapping-if', noWrappingIf, {
 	valid: [
 		{
 			name: 'včasný return a zbytek pod ním',

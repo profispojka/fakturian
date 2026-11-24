@@ -1,9 +1,9 @@
-import { flushPromises } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import { h } from 'vue';
 
 import RecordTable from '~/components/RecordTable.vue';
 
+import { backend } from '../../setup/backend';
 import { mountUi } from '../../setup/mount';
 
 import type { TableColumn } from '@nuxt/ui';
@@ -47,7 +47,7 @@ async function mount(props: Record<string, unknown>) {
 				h('span', { 'data-testid': `records-cell-${scope?.row.original.id}` }, scope?.row.original.name),
 		},
 	});
-	await flushPromises();
+	await backend.settled();
 	return c;
 }
 

@@ -36,7 +36,7 @@ export const noContractMock: Rule = {
 				context.report({
 					message:
 						`Mock \`${path}\` vypne kontrakt, který má test hlídat — schémata a \`useVaultFile\` ` +
-						'běží doopravdy, okraj appky hraje falešný backend z `test/setup/backend.ts`.',
+						'běží doopravdy, stejně jako hlavní proces za mostem z `test/setup/backend.ts`.',
 					node,
 				});
 			},

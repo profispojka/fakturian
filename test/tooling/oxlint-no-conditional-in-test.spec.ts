@@ -12,7 +12,7 @@ new RuleTester({
 			lang: 'ts',
 		},
 	},
-}).run('no-conditional-in-test', noConditionalInTest as Parameters<RuleTester['run']>[1], {
+}).run('no-conditional-in-test', noConditionalInTest, {
 	valid: [
 		{
 			name: 'reaktivní posluchač sleduje stav přes špeha',

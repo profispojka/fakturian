@@ -1,4 +1,3 @@
-import { flushPromises } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import { defineComponent, h } from 'vue';
 
@@ -44,7 +43,7 @@ describe('verdikt při zavírání', () => {
 		runPlugin(plugin);
 
 		requestClose();
-		await flushPromises();
+		await backend.settled();
 
 		expect(backend.window.closed).toBe(false);
 	});
@@ -54,7 +53,7 @@ describe('verdikt při zavírání', () => {
 		runPlugin(plugin);
 
 		requestClose();
-		await flushPromises();
+		await backend.settled();
 
 		expect(backend.window.closed).toBe(true);
 	});
@@ -63,7 +62,7 @@ describe('verdikt při zavírání', () => {
 		runPlugin(plugin);
 
 		requestClose();
-		await flushPromises();
+		await backend.settled();
 
 		expect(backend.window.closed).toBe(true);
 	});
@@ -73,7 +72,7 @@ describe('verdikt při zavírání', () => {
 		runPlugin(plugin);
 
 		requestClose();
-		await flushPromises();
+		await backend.settled();
 
 		expect(useNuxtApp().vueApp.runWithContext(useToast).toasts.value).toContainEqual(
 			expect.objectContaining({

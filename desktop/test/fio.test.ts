@@ -14,8 +14,8 @@ const security = vi.hoisted(() => ({
 	search: vi.fn<(file: string, args: string[]) => { failure: Error | null; stderr: string }>(),
 }));
 
-vi.mock(import('node:child_process'), async (importOriginal) => {
-	const original = await importOriginal();
+vi.mock('node:child_process', async (importOriginal) => {
+	const original = await importOriginal<object>();
 	return {
 		...original,
 		execFile: (
@@ -61,7 +61,7 @@ function operation<T>(result: () => T): Promise<T> {
 	return Promise.resolve(result());
 }
 
-const reads = vi.fn<() => Promise<string | undefined>>(() => operation(() => stored ?? undefined));
+const reads = vi.fn<() => Promise<string | null>>(() => operation(() => stored));
 
 beforeEach(async () => {
 	reroute('https://fioapi.fio.cz');

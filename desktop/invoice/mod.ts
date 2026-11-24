@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { VAT_LIMIT_CENTS } from '~/constants/dashboard';
 import { DocumentKind } from '~/constants/invoice';
 import { invoiceSchema } from '~/schemas/invoices';
-import { parseIsdocDate, yearOf } from '~/utils/date';
+import { isdocYear, yearOf } from '~/utils/date';
 import { creditNotesOf, invoiceTotalCents } from '~/utils/invoice';
 import { czechList } from '~/utils/locales';
 import { validateNumber } from '~/utils/numbering';
@@ -181,9 +181,7 @@ export async function saveInvoice({
 		const after = new Map<number, number>();
 		const crossed = new Set<number>();
 		for (const [date, dayItems] of dates) {
-			const parsed = parseIsdocDate(date);
-			if (parsed === undefined) throw new Error('Limit obratu nejde ověřit kvůli neplatnému datu dokladu.');
-			const year = yearOf(parsed);
+			const year = isdocYear(date);
 			const oldDay = dayItems.reduce((sum, item) => sum + item.totalCents, 0);
 			const newDay =
 				oldDay - (prior?.issueDate === date ? prior.totalCents : 0) + (invoice.issueDate === date ? amount : 0);

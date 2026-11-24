@@ -1,6 +1,6 @@
 ---
 name: vue-testy
-description: Jak se ve Fakturianu testuje Vue vrstva — skutečný Nuxt runtime a Nuxt UI bez stubů, mountUi/layer/goto z test/setup, skutečný router a potvrzovací dialog, vyplňování formulářů, falešný backend a pasti, na které se opakovaně naráží. Použij při psaní nebo úpravě jakéhokoli testu v test/nuxt/ a při ladění padajícího testu komponenty, stránky nebo composable.
+description: Jak se ve Fakturianu testuje Vue vrstva — skutečný Nuxt runtime a Nuxt UI bez stubů, mountUi/layer/goto z test/setup, skutečný router a potvrzovací dialog, vyplňování formulářů, skutečný hlavní proces nad dočasnou složkou a pasti, na které se opakovaně naráží. Použij při psaní nebo úpravě jakéhokoli testu v test/nuxt/ a při ladění padajícího testu komponenty, stránky nebo composable.
 ---
 
 # Testy Vue vrstvy
@@ -29,9 +29,17 @@ stubový `UForm` by emitoval `submit` bez validace a test by tvrdil, že se ulo�
 skutečný formulář odmítne.
 
 Router i potvrzovací dialog jsou skutečné. Jediná náhrada auto-importu v sadě je `useColorMode()`
-(`mockNuxtImport`), protože plugin `@nuxtjs/color-mode` v testovacím runtimu neběží. Mockuje se
-okraj appky — most hlavního procesu `globalThis.fakturian` nahrazuje před každým testem falešný
-backend z `test/setup/backend.ts` (`resetBackend()` v `nuxt-state.ts`), dál `vue-echarts`.
+(`mockNuxtImport`), protože plugin `@nuxtjs/color-mode` v testovacím runtimu neběží.
+
+Hlavní proces je taky skutečný: most `globalThis.fakturian` z `test/setup/backend.ts` volá
+`desktop/commands.ts` nad dočasnou složkou, kterou `resetBackend()` v `nuxt-state.ts` zakládá před
+každým testem. Cesty v testu (`/vault`, `/Users/test`) jsou od jejího kořene. Nahrazený je jen
+okraj systému: Electron (`test/setup/electron.ts` — dialogy, Finder, Koš, oznámení, vzhled okna),
+síť ARES a Fio (`backend.ares`, `backend.fio`), klíčenka, `osascript` pro Mail.app a druhý konec
+socketu MCP. Stav se připravuje na disku (`prepareVault`, `backend.invoice`, `backend.foreign`,
+`writeBytes`), ne nadiktovanou odpovědí. `backend.returns(…)` je jen pro odpověď, kterou skutečný
+hlavní proces vydat neumí (poškozený tvar); `breaks`/`fails`/`fault` jen pro selhání, které nejde
+vyrobit doopravdy (plný disk, zamčená klíčenka).
 
 ## Nástroje z `test/setup/`
 
@@ -47,7 +55,7 @@ backend z `test/setup/backend.ts` (`resetBackend()` v `nuxt-state.ts`), dál `vu
 | `LISTBOX` + `pick()`, `CHECKBOX` + `check()`    | rozbalovací seznamy a zaškrtávátka                                                                 |
 | `pickDate()`, `enterDate()`                     | datumová pole                                                                                      |
 | `date()`, `period()` (`dates.ts`)               | datum a období ve fixture                                                                          |
-| `backend` (`backend.ts`)                        | falešný hlavní proces: `returns(…)`, `fails(…)`, zaznamenaná volání                                |
+| `backend` (`backend.ts`)                        | skutečný hlavní proces nad dočasnou složkou, okraj systému a zaznamenaná volání                    |
 | `prepareVault()`, `saved()` (`vault.ts`)        | obsah vaultu před testem a co se do něj zapsalo                                                    |
 | `mountInvoice()`, `save(c)` (`invoice-page.ts`) | stránka faktury a uložení i s čekáním na konec ukládání                                            |
 

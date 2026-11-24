@@ -1,10 +1,10 @@
-import { flushPromises } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, ref } from 'vue';
 
 import DashboardRevenueChart from '~/components/dashboard/RevenueChart.vue';
 import { czkFromCents } from '~/utils/money';
 
+import { backend } from '../../setup/backend';
 import { CHART_TOKENS, mountUi } from '../../setup/mount';
 
 interface RevenueOption {
@@ -103,7 +103,7 @@ describe('DashboardRevenueChart', () => {
 			},
 			attrs: CHART_TOKENS,
 		});
-		await flushPromises();
+		await backend.settled();
 
 		const root = c.find<HTMLElement>('[data-testid="dashboard-revenue-chart"]');
 		expect(root.attributes('aria-label')).toBe('Sloupcový graf fakturace, 2 období');
@@ -138,7 +138,7 @@ describe('DashboardRevenueChart', () => {
 
 		root.element.style.setProperty('--chart-bar', '#123456');
 		observers.mutation?.();
-		await flushPromises();
+		await backend.settled();
 
 		expect(lastChart().option.series[0].data[0]).toEqual({
 			value: 150_000,
@@ -166,7 +166,7 @@ describe('DashboardRevenueChart', () => {
 					}),
 		});
 		mountUi(Host, { attrs: CHART_TOKENS });
-		await flushPromises();
+		await backend.settled();
 		expect(lastChart().option.xAxis.data).toEqual(['Březen']);
 
 		bars.value = [
@@ -175,7 +175,7 @@ describe('DashboardRevenueChart', () => {
 				value: 20,
 			},
 		];
-		await flushPromises();
+		await backend.settled();
 		expect(lastChart().option.xAxis.data).toEqual(['Duben']);
 	});
 });

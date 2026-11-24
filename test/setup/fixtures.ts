@@ -33,7 +33,7 @@ export function summary(number: string, over: Partial<InvoiceSummary> = {}): Inv
 		originalInvoice: '',
 		sentAt: null,
 		usageLines: [],
-		path: `/vault/${number}.pdf`,
+		path: `/vault/faktury/${number}.pdf`,
 		...over,
 	};
 }

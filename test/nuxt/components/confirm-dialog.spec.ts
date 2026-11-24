@@ -1,11 +1,11 @@
 import UButton from '@nuxt/ui/components/Button.vue';
-import { flushPromises } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import { defineComponent } from 'vue';
 
 import ConfirmDialog from '~/components/ConfirmDialog.vue';
 import { getUserConfirmation } from '~/composables/getUserConfirmation';
 
+import { backend } from '../../setup/backend';
 import { mountUi, layer } from '../../setup/mount';
 
 const base = {
@@ -24,7 +24,7 @@ async function open(props: Record<string, unknown> = {}) {
 			open: true,
 		},
 	});
-	await flushPromises();
+	await backend.settled();
 	return c;
 }
 
@@ -93,7 +93,7 @@ describe('ConfirmDialog', () => {
 	it('Escape zavře dialog a odpověď se překlopí na false', async () => {
 		mountUi(defineComponent({ template: '<div />' }));
 		const answer = getUserConfirmation('Položka zmizí z ceníku.', { title: 'Smazat položku?' });
-		await flushPromises();
+		await backend.settled();
 		expect(layer().find('[data-testid="dialog-heading"]').exists()).toBe(true);
 
 		window.dispatchEvent(
@@ -114,13 +114,13 @@ describe('ConfirmDialog', () => {
 			title: 'Smazat položku?',
 			signal: cancel.signal,
 		});
-		await flushPromises();
+		await backend.settled();
 		expect(layer().find('[data-testid="dialog-heading"]').exists()).toBe(true);
 
 		cancel.abort();
 
 		expect(await answer).toBe(false);
-		await flushPromises();
+		await backend.settled();
 		expect(layer().find('[data-testid="dialog-heading"]').exists()).toBe(false);
 	});
 

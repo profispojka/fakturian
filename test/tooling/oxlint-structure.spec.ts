@@ -18,7 +18,7 @@ new RuleTester({
 			lang: 'ts',
 		},
 	},
-}).run('no-composables-outside-root', noComposablesOutsideRoot as Parameters<RuleTester['run']>[1], {
+}).run('no-composables-outside-root', noComposablesOutsideRoot, {
 	valid: [
 		{
 			name: 'modulová inicializace v TypeScriptu je mimo rozsah pravidla',
@@ -457,7 +457,7 @@ new RuleTester({
 			lang: 'ts',
 		},
 	},
-}).run('max-emits', maxEmits as Parameters<RuleTester['run']>[1], {
+}).run('max-emits', maxEmits, {
 	valid: [
 		{
 			name: 'přesně tři explicitní události a libovolné modely',
@@ -661,63 +661,57 @@ new RuleTester({
 
 const multilineConst = ['const columns = [', "\t'name',", '];'].join('\n');
 
-new RuleTester().run(
-	'blank-line-around-multiline-statements',
-	blankLineAroundMultilineStatements as Parameters<RuleTester['run']>[1],
-	{
-		valid: [
-			{
-				name: 'jednořádkové příkazy zůstávají pohromadě',
-				code: ['const route = useRoute();', 'const gid = route.params.id;'].join('\n'),
-			},
-			{
-				name: 'víceřádkový příkaz už oddělený prázdným řádkem',
-				code: ['const route = useRoute();', '', multilineConst, '', 'const gid = route.params.id;'].join('\n'),
-			},
-			{
-				name: 'blok importů rovná oxfmt',
-				code: ['import {', '\tref,', "} from 'vue';", "import dayjs from 'dayjs';"].join('\n'),
-			},
-			{
-				name: 'do těla funkce pravidlo nesahá',
-				code: ['function load() {', '\tconst a = 1;', '\tif (a) {', '\t\treturn;', '\t}', '}'].join('\n'),
-			},
-		],
-		invalid: [
-			{
-				name: 'víceřádkový příkaz nalepený z obou stran',
-				code: ['const route = useRoute();', multilineConst, 'const gid = route.params.id;'].join('\n'),
-				output: ['const route = useRoute();', '', multilineConst, '', 'const gid = route.params.id;'].join(
-					'\n',
-				),
-				errors: [
-					{
-						messageId: 'missing',
-						line: 2,
-					},
-					{
-						messageId: 'missing',
-						line: 5,
-					},
-				],
-			},
-			{
-				name: 'komentář nad příkazem zůstává u něj',
-				code: ['const route = useRoute();', '// Sloupce se za běhu nemění.', multilineConst].join('\n'),
-				output: ['const route = useRoute();', '', '// Sloupce se za běhu nemění.', multilineConst].join('\n'),
-				errors: [{ messageId: 'missing' }],
-			},
-			{
-				name: 'komentář za předchozím příkazem zůstává na jeho řádku',
-				code: ['const route = useRoute(); // identita z routy', multilineConst].join('\n'),
-				output: ['const route = useRoute(); // identita z routy', '', multilineConst].join('\n'),
-				errors: [{ messageId: 'missing' }],
-			},
-		],
-	},
-);
+new RuleTester().run('blank-line-around-multiline-statements', blankLineAroundMultilineStatements, {
+	valid: [
+		{
+			name: 'jednořádkové příkazy zůstávají pohromadě',
+			code: ['const route = useRoute();', 'const gid = route.params.id;'].join('\n'),
+		},
+		{
+			name: 'víceřádkový příkaz už oddělený prázdným řádkem',
+			code: ['const route = useRoute();', '', multilineConst, '', 'const gid = route.params.id;'].join('\n'),
+		},
+		{
+			name: 'blok importů rovná oxfmt',
+			code: ['import {', '\tref,', "} from 'vue';", "import dayjs from 'dayjs';"].join('\n'),
+		},
+		{
+			name: 'do těla funkce pravidlo nesahá',
+			code: ['function load() {', '\tconst a = 1;', '\tif (a) {', '\t\treturn;', '\t}', '}'].join('\n'),
+		},
+	],
+	invalid: [
+		{
+			name: 'víceřádkový příkaz nalepený z obou stran',
+			code: ['const route = useRoute();', multilineConst, 'const gid = route.params.id;'].join('\n'),
+			output: ['const route = useRoute();', '', multilineConst, '', 'const gid = route.params.id;'].join('\n'),
+			errors: [
+				{
+					messageId: 'missing',
+					line: 2,
+				},
+				{
+					messageId: 'missing',
+					line: 5,
+				},
+			],
+		},
+		{
+			name: 'komentář nad příkazem zůstává u něj',
+			code: ['const route = useRoute();', '// Sloupce se za běhu nemění.', multilineConst].join('\n'),
+			output: ['const route = useRoute();', '', '// Sloupce se za běhu nemění.', multilineConst].join('\n'),
+			errors: [{ messageId: 'missing' }],
+		},
+		{
+			name: 'komentář za předchozím příkazem zůstává na jeho řádku',
+			code: ['const route = useRoute(); // identita z routy', multilineConst].join('\n'),
+			output: ['const route = useRoute(); // identita z routy', '', multilineConst].join('\n'),
+			errors: [{ messageId: 'missing' }],
+		},
+	],
+});
 
-new RuleTester().run('no-iife', noIife as Parameters<RuleTester['run']>[1], {
+new RuleTester().run('no-iife', noIife, {
 	valid: [
 		{
 			name: 'pojmenovaná funkce volaná zvlášť',
@@ -742,7 +736,7 @@ new RuleTester().run('no-iife', noIife as Parameters<RuleTester['run']>[1], {
 	],
 });
 
-new RuleTester().run('no-delete', noDelete as Parameters<RuleTester['run']>[1], {
+new RuleTester().run('no-delete', noDelete, {
 	valid: [
 		{
 			name: 'vynechání pole destrukturalizací',
@@ -772,7 +766,7 @@ new RuleTester().run('no-delete', noDelete as Parameters<RuleTester['run']>[1], 
 	],
 });
 
-new RuleTester().run('no-provide-inject', noProvideInject as Parameters<RuleTester['run']>[1], {
+new RuleTester().run('no-provide-inject', noProvideInject, {
 	valid: [
 		{
 			name: 'template ref zůstává povolený',
@@ -829,7 +823,7 @@ new RuleTester({
 			lang: 'ts',
 		},
 	},
-}).run('complexity', complexity as Parameters<RuleTester['run']>[1], {
+}).run('complexity', complexity, {
 	valid: [
 		{
 			name: 'optional chaining, ?? a výchozí parametr nevětví',

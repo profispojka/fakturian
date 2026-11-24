@@ -9,7 +9,6 @@ import { exactText } from './rules/exact-text.ts';
 import { noAliasFunction } from './rules/no-alias-function.ts';
 import { noContractMock } from './rules/no-contract-mock.ts';
 import { noDelete } from './rules/no-delete.ts';
-import { noDoubleAssertion } from './rules/no-double-assertion.ts';
 import { noIife } from './rules/no-iife.ts';
 import { noProvideInject } from './rules/no-provide-inject.ts';
 import { noWrappingIf } from './rules/no-wrapping-if.ts';
@@ -26,7 +25,6 @@ export default {
 		'blank-line-around-multiline-statements': blankLineAroundMultilineStatements,
 		'no-iife': noIife,
 		'no-delete': noDelete,
-		'no-double-assertion': noDoubleAssertion,
 		'no-wrapping-if': noWrappingIf,
 		'no-provide-inject': noProvideInject,
 		complexity,

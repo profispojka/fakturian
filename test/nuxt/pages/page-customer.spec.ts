@@ -1,4 +1,3 @@
-import { flushPromises } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useContacts } from '~/composables/useContacts';
@@ -54,6 +53,7 @@ describe('zakládání a úprava', () => {
 		await c.find('[data-testid="field-address-zip"]').setValue('110\u00a000');
 		await c.find('[data-testid="action-save"]').trigger('click');
 		await vi.waitFor(() => expect(currentPath()).toBe('/customers'));
+		await backend.settled();
 
 		expect(savedCustomers()).toEqual([original]);
 	});
@@ -70,6 +70,7 @@ describe('zakládání a úprava', () => {
 		await c.find('[data-testid="field-address-zip"]').setValue('11000');
 		await c.find('[data-testid="action-save"]').trigger('click');
 		await vi.waitFor(() => expect(currentPath()).toBe('/customers'));
+		await backend.settled();
 
 		expect(savedCustomers()).toEqual([expect.objectContaining({ name: 'Nová firma' })]);
 	});
@@ -83,6 +84,7 @@ describe('zakládání a úprava', () => {
 		await c.find('[data-testid="field-name"]').setValue('Studio Mráz s.r.o.');
 		await c.find('[data-testid="action-save"]').trigger('click');
 		await vi.waitFor(() => expect(currentPath()).toBe('/customers'));
+		await backend.settled();
 
 		expect(savedCustomers()).toEqual([contact('k1', { name: 'Studio Mráz s.r.o.' })]);
 	});
@@ -101,7 +103,7 @@ describe('zakládání a úprava', () => {
 		await c.find('[data-testid="field-ico"]').setValue('27082440');
 
 		await c.find('[data-testid="ares"]').trigger('click');
-		await flushPromises();
+		await backend.settled();
 
 		expect(c.find<HTMLInputElement>('[data-testid="field-name"]').element.value).toBe('Alza.cz a.s.');
 		expect(c.find<HTMLInputElement>('[data-testid="field-address-city"]').element.value).toBe('Praha');
@@ -126,7 +128,7 @@ describe('zakládání a úprava', () => {
 		expect(c.find<HTMLInputElement>('[data-testid="field-ico"]').element.disabled).toBe(true);
 
 		query.finish();
-		await flushPromises();
+		await backend.settled();
 
 		expect(c.find<HTMLInputElement>('[data-testid="field-ico"]').element.disabled).toBe(false);
 		expect(c.find<HTMLInputElement>('[data-testid="field-name"]').element.value).toBe('Alza.cz a.s.');
@@ -150,11 +152,11 @@ describe('zakládání a úprava', () => {
 		await nextTick();
 
 		const leaving = goto('/customers/k1');
-		await flushPromises();
+		await backend.settled();
 		await answerDialog(true);
 		await leaving;
 		query.finish();
-		await flushPromises();
+		await backend.settled();
 
 		expect(c.find<HTMLInputElement>('[data-testid="field-name"]').element.value).toBe('Studio Mráz');
 	});
@@ -180,7 +182,7 @@ describe('zakládání a úprava', () => {
 		await c.find('[data-testid="field-address-city"]').setValue('Brno');
 
 		await c.find('[data-testid="ares"]').trigger('click');
-		await flushPromises();
+		await backend.settled();
 
 		expect(c.find<HTMLInputElement>('[data-testid="field-name"]').element.value).toBe('Rozepsaná firma');
 		expect(c.find<HTMLInputElement>('[data-testid="field-address-city"]').element.value).toBe('Brno');
@@ -195,7 +197,7 @@ describe('zakládání a úprava', () => {
 		await c.find('[data-testid="field-ico"]').setValue('27082440');
 
 		await c.find('[data-testid="ares"]').trigger('click');
-		await flushPromises();
+		await backend.settled();
 
 		expect(c.find<HTMLInputElement>('[data-testid="field-name"]').element.value).toBe('Rozepsaná firma');
 	});
@@ -205,7 +207,7 @@ describe('zakládání a úprava', () => {
 		await c.find('[data-testid="field-name"]').setValue('Rozepsaná firma');
 
 		await c.find('[data-testid="ares"]').trigger('click');
-		await flushPromises();
+		await backend.settled();
 
 		expect(c.find<HTMLInputElement>('[data-testid="field-name"]').element.value).toBe('Rozepsaná firma');
 		expect(c.find('[data-testid="ares-error"]').exists()).toBe(false);
@@ -228,6 +230,7 @@ describe('zakládání a úprava', () => {
 		await c.find('[data-testid="customer-cancel"]').trigger('click');
 		await answerDialog(true);
 		await vi.waitFor(() => expect(currentPath()).toBe('/customers'));
+		await backend.settled();
 
 		expect(savedCustomers()).toEqual([contact('k1', { name: 'Studio Mráz' })]);
 	});
@@ -248,6 +251,7 @@ describe('zakládání a úprava', () => {
 				}),
 			),
 		);
+		await backend.settled();
 
 		expect(currentPath()).toBe('/customers/k1');
 		expect(c.find<HTMLInputElement>('[data-testid="field-name"]').element.value).toBe('Studio Mráz s.r.o.');
@@ -282,7 +286,7 @@ describe('zakládání a úprava', () => {
 		await c.find('[data-testid="field-name"]').setValue('Rozepsaná firma');
 
 		const closing = canDiscardUnsaved();
-		await flushPromises();
+		await backend.settled();
 		expect(layer().find('[data-testid="dialog-heading"]').text()).toBe('Zahodit neuložené změny?');
 
 		await answerDialog(false);
@@ -294,7 +298,7 @@ describe('zakládání a úprava', () => {
 		const c = await mountPage('/customers/new');
 
 		await c.find('[data-testid="action-save"]').trigger('click');
-		await flushPromises();
+		await backend.settled();
 
 		expect(savedCustomers()).toEqual([]);
 		expect(c.find('[data-testid="customer-fields"]').exists()).toBe(true);
@@ -306,7 +310,7 @@ describe('zakládání a úprava', () => {
 		await c.find('[data-testid="field-name"]').setValue('Jen jméno');
 
 		await c.find('[data-testid="action-save"]').trigger('click');
-		await flushPromises();
+		await backend.settled();
 
 		expect(savedCustomers()).toEqual([]);
 		expect(currentPath()).toBe('/customers/new');
@@ -322,7 +326,8 @@ describe('zakládání a úprava', () => {
 		await c.find('[data-testid="field-address-zip"]').setValue('30100');
 
 		await c.find('[data-testid="action-save"]').trigger('click');
-		await flushPromises();
+		await vi.waitFor(() => expect(currentPath()).toBe('/customers'));
+		await backend.settled();
 
 		expect(savedCustomers()).toEqual([
 			expect.objectContaining({
@@ -342,7 +347,8 @@ describe('zakládání a úprava', () => {
 		await c.find('[data-testid="field-note"]').setValue('platí po 30 dnech');
 
 		await c.find('[data-testid="action-save"]').trigger('click');
-		await flushPromises();
+		await vi.waitFor(() => expect(currentPath()).toBe('/customers'));
+		await backend.settled();
 
 		expect(savedCustomers()).toEqual([
 			expect.objectContaining({
@@ -368,7 +374,8 @@ describe('zakládání a úprava', () => {
 		await c.find('[data-testid="field-address-zip"]').setValue('11000');
 
 		await c.find('[data-testid="action-save"]').trigger('click');
-		await flushPromises();
+		await vi.waitFor(() => expect(currentPath()).toBe('/customers'));
+		await backend.settled();
 
 		expect(savedCustomers()).toEqual([expect.objectContaining({ name: 'Z pásu akcí' })]);
 	});
@@ -395,7 +402,8 @@ describe('zakládání a úprava', () => {
 		expect(original?.address.city).toBe('Praha');
 
 		await c.find('[data-testid="action-save"]').trigger('click');
-		await flushPromises();
+		await vi.waitFor(() => expect(currentPath()).toBe('/customers'));
+		await backend.settled();
 
 		expect(savedCustomers()).toEqual([
 			expect.objectContaining({

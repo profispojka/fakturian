@@ -1,4 +1,3 @@
-import { flushPromises } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { canDiscardUnsaved } from '~/composables/useForm';
@@ -114,6 +113,7 @@ describe('stránka položky ceníku', () => {
 				}),
 			]),
 		);
+		await backend.settled();
 		await vi.waitFor(() => expect(currentPath()).toBe('/pricelist'));
 	});
 
@@ -124,7 +124,7 @@ describe('stránka položky ceníku', () => {
 		await c.find('[data-testid="field-price"]').trigger('blur');
 
 		await c.find('[data-testid="price-save"]').trigger('click');
-		await flushPromises();
+		await backend.settled();
 
 		expect(savedPricelist()).toEqual([item('p1')]);
 		expect(currentPath()).toBe('/pricelist/p1');
@@ -136,6 +136,7 @@ describe('stránka položky ceníku', () => {
 		await c.find('[data-testid="price-save"]').trigger('click');
 
 		await vi.waitFor(() => expect(savedPricelist()).toEqual([expect.objectContaining({ name: 'Konzultace' })]));
+		await backend.settled();
 		expect(savedPricelist()[0]).not.toHaveProperty('note');
 	});
 
@@ -148,6 +149,7 @@ describe('stránka položky ceníku', () => {
 		await c.find('[data-testid="price-cancel"]').trigger('click');
 		await answerDialog(true);
 		await vi.waitFor(() => expect(currentPath()).toBe('/pricelist'));
+		await backend.settled();
 
 		expect(savedPricelist()).toEqual([item('p1', { name: 'Konzultace' })]);
 	});
@@ -168,6 +170,7 @@ describe('stránka položky ceníku', () => {
 				}),
 			),
 		);
+		await backend.settled();
 
 		expect(currentPath()).toBe('/pricelist/p1');
 		expect(c.find<HTMLInputElement>('[data-testid="field-name"]').element.value).toBe('Konzultace senior');
@@ -200,7 +203,7 @@ describe('stránka položky ceníku', () => {
 		await c.find('[data-testid="field-name"]').setValue('Rozepsaná');
 
 		const closing = canDiscardUnsaved();
-		await flushPromises();
+		await backend.settled();
 		expect(layer().find('[data-testid="dialog-heading"]').text()).toBe('Zahodit neuložené změny?');
 
 		await answerDialog(false);
@@ -234,17 +237,18 @@ describe('stránka položky ceníku', () => {
 		await c.find('[data-testid="field-annualLimit"]').setValue('160');
 		await c.find('[data-testid="field-annualLimit"]').trigger('blur');
 		await c.find('[data-testid="price-icon-trigger"]').trigger('click');
-		await flushPromises();
+		await backend.settled();
 		await layer().find('[data-testid="price-icon-i-lucide-tree-palm"]').trigger('click');
 		await c.find('[data-testid="price-save"]').trigger('click');
-		await flushPromises();
 
-		expect(savedPricelist()).toEqual([
-			expect.objectContaining({
-				icon: 'i-lucide-tree-palm',
-				annualLimit: 160,
-			}),
-		]);
+		await vi.waitFor(() =>
+			expect(savedPricelist()).toEqual([
+				expect.objectContaining({
+					icon: 'i-lucide-tree-palm',
+					annualLimit: 160,
+				}),
+			]),
+		);
 	});
 
 	it('tlačítko Uložit odešle formulář', async () => {
@@ -263,7 +267,7 @@ describe('stránka položky ceníku', () => {
 		expect(trigger.attributes('data-icon')).toBe('i-lucide-tree-palm');
 
 		await trigger.trigger('click');
-		await flushPromises();
+		await backend.settled();
 
 		expect(layer().find('[data-testid="price-icon-i-lucide-tree-palm"]').attributes('data-selected')).toBe('true');
 		expect(layer().find('[data-testid="price-icon-i-lucide-tag"]').attributes('data-selected')).toBeUndefined();
@@ -276,10 +280,10 @@ describe('stránka položky ceníku', () => {
 		expect(trigger.attributes('data-icon')).toBe('i-lucide-tag');
 
 		await trigger.trigger('click');
-		await flushPromises();
+		await backend.settled();
 		expect(layer().find('[data-testid="price-icon-none"]').attributes('data-selected')).toBe('true');
 		await layer().find('[data-testid="price-icon-i-lucide-camera"]').trigger('click');
-		await flushPromises();
+		await backend.settled();
 
 		expect(layer().find('[data-testid="price-icon-picker"]').exists()).toBe(false);
 		expect(trigger.attributes('data-icon')).toBe('i-lucide-camera');
@@ -290,15 +294,16 @@ describe('stránka položky ceníku', () => {
 		const c = await mountPage('/pricelist/p1');
 
 		await c.find('[data-testid="price-icon-trigger"]').trigger('click');
-		await flushPromises();
+		await backend.settled();
 		await layer().find('[data-testid="price-icon-none"]').trigger('click');
-		await flushPromises();
+		await backend.settled();
 		expect(c.find('[data-testid="price-icon-trigger"]').attributes('data-icon')).toBe('i-lucide-tag');
 
 		await c.find('[data-testid="field-name"]').setValue('Konzultace');
 		await c.find('[data-testid="price-save"]').trigger('click');
 
 		await vi.waitFor(() => expect(savedPricelist()).toEqual([expect.objectContaining({ name: 'Konzultace' })]));
+		await backend.settled();
 		expect(savedPricelist()).toEqual([expect.not.objectContaining({ icon: expect.anything() })]);
 	});
 
@@ -313,6 +318,7 @@ describe('stránka položky ceníku', () => {
 		await vi.waitFor(() =>
 			expect(c.find('[data-testid="annual-limit-field"] [data-slot="error"]').text()).toBe('Zadej číslo > 0.'),
 		);
+		await backend.settled();
 		expect(savedPricelist()).toEqual([]);
 	});
 });

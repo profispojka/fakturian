@@ -1,31 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { DocumentKind } from '~/constants/invoice';
 import { newInvoice } from '~/schemas/invoices';
 
 import { backend, wireInvoice } from '../../setup/backend';
 import { date } from '../../setup/dates';
-import { summary } from '../../setup/fixtures';
+import { completeSupplier, summary, validInvoice } from '../../setup/fixtures';
 import { connectAgent, replyTo, usageInVault, vaultWithContent } from '../../setup/mcp-client';
-import { documentInVault } from '../../setup/vault';
-
-function creditNoteInVault(number: string, original: string): void {
-	const inv = newInvoice(null, number);
-	inv.issueDate = date('2026-03-25');
-	inv.documentType = DocumentKind.CreditNote;
-	inv.originalInvoice = original;
-	// Znaménko dobropisu otáčí až součet v `list_invoices` dvojníka.
-	inv.lines = [
-		{
-			id: 'r1',
-			description: 'Práce',
-			quantity: 1,
-			unit: 'ks',
-			unitPriceCents: 121_000,
-		},
-	];
-	backend.folder('/vault').invoices.set(number, wireInvoice(inv));
-}
+import { creditNoteInVault, documentInVault } from '../../setup/vault';
 
 const PAID_IN_FULL = {
 	'20260001': [
@@ -44,7 +25,7 @@ beforeEach(async () => {
 describe('čtecí nástroje', () => {
 	it('list_invoices vrací částky v korunách a stav zaplacení', async () => {
 		await vaultWithContent({ payments: PAID_IN_FULL });
-		documentInVault(summary('20260001'));
+		await documentInVault(summary('20260001'));
 		await connectAgent();
 		const id = backend.mcp.call('list_invoices');
 
@@ -65,7 +46,7 @@ describe('čtecí nástroje', () => {
 	});
 
 	it('faktura bez záznamu o platbě je nezaplacená', async () => {
-		documentInVault(summary('20260001'));
+		await documentInVault(summary('20260001'));
 		await connectAgent();
 		const id = backend.mcp.call('list_invoices');
 
@@ -90,7 +71,7 @@ describe('čtecí nástroje', () => {
 				],
 			},
 		});
-		documentInVault(summary('20260001'));
+		await documentInVault(summary('20260001'));
 		await connectAgent();
 		const id = backend.mcp.call('list_invoices');
 
@@ -104,13 +85,22 @@ describe('čtecí nástroje', () => {
 	});
 
 	it('dobropisovanou fakturu bez platby nevydá za zaplacenou', async () => {
-		documentInVault(summary('20260001'));
-		creditNoteInVault('20260002', '20260001');
+		await documentInVault(summary('20260001'));
+		await creditNoteInVault('20260002', '20260001', {
+			issueDate: '2026-03-25',
+			dueDate: '2026-03-25',
+		});
 		await connectAgent();
 		const id = backend.mcp.call('list_invoices');
 
 		const reply = await replyTo(id);
 		expect(reply.result).toEqual([
+			expect.objectContaining({
+				number: '20260002',
+				originalInvoice: '20260001',
+				total: -1210,
+				paidAmount: 0,
+			}),
 			expect.objectContaining({
 				number: '20260001',
 				paid: false,
@@ -118,19 +108,16 @@ describe('čtecí nástroje', () => {
 				paidAmount: 0,
 				total: 1210,
 			}),
-			expect.objectContaining({
-				number: '20260002',
-				originalInvoice: '20260001',
-				total: -1210,
-				paidAmount: 0,
-			}),
 		]);
 	});
 
 	it('zaplacená a pak dobropisovaná faktura zůstane zaplacená', async () => {
 		await vaultWithContent({ payments: PAID_IN_FULL });
-		documentInVault(summary('20260001'));
-		creditNoteInVault('20260002', '20260001');
+		await documentInVault(summary('20260001'));
+		await creditNoteInVault('20260002', '20260001', {
+			issueDate: '2026-03-25',
+			dueDate: '2026-03-25',
+		});
 		await connectAgent();
 		const id = backend.mcp.call('get_invoice', { number: '20260001' });
 
@@ -145,7 +132,7 @@ describe('čtecí nástroje', () => {
 	});
 
 	it('get_invoice vrátí doklad i s částkou', async () => {
-		documentInVault(summary('20260001'));
+		await documentInVault(summary('20260001'));
 		await connectAgent();
 		const id = backend.mcp.call('get_invoice', { number: '20260001' });
 
@@ -177,7 +164,7 @@ describe('čtecí nástroje', () => {
 
 	it('get_invoice hlásí i stav zaplacení', async () => {
 		await vaultWithContent({ payments: PAID_IN_FULL });
-		documentInVault(summary('20260001'));
+		await documentInVault(summary('20260001'));
 		await connectAgent();
 		const id = backend.mcp.call('get_invoice', { number: '20260001' });
 
@@ -264,7 +251,7 @@ describe('čtecí nástroje', () => {
 	});
 
 	it('pricelist_status hlásí vykázání položek za rok', async () => {
-		usageInVault('20260001', 16);
+		await usageInVault('20260001', 16);
 		await connectAgent();
 		const id = backend.mcp.call('pricelist_status', { year: '2026' });
 
@@ -380,13 +367,26 @@ describe('čtecí nástroje', () => {
 	it('summary hlásí plátcovství z loňského překročení limitu', async () => {
 		vi.useFakeTimers();
 		vi.setSystemTime('2026-02-03T10:00');
-		documentInVault(
-			summary('20250001', {
-				totalCents: 2_100_000_00,
-				issueDate: date('2025-11-01'),
-				dueDate: date('2025-11-15'),
-			}),
-		);
+		// Přes limit vystavit nejde; obrat nad ním přinesou jen doklady převzaté z jiného softwaru.
+		const issued = newInvoice(completeSupplier(), '20250001');
+		issued.customer = validInvoice('20250001').customer;
+		issued.issueDate = date('2025-11-01');
+		issued.dueDate = date('2025-11-15');
+		issued.lines = [
+			{
+				id: 'r1',
+				description: 'Práce',
+				quantity: 1,
+				unit: 'ks',
+				unitPriceCents: 2_100_000_00,
+			},
+		];
+		await backend.foreign('/z-pohody.pdf', wireInvoice(issued));
+		await backend.command('import_documents', {
+			vaultPath: '/vault',
+			paths: ['/z-pohody.pdf'],
+			ourIco: '12345679',
+		});
 		await connectAgent();
 		const id = backend.mcp.call('summary', {});
 
@@ -421,7 +421,7 @@ describe('čtecí nástroje', () => {
 				},
 			],
 		});
-		documentInVault(
+		await documentInVault(
 			summary('20260001', {
 				totalCents: 100_000_000,
 				customer: 'Acme',
