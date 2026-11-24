@@ -21,6 +21,11 @@ export default defineNuxtConfig({
 
 	modules: ['@nuxt/ui'],
 
+	// Appka jede na systémovém písmu; `@nuxt/fonts` by si jinak při startu stahoval katalogy providerů.
+	ui: {
+		fonts: false,
+	},
+
 	css: ['~/assets/css/main.css'],
 
 	// Necháme @nuxt/icon prohledat šablony a všechny použité ikony zabundlovat přímo do klientského JS

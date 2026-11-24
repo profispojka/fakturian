@@ -43,7 +43,7 @@ binaries.
 
 The two files below are reproduced verbatim from `typst-assets`
 (https://github.com/typst/typst, workspace member `typst-assets`),
-version 0.15.0, as required by the Apache License, Version 2.0, section
+version 0.15.1, as required by the Apache License, Version 2.0, section
 4, and by the bundled font licenses:
 
   * its own Apache License, Version 2.0 text, and
@@ -2413,7 +2413,7 @@ Apache License
    limitations under the License.
 
 ================================================================================
-@myriaddreamin/typst-ts-node-compiler 0.8.0-rc3 (Apache-2.0)
+@myriaddreamin/typst-ts-node-compiler 0.8.0-rc4 (Apache-2.0)
 
 Apache License
                            Version 2.0, January 2004
@@ -2618,7 +2618,7 @@ Apache License
    limitations under the License.
 
 ================================================================================
-@myriaddreamin/typst-ts-node-compiler-darwin-arm64 0.8.0-rc3 (Apache-2.0)
+@myriaddreamin/typst-ts-node-compiler-darwin-arm64 0.8.0-rc4 (Apache-2.0)
 
 Apache License
                            Version 2.0, January 2004
@@ -4444,7 +4444,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ================================================================================
-@vue/reactivity 3.5.45 (MIT)
+@vue/reactivity 3.5.46 (MIT)
 
 The MIT License (MIT)
 
@@ -4469,7 +4469,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ================================================================================
-@vue/runtime-core 3.5.45 (MIT)
+@vue/runtime-core 3.5.46 (MIT)
 
 The MIT License (MIT)
 
@@ -4494,7 +4494,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ================================================================================
-@vue/runtime-dom 3.5.45 (MIT)
+@vue/runtime-dom 3.5.46 (MIT)
 
 The MIT License (MIT)
 
@@ -4519,7 +4519,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 ================================================================================
-@vue/shared 3.5.45 (MIT)
+@vue/shared 3.5.46 (MIT)
 
 The MIT License (MIT)
 
@@ -6089,7 +6089,6 @@ typst-assets is reproduced in full near the top of this file.
 | spin | 0.9.8 | MIT | MIT |
 | stacker | 0.1.24 | MIT OR Apache-2.0 | MIT |
 | subsetter | 0.2.6 | MIT OR Apache-2.0 | MIT |
-| svgtypes | 0.15.3 | Apache-2.0 OR MIT | MIT |
 | svgtypes | 0.16.1 | Apache-2.0 OR MIT | MIT |
 | syntect | 5.3.0 | MIT | MIT |
 | tar | 0.4.46 | MIT OR Apache-2.0 | MIT |
@@ -6098,7 +6097,6 @@ typst-assets is reproduced in full near the top of this file.
 | time | 0.3.49 | MIT OR Apache-2.0 | MIT |
 | tiny-skia | 0.12.0 | BSD-3-Clause | BSD-3-Clause |
 | tiny-skia-path | 0.12.0 | BSD-3-Clause | BSD-3-Clause |
-| tiny-skia-path | 0.11.4 | BSD-3-Clause | BSD-3-Clause |
 | tinymist-package | 0.15.0 | Apache-2.0 | Apache-2.0 |
 | tinymist-project | 0.15.0 | Apache-2.0 | Apache-2.0 |
 | tinymist-std | 0.15.0 | Apache-2.0 | Apache-2.0 |
@@ -6118,7 +6116,7 @@ typst-assets is reproduced in full near the top of this file.
 | ttf-parser | 0.25.1 | MIT OR Apache-2.0 | MIT |
 | two-face | 0.4.5 | MIT OR Apache-2.0 | MIT |
 | typed-arena | 2.0.2 | MIT | MIT |
-| typst-assets | 0.15.0 | Apache-2.0 | Apache-2.0 |
+| typst-assets | 0.15.1 | Apache-2.0 | Apache-2.0 |
 | unicode-bidi | 0.3.18 | MIT OR Apache-2.0 | MIT |
 | unicode-bidi-mirroring | 0.4.0 | MIT/Apache-2.0 | MIT |
 | unicode-math-class | 0.1.0 | MIT OR Apache-2.0 | MIT |
@@ -6257,7 +6255,7 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 --------------------------------------------------------------------------------
-BSD-3-Clause applies to: tiny-skia 0.12.0, tiny-skia-path 0.12.0, tiny-skia-path 0.11.4
+BSD-3-Clause applies to: tiny-skia 0.12.0, tiny-skia-path 0.12.0
 
 Copyright (c) 2011 Google Inc. All rights reserved.
 Copyright (c) 2020 Yevhenii Reizner All rights reserved.
@@ -8229,7 +8227,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 --------------------------------------------------------------------------------
-MIT applies to: svgtypes 0.15.3, svgtypes 0.16.1, ttf-parser 0.25.1
+MIT applies to: svgtypes 0.16.1, ttf-parser 0.25.1
 
 Copyright (c) 2018 Yevhenii Reizner
 

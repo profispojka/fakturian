@@ -6,7 +6,9 @@ import { componentPath } from './rules/component-path.ts';
 import { constantsDataOnly } from './rules/constants-data-only.ts';
 import { errorTextRule } from './rules/error-text.ts';
 import { exactText } from './rules/exact-text.ts';
+import { maxEmits } from './rules/max-emits.ts';
 import { noAliasFunction } from './rules/no-alias-function.ts';
+import { noComposablesOutsideRoot } from './rules/no-composables-outside-root.ts';
 import { noContractMock } from './rules/no-contract-mock.ts';
 import { noDelete } from './rules/no-delete.ts';
 import { noIife } from './rules/no-iife.ts';
@@ -40,5 +42,7 @@ export default {
 		'comment-style': commentStyle,
 		'exact-text': exactText,
 		'object-multiline': objectMultiline,
+		'max-emits': maxEmits,
+		'no-composables-outside-root': noComposablesOutsideRoot,
 	},
 };

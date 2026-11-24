@@ -97,9 +97,13 @@ jen globální průměr. Pokrytí zahrnuje `src/**` i `desktop/**/*.ts`; vylouč
 jsou data fixtures, testy a ukázky v `desktop/test/` a `desktop/examples/`
 a soubory, které nenesou spustitelný kód (`*.d.ts`).
 
-`src/bindings.ts` je součástí měření. Testy Vue vrstvy nahrazují až most
-`globalThis.fakturian` (`test/setup/backend.ts`), takže obaly `commands.*` se
-spouštějí doopravdy. Testy hlavního procesu nahrazují jen modul `electron`
+`src/bindings.ts` je součástí měření. Testy Vue vrstvy volají přes most
+`globalThis.fakturian` (`test/setup/backend.ts`) skutečný `desktop/commands.ts`
+nad dočasnou složkou, takže okno i hlavní proces běží doopravdy spolu. Projekt
+`nuxt` k tomu přesměruje modul `electron` na `test/setup/electron.ts` (dialogy,
+Finder, Koš, oznámení, vzhled okna) a síť ARES a Fio na rejstřík testu; token
+Fio drží hlavní proces jen v paměti (`keepTokenInMemory`) a Mail.app se místo
+`osascript` jen zapíše. Testy hlavního procesu nahrazují jen modul `electron`
 (`vi.mock('electron', …)`); moduly `desktop/` běží v Node doopravdy, nad
 skutečným souborovým systémem v dočasné složce.
 
@@ -200,9 +204,9 @@ i do sdílené tabulky (`test/fixtures/money-parity.json`,
 `document-number-parity.json`), kterou čtou testy frontendu i hlavního procesu.
 
 Souběh hlídá `test/nuxt/integration/concurrency.spec.ts`. `backend.scheduler` (scheduler
-z `fast-check`) rozhoduje, kdy se asynchronní příkaz provede a kdy odpoví —
-mezi tím může doběhnout jiný, jako v hlavním procesu, kde příkaz čeká na disk,
-síť nebo jiný proces. Čtení a zápis datových souborů (`write_data_file`,
+z `fast-check`) rozhoduje, kdy se asynchronní příkaz skutečného hlavního procesu
+spustí a kdy jeho odpověď dojde do okna — mezi tím může doběhnout jiný, jako
+v appce, kde příkaz čeká na disk, síť nebo jiný proces. Čtení a zápis datových souborů (`write_data_file`,
 `read_data_file`) hlavní proces řadí za sebe (fronta `exclusive`
 v `desktop/store.ts`), takže je scheduler nepřeskládává. `backend.fault` nechá
 selhat jen vybraná volání. Seznam `ASYNC_COMMANDS` v `test/setup/backend.ts`

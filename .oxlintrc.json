@@ -14,7 +14,7 @@
 	"ignorePatterns": ["node_modules", ".nuxt", ".output", "dist", "build", "coverage"],
 	// Vlastní pravidla z `tools/lint/` se zapínají globálně nebo po složkách v `overrides`.
 	// Na rozdíl od type-aware pravidel dopadají i na `<script>` ve `.vue`.
-	"jsPlugins": ["./tools/lint/oxlint-fakturian.ts", "./tools/lint/guardrails.mjs"],
+	"jsPlugins": ["./tools/lint/oxlint-fakturian.ts"],
 	"rules": {
 		"unicorn/no-array-sort": "error",
 		"no-new": "error",
@@ -180,7 +180,7 @@
 				"fakturian/no-wrapping-if": "error",
 				"fakturian/no-provide-inject": "error",
 				"fakturian/complexity": ["error", { "max": 20 }],
-				"fakturian-guards/no-composables-outside-root": "error",
+				"fakturian/no-composables-outside-root": "error",
 				"fakturian/no-alias-function": "error",
 				"fakturian/comment-style": "error",
 				"typescript/no-unsafe-argument": "error",
@@ -389,7 +389,7 @@
 			"files": ["src/components/**/*.vue"],
 			"rules": {
 				"fakturian/component-path": "error",
-				"fakturian-guards/max-emits": ["error", { "max": 3 }]
+				"fakturian/max-emits": ["error", { "max": 3 }]
 			}
 		},
 		{
@@ -462,7 +462,7 @@
 		{
 			"files": ["**/*.{test,spec}.{js,jsx,ts,tsx,vue}"],
 			"rules": {
-				"fakturian-guards/no-conditional-in-test": "error",
+				"vitest/no-conditional-in-test": "error",
 				"no-restricted-properties": [
 					"error",
 					{

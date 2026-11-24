@@ -6,6 +6,8 @@ import { invoiceTotalCents } from '~/utils/invoice';
 import { czkFromCents, czkWholeFromCents, lineCents, roundCents } from '~/utils/money';
 import { z } from '~/utils/zod';
 
+import moneyParity from '../fixtures/money-parity.json';
+
 const NBSP = String.fromCharCode(0x00a0);
 
 const CAP = BigInt(MAX_CENTS);
@@ -139,24 +141,20 @@ describe('lineCents', () => {
 });
 
 describe('sdílená tabulka zaokrouhlení', () => {
-	it('částky řádků sedí s tabulkou', async () => {
-		const table = await import('../fixtures/money-parity.json');
+	it('částky řádků sedí s tabulkou', () => {
 		// Trojice, ne `number[][]`: bez schématu by z JSONu vylezlo pole neurčité délky a `[q, p,
 		// ocekavano]` by z něj destrukturovalo `number | undefined`.
 		const { cases } = z
 			.object({ cases: z.array(z.tuple([z.number(), z.number(), z.number()])) })
-			.parse(table.default ?? table);
+			.parse(moneyParity);
 		expect(cases).toHaveLength(26);
 		for (const [q, p, expected] of cases) {
 			expect(lineCents(q, p), `${q} × ${p}`).toBe(expected);
 		}
 	});
 
-	it('částka se ve formuláři vypíše stejně jako v PDF', async () => {
-		const table = await import('../fixtures/money-parity.json');
-		const { formats } = z
-			.object({ formats: z.array(z.tuple([z.number(), z.string()])) })
-			.parse(table.default ?? table);
+	it('částka se ve formuláři vypíše stejně jako v PDF', () => {
+		const { formats } = z.object({ formats: z.array(z.tuple([z.number(), z.string()])) }).parse(moneyParity);
 		expect(formats).toHaveLength(13);
 		for (const [cents, text] of formats) {
 			expect(czkFromCents(cents), `${cents}`).toBe(`${text}${NBSP}Kč`);
