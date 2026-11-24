@@ -1,4 +1,5 @@
 import { ancestorsOf, importedNameOf, isFunction, keyName, memberName } from './shared/ast.ts';
+
 import type { AnyFunctionNode, Rule, SourceCode } from './shared/types.ts';
 
 function isComposableRoot(node: AnyFunctionNode, sourceCode: SourceCode): boolean {
@@ -26,7 +27,9 @@ function isComposableRoot(node: AnyFunctionNode, sourceCode: SourceCode): boolea
 	const property = parent.type === 'ArrayExpression' ? parent.parent : parent;
 	if (property.type !== 'Property' || keyName(property.key) !== 'middleware') return false;
 	const call = property.parent.parent;
-	return call?.type === 'CallExpression' && call.callee.type === 'Identifier' && call.callee.name === 'definePageMeta';
+	return (
+		call?.type === 'CallExpression' && call.callee.type === 'Identifier' && call.callee.name === 'definePageMeta'
+	);
 }
 
 export const noComposablesOutsideRoot: Rule = {

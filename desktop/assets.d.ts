@@ -1,9 +1,4 @@
-declare module '*.typ' {
-	const text: string;
-	export default text;
-}
-
-declare module '*.xsd' {
+declare module '*?raw' {
 	const text: string;
 	export default text;
 }

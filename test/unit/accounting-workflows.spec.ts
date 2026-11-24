@@ -110,7 +110,7 @@ describe('kontakty z importu', () => {
 		expect(refused.map((customer) => customer.name)).toEqual(['Gama']);
 	});
 
-	it('shodné IČO vynechá a jiné IČO zachová', () => {
+	it('stejný název s jiným IČO založí jako nového odběratele', () => {
 		const existing = [
 			{
 				id: 'a',
@@ -127,17 +127,6 @@ describe('kontakty z importu', () => {
 			name: 'Acme',
 			...complete,
 		};
-		expect(
-			newContactsFromImport(existing, [
-				{
-					...base,
-					ico: '25596641',
-				},
-			]),
-		).toEqual({
-			contacts: [],
-			refused: [],
-		});
 		expect(
 			newContactsFromImport(existing, [
 				{

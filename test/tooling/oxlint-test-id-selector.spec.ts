@@ -34,12 +34,12 @@ tester.run('test-id-selector', testIdSelector, {
 			code: `c.find('[name="address.zip"]');`,
 		},
 		{
-			name: 'konstanta ze setupu',
-			code: 'c.find(LISTBOX); c.findAll(CHECKBOX);',
+			name: 'šipky roku v UCalendar',
+			code: `overlay(PopoverContent).find('button[aria-label="Předchozí rok"]'); overlay(PopoverContent).find('button[aria-label="Další rok"]');`,
 		},
 		{
 			name: 'řádek nabídky',
-			code: `layer().findAll('[role="option"]');`,
+			code: `overlay(SelectContent).findAll('[role="option"]');`,
 		},
 		{
 			name: 'skupina palety',
@@ -51,7 +51,7 @@ tester.run('test-id-selector', testIdSelector, {
 		},
 		{
 			name: 'křížek UModal',
-			code: `layer().find('button[aria-label="Zavřít"]');`,
+			code: `overlay(DialogContent).find('button[aria-label="Zavřít"]');`,
 		},
 		{
 			name: 'find nad polem',

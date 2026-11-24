@@ -52,7 +52,7 @@ vyrobit doopravdy (plný disk, zamčená klíčenka).
 | `answerDialog(true \| false)`                   | klik ve skutečném `ConfirmDialog`; otázku čti z `dialog-heading` a `dialog-message` přes `layer()` |
 | `dialogDestructive()`                           | je potvrzovací tlačítko červené                                                                    |
 | `shortcut(key)`                                 | ⌘+klávesa do okna, vrací událost                                                                   |
-| `LISTBOX` + `pick()`, `CHECKBOX` + `check()`    | rozbalovací seznamy a zaškrtávátka                                                                 |
+| `pick()`, `check()`                             | rozbalovací seznamy a zaškrtávátka                                                                 |
 | `pickDate()`, `enterDate()`                     | datumová pole                                                                                      |
 | `date()`, `period()` (`dates.ts`)               | datum a období ve fixture                                                                          |
 | `backend` (`backend.ts`)                        | skutečný hlavní proces nad dočasnou složkou, okraj systému a zaznamenaná volání                    |

@@ -100,14 +100,14 @@ function exportedNames(source: string): string[] {
 const isMentionedElsewhere = (name: string, file: string) =>
 	[...(mentions.get(name) ?? [])].some((referrer) => referrer !== file);
 
+const orphans = files.flatMap((file) => {
+	const names = file.endsWith('.vue') ? [componentName(file)] : exportedNames(readFileSync(file, 'utf8'));
+	const used = imported.has(file) || names.some((name) => isMentionedElsewhere(name, file));
+	return used ? [] : [`${file} (${names.join(' / ') || '—'})`];
+});
+
 describe('žádné osiřelé soubory', () => {
 	it('na každý soubor vede odkaz z aplikace', () => {
-		const orphans = files.flatMap((file) => {
-			const names = file.endsWith('.vue') ? [componentName(file)] : exportedNames(readFileSync(file, 'utf8'));
-			const used = imported.has(file) || names.some((name) => isMentionedElsewhere(name, file));
-			return used ? [] : [`${file} (${names.join(' / ') || '—'})`];
-		});
-
 		expect(
 			orphans,
 			`${orphans.join('\n')}\nNa tyhle soubory nevede odkaz z aplikace (import ani auto-import jména v závorce). Zapoj je, nebo smaž.`,

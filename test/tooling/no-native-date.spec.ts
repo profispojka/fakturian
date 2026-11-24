@@ -64,7 +64,7 @@ it('rozliší nativní datum od textu, typu a klíče datového objektu', () => 
 	expect(usesNativeDate(compiled.code)).toBe(true);
 });
 
-it('Vue šablony ani HTML skripty nepoužívají nativní Date', () => {
+function nativeDateUses(): string[] {
 	const root = resolve(import.meta.dirname, '../..');
 	const violations: string[] = [];
 	const files = globSync(['{src,public}/**/*.{vue,html}'], { cwd: root });
@@ -90,6 +90,9 @@ it('Vue šablony ani HTML skripty nepoužívají nativní Date', () => {
 			}
 		}
 	}
+	return violations;
+}
 
-	expect(violations).toEqual([]);
+it('Vue šablony ani HTML skripty nepoužívají nativní Date', () => {
+	expect(nativeDateUses()).toEqual([]);
 });

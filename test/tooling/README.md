@@ -9,14 +9,13 @@ ji shodí přes `git diff --exit-code`) a v `.claude/hooks/verify.sh`.
 Pravidla jsou přizpůsobená struktuře a kontraktům Fakturianu. Přísnější zdejší
 pravidlo má přednost, zejména samostatný `await`, validace, testovací značky a objekty.
 
-| Kde                      | Co hlídá                                                                                                                         |
-| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| `tools/lint/rules/*.ts`  | Každé pravidlo ve vlastním souboru: řádkování, validace konvencí, struktura kódu a rozhodovací složitost.                        |
-| `tools/lint/rules/*.mjs` | Samostatná pravidla pro počet událostí, kořen composables a podmíněné testové kroky.                                             |
-| `eslint.config.ts`       | PascalCase komponent, zákaz mutace props, nejvýš sedm props, události na konci atributů, zákaz nativního `<a>` a `@vue:*` hooků. |
-| `.oxlintrc.json`         | Zákaz `defineExpose`, script URL, nepřímého `eval` a zbytečných typových asercí; stávající pravidla Fakturianu.                  |
+| Kde                     | Co hlídá                                                                                                                         |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `tools/lint/rules/*.ts` | Každé pravidlo ve vlastním souboru: řádkování, validace konvencí, struktura kódu a rozhodovací složitost.                        |
+| `eslint.config.ts`      | PascalCase komponent, zákaz mutace props, nejvýš sedm props, události na konci atributů, zákaz nativního `<a>` a `@vue:*` hooků. |
+| `.oxlintrc.json`        | Zákaz `defineExpose`, script URL, nepřímého `eval` a zbytečných typových asercí; stávající pravidla Fakturianu.                  |
 
-`tools/lint/oxlint-fakturian.ts` a `tools/lint/guardrails.mjs` pouze registrují pravidla.
+`tools/lint/oxlint-fakturian.ts` pouze registruje pravidla.
 Společné typy a skutečně sdílené AST pomocníky drží `tools/lint/rules/shared/`. Testy
 importují jednotlivá pravidla přímo.
 
@@ -26,10 +25,8 @@ Každá vnořená funkce má vlastní počet. Prázdné řádky doplňuje Oxlint
 Kontrola composables rozpozná přejmenované importy. Celá složka `src/plugins/`
 dovoluje i vnořená volání; `useOverlay` je povolený také v obsluze dialogů.
 
-Kontrola testů rozpozná importové aliasy, `each`, vnořené funkce a předčasný návrat
-přeskakující aserce. Výpočty hodnot, implementace mocků a callbacky bez testových kroků
-jsou povolené. Callback prohlížeče smí podmíněně pracovat s DOM, nesmí podmínit aserci.
-Generovaný model souběhu lze deklarovat samostatně a ověřit přes `assert`;
+Podmínky v testech hlídá vestavěné `vitest/no-conditional-in-test` ve všech `*.spec.*`
+a `*.test.*`. Generovaný model souběhu lze deklarovat samostatně a ověřit přes `assert`;
 `vitest/no-standalone-expect` zná `asyncProperty` a `property` jako testové bloky.
 
 ## Statické kontroly aplikace
@@ -45,6 +42,7 @@ Generovaný model souběhu lze deklarovat samostatně a ověřit přes `assert`;
 | `no-native-date.spec.ts`          | Nativní `Date` není ani ve Vue šablonách a HTML skriptech v `src/` a `public/`.                                    |
 | `no-orphan-files.spec.ts`         | Na soubory aplikačních modulů vede import nebo auto-import.                                                        |
 | `no-unused-exports.spec.ts`       | Export má použití i mimo svou deklaraci.                                                                           |
+| `no-javascript.spec.ts`           | V repu není `.js`, `.mjs`, `.cjs` ani `.jsx`; zdrojáky, konfigurace i nástroje jsou v TypeScriptu.                 |
 
 Hledání použití zahrnuje frontend, hlavní proces, nástroje, podporu testů a showcase harness,
 protože sdílená schémata a výpočty mají platné konzumenty i tam. Samotný spec použitím není.

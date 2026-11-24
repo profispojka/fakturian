@@ -15,6 +15,7 @@ import { noIife } from './rules/no-iife.ts';
 import { noProvideInject } from './rules/no-provide-inject.ts';
 import { noWrappingIf } from './rules/no-wrapping-if.ts';
 import { objectMultiline } from './rules/object-multiline.ts';
+import { selectorLiteral } from './rules/selector-literal.ts';
 import { shortcutGuard } from './rules/shortcut-guard.ts';
 import { submitByButton } from './rules/submit-by-button.ts';
 import { testIdSelector } from './rules/test-id-selector.ts';
@@ -34,6 +35,7 @@ export default {
 		'error-text': errorTextRule,
 		'shortcut-guard': shortcutGuard,
 		'test-id-selector': testIdSelector,
+		'selector-literal': selectorLiteral,
 		'submit-by-button': submitByButton,
 		'constants-data-only': constantsDataOnly,
 		'no-contract-mock': noContractMock,

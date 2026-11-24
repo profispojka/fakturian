@@ -66,15 +66,15 @@ function infiniteVue(source: string): string[] {
 
 describe('Dekorativní animace mají konec', () => {
 	it('CSS a Vue šablony nepovolí nekonečný pohyb mimo indikátory načítání', () => {
-		const violations = globSync('src/**/*.{css,vue}')
-			.toSorted()
-			.flatMap((file) => {
-				const source = readFileSync(file, 'utf8');
-				return (file.endsWith('.vue') ? infiniteVue(source) : infiniteCss(source)).map(
-					(violation) => `${file}: ${violation}`,
-				);
-			});
-		expect(violations).toEqual([]);
+		const violations = [
+			...globSync('src/**/*.css').flatMap((file) =>
+				infiniteCss(readFileSync(file, 'utf8')).map((violation) => `${file}: ${violation}`),
+			),
+			...globSync('src/**/*.vue').flatMap((file) =>
+				infiniteVue(readFileSync(file, 'utf8')).map((violation) => `${file}: ${violation}`),
+			),
+		];
+		expect(violations.toSorted()).toEqual([]);
 	});
 
 	it.each([

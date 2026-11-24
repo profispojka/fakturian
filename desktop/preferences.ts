@@ -1,11 +1,11 @@
 import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join } from 'node:path';
 
-import { errorText, issuesText } from '~/utils/errors';
+import { issuesText } from '~/utils/errors';
 import { z } from '~/utils/zod';
 
 import { parseJson } from './store.ts';
-import { errorCode, writeAtomic } from './util.ts';
+import { diskProblem, errorCode, writeAtomic } from './util.ts';
 
 // Stryker disable next-line StringLiteral: neplatné kódování hodí RangeError už při importu, takže se nespustí žádný test.
 const UTF8 = new TextDecoder('utf-8', { fatal: true });
@@ -47,7 +47,7 @@ export async function loadVaultPath(): Promise<string | null> {
 	} catch (error) {
 		// Chybějící soubor je první spuštění: datovou složku ještě nikdo nevybral.
 		if (errorCode(error) === 'ENOENT') return null;
-		throw new Error(`Nastavení appky ${file} nejde přečíst: ${errorText(error)}`, { cause: error });
+		throw new Error(`Nastavení appky ${file} nejde přečíst: ${diskProblem(error)}`, { cause: error });
 	}
 	let json: unknown;
 	try {
@@ -70,7 +70,7 @@ export async function saveVaultPath({ vaultPath }: { vaultPath: string }): Promi
 		await mkdir(dirname(file), { recursive: true });
 		await writeAtomic(file, new TextEncoder().encode(JSON.stringify(preferences.data, null, 2)));
 	} catch (error) {
-		throw new Error(`Nastavení appky ${file} nejde uložit: ${errorText(error)}`, { cause: error });
+		throw new Error(`Nastavení appky ${file} nejde uložit: ${diskProblem(error)}`, { cause: error });
 	}
 	return null;
 }

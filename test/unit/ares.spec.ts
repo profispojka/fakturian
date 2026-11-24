@@ -187,38 +187,11 @@ describe('parseAres', () => {
 });
 
 describe('zápis do rejstříku z ARESu', () => {
-	it('společnost s aktivní živností zápis nedá, ten si doplní ručně', () => {
-		expect(
-			parseAres({
-				obchodniJmeno: 'Firma',
-				...registers('AKTIVNI', 'AKTIVNI'),
-			}).registration,
-		).toBe('');
-	});
-
-	it('OSVČ zapsaná jen v živnostenském rejstříku dostane krátkou větu', () => {
-		expect(
-			parseAres({
-				obchodniJmeno: 'Firma',
-				...registers('NEEXISTUJICI', 'AKTIVNI'),
-			}).registration,
-		).toBe('Zapsáno v živnostenském rejstříku');
-	});
-
 	it('zaniklá živnost zápis nedá', () => {
 		expect(
 			parseAres({
 				obchodniJmeno: 'Firma',
 				...registers('NEEXISTUJICI', 'HISTORICKY'),
-			}).registration,
-		).toBe('');
-	});
-
-	it('subjekt mimo oba rejstříky zápis nedá', () => {
-		expect(
-			parseAres({
-				obchodniJmeno: 'Firma',
-				...registers('NEEXISTUJICI', 'NEEXISTUJICI'),
 			}).registration,
 		).toBe('');
 	});

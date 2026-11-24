@@ -72,12 +72,17 @@ const targets = files.flatMap((file) =>
 	})),
 );
 
+const unused = targets
+	.filter((target) => !ALLOWED.has(target.key) && !isUsed(target.name, target.file))
+	.map((target) => target.key);
+
+const stale = [...ALLOWED.keys()].filter((key) => {
+	const target = targets.find((candidate) => candidate.key === key);
+	return !target || isUsed(target.name, target.file);
+});
+
 describe('žádné nepoužité exporty', () => {
 	it('každý export někdo používá', () => {
-		const unused = targets
-			.filter((target) => !ALLOWED.has(target.key) && !isUsed(target.name, target.file))
-			.map((target) => target.key);
-
 		expect(
 			unused,
 			`${unused.join('\n')}\nTyhle exporty nikdo nepoužívá — ani jiný soubor v src/, ani jejich vlastní. Zapoj je, smaž, nebo přidej do ALLOWED s důvodem.`,
@@ -85,11 +90,6 @@ describe('žádné nepoužité exporty', () => {
 	});
 
 	it('ALLOWED nedrží výjimky, které už neplatí', () => {
-		const stale = [...ALLOWED.keys()].filter((key) => {
-			const target = targets.find((candidate) => candidate.key === key);
-			return !target || isUsed(target.name, target.file);
-		});
-
 		expect(stale, `Tyhle výjimky jsou zbytečné (export zmizel nebo se používá): ${stale.join(', ')}`).toEqual([]);
 	});
 });

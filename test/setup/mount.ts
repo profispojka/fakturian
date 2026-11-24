@@ -147,10 +147,6 @@ export const CHART_TOKENS = {
 	style: '--chart-bar:#2e8b57; --danger:#c4483f; --line:#101010; --line-soft:#303030; --ink:#252525; --ink-3:#6f6f6f; --card:#ffffff',
 };
 
-export const CHECKBOX = '[role="checkbox"]';
-
-export const LISTBOX = '[role="combobox"],[aria-haspopup="listbox"]';
-
 export function layer(): DOMWrapper<HTMLElement> {
 	return new DOMWrapper(document.body);
 }

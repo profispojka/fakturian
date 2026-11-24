@@ -3,7 +3,7 @@ import { createRequire, syncBuiltinESMExports } from 'node:module';
 
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import SCHEMA from '../../isdoc/isdoc-invoice-6.0.2.xsd';
+import SCHEMA from '../../isdoc/isdoc-invoice-6.0.2.xsd?raw';
 import { fixture } from '../isdoc.ts';
 
 import type { Validation } from '../../isdoc/validator.ts';

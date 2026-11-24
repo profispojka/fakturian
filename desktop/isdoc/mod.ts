@@ -17,7 +17,7 @@ import { Tinypool } from 'tinypool';
 
 import { MAX_CENTS } from '~/bindings';
 
-import SCHEMA from './isdoc-invoice-6.0.2.xsd';
+import SCHEMA from './isdoc-invoice-6.0.2.xsd?raw';
 
 import type { Validation } from './validator.ts';
 

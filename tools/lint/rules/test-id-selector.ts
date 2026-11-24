@@ -8,6 +8,8 @@ const NUXT_UI_SELECTORS = new Set([
 	'[data-slot="label"]',
 	'[data-slot="links"] button',
 	'button[aria-label="Zavřít"]',
+	'button[aria-label="Předchozí rok"]',
+	'button[aria-label="Další rok"]',
 ]);
 
 const FORM_FIELD = /^\[name="[^"]+"\]$/;

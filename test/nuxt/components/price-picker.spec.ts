@@ -1,8 +1,8 @@
+import { flushPromises } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import PricePicker from '~/components/invoice/PricePicker.vue';
 
-import { backend } from '../../setup/backend';
 import { layer, mountUi } from '../../setup/mount';
 
 describe('PricePicker', () => {
@@ -21,12 +21,12 @@ describe('PricePicker', () => {
 				remaining: () => 0,
 			},
 		});
-		await backend.settled();
+		await flushPromises();
 
 		await layer().find('[data-testid="pricelist-insert"]').trigger('click');
-		await backend.settled();
+		await flushPromises();
 		await layer().find('[data-testid="pricelist-insert"]').trigger('click');
-		await backend.settled();
+		await flushPromises();
 
 		expect(c.emitted('add')).toEqual([[item], [item]]);
 		expect(layer().find('[data-testid="pricelist-pick"]').exists()).toBe(true);

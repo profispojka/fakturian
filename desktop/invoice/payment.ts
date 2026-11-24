@@ -1,5 +1,4 @@
 import { encode } from 'fast-png';
-// @ts-types="@types/qrcode"
 import { create } from 'qrcode';
 
 import { invoiceTotalCents, variableSymbolFor } from '~/utils/invoice';

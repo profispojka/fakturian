@@ -20,6 +20,8 @@ c.findAll('[data-testid^="menu-section"]');
 
 Žádné obaly kolem selektoru (`tid('action-save')`, `button(c, 'Uložit')`) — funkce jen schová, na
 co se sahá. Pomocník, který nese postup s čekáním, je jiná věc (`save(c)` ve skillu `vue-testy`).
+Ani konstanty (`find(CHECKBOX)`, `` `…${CHECKBOX}` ``): dosazená hodnota smí stát jen uvnitř
+uvozovek atributu. Hlídá `fakturian/selector-literal`.
 
 ## Pojmenování
 
@@ -47,7 +49,8 @@ Když komponenta nabízí slot, nakresli si prvek sám a dej mu značku: `Confir
 Do markupu, který si appka nekreslí, se značka dostat nedá. Tam se hledá přes roli nebo slot:
 
 - `[role="option"]` — řádky nabídky `USelect`, `USelectMenu` a `UCommandPalette`;
-- `LISTBOX` a `CHECKBOX` z `test/setup/mount.ts` — spouštěč nabídky a zaškrtávátko;
+- `[data-testid="…"][role="checkbox"]` — zaškrtávátko `UCheckbox` se značkou;
+- `button[aria-label="Předchozí rok"]`, `button[aria-label="Další rok"]` — šipky roku v `UCalendar`;
 - `[role="group"]`, `[data-slot="label"]` — skupiny v paletě;
 - `[data-slot="links"] button` — akce `UError`;
 - `button[aria-label="Close"]` — křížek `UModal`.

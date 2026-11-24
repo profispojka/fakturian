@@ -4,7 +4,6 @@ import InvoiceDateFilterPicker from '~/components/invoice/DateFilterPicker.vue';
 import { yearOf, monthName, today } from '~/utils/date';
 import { yearFilter } from '~/utils/invoice';
 
-import { backend } from '../../setup/backend';
 import { mountUi, layer } from '../../setup/mount';
 
 import type { InvoiceDateFilter } from '~/utils/invoice';
@@ -27,7 +26,6 @@ function mount(model: InvoiceDateFilter = yearFilter(THIS_YEAR), years: number[]
 async function openPicker(c: ReturnType<typeof mount>) {
 	await c.find('[data-testid="date-period"]').trigger('click');
 	await vi.waitFor(() => expect(layer().find('[data-testid="date-picker"]').exists()).toBe(true));
-	await backend.settled();
 }
 
 describe('výběr období', () => {
@@ -69,7 +67,6 @@ describe('výběr období', () => {
 			],
 		]);
 		await vi.waitFor(() => expect(layer().find('[data-testid="date-picker"]').exists()).toBe(false));
-		await backend.settled();
 	});
 
 	it('šipky nepustí mimo roky, které výpis zná', async () => {
@@ -144,7 +141,6 @@ describe('výběr období', () => {
 		await layer().find(PREV_YEAR).trigger('click');
 		await layer().find('[data-testid="date-pick-month-2"]').trigger('keydown', { key: 'Escape' });
 		await vi.waitFor(() => expect(layer().find('[data-testid="date-picker"]').exists()).toBe(false));
-		await backend.settled();
 		expect(c.emitted('update:modelValue')).toBeUndefined();
 		await openPicker(c);
 		expect(layer().find('[data-testid="date-pick-year"]').text()).toBe(`Celý rok ${THIS_YEAR}`);

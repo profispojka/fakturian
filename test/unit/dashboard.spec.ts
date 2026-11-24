@@ -466,7 +466,7 @@ describe('vatLimit', () => {
 		expect(vatLimit(items, today).payerFrom).toBe('2026-07-15');
 	});
 
-	it.each([false, true])('doklady stejného dne vyhodnotí společně, obrácené pořadí %s', (reverse) => {
+	it.each([[[0, 1]], [[1, 0]]])('doklady stejného dne vyhodnotí společně, pořadí %j', (order) => {
 		const sameDay = [
 			sum('1', '2026-01-01', '2026-01-15', 2_600_000),
 			{
@@ -475,7 +475,7 @@ describe('vatLimit', () => {
 				originalInvoice: '1',
 			},
 		];
-		const items = reverse ? sameDay.toReversed() : sameDay;
+		const items = order.map((index) => sameDay[index]!);
 		const beforeCrossing = vatLimit(items, today);
 		expect(beforeCrossing.turnoverCents).toBe(190_000_000);
 		expect(beforeCrossing.stage).toBe('below');

@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 import { build } from 'esbuild';
+import raw from 'unplugin-raw/esbuild';
 
 // Příklad sdílí kód appky s aliasem `~/` a šablonami Typstu jako text, takže se před spuštěním zabalí
 // stejně jako v `tools/desktop/build.ts`. Validátor ISDOC a podproces s PDF leží vedle bundlu.
@@ -29,10 +30,7 @@ await build({
 	alias: {
 		'~': `${root}src`,
 	},
-	loader: {
-		'.typ': 'text',
-		'.xsd': 'text',
-	},
+	plugins: [raw()],
 	logLevel: 'warning',
 	absWorkingDir: root,
 	entryPoints: {

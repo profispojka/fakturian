@@ -7,7 +7,7 @@ import { fmtnum, type Invoice, type InvoiceParty } from './model.ts';
 import { paymentSymbol } from './payment.ts';
 
 import { ISDOC_ATTACHMENT } from '../pdf.ts';
-import TEMPLATE from '../templates/invoice.typ';
+import TEMPLATE from '../templates/invoice.typ?raw';
 
 const FAKTURIAN_SITE = 'fakturian.app';
 

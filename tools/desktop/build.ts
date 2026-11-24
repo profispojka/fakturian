@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 
 import { build, type BuildOptions } from 'esbuild';
+import raw from 'unplugin-raw/esbuild';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const pkg: { dependencies: Record<string, string> } = JSON.parse(await readFile(`${root}package.json`, 'utf8'));
@@ -17,10 +18,7 @@ const shared: BuildOptions = {
 	alias: {
 		'~': `${root}src`,
 	},
-	loader: {
-		'.typ': 'text',
-		'.xsd': 'text',
-	},
+	plugins: [raw()],
 	logLevel: 'warning',
 	absWorkingDir: root,
 };
