@@ -7,7 +7,7 @@ import { validateNumber } from '~/utils/numbering';
 import { child, fromCents, sentAt, text, toCents } from './isdoc/mod.ts';
 import { intoInvoice } from './isdoc/projection.ts';
 import { loadPdf, readIsdoc, type LoadedPdf } from './pdf.ts';
-import { readDocument } from './util.ts';
+import { diskProblem, readDocument } from './util.ts';
 
 import type { Invoice } from './invoice/model.ts';
 
@@ -54,14 +54,14 @@ export async function readSource(path: string): Promise<Source> {
 	try {
 		content = await readDocument(path);
 	} catch (error) {
-		throw new Error(`nejde přečíst: ${errorText(error)}`, { cause: error });
+		throw new Error(`nejde přečíst: ${diskProblem(error)}`, { cause: error });
 	}
 	let pdf: LoadedPdf;
 	try {
 		pdf = await loadPdf(content);
 	} catch (error) {
 		if (PDF_SIGNATURE.equals(content.subarray(0, PDF_SIGNATURE.length))) {
-			throw new Error(`PDF je poškozené: ${errorText(error)}`, { cause: error });
+			throw new Error('PDF je poškozené', { cause: error });
 		}
 		throw new Error('soubor není PDF s vloženým ISDOC', { cause: error });
 	}

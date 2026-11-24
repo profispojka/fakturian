@@ -1,6 +1,7 @@
-import { importedNameOf, isFunction } from './shared/ast.mjs';
+import { ancestorsOf, importedNameOf, isFunction, keyName, memberName } from './shared/ast.ts';
+import type { AnyFunctionNode, Rule, SourceCode } from './shared/types.ts';
 
-function isComposableRoot(node, sourceCode) {
+function isComposableRoot(node: AnyFunctionNode, sourceCode: SourceCode): boolean {
 	if (node.type === 'FunctionDeclaration' && /^use[A-Z]/.test(node.id?.name ?? '')) return true;
 	const { parent } = node;
 	if (parent.type === 'VariableDeclarator' && parent.init === node)
@@ -12,10 +13,10 @@ function isComposableRoot(node, sourceCode) {
 	}
 
 	// Objektový plugin a Options API mají svůj kořen v metodě setup, ne v celém objektu.
-	if (parent.type === 'Property' && parent.value === node && parent.key.name === 'setup') {
+	if (parent.type === 'Property' && parent.value === node && keyName(parent.key) === 'setup') {
 		const call = parent.parent.parent;
 		return (
-			call.type === 'CallExpression' &&
+			call?.type === 'CallExpression' &&
 			call.callee.type === 'Identifier' &&
 			['defineNuxtPlugin', 'defineComponent'].includes(importedNameOf(call.callee, sourceCode))
 		);
@@ -23,12 +24,12 @@ function isComposableRoot(node, sourceCode) {
 
 	// Inline route middleware je vstupní bod Nuxtu stejně jako defineNuxtRouteMiddleware.
 	const property = parent.type === 'ArrayExpression' ? parent.parent : parent;
-	if (property.type !== 'Property' || property.key.name !== 'middleware') return false;
+	if (property.type !== 'Property' || keyName(property.key) !== 'middleware') return false;
 	const call = property.parent.parent;
-	return call.type === 'CallExpression' && call.callee.type === 'Identifier' && call.callee.name === 'definePageMeta';
+	return call?.type === 'CallExpression' && call.callee.type === 'Identifier' && call.callee.name === 'definePageMeta';
 }
 
-export const noComposablesOutsideRoot = {
+export const noComposablesOutsideRoot: Rule = {
 	meta: {
 		type: 'suggestion',
 		schema: [],
@@ -45,25 +46,21 @@ export const noComposablesOutsideRoot = {
 			CallExpression(node) {
 				let callee = node.callee;
 				while (
-					['TSAsExpression', 'TSTypeAssertion', 'TSNonNullExpression', 'TSInstantiationExpression'].includes(
-						callee.type,
-					)
+					callee.type === 'TSAsExpression' ||
+					callee.type === 'TSTypeAssertion' ||
+					callee.type === 'TSNonNullExpression' ||
+					callee.type === 'TSInstantiationExpression'
 				)
 					callee = callee.expression;
 
-				let name;
+				let name: string | undefined;
 				if (callee.type === 'Identifier') name = importedNameOf(callee, sourceCode);
-				else if (callee.type === 'MemberExpression') {
-					name = callee.computed ? callee.property.value : callee.property.name;
-				}
-				if (typeof name !== 'string' || !/^use[A-Z]/.test(name) || name === 'useOverlay') return;
+				else if (callee.type === 'MemberExpression') name = memberName(callee);
+				if (name === undefined || !/^use[A-Z]/.test(name) || name === 'useOverlay') return;
 
-				const functions = sourceCode.getAncestors(node).filter(isFunction);
-				if (!functions.length) return;
-				if (functions.length === 1) {
-					const [enclosingFunction] = functions;
-					if (isComposableRoot(enclosingFunction, sourceCode)) return;
-				}
+				const [enclosingFunction, ...outerFunctions] = ancestorsOf(node).filter(isFunction);
+				if (!enclosingFunction) return;
+				if (!outerFunctions.length && isComposableRoot(enclosingFunction, sourceCode)) return;
 
 				context.report({
 					node,

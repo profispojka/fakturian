@@ -10,7 +10,7 @@ import { alreadyThere, checkSource, isCreditNote, readSource, type Source } from
 import { addCredit, batch, checkCredit, creditTargets } from './invoice/import.ts';
 import { takenNumberKeys } from './invoice/index.ts';
 import { asciiLower, compareNumbers } from './numbering.ts';
-import { compareText } from './util.ts';
+import { compareText, diskProblem } from './util.ts';
 import { overVault, requireWithin } from './vault.ts';
 
 import type { Invoice } from './invoice/model.ts';
@@ -43,7 +43,7 @@ export async function findFiles(root: string, limit: number): Promise<FoundFiles
 	try {
 		await readdir(root);
 	} catch (error) {
-		throw new Error(`Složku ${root} nejde přečíst: ${errorText(error)}`, { cause: error });
+		throw new Error(`Složku ${root} nejde přečíst: ${diskProblem(error)}`, { cause: error });
 	}
 	const found: FoundFiles = {
 		files: [],
@@ -59,7 +59,7 @@ export async function findFiles(root: string, limit: number): Promise<FoundFiles
 		} catch (error) {
 			found.skipped.push({
 				file: relative(root, dir),
-				reason: `nejde přečíst: ${errorText(error)}`,
+				reason: `nejde přečíst: ${diskProblem(error)}`,
 			});
 			return;
 		}

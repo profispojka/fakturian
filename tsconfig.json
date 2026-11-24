@@ -1,7 +1,8 @@
 {
 	// Typy generuje Nuxt do .nuxt/ (`bun run postinstall`, `bun run dev` nebo `bunx nuxt prepare`).
 	"extends": "./.nuxt/tsconfig.app.json",
-	"include": [".nuxt/nuxt.d.ts", "src/**/*", "test/**/*"],
+	// Testy Vue vrstvy pouštějí skutečný hlavní proces, takže potřebují i jeho deklarace modulů.
+	"include": [".nuxt/nuxt.d.ts", "src/**/*", "test/**/*", "desktop/assets.d.ts", "desktop/isdoc/xmllint.d.ts"],
 	// E2E má vlastní `test/e2e/tsconfig.json`.
 	"exclude": ["test/e2e/**"]
 }

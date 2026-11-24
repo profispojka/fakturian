@@ -8,7 +8,7 @@ import { invoiceTotalCents } from '~/utils/invoice';
 import { alreadyThere, checkSource, isCreditNote, readSource, type Source } from '../import.ts';
 import { fromCents } from '../isdoc/mod.ts';
 import { asciiLower } from '../numbering.ts';
-import { errorCode, type NewFile, readDocument, writeNew } from '../util.ts';
+import { diskProblem, errorCode, readDocument, type NewFile, writeNew } from '../util.ts';
 import { moveFile, overVault } from '../vault.ts';
 
 import { listInvoices, takenNumberKeys } from './index.ts';
@@ -85,7 +85,7 @@ export async function placePdf(source: string, target: string, move: boolean): P
 		try {
 			content = await readDocument(source);
 		} catch (error) {
-			throw new Error(`nejde zkopírovat: ${errorText(error)}`, { cause: error });
+			throw new Error(`nejde zkopírovat: ${diskProblem(error)}`, { cause: error });
 		}
 		return writeNew(target, content);
 	}
@@ -93,7 +93,7 @@ export async function placePdf(source: string, target: string, move: boolean): P
 		await writeFile(target, new Uint8Array(), { flag: 'wx' });
 	} catch (error) {
 		if (errorCode(error) === 'EEXIST') return 'taken';
-		throw new Error(`nejde přesunout: ${errorText(error)}`, { cause: error });
+		throw new Error(`nejde přesunout: ${diskProblem(error)}`, { cause: error });
 	}
 	try {
 		await moveFile(source, target);
@@ -160,7 +160,7 @@ export async function batch(
 	try {
 		await mkdir(dir, { recursive: true });
 	} catch (error) {
-		throw new Error(`Složku faktury/ nejde vytvořit: ${errorText(error)}`, { cause: error });
+		throw new Error(`Složku faktury/ nejde vytvořit: ${diskProblem(error)}`, { cause: error });
 	}
 	const numbers = await takenNumberKeys(dir);
 	const credits = await creditTargets(vaultPath);

@@ -1,5 +1,8 @@
+import { keyName } from './shared/ast.ts';
+import type { Node, PropertyKey, Rule } from './shared/types.ts';
+
 // Modely mají vlastní rozhraní; limit se týká jen explicitně deklarovaných událostí.
-export const maxEmits = {
+export const maxEmits: Rule = {
 	meta: {
 		type: 'suggestion',
 		schema: [
@@ -19,29 +22,40 @@ export const maxEmits = {
 		},
 	},
 	create(context) {
-		const maximum = context.options[0]?.max ?? 3;
-		const events = new Set();
-		const types = new Map();
-		const visitedTypes = new Set();
-		let declaration;
+		const option: unknown = context.options[0];
+		const maximum =
+			typeof option === 'object' && option !== null && 'max' in option && typeof option.max === 'number'
+				? option.max
+				: 3;
+		const events = new Set<string>();
+		const types = new Map<string, Node>();
+		const visitedTypes = new Set<Node>();
+		let declaration: Node | undefined;
 
-		function collectType(node) {
+		function addKey(key: PropertyKey) {
+			const name = keyName(key);
+			if (name !== undefined) events.add(name);
+		}
+
+		function collectType(node: Node | null | undefined) {
 			if (!node || visitedTypes.has(node)) return;
 			visitedTypes.add(node);
 
 			if (node.type === 'TSTypeReference') {
-				collectType(types.get(node.typeName.name));
+				if (node.typeName.type === 'Identifier') collectType(types.get(node.typeName.name));
 				return;
 			}
 
 			if (node.type === 'TSInterfaceDeclaration') {
-				for (const extension of node.extends) collectType(types.get(extension.expression.name));
+				for (const extension of node.extends)
+					if (extension.expression.type === 'Identifier') collectType(types.get(extension.expression.name));
 				collectType(node.body);
 				return;
 			}
 
 			if (node.type === 'TSFunctionType' || node.type === 'TSCallSignatureDeclaration') {
-				collectType(node.params[0]?.typeAnnotation?.typeAnnotation);
+				const [first] = node.params;
+				if (first && first.type !== 'TSParameterProperty') collectType(first.typeAnnotation?.typeAnnotation);
 				return;
 			}
 
@@ -50,27 +64,26 @@ export const maxEmits = {
 				return;
 			}
 
-			if (node.type === 'TSLiteralType' && typeof node.literal.value === 'string') {
-				events.add(node.literal.value);
+			if (node.type === 'TSLiteralType') {
+				if (node.literal.type === 'Literal' && typeof node.literal.value === 'string') events.add(node.literal.value);
 				return;
 			}
 
-			for (const member of node.members ?? node.body ?? []) {
+			if (node.type !== 'TSTypeLiteral' && node.type !== 'TSInterfaceBody') return;
+			for (const member of node.type === 'TSTypeLiteral' ? node.members : node.body) {
 				if (member.type === 'TSCallSignatureDeclaration') collectType(member);
-				else if (member.type === 'TSPropertySignature' || member.type === 'TSMethodSignature') {
-					if (!member.computed) events.add(member.key.name ?? member.key.value);
-				}
+				else if ((member.type === 'TSPropertySignature' || member.type === 'TSMethodSignature') && !member.computed)
+					addKey(member.key);
 			}
 		}
 
-		function collectRuntime(node) {
+		function collectRuntime(node: Node | null | undefined) {
 			if (node?.type === 'ArrayExpression') {
 				for (const element of node.elements)
 					if (element?.type === 'Literal' && typeof element.value === 'string') events.add(element.value);
 			} else if (node?.type === 'ObjectExpression') {
 				for (const property of node.properties)
-					if (property.type === 'Property' && !property.computed)
-						events.add(property.key.name ?? property.key.value);
+					if (property.type === 'Property' && !property.computed) addKey(property.key);
 			}
 		}
 
@@ -98,12 +111,9 @@ export const maxEmits = {
 				if (!isComponent) return;
 
 				const emits = node.properties.find(
-					(property) =>
-						property.type === 'Property' &&
-						!property.computed &&
-						(property.key.name ?? property.key.value) === 'emits',
+					(property) => property.type === 'Property' && !property.computed && keyName(property.key) === 'emits',
 				);
-				if (!emits) return;
+				if (emits?.type !== 'Property') return;
 				declaration = emits;
 				collectRuntime(emits.value);
 			},

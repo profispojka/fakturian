@@ -6,9 +6,8 @@ import pLimit from 'p-limit';
 
 import { SNAPSHOT_WEEKS } from '~/bindings';
 import { type DateString, dateIn, daysBetween, parseDate, today } from '~/utils/date';
-import { errorText } from '~/utils/errors';
 
-import { compareText, conflictOriginalName, errorCode, icloudOriginalName, writeAtomic } from './util.ts';
+import { compareText, conflictOriginalName, diskProblem, errorCode, icloudOriginalName, writeAtomic } from './util.ts';
 import { canonical, junk, overVault } from './vault.ts';
 
 export type DataFileWrite = 'written' | 'conflict';
@@ -54,7 +53,7 @@ async function checkSyncVariants(dir: string, name: string): Promise<void> {
 	} catch (error) {
 		// Chybějící `.fakturian/` je nový vault, ne chyba.
 		if (errorCode(error) === 'ENOENT') return;
-		throw new Error(`Datovou složku ${dir} nejde přečíst: ${errorText(error)}`, { cause: error });
+		throw new Error(`Datovou složku ${dir} nejde přečíst: ${diskProblem(error)}`, { cause: error });
 	}
 	const variants = entries
 		.filter((file) => icloudOriginalName(file) === name || conflictOriginalName(file) === name)
@@ -112,7 +111,7 @@ export function readDataFile({ vaultPath, name }: { vaultPath: string; name: str
 			text = UTF8.decode(raw);
 		} catch (error) {
 			if (errorCode(error) !== 'ENOENT') {
-				throw new Error(`Soubor ${name} nejde přečíst: ${errorText(error)}`, { cause: error });
+				throw new Error(`Soubor ${name} nejde přečíst: ${diskProblem(error)}`, { cause: error });
 			}
 			KNOWN.set(key, null);
 			return null;
@@ -139,7 +138,7 @@ export function writeDataFile({
 		try {
 			await mkdir(dir, { recursive: true });
 		} catch (error) {
-			throw new Error(`Složku ${dir} nejde založit: ${errorText(error)}`, { cause: error });
+			throw new Error(`Složku ${dir} nejde založit: ${diskProblem(error)}`, { cause: error });
 		}
 		await checkSyncVariants(dir, name);
 
@@ -153,7 +152,7 @@ export function writeDataFile({
 			existing = await readFile(target);
 		} catch (error) {
 			if (errorCode(error) !== 'ENOENT') {
-				throw new Error(`Soubor ${name} nejde přečíst: ${errorText(error)}`, { cause: error });
+				throw new Error(`Soubor ${name} nejde přečíst: ${diskProblem(error)}`, { cause: error });
 			}
 		}
 

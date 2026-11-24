@@ -3,8 +3,8 @@ import { describe, it } from 'vitest';
 
 import { blankLineAroundMultilineStatements } from '../../tools/lint/rules/blank-line-around-multiline-statements.ts';
 import { complexity } from '../../tools/lint/rules/complexity.ts';
-import { maxEmits } from '../../tools/lint/rules/max-emits.mjs';
-import { noComposablesOutsideRoot } from '../../tools/lint/rules/no-composables-outside-root.mjs';
+import { maxEmits } from '../../tools/lint/rules/max-emits.ts';
+import { noComposablesOutsideRoot } from '../../tools/lint/rules/no-composables-outside-root.ts';
 import { noDelete } from '../../tools/lint/rules/no-delete.ts';
 import { noIife } from '../../tools/lint/rules/no-iife.ts';
 import { noProvideInject } from '../../tools/lint/rules/no-provide-inject.ts';

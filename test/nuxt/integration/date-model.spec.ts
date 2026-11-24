@@ -1,11 +1,11 @@
 import UInputDate from '@nuxt/ui/components/InputDate.vue';
+import { flushPromises } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import { defineComponent, ref } from 'vue';
 
 import { useDateModel } from '~/composables/useDateModel';
 import { MIN_DATE, MAX_DATE } from '~/utils/date';
 
-import { backend } from '../../setup/backend';
 import { date } from '../../setup/dates';
 import { enterDate, mountUi } from '../../setup/mount';
 
@@ -32,7 +32,7 @@ describe('useDateModel', () => {
 		await enterDate(c.find('[data-testid="date-input"]'), date('2028-02-29'));
 		expect(value.value.date).toBe('2028-02-29');
 		value.value = { date: date('2026-12-31') };
-		await backend.settled();
+		await flushPromises();
 		expect(c.find('[data-testid="date-input"] [data-segment="year"]').text()).toBe('2026');
 		await enterDate(c.find('[data-testid="date-input"]'), undefined);
 		expect(value.value).toStrictEqual({ date: undefined });

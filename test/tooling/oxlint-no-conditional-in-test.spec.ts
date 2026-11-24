@@ -1,7 +1,7 @@
 import { RuleTester } from 'oxlint/plugins-dev';
 import { describe, it } from 'vitest';
 
-import { noConditionalInTest } from '../../tools/lint/rules/no-conditional-in-test.mjs';
+import { noConditionalInTest } from '../../tools/lint/rules/no-conditional-in-test.ts';
 
 RuleTester.describe = describe;
 RuleTester.it = it;

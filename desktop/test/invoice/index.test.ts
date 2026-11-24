@@ -215,8 +215,10 @@ describe('výpis faktur', () => {
 		await saveNew(numbered('20260007', 'Alfa', 10_000));
 		await chmod(invoices(), 0o000);
 		const expected = new Error(
-			`Složku ${invoices()} nejde přečíst: EACCES: permission denied, scandir '${invoices()}'`,
-			{ cause: expect.objectContaining({ code: 'EACCES' }) },
+			`Složku ${invoices()} nejde přečíst: Fakturian k tomu nemá oprávnění (zkontroluj ve Finderu Informace › Sdílení a oprávnění)`,
+			{
+				cause: expect.objectContaining({ code: 'EACCES' }),
+			},
 		);
 
 		try {
@@ -240,7 +242,7 @@ describe('vadné doklady ve výpisu', () => {
 			{
 				fileName: '20260002.pdf',
 				path: invoices('20260002.pdf'),
-				reason: 'PDF nejde přečíst: Failed to parse PDF document (line:0 col:18 offset=9): No PDF header found',
+				reason: 'PDF nejde přečíst: soubor je poškozený nebo to není PDF',
 			},
 		]);
 	});

@@ -1,18 +1,38 @@
-import { isFunction, importedNameOf } from './shared/ast.mjs';
+import { ancestorsOf, importedNameOf, isFunction, memberName } from './shared/ast.ts';
+import type { Node, Rule, Scope } from './shared/types.ts';
 
-function containsTestNode(node, predicate) {
+type Wrapper = Extract<
+	Node,
+	{ type: 'TSAsExpression' | 'TSTypeAssertion' | 'TSNonNullExpression' | 'TSInstantiationExpression' | 'ChainExpression' }
+>;
+
+type Conditional = Extract<
+	Node,
+	{ type: 'IfStatement' | 'SwitchStatement' | 'ConditionalExpression' | 'LogicalExpression' }
+>;
+
+const isWrapper = (node: Node): node is Wrapper =>
+	node.type === 'TSAsExpression' ||
+	node.type === 'TSTypeAssertion' ||
+	node.type === 'TSNonNullExpression' ||
+	node.type === 'TSInstantiationExpression' ||
+	node.type === 'ChainExpression';
+
+const isNode = (value: unknown): value is Node => typeof value === 'object' && value !== null && 'type' in value;
+
+function containsTestNode(node: Node | null | undefined, predicate: (node: Node) => boolean): boolean {
 	if (!node) return false;
 	if (predicate(node)) return true;
 	if (isFunction(node)) return false;
-	return Object.entries(node).some(([key, value]) => {
+	return Object.entries(node).some(([key, value]: [string, unknown]) => {
 		if (key === 'parent') return false;
-		const children = Array.isArray(value) ? value : [value];
-		return children.some((child) => child?.type && containsTestNode(child, predicate));
+		const children: unknown[] = Array.isArray(value) ? value : [value];
+		return children.some((child) => isNode(child) && containsTestNode(child, predicate));
 	});
 }
 
 // Hlídá větvení kroků a asercí; výpočty dat a implementace mocků nejsou testový scénář.
-export const noConditionalInTest = {
+export const noConditionalInTest: Rule = {
 	meta: {
 		type: 'suggestion',
 		schema: [],
@@ -23,35 +43,28 @@ export const noConditionalInTest = {
 	},
 	create(context) {
 		const { sourceCode } = context;
-		const testCallbacks = new Set();
-		const mockArguments = new Set();
-		const callbackArguments = new Set();
-		const browserArguments = new Set();
-		const reported = new Set();
-		const wrappers = new Set([
-			'TSAsExpression',
-			'TSTypeAssertion',
-			'TSNonNullExpression',
-			'TSInstantiationExpression',
-			'ChainExpression',
-		]);
+		const testCallbacks = new Set<Node>();
+		const mockArguments = new Set<Node>();
+		const callbackArguments = new Set<Node>();
+		const browserArguments = new Set<Node>();
+		const reported = new Set<Node>();
 
-		function callNameOf(node) {
-			if (wrappers.has(node.type)) return callNameOf(node.expression);
+		function callNameOf(node: Node): string {
+			if (isWrapper(node)) return callNameOf(node.expression);
 			if (node.type === 'CallExpression') return callNameOf(node.callee);
 			if (node.type === 'TaggedTemplateExpression') return callNameOf(node.tag);
 			if (node.type === 'MemberExpression') {
-				const property = node.computed ? node.property.value : node.property.name;
-				if (typeof property !== 'string') return '';
+				const property = memberName(node);
+				if (property === undefined) return '';
 				return `${callNameOf(node.object)}.${property}`;
 			}
 			if (node.type !== 'Identifier') return '';
-			for (let scope = sourceCode.getScope(node); scope; scope = scope.upper) {
+			for (let scope: Scope | null = sourceCode.getScope(node); scope; scope = scope.upper) {
 				const variable = scope.set.get(node.name);
 				if (!variable) continue;
 				const definition = variable.defs[0];
 				if (definition?.type === 'Parameter' || definition?.type === 'FunctionName') return '';
-				if (definition?.node.type === 'ImportNamespaceSpecifier') {
+				if (definition?.node.type === 'ImportNamespaceSpecifier' && definition.parent?.type === 'ImportDeclaration') {
 					const source = definition.parent.source.value;
 					if (source === 'vitest') return 'vitest';
 					if (source === '@playwright/test') return 'playwright';
@@ -62,7 +75,7 @@ export const noConditionalInTest = {
 			return importedNameOf(node, sourceCode);
 		}
 
-		function containsTestStep(node, includeAwait = true) {
+		function containsTestStep(node: Node | null | undefined, includeAwait = true): boolean {
 			return containsTestNode(node, (child) => {
 				if (child.type === 'AwaitExpression' && includeAwait) return true;
 				if (child.type !== 'CallExpression') return false;
@@ -76,16 +89,16 @@ export const noConditionalInTest = {
 			});
 		}
 
-		function isDataStatement(node) {
+		function isDataStatement(node: Node | null | undefined): boolean {
 			if (!node) return true;
 			if (containsTestStep(node)) return false;
 			switch (node.type) {
 				case 'BlockStatement':
-					return node.body.every(isDataStatement);
+					return node.body.every((statement) => isDataStatement(statement));
 				case 'IfStatement':
 					return isDataStatement(node.consequent) && isDataStatement(node.alternate);
 				case 'SwitchStatement':
-					return node.cases.every((branch) => branch.consequent.every(isDataStatement));
+					return node.cases.every((branch) => branch.consequent.every((statement) => isDataStatement(statement)));
 				case 'ForOfStatement':
 				case 'ForInStatement':
 				case 'ForStatement':
@@ -102,8 +115,7 @@ export const noConditionalInTest = {
 					return (
 						expression.type === 'AssignmentExpression' ||
 						expression.type === 'UpdateExpression' ||
-						(expression.type === 'CallExpression' &&
-							/\.(?:push|add|set)$/.test(callNameOf(expression.callee)))
+						(expression.type === 'CallExpression' && /\.(?:push|add|set)$/.test(callNameOf(expression.callee)))
 					);
 				}
 				default:
@@ -111,11 +123,9 @@ export const noConditionalInTest = {
 			}
 		}
 
-		function isActionChoice(node) {
+		function isActionChoice(node: Extract<Conditional, { type: 'ConditionalExpression' | 'LogicalExpression' }>) {
 			if (
-				sourceCode
-					.getAncestors(node)
-					.some(
+				ancestorsOf(node).some(
 						(ancestor) =>
 							ancestor.type === 'ForStatement' &&
 							ancestor.test &&
@@ -129,32 +139,36 @@ export const noConditionalInTest = {
 			if (branches.some((branch) => containsTestStep(branch))) return true;
 			if (
 				branches.some((branch) =>
-					containsTestNode(branch, (child) =>
-						['AssignmentExpression', 'UpdateExpression'].includes(child.type),
+					containsTestNode(
+						branch,
+						(child) => child.type === 'AssignmentExpression' || child.type === 'UpdateExpression',
 					),
 				)
 			)
 				return true;
-			let value = node;
+			let value: Node = node;
 			while (
-				wrappers.has(value.parent.type) ||
-				['LogicalExpression', 'ConditionalExpression'].includes(value.parent.type)
+				isWrapper(value.parent) ||
+				value.parent.type === 'LogicalExpression' ||
+				value.parent.type === 'ConditionalExpression'
 			)
 				value = value.parent;
 			const parent = value.parent;
 			const invokesBranch = containsTestNode(node, (child) => child.type === 'CallExpression');
+			const enclosingFunction = ancestorsOf(parent).findLast(isFunction);
 			return (
-				(invokesBranch && ['ExpressionStatement', 'AwaitExpression'].includes(parent.type)) ||
+				(invokesBranch && (parent.type === 'ExpressionStatement' || parent.type === 'AwaitExpression')) ||
 				(parent.type === 'CallExpression' && parent.callee === value) ||
 				(invokesBranch &&
 					parent.type === 'ReturnStatement' &&
-					testCallbacks.has(sourceCode.getAncestors(parent).findLast(isFunction)))
+					enclosingFunction !== undefined &&
+					testCallbacks.has(enclosingFunction))
 			);
 		}
 
-		function checkConditional(node) {
+		function checkConditional(node: Conditional) {
 			if (node.type === 'LogicalExpression' && node.operator === '??') return;
-			const ancestors = sourceCode.getAncestors(node);
+			const ancestors = ancestorsOf(node);
 			if (!ancestors.some((ancestor) => testCallbacks.has(ancestor))) return;
 			let insideFunction = false;
 			for (const ancestor of ancestors.toReversed()) {
@@ -162,8 +176,8 @@ export const noConditionalInTest = {
 				if (mockArguments.has(ancestor) && insideFunction) return;
 				if (testCallbacks.has(ancestor)) break;
 			}
-			const functions = ancestors.filter(isFunction);
-			const functionNode = functions.at(-1);
+			const functionNode = ancestors.findLast(isFunction);
+			if (!functionNode) return;
 			if (
 				ancestors.some((ancestor) => browserArguments.has(ancestor)) &&
 				!containsTestNode(
@@ -185,22 +199,27 @@ export const noConditionalInTest = {
 					if (
 						expression.type === 'AssignmentExpression' &&
 						expression.left.type === 'Identifier' &&
-						!containsTestNode(expression.right, (child) =>
-							['CallExpression', 'AwaitExpression', 'AssignmentExpression', 'UpdateExpression'].includes(
-								child.type,
-							),
+						!containsTestNode(
+							expression.right,
+							(child) =>
+								child.type === 'CallExpression' ||
+								child.type === 'AwaitExpression' ||
+								child.type === 'AssignmentExpression' ||
+								child.type === 'UpdateExpression',
 						)
 					)
 						return;
 				}
-				const inDataLoop = ancestors.some((ancestor) =>
-					['ForOfStatement', 'ForInStatement', 'ForStatement'].includes(ancestor.type),
+				const inDataLoop = ancestors.some(
+					(ancestor) =>
+						ancestor.type === 'ForOfStatement' ||
+						ancestor.type === 'ForInStatement' ||
+						ancestor.type === 'ForStatement',
 				);
 				const exitsBeforeSteps =
 					containsTestNode(node, (child) => child.type === 'ReturnStatement') &&
 					containsTestStep(functionNode.body);
-				if (!exitsBeforeSteps && (inDataLoop || !testCallbacks.has(functionNode)) && isDataStatement(node))
-					return;
+				if (!exitsBeforeSteps && (inDataLoop || !testCallbacks.has(functionNode)) && isDataStatement(node)) return;
 			}
 			reported.add(node);
 			context.report({
@@ -220,8 +239,9 @@ export const noConditionalInTest = {
 						name,
 					)
 				) {
-					for (let argument of node.arguments) {
-						while (wrappers.has(argument.type)) argument = argument.expression;
+					for (const original of node.arguments) {
+						let argument: Node = original;
+						while (isWrapper(argument)) argument = argument.expression;
 						if (isFunction(argument)) testCallbacks.add(argument);
 					}
 				}

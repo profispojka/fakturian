@@ -336,8 +336,7 @@ describe('konfigurace vaultu (nastaveni.json)', () => {
 		await v.load();
 		await v.save();
 
-		const saved: unknown = JSON.parse(backend.folder('/vault').files.get('nastaveni.json')!);
-		expect(saved).toMatchObject({
+		expect(backend.readFile('/vault', 'nastaveni.json')).toMatchObject({
 			myNote: 'nesmazat',
 			supplier: {
 				address: {

@@ -67,7 +67,7 @@ describe('useAres', () => {
 	});
 
 	it('chybu rejstříku předá beze změny', async () => {
-		backend.fails('ares_subject', 'ARES vrátil chybu 503.');
+		backend.ares.overloaded = true;
 		const { lookup, error } = useAres();
 
 		expect(await lookup('25596641')).toBeNull();

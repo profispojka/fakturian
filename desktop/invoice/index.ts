@@ -16,6 +16,7 @@ import { cacheDir } from '../store.ts';
 import {
 	compareText,
 	conflictOriginalName,
+	diskProblem,
 	errorCode,
 	icloudOriginalName,
 	MAX_DOCUMENT_BYTES,
@@ -107,7 +108,7 @@ async function documentCandidates(dir: string): Promise<Candidate[]> {
 	} catch (error) {
 		// Chybějící `faktury/` je prázdný vault, nečitelná ne: řada by se jinak začala číslovat znovu.
 		if (errorCode(error) === 'ENOENT') return [];
-		throw new Error(`Složku ${dir} nejde přečíst: ${errorText(error)}`, { cause: error });
+		throw new Error(`Složku ${dir} nejde přečíst: ${diskProblem(error)}`, { cause: error });
 	}
 	const candidates = await Promise.all(
 		names.map(async (name): Promise<Candidate[]> => {
@@ -171,7 +172,7 @@ async function summarizePdf(path: string): Promise<InvoiceSummary> {
 		pdf = await loadPdf(bytes);
 	} catch (error) {
 		// Stryker disable next-line ObjectLiteral: ekvivalentní mutant, chyba skončí jen jako text důvodu vadného dokladu.
-		throw new Error(`PDF nejde přečíst: ${errorText(error)}`, { cause: error });
+		throw new Error(`PDF nejde přečíst: ${diskProblem(error)}`, { cause: error });
 	}
 	const source = await sourceFromPdf(pdf);
 	checkSource(source, null);

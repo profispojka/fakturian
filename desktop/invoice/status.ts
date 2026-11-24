@@ -8,7 +8,7 @@ import { writePdf } from './mod.ts';
 import { clearSent, sentAt, setSent, toXml } from '../isdoc/mod.ts';
 import { intoInvoice } from '../isdoc/projection.ts';
 import { loadPdf, readIsdoc, replaceIsdoc, type LoadedPdf } from '../pdf.ts';
-import { readDocument } from '../util.ts';
+import { diskProblem, readDocument } from '../util.ts';
 import { overVault } from '../vault.ts';
 
 import { documentNumberCount, findDocument } from './index.ts';
@@ -38,7 +38,7 @@ async function loadForStatus(
 		const bytes = await readDocument(path);
 		pdf = await loadPdf(bytes);
 	} catch (error) {
-		throw new Error(`Doklad ${number} nejde přečíst, proto ${blocked}: ${errorText(error)}`, {
+		throw new Error(`Doklad ${number} nejde přečíst, proto ${blocked}: ${diskProblem(error)}`, {
 			cause: error,
 		});
 	}

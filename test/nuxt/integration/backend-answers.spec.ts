@@ -422,14 +422,15 @@ describe('souhrn dokladu v seznamu', () => {
 
 describe('příchozí platba z Fio', () => {
 	// Bez tokenu se appka banky vůbec nezeptá — tvar odpovědi by tak neměl kdo zkontrolovat.
-	beforeEach(() => {
-		backend.fio.token = 'a'.repeat(64);
+	beforeEach(async () => {
+		await backend.fio.store('a'.repeat(64));
 	});
 
 	it('projde celá, jak ji backend posílá', async () => {
-		backend.returns('fio_fetch', [PAYMENT]);
+		backend.fio.movements = [PAYMENT];
 
-		expect(onWire(await useFio().fetchPayments(date('2026-03-01'), date('2026-03-31')))).toEqual([PAYMENT]);
+		const payments = await useFio().fetchPayments(date('2026-03-01'), date('2026-03-31'));
+		expect(onWire(payments)).toEqual([PAYMENT]);
 	});
 
 	it('pole navíc se ohlásí', async () => {
